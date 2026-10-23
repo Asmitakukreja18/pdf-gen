@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let's Explore DMC — AI Travel Quotation Generator</title>
+  <meta name="description" content="AI-Powered Travel Quotation Generator for Let's Explore DMC. Generates professional, print-ready PDF and editable DOCX holiday quotations matching DMC corporate design standards." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========== APP WRAPPER ========== -->
+  <div class="app-wrapper" id="appWrapper">
+
+    <!-- ========== HEADER ========== -->
+    <header class="app-header" id="appHeader">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-logo-card">
+            <img src="images/logo.png" alt="Let's Explore DMC" class="brand-logo" />
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">Let's Explore DMC</span>
+            <span class="brand-tagline">AI Travel Quotation Engine</span>
+          </div>
+        </div>
+
+        <nav class="header-nav" id="headerNav">
+          <a href="#" class="nav-link active" data-section="generator" id="navGenerator">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            AI Input & Editor
+          </a>
+          <a href="#" class="nav-link" data-section="preview" id="navPreview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Quotation Preview
+          </a>
+          <a href="#" class="nav-link" data-section="chat" id="navChat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            AI Assistant
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <div class="sample-picker-wrap" id="samplePickerWrap">
+            <button class="btn btn-sm btn-subtle" id="btnHeaderSampleToggle" title="Load sample destination quotation">
+              <span>✨</span> Sample Trips ▾
+            </button>
+            <div class="sample-dropdown" id="sampleDropdown" style="display:none">
+              <button class="sample-opt" data-sample="dubai">🌟 Dubai Luxury (5D/4N)</button>
+              <button class="sample-opt" data-sample="thailand">🌴 Thailand Escape (6D/5N)</button>
+              <button class="sample-opt" data-sample="kashmir">🏔️ Kashmir Valley (6D/5N)</button>
+              <button class="sample-opt" data-sample="bali">🌺 Bali Holiday (5D/4N)</button>
+            </div>
+          </div>
+          <div class="status-pill" id="aiStatusPill">
+            <span class="status-dot"></span>
+            <span class="status-text">AI Engine Ready</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========== MAIN CONTENT AREA ========== -->
+    <main class="app-main" id="appMain">
+
+      <!-- ==========================================
+           SECTION 1: AI NATURAL INPUT & STRUCTURED FORM
+           ========================================== -->
+      <section class="section-generator" id="sectionGenerator">
+        <div class="gen-container">
+
+          <!-- Left Column: AI Natural Language Box -->
+          <div class="gen-ai-panel">
+            <div class="panel-card ai-input-card">
+              <div class="card-header-row">
+                <div class="card-title-group">
+                  <h3 class="card-title">
+                    <span class="sparkle-icon">⚡</span> AI Quotation Input
+                  </h3>
+                  <p class="card-subtitle">Paste any package enquiry, WhatsApp message, or raw notes in English, Hindi, or Hinglish.</p>
+                </div>
+              </div>
+
+              <!-- Quick Sample Prompt Chips -->
+              <div class="quick-sample-chips">
+                <span class="chips-label">Quick Examples:</span>
+                <button class="btn-chip" data-prompt="dubai" title="Load Dubai 5D package enquiry">🌟 Dubai 5D</button>
+                <button class="btn-chip" data-prompt="thailand" title="Load Thailand 6D package enquiry">🌴 Thailand 6D</button>
+                <button class="btn-chip" data-prompt="kashmir" title="Load Kashmir 6D package enquiry">🏔️ Kashmir 6D</button>
+                <button class="btn-chip" data-prompt="bali" title="Load Bali 5D reference">🌺 Bali 5D</button>
+                <button class="btn-chip btn-chip-highlight" data-prompt="messy" title="Load informal / WhatsApp style rough notes">✍️ "Ulta Seedha" Notes</button>
+              </div>
+
+              <div class="input-box-wrapper">
+                <textarea
+                  id="aiRawInput"
+                  class="ai-textarea"
+                  rows="12"
+                  placeholder="Paste travel enquiry details here...&#10;&#10;Works with ANY destination, client, or format:&#10;• Dubai, Thailand, Kashmir, Bali, Singapore, Maldives, Europe, etc.&#10;• Even unstructured notes: 'Rohit Sharma, 2 adults, Dubai 5 nights in March, Emirates flight from Delhi, 4 star hotel, desert safari, burj khalifa, marina cruise, flights approx 55k, land 48k'&#10;• Click any Quick Example button above to test instantly!"
+                ></textarea>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="ai-actions-bar">
+                <button class="btn btn-primary btn-lg" id="btnExtractAI">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                  <span>Extract & Populate Quotation</span>
+                </button>
+                <button class="btn btn-outline" id="btnClearInput">Clear</button>
+              </div>
+
+              <!-- Parsing Animation Indicator -->
+              <div class="extraction-steps" id="extractionSteps" style="display:none">
+                <div class="step-item" id="parseStep1">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Extracting Client & Trip Demographics</span>
+                </div>
+                <div class="step-item" id="parseStep2">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Parsing Onward & Return Flight Schedules</span>
+                </div>
+                <div class="step-item" id="parseStep3">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Arranging Day-wise Itinerary & Inclusions</span>
+                </div>
+                <div class="step-item" id="parseStep4">
+                  <span class="step-icon">○</span>
+                  <span class="step-text">Mathematically Verifying Pricing Totals</span>
+                </div>
+              </div>
+
+              <!-- Validation Alert Box -->
+              <div class="validation-alert-box" id="validationAlertBox" style="display:none">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                  <div class="alert-title" id="alertTitle">Incomplete Details Detected</div>
+                  <div class="alert-desc" id="alertDesc">Please check missing fields below before exporting.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Quick Template Rules Card -->
+            <div class="panel-card rule-notes-card">
+              <h4 class="rule-title">🔒 Let's Explore DMC Quotation Standard:</h4>
+              <ul class="rule-list">
+                <li><strong>Universal Destination Support:</strong> Generates quotation for ANY country or city in the master 12-section standard.</li>
+                <li><strong>Messy Input AI Parsing:</strong> Cleans up rough notes, WhatsApp messages & Hinglish requests.</li>
+                <li><strong>Auto-Verified Pricing:</strong> Real-time formula: Flight Cost + Land Package = <strong>Total Price</strong>.</li>
+                <li><strong>Locked Branding:</strong> Global Desks (Bali HQ, Thailand, India) & 14 Branch Offices remain fixed.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive Structured Editor -->
+          <div class="gen-form-panel">
+            <div class="panel-card form-editor-card">
+              <div class="card-header-row">
+                <div>
+                  <h3 class="card-title">
+                    <span class="edit-icon">✏️</span> Structured Quotation Editor
+                  </h3>
+                  <p class="card-subtitle">Review, edit, or customize any field before generating the document.</p>
+                </div>
+                <div class="form-header-actions">
+                  <button class="btn btn-outline btn-sm" id="btnDirectPreview">
+                    👁️ View Live Preview
+                  </button>
+                </div>
+              </div>
+
+              <!-- Accordion / Field Groups -->
+              <div class="editor-accordion">
+
+                <!-- 1. Client & Trip Details -->
+                <div class="accordion-item active">
+                  <div class="accordion-header">
+                    <span>1. Client & Travel Information</span>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="form-grid-2">
+                      <div class="form-group">
+                        <label>Client / Agency Name</label>
+                        <input type="text" id="fClientName" class="form-input" placeholder="e.g. Sharma Travels / Rajesh Gupta" />
+                      </div>
+                      <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="text" id="fClientContact" class="form-input" placeholder="e.g. +91 98112 34567" />
+                      </div>
+                      <div class="form-group">
+                        <label>Destination</label>
+                        <input type="text" id="fDestination" class="form-input" placeholder="e.g. Dubai, UAE / Thailand / Kashmir" />
+                      </div>
+                      <div class="form-group">
+                        <label>Country / Region</label>
+                        <input type="text" id="fCountry" class="form-input" placeholder="e.g. UAE" />
+                      </div>
+                      <div class="form-group">
+                        <label>Travel Date / Month</label>
+                        <input type="text" id="fTravelDate" class="form-input" placeholder="e.g. March 2027" />
+                      </div>
+                      <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" id="fDuration" class="form-input" placeholder="e.g. 5 Days / 4 Nights" />
+                      </div>
+                      <div class="form-group">
+                        <label>Travellers</label>
+                        <input type="text" id="fTravellers" class="form-input" placeholder="e.g. 2 Adults" />
+                      </div>
+                      <div class="form-group">
+                        <label>Pickup From</label>
+                        <input type="text" id="fPickupFrom" class="form-input" placeholder="e.g. Delhi / Mumbai" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Flight Details -->
+                <div class="accordion-item active">
+                  <div class="accordion-header">
+                    <span>2. Flight Schedules & Route</span>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="flight-subbox">
+                      <div class="flight-subbox-title">✈️ Onward Flight</div>
+                      <div class="form-grid-2">
+                        <div class="form-group">
+                          <label>Airline & Flight No.</label>
+                          <input type="text" id="fOnwardFlight" class="form-input" placeholder="e.g. Emirates EK 511 / IndiGo" />
+                        </div>
+                        <div class="form-group">
+                          <label>Route</label>
+                          <input type="text" id="fOnwardRoute" class="form-input" placeholder="DEL (Delhi) → DXB (Dubai)" />
+                        </div>
+                        <div class="form-group">
+                          <label>Departure Timing</label>
+                          <input type="text" id="fOnwardDep" class="form-input" placeholder="Thu, 11 Mar 2027, 10:45" />
+                        </div>
+                        <div class="form-group">
+                          <label>Arrival Timing</label>
+                          <input type="text" id="fOnwardArr" class="form-input" placeholder="Thu, 11 Mar 2027, 13:20" />
+                        </div>
+                        <div class="form-group">
+                          <label>Duration & Stops</label>
+                          <input type="text" id="fOnwardDur" class="form-input" placeholder="4h 05m · Non-stop" />
+                        </div>
+                        <div class="form-group">
+                          <label>Baggage Allowance</label>
+                          <input type="text" id="fOnwardBaggage" class="form-input" placeholder="7 kg cabin + 25 kg check-in" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flight-subbox" style="margin-top:10px;">
+                      <div class="flight-subbox-title">✈️ Return Flight</div>
+                      <div class="form-grid-2">
+                        <div class="form-group">
+                          <label>Airline & Flight No.</label>
+                          <input type="text" id="fReturnFlight" class="form-input" placeholder="e.g. Emirates EK 512" />
+                        </div>
+                        <div class="form-group">
+                          <label>Route</label>
+                          <input type="text" id="fReturnRoute" class="form-input" placeholder="DXB (Dubai) → DEL (Delhi)" />
+                        </div>
+                        <div class="form-group">
+                          <label>Departure Timing</label>
+                          <input type="text" id="fReturnDep" class="form-input" placeholder="Mon, 15 Mar 2027, 21:50" />
+                        </div>
+                        <div class="form-group">
+                          <label>Arrival Timing</label>
+                          <input type="text" id="fReturnArr" class="form-input" placeholder="Tue, 16 Mar 2027, 02:45" />
+                        </div>
+                        <div class="form-group">
+                          <label>Duration & Stops</label>
+                          <input type="text" id="fReturnDur" class="form-input" placeholder="3h 25m · Non-stop" />
+                        </div>
+                        <div class="form-group">
+                          <label>Baggage Allowance</label>
+                          <input type="text" id="fReturnBaggage" class="form-input" placeholder="7 kg cabin + 25 kg check-in" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Land Arrangement & Itinerary -->
+                <div class="accordion-item active">
+                  <div class="accordion-header">
+                    <span>3. Land Arrangement & Day-wise Itinerary</span>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="form-grid-3">
+                      <div class="form-group">
+                        <label>Hotel Name</label>
+                        <input type="text" id="fHotelName" class="form-input" placeholder="e.g. Millennium Place Marina / 4-Star Resort" />
+                      </div>
+                      <div class="form-group">
+                        <label>Nights</label>
+                        <input type="text" id="fHotelNights" class="form-input" placeholder="4" />
+                      </div>
+                      <div class="form-group">
+                        <label>Sharing Type</label>
+                        <input type="text" id="fHotelSharing" class="form-input" placeholder="Twin Share / Double" />
+                      </div>
+                    </div>
+
+                    <!-- Dynamic Day-wise Itinerary List -->
+                    <div class="itinerary-editor-wrap">
+                      <div class="itinerary-header-row">
+                        <label class="section-label">Day-wise Itinerary</label>
+                        <button class="btn btn-xs btn-outline" id="btnAddItineraryDay">+ Add Day</button>
+                      </div>
+                      <div class="itinerary-items-container" id="itineraryInputsList">
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+
+                    <!-- Inclusions -->
+                    <div class="form-group" style="margin-top:10px;">
+                      <label>Inclusions (Separate with bullet or comma)</label>
+                      <textarea id="fInclusions" class="form-input" rows="3" placeholder="Hotel accommodation with daily breakfast • Private airport transfers • Sightseeing tours as per itinerary..."></textarea>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="form-group">
+                      <label>Quotation Note</label>
+                      <input type="text" id="fNote" class="form-input" placeholder="Accommodation based on leading category / lowest category." />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Pricing Summary -->
+                <div class="accordion-item active">
+                  <div class="accordion-header">
+                    <span>4. Price Summary (Mathematically Verified)</span>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="pricing-calculator-card">
+                      <div class="form-grid-2">
+                        <div class="form-group">
+                          <label>Flights Cost (₹)</label>
+                          <input type="number" id="fPriceFlights" class="form-input" placeholder="58400" />
+                        </div>
+                        <div class="form-group">
+                          <label>Land Package + Accommodation (₹)</label>
+                          <input type="number" id="fPriceLand" class="form-input" placeholder="46200" />
+                        </div>
+                      </div>
+
+                      <div class="total-display-card">
+                        <div class="total-calc-formula">
+                          <span>Flights: <strong id="dispFlightCost">₹ 58,400</strong></span>
+                          <span>+</span>
+                          <span>Land Package: <strong id="dispLandCost">₹ 46,200</strong></span>
+                        </div>
+                        <div class="total-grand-banner">
+                          <span class="total-label">TOTAL PACKAGE COST:</span>
+                          <span class="total-amount" id="dispTotalCost">₹ 1,04,600</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Footer Buttons -->
+              <div class="form-export-bar">
+                <button class="btn btn-outline" id="btnResetToBaliDemo">
+                  🔄 Reset Quotation Form
+                </button>
+                <div class="export-btn-group">
+                  <button class="btn btn-primary" id="btnGoToPreviewMain">
+                    👁️ Preview Quotation
+                  </button>
+                  <button class="btn btn-accent" id="btnDirectPDF">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download PDF
+                  </button>
+                  <button class="btn btn-success" id="btnDirectDOCX">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Download DOCX
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SECTION 2: MASTER QUOTATION PREVIEW
+           ========================================== -->
+      <section class="section-preview" id="sectionPreview" style="display:none">
+        <div class="preview-container">
+          <div class="preview-top-bar">
+            <div class="preview-title-wrap">
+              <h2 class="section-title">Official Quotation Preview</h2>
+              <p class="section-subtitle">A4 Document Master Template · Let's Explore DMC Standard</p>
+            </div>
+            <div class="preview-actions">
+              <button class="btn btn-outline" id="btnBackToEditor">
+                ✏️ Edit Details
+              </button>
+              <button class="btn btn-primary" id="btnGeneratePDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Generate & Save PDF
+              </button>
+              <button class="btn btn-success" id="btnGenerateDOCX">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Generate Editable DOCX
+              </button>
+            </div>
+          </div>
+
+          <!-- Document Sheet (A4 Proportion) -->
+          <div class="preview-sheet-wrapper">
+            <div class="preview-document" id="previewDocument">
+              <!-- Rendered by Preview.render() -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SECTION 3: CONVERSATIONAL ASSISTANT
+           ========================================== -->
+      <section class="section-chat" id="sectionChat" style="display:none">
+        <div class="chat-layout">
+          <div class="chat-panel" id="chatPanel">
+            <div class="chat-panel-header">
+              <div class="ai-avatar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" fill="#EFF6FF" stroke="#0F2C59" stroke-width="1.5"/>
+                  <path d="M8 12C8 9.8 9.8 8 12 8C14.2 8 16 9.8 16 12" stroke="#0F2C59" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="9" cy="13" r="1" fill="#0F2C59"/>
+                  <circle cx="15" cy="13" r="1" fill="#0F2C59"/>
+                  <path d="M9 16C9.5 17 10.7 17.5 12 17.5C13.3 17.5 14.5 17 15 16" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ai-info">
+                <span class="ai-name">Let's Explore DMC Assistant</span>
+                <span class="ai-status">Ready to extract quotation info</span>
+              </div>
+              <button class="btn-icon" id="btnResetChat" title="Reset Chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="typing-indicator" id="typingIndicator" style="display:none">
+              <div class="typing-bubble">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="typing-text">AI is thinking...</span>
+            </div>
+
+            <div class="quick-replies" id="quickReplies"></div>
+
+            <div class="chat-input-area">
+              <div class="input-wrapper">
+                <textarea
+                  id="chatInput"
+                  class="chat-textarea"
+                  placeholder="Type or paste trip details here..."
+                  rows="1"
+                ></textarea>
+                <button class="btn-send" id="btnSend">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="app-footer">
+      <span>Let's Explore DMC — Master Quotation Generator System</span>
+      <span class="footer-sep">·</span>
+      <span>Official Reference Format Locked</span>
+      <span class="footer-sep">·</span>
+      <span>Bali · Thailand · India · Global Operations</span>
+    </footer>
+
+  </div>
+
+  <!-- ========== TOAST NOTIFICATION ========== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ai-parser.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/docx-generator.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
