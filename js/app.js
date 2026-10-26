@@ -280,6 +280,35 @@ const App = (() => {
     safe('btnAddSummaryItem', addNewSummaryItem);
     safe('btnAddOfficeBtn', addNewOffice);
     safe('btnAddCustomFieldBtn', addNewCustomField);
+
+    // Quick Markup & Surcharges
+    safe('btnApplyHotelMarkup', () => {
+      const pct = parseFloat(get('quickMarkupHotelPct')) || 10;
+      applyMarkupAdjustments({ hotelPercent: pct });
+      renderSummaryEditor();
+      renderDaysEditor();
+      updateLiveTotalsDisplay();
+      updateLivePreviews();
+    });
+
+    safe('btnApplyActivityUSD', () => {
+      const usd = parseFloat(get('quickMarkupActivityUSD')) || 20;
+      applyMarkupAdjustments({ activityUSD: usd });
+      renderSummaryEditor();
+      renderDaysEditor();
+      updateLiveTotalsDisplay();
+      updateLivePreviews();
+    });
+
+    safe('btnApplyCombinedMarkup', () => {
+      const pct = parseFloat(get('quickMarkupHotelPct')) || 10;
+      const usd = parseFloat(get('quickMarkupActivityUSD')) || 20;
+      applyMarkupAdjustments({ hotelPercent: pct, activityUSD: usd });
+      renderSummaryEditor();
+      renderDaysEditor();
+      updateLiveTotalsDisplay();
+      updateLivePreviews();
+    });
   }
 
   function syncPackageData() {

@@ -111,11 +111,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         },
         {
           title: 'Transfer Phuket to Krabi',
-          subtitle: 'Transfer Phuket to Krabi · Adult · 81.00 × 2',
+          subtitle: 'Transfer Phuket to Krabi · Adult · 101.00 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 81.00,
-          amountUSD: 162.00,
+          unitPrice: 101.00,
+          amountUSD: 202.00,
           amountINR: 0,
           tag: ''
         }
@@ -124,7 +124,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Krabi Resort',
         dates: '2 Jan to 6 Jan',
         pax: 2,
-        amountINR: 129452,
+        amountINR: 142397,
         amountUSD: 0,
         notes: ''
       },
@@ -137,11 +137,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       items: [
         {
           title: '4 Island Tour by Long Boat',
-          subtitle: '4 Island Tour · Adult · 44.40 × 2',
+          subtitle: '4 Island Tour · Adult · 64.40 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 44.40,
-          amountUSD: 88.80,
+          unitPrice: 64.40,
+          amountUSD: 128.80,
           amountINR: 0,
           tag: ''
         }
@@ -168,11 +168,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Private Transfer', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'City Tour Krabi',
-          subtitle: 'City Tour Krabi · 6 hrs · Adult · 60.50 × 2',
+          subtitle: 'City Tour Krabi · 6 hrs · Adult · 80.50 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 60.50,
-          amountUSD: 121.00,
+          unitPrice: 80.50,
+          amountUSD: 161.00,
           amountINR: 0,
           tag: ''
         }
@@ -196,11 +196,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Driver + Pillion Driver', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'ATV Ride',
-          subtitle: 'ATV Ride · Adult · 60.50 × 2',
+          subtitle: 'ATV Ride · Adult · 80.50 × 2',
           category: 'Activity',
           pax: 2,
-          unitPrice: 60.50,
-          amountUSD: 121.00,
+          unitPrice: 80.50,
+          amountUSD: 161.00,
           amountINR: 0,
           tag: ''
         }
@@ -232,11 +232,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         },
         {
           title: 'Phi-Phi Island + NPF',
-          subtitle: 'Phi-Phi Island + NPF · Adult · 104.53 × 2',
+          subtitle: 'Phi-Phi Island + NPF · Adult · 124.53 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 104.53,
-          amountUSD: 209.06,
+          unitPrice: 124.53,
+          amountUSD: 249.06,
           amountINR: 0,
           tag: ''
         }
@@ -245,7 +245,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Phi Phi Island',
         dates: '6 Jan to 7 Jan',
         pax: 2,
-        amountINR: 18477,
+        amountINR: 20325,
         amountUSD: 0,
         notes: ''
       },
@@ -260,11 +260,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Day @ Leisure', subtitle: '', category: 'Leisure', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'Day @ Leisure' },
         {
           title: 'Transfer to Phuket',
-          subtitle: 'Transfer to Phuket · Adult · 80.75 × 2',
+          subtitle: 'Transfer to Phuket · Adult · 100.75 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 80.75,
-          amountUSD: 161.50,
+          unitPrice: 100.75,
+          amountUSD: 201.50,
           amountINR: 0,
           tag: ''
         }
@@ -273,7 +273,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Panwaburi Queen',
         dates: '7 Jan to 8 Jan',
         pax: 2,
-        amountINR: 41826,
+        amountINR: 46009,
         amountUSD: 0,
         notes: ''
       },
@@ -291,11 +291,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Private Transfer by Car', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'City Tour',
-          subtitle: 'City Tour · Adult · 60.50 × 2',
+          subtitle: 'City Tour · Adult · 80.50 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 60.50,
-          amountUSD: 121.00,
+          unitPrice: 80.50,
+          amountUSD: 161.00,
           amountINR: 0,
           tag: ''
         }
@@ -304,7 +304,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Sunset Beach Resort',
         dates: '8 Jan to 10 Jan',
         pax: 2,
-        amountINR: 22132,
+        amountINR: 24345,
         amountUSD: 0,
         notes: ''
       },
@@ -320,21 +320,21 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Candle Light Dinner at Beach @ Thauren Resort', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
         {
           title: 'Oasis Spa & Massage',
-          subtitle: 'Oasis Spa & Massage · Adult · 95.12 × 2',
+          subtitle: 'Oasis Spa & Massage · Adult · 115.12 × 2',
           category: 'Activity',
           pax: 2,
-          unitPrice: 95.12,
-          amountUSD: 190.24,
+          unitPrice: 115.12,
+          amountUSD: 230.24,
           amountINR: 0,
           tag: ''
         },
         {
           title: 'Candle Light Dinner',
-          subtitle: 'Candle Light Dinner · Adult · 147.00 × 2',
+          subtitle: 'Candle Light Dinner · Adult · 167.00 × 2',
           category: 'Meals',
           pax: 2,
-          unitPrice: 147.00,
-          amountUSD: 294.00,
+          unitPrice: 167.00,
+          amountUSD: 334.00,
           amountINR: 0,
           tag: ''
         }
@@ -358,11 +358,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'National Park Fee Included', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'National Park Fee Included' },
         {
           title: 'James Bond Island',
-          subtitle: 'James Bond Island · Adult · 82.35 × 2',
+          subtitle: 'James Bond Island · Adult · 102.35 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 82.35,
-          amountUSD: 164.70,
+          unitPrice: 102.35,
+          amountUSD: 204.70,
           amountINR: 0,
           tag: ''
         }
@@ -371,7 +371,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Esmeralda View',
         dates: '10 Jan to 12 Jan',
         pax: 2,
-        amountINR: 48095,
+        amountINR: 52905,
         amountUSD: 0,
         notes: ''
       },
@@ -385,11 +385,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Phuket to Koh Yao Yai by Big Boat', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'Phuket to Koh Yao Yai',
-          subtitle: 'Phuket to Koh Yao Yai · Adult · 25.34 × 2',
+          subtitle: 'Phuket to Koh Yao Yai · Adult · 45.34 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 25.34,
-          amountUSD: 50.68,
+          unitPrice: 45.34,
+          amountUSD: 90.68,
           amountINR: 0,
           tag: ''
         }
@@ -429,11 +429,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Koh Yao Yai to Phuket by Big Boat to Phuket Airport', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'Airport Transfer',
-          subtitle: 'Airport Transfer · Adult · 49.13 × 2',
+          subtitle: 'Airport Transfer · Adult · 69.13 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 49.13,
-          amountUSD: 98.26,
+          unitPrice: 69.13,
+          amountUSD: 138.26,
           amountINR: 0,
           tag: ''
         }
@@ -444,12 +444,12 @@ const DEMO_REFERENCE_THAILAND_12D = {
   ],
   summary: {
     items: [
-      { name: 'Hotel Costing\nfor 2 adults', amountINR: 259982, amountUSD: 0 },
-      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1488.00 }
+      { name: 'Hotel Costing\nfor 2 adults', amountINR: 285980, amountUSD: 0 },
+      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 2262.24 }
     ],
     autoCalculate: false,
-    totalINR: 259982,
-    totalUSD: 1488.00
+    totalINR: 285980,
+    totalUSD: 2262.24
   },
   offices: [
     {
@@ -1217,6 +1217,90 @@ function recalculateQuotationPricing() {
   }
 
   syncLegacyCompatibilityFields();
+}
+
+// ─── MARKUP & PRICING ADJUSTMENTS ENGINE ──────────────────────────────────────
+/**
+ * Apply markup or adjustments to the quotation
+ * @param {Object} options
+ * @param {number} [options.hotelPercent] e.g. 10 for +10%
+ * @param {number} [options.activityUSD] e.g. 20 for +$20 on each activity
+ * @param {boolean} [options.activityPerPax] true if +$20 on unit price (default true)
+ * @returns {Object} result summary with before & after
+ */
+function applyMarkupAdjustments(options = {}) {
+  const hotelPercent = Number(options.hotelPercent) || 0;
+  const activityUSD = Number(options.activityUSD) || 0;
+  const activityPerPax = options.activityPerPax !== false;
+
+  const result = {
+    hotelBeforeINR: 0,
+    hotelAfterINR: 0,
+    activitiesModified: 0,
+    landBeforeUSD: 0,
+    landAfterUSD: 0
+  };
+
+  // 1. Hotel Markup
+  if (hotelPercent !== 0) {
+    QuotationData.days.forEach(day => {
+      if (day.hotel && day.hotel.amountINR > 0) {
+        result.hotelBeforeINR += day.hotel.amountINR;
+        day.hotel.amountINR = Math.round(day.hotel.amountINR * (1 + hotelPercent / 100));
+        result.hotelAfterINR += day.hotel.amountINR;
+      }
+    });
+
+    if (QuotationData.summary && QuotationData.summary.items) {
+      const hItem = QuotationData.summary.items.find(i => /hotel/i.test(i.name));
+      if (hItem && hItem.amountINR > 0) {
+        hItem.amountINR = Math.round(hItem.amountINR * (1 + hotelPercent / 100));
+      }
+    }
+  }
+
+  // 2. Activities USD increase
+  if (activityUSD !== 0) {
+    QuotationData.days.forEach(day => {
+      if (day.items && Array.isArray(day.items)) {
+        day.items.forEach(item => {
+          if (item.unitPrice > 0 || item.amountUSD > 0) {
+            result.landBeforeUSD += Number(item.amountUSD) || 0;
+            result.activitiesModified++;
+
+            const pax = Number(item.pax) || Number(QuotationData.package.paxCount) || 2;
+            if (item.unitPrice > 0) {
+              item.unitPrice = Math.round((item.unitPrice + activityUSD) * 100) / 100;
+              item.amountUSD = Math.round(item.unitPrice * pax * 100) / 100;
+              if (item.subtitle) {
+                item.subtitle = item.subtitle.replace(/(\d+(?:\.\d+)?)\s*([×x*])\s*(\d+)/, (m, oldP, op, pCount) => {
+                  return `${item.unitPrice.toFixed(2)} ${op} ${pCount}`;
+                });
+              }
+            } else if (item.amountUSD > 0) {
+              item.amountUSD = Math.round((item.amountUSD + (activityPerPax ? activityUSD * pax : activityUSD)) * 100) / 100;
+            }
+            result.landAfterUSD += Number(item.amountUSD) || 0;
+          }
+        });
+      }
+    });
+
+    // Update Land Part in summary
+    if (QuotationData.summary && QuotationData.summary.items) {
+      const landItem = QuotationData.summary.items.find(i => /land/i.test(i.name));
+      if (landItem) {
+        let sumUSD = 0;
+        QuotationData.days.forEach(d => {
+          (d.items || []).forEach(it => { sumUSD += Number(it.amountUSD) || 0; });
+        });
+        landItem.amountUSD = Math.round(sumUSD * 100) / 100;
+      }
+    }
+  }
+
+  recalculateQuotationPricing();
+  return result;
 }
 
 // ─── FORMATTERS ───────────────────────────────────────────────────────────────

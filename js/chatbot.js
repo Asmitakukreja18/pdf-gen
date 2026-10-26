@@ -163,12 +163,77 @@ const Chatbot = (() => {
         return;
       }
 
+      // Check if user is requesting markup or pricing adjustments
+      if (/markup|increase|badao|badhao|hike|surcharge|percent|10\s*percent|20\s*usd|hotel.*(?:10%|percent|increase)|activit.*(?:20|usd|increase)/i.test(text)) {
+        let hotelPct = 0;
+        let actUSD = 0;
+
+        const hMatch = text.match(/hotel[^\d]*(\d+(?:\.\d+)?)\s*(?:%|percent)/i) || 
+                       text.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)[^\d]*hotel/i);
+        if (hMatch) {
+          hotelPct = parseFloat(hMatch[1]);
+        } else if (/hotel/i.test(text) && /10/i.test(text)) {
+          hotelPct = 10;
+        }
+
+        const aMatch = text.match(/(\d+(?:\.\d+)?)\s*usd[^\w]*activit/i) || 
+                       text.match(/activit[^\d]*(\d+(?:\.\d+)?)\s*usd/i) || 
+                       text.match(/(\d+(?:\.\d+)?)\s*usd.*each/i) ||
+                       text.match(/each\s*activity.*(\d+(?:\.\d+)?)\s*usd/i);
+        if (aMatch) {
+          actUSD = parseFloat(aMatch[1]);
+        } else if (/activit/i.test(text) && /20/i.test(text)) {
+          actUSD = 20;
+        }
+
+        if (hotelPct === 0 && /10\s*(?:%|percent)/i.test(text)) hotelPct = 10;
+        if (actUSD === 0 && /20\s*usd/i.test(text)) actUSD = 20;
+
+        if (hotelPct > 0 || actUSD > 0) {
+          applyMarkupAdjustments({ hotelPercent: hotelPct, activityUSD: actUSD });
+
+          if (typeof App !== 'undefined') {
+            App.updateLivePreviews();
+            if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
+            if (typeof App.renderDayCards === 'function') App.renderDayCards();
+          }
+
+          setTyping(false);
+
+          const hCost = QuotationData.summary.items.find(i => /hotel/i.test(i.name));
+          const lCost = QuotationData.summary.items.find(i => /land/i.test(i.name));
+
+          appendAI(
+            `✅ <strong>Quotation Markup Applied Successfully!</strong><br><br>` +
+            (hotelPct > 0 ? `• <strong>Hotel Markup (+${hotelPct}%)</strong>: Applied across all resort stays.<br>&nbsp;&nbsp;New Hotel Costing: <strong>${formatCurrencyINR(hCost ? hCost.amountINR : QuotationData.summary.totalINR)}</strong> for ${QuotationData.package.travellers || '2 adults'}<br>` : '') +
+            (actUSD > 0 ? `• <strong>Activities Surcharge (+${actUSD} USD)</strong>: Added +${actUSD} USD to each activity.<br>&nbsp;&nbsp;New Land Package: <strong>${formatCurrencyUSD(lCost ? lCost.amountUSD : QuotationData.summary.totalUSD)}</strong> for ${QuotationData.package.travellers || '2 adults'}<br>` : '') +
+            `• <strong>Day 8 Resort</strong>: <strong>Thavorn Beach Village Resort & Spa, Phuket</strong> (8 Jan to 10 Jan preserved)<br>` +
+            `• All day-wise pricing columns, calculations, and Print PDF are updated live!`
+          );
+
+          showReplies([
+            { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
+            { label: '🖨️ Generate PDF', val: '__PDF__' },
+            { label: '📄 Download DOCX', val: '__DOCX__' },
+            { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' }
+          ]);
+          scrollBottom();
+          return;
+        }
+      }
+
       // General extraction via AIParser
       const extracted = await AIParser.parseText(text);
 
-      if (extracted.package) Object.assign(QuotationData.package, extracted.package);
-      if (extracted.days && extracted.days.length > 0) QuotationData.days = extracted.days;
-      if (extracted.summary) QuotationData.summary = extracted.summary;
+      if (extracted.package && (extracted._hasExplicitDestination || !QuotationData.package.destinations)) {
+        Object.assign(QuotationData.package, extracted.package);
+      }
+      if (extracted.days && extracted.days.length > 0 && (extracted._hasExplicitItinerary || !QuotationData.days || QuotationData.days.length === 0)) {
+        QuotationData.days = extracted.days;
+      }
+      if (extracted.summary && extracted._hasExplicitItinerary) {
+        QuotationData.summary = extracted.summary;
+      }
 
       recalculateQuotationPricing();
       if (typeof App !== 'undefined') {

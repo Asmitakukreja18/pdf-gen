@@ -200,6 +200,33 @@
                   <button class="btn btn-sm btn-subtle" id="btnAddSummaryItem">+ Add Row</button>
                 </div>
 
+                <!-- Quick Markup & Surcharges Engine -->
+                <div class="markup-panel-card" style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                    <span style="font-size:12px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.5px;">⚡ Quick Markup & Surcharge Engine</span>
+                    <span style="font-size:11px; color:#64748B;">Auto-calculates across all days & preview</span>
+                  </div>
+                  <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items:flex-end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                      <label style="font-size:11px; margin-bottom:4px;">Hotel Markup (%)</label>
+                      <div style="display:flex; gap:6px;">
+                        <input type="number" id="quickMarkupHotelPct" class="form-input form-input-sm" value="10" placeholder="10" style="width:70px;" />
+                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyHotelMarkup">+10% Hotels</button>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                      <label style="font-size:11px; margin-bottom:4px;">Activity Surcharge (+USD)</label>
+                      <div style="display:flex; gap:6px;">
+                        <input type="number" id="quickMarkupActivityUSD" class="form-input form-input-sm" value="20" placeholder="20" style="width:70px;" />
+                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyActivityUSD">+$20 Activities</button>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary" id="btnApplyCombinedMarkup" style="white-space:nowrap; height:34px;">
+                      Apply Both
+                    </button>
+                  </div>
+                </div>
+
                 <!-- Dynamic Summary Rows -->
                 <div id="summaryRowsContainer">
                   <!-- Populated by App.renderSummaryEditor() -->

@@ -183,11 +183,15 @@ JSON SCHEMA:
     const destMatch = fullText.match(/(?:Destination|Place|Country|Trip|Tour)\s*[:=-]\s*([^\n\r,]+)/i) ||
                       fullText.match(/\b(Dubai|Thailand|Phuket|Bangkok|Kashmir|Srinagar|Bali|Singapore|Maldives|Vietnam|Goa|Kerala|Himachal|Europe|Switzerland|Turkey|Mauritius|Malaysia)\b/i);
 
-    let detectedDest = 'Dubai';
-    let detectedCountry = 'UAE';
-    let destAirportCode = 'DXB';
-    let defaultHotel = 'Millennium Place Dubai Marina';
-    let defaultAirline = 'Emirates';
+    data._hasExplicitDestination = !!destMatch;
+    let currentDest = (typeof QuotationData !== 'undefined' && QuotationData.package && QuotationData.package.destinations) 
+      ? QuotationData.package.destinations 
+      : 'Krabi + Phuket + Koh Yao Yai, Thailand';
+    let detectedDest = currentDest;
+    let detectedCountry = 'Thailand';
+    let destAirportCode = 'HKT';
+    let defaultHotel = 'Thavorn Beach Village Resort & Spa, Phuket';
+    let defaultAirline = 'IndiGo';
 
     if (destMatch) {
       const rawDest = destMatch[1].trim();
@@ -374,6 +378,7 @@ JSON SCHEMA:
       });
     }
 
+    data._hasExplicitItinerary = explicitItinerary.length > 0;
     if (explicitItinerary.length > 0) {
       data.landArrangement.itinerary = explicitItinerary;
     } else {
