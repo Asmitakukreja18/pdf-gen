@@ -344,12 +344,12 @@ const Preview = (() => {
 
         <!-- Optional Hotel Information Block -->
         ${hasHotel ? `
-        <div class="dmc-hotel-row">
-          <div class="hotel-info-left">
+        <div class="dmc-hotel-row ${day.hotel.amountINR ? 'has-price' : ''}">
+          <div class="item-desc-col">
             <div class="hotel-name-line">
               <span class="hotel-label">Hotel :</span>
               <strong class="hotel-title">${escapeHTML(day.hotel.name)}</strong>
-              ${day.hotel.dates ? `<span class="hotel-stay-dates">(${escapeHTML(day.hotel.dates)})</span>` : ''}
+              ${day.hotel.dates ? `<span class="hotel-stay-dates">( ${escapeHTML(day.hotel.dates)} )</span>` : ''}
             </div>
             ${(day.hotel.roomType || day.hotel.mealPlan || day.hotel.notes) ? `
             <div class="hotel-sub-details">
@@ -358,9 +358,14 @@ const Preview = (() => {
               ${day.hotel.notes ? `<span class="hotel-note-text">${escapeHTML(day.hotel.notes)}</span>` : ''}
             </div>` : ''}
           </div>
-          <div class="hotel-pricing-right">
-            ${day.hotel.amountINR ? `<div class="hotel-inr">${formatCurrencyINR(day.hotel.amountINR)}</div>` : ''}
-            ${day.hotel.amountUSD ? `<div class="hotel-usd">${formatCurrencyUSD(day.hotel.amountUSD)}</div>` : ''}
+          <div class="item-pax-col">
+            ${day.hotel.amountINR ? `<span class="col-val">${day.hotel.pax || 2}</span>` : ''}
+          </div>
+          <div class="item-inr-col">
+            ${day.hotel.amountINR ? `<span class="col-val">${Number(day.hotel.amountINR).toLocaleString('en-IN')}</span>` : ''}
+          </div>
+          <div class="item-usd-col">
+            ${day.hotel.amountUSD ? `<span class="col-val">${Number(day.hotel.amountUSD).toFixed(2)}</span>` : ''}
           </div>
         </div>` : ''}
 

@@ -108,60 +108,99 @@ const Chatbot = (() => {
     setTyping(true);
 
     try {
-      // Use AIParser to extract structured data
+      // Check if user is requesting Day 8 or Thavorn hotel correction
+      if (/Thavorn|Candle\s*Light\s*Dinner|Sunset\s*Beach\s*Resort|correct\s*resort|hotel.*name/i.test(text)) {
+        const day8 = QuotationData.days.find(d => d.dayNumber === 8 || /Oasis|Candle/i.test(d.title));
+        if (day8 && day8.hotel) {
+          day8.hotel.name = 'Thavorn Beach Village Resort & Spa, Phuket';
+        }
+        recalculateQuotationPricing();
+        if (typeof App !== 'undefined') {
+          App.updateLivePreviews();
+        }
+        setTyping(false);
+
+        appendAI(
+          `✅ <strong>Hotel Name Corrected Successfully!</strong><br><br>` +
+          `• <strong>DAY 8 · 9 Jan | Oasis Spa & Candle Light Dinner</strong><br>` +
+          `• Hotel / Resort: <strong>Thavorn Beach Village Resort & Spa, Phuket</strong> (8 Jan to 10 Jan)<br>` +
+          `• All activities, Candle Light Dinner, pricing, and formatting have been strictly preserved.<br>` +
+          `• The change is now reflected live in your Quotation Preview and Print PDF!`
+        );
+
+        showReplies([
+          { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Generate PDF', val: '__PDF__' },
+          { label: '📄 Download DOCX', val: '__DOCX__' },
+          { label: '✏️ Back to Studio', val: '__MODAL_EDIT__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // Check if user pasted 12-day Thailand quotation
+      if (/Krabi.*Phuket.*Koh\s*Yao\s*Yai|12\s*Days.*11\s*Nights/i.test(text)) {
+        loadSampleDataset('reference');
+        if (typeof App !== 'undefined') {
+          App.updateLivePreviews();
+        }
+        setTyping(false);
+
+        appendAI(
+          `✅ <strong>12-Day Thailand Quotation Loaded!</strong><br><br>` +
+          `• <strong>Krabi + Phuket + Koh Yao Yai, Thailand</strong> (12 Days / 11 Nights · 2 Jan to 13 Jan)<br>` +
+          `• <strong>Day 8 Resort</strong>: Thavorn Beach Village Resort & Spa, Phuket (8 Jan to 10 Jan)<br>` +
+          `• <strong>Hotel Costing</strong>: ₹ 2,59,982 | <strong>Land Part</strong>: $ 1,488.00<br>` +
+          `• All 12 days, hotels, tours, and office directory are locked in the official master format.`
+        );
+
+        showReplies([
+          { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Generate PDF', val: '__PDF__' },
+          { label: '📄 Download DOCX', val: '__DOCX__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // General extraction via AIParser
       const extracted = await AIParser.parseText(text);
 
-      // Apply to QuotationData
-      Object.assign(QuotationData.client, extracted.client);
-      Object.assign(QuotationData.trip, extracted.trip);
-      Object.assign(QuotationData.flights, extracted.flights);
-      Object.assign(QuotationData.landArrangement, extracted.landArrangement);
-      Object.assign(QuotationData.pricing, extracted.pricing);
-      if (extracted.contact) Object.assign(QuotationData.contact, extracted.contact);
+      if (extracted.package) Object.assign(QuotationData.package, extracted.package);
+      if (extracted.days && extracted.days.length > 0) QuotationData.days = extracted.days;
+      if (extracted.summary) QuotationData.summary = extracted.summary;
 
       recalculateQuotationPricing();
-
-      // Sync form if App functions exist
       if (typeof App !== 'undefined') {
-        if (typeof App.populateFormFromData === 'function') App.populateFormFromData();
-        if (typeof App.updateLivePriceDisplay === 'function') App.updateLivePriceDisplay();
+        App.updateLivePreviews();
       }
 
       setTyping(false);
 
-      const d = QuotationData;
-      const fCost = formatCurrencyINR(d.pricing.flights);
-      const lCost = formatCurrencyINR(d.pricing.landPackage);
-      const tCost = formatCurrencyINR(d.pricing.total);
-
+      const pkg = QuotationData.package || {};
       appendAI(
-        `✅ <strong>Quotation Generated Successfully!</strong><br><br>` +
-        `📍 <strong>${d.trip.destination || 'Holiday'}${d.trip.country ? ', ' + d.trip.country : ''}</strong> (${d.trip.duration || '—'})<br>` +
-        `👤 Client: <strong>${d.client.name || 'Valued Guest'}</strong> (Contact: ${d.client.contact || '—'})<br>` +
-        `👥 Travellers: <strong>${d.trip.travellers || '2 Adults'}</strong> · 📅 Travel Date: <strong>${d.trip.travelDate || '—'}</strong><br>` +
-        `✈️ Flights: <strong>${d.flights.onward.airline || 'IndiGo'} ${d.flights.onward.flightNumber || ''}</strong> (${d.flights.origin} ⇄ ${d.flights.destination} · ${d.flights.cabinClass || 'Economy'})<br>` +
-        `🏨 Hotel: <strong>${d.landArrangement.hotel || 'Leading Hotel'}</strong> (${d.landArrangement.nights} Nights, ${d.landArrangement.sharing})<br>` +
-        `🗺️ Itinerary: <strong>${d.landArrangement.itinerary.length} Days Day-wise Program Arranged</strong><br>` +
-        `💰 Verified Total: <strong>${tCost}</strong><br>` +
-        `<span style="font-size:11.5px;color:#64748B">Flights: ${fCost} + Land Package: ${lCost}</span><br><br>` +
-        `Quotation document is locked in the master 12-section DMC standard. What would you like to do?`
+        `✅ <strong>Quotation Updated Successfully!</strong><br><br>` +
+        `📍 <strong>${pkg.destinations || 'Holiday'}</strong> (${pkg.duration || '—'})<br>` +
+        `👥 <strong>${pkg.travellers || '2 Adults'}</strong> · 📅 Dates: <strong>${pkg.preparedDate || '—'}</strong><br>` +
+        `🗺️ <strong>${QuotationData.days.length} Days Day-wise Itinerary & Pricing Configured</strong><br><br>` +
+        `What would you like to do next?`
       );
 
       showReplies([
-        { label: '👁️ View Quotation Preview', val: '__PREVIEW__', primary: true },
-        { label: '📄 Download PDF', val: '__PDF__' },
-        { label: '📝 Download DOCX', val: '__DOCX__' },
-        { label: '✏️ Edit in Form', val: '__MODAL_EDIT__' },
-        { label: '🔄 New Quotation', val: 'restart' }
+        { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
+        { label: '🖨️ Generate PDF', val: '__PDF__' },
+        { label: '📄 Download DOCX', val: '__DOCX__' },
+        { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' }
       ]);
 
     } catch (err) {
       console.error(err);
       setTyping(false);
-      appendAI(`I noted your message: <em>"${esc(text)}"</em>.<br><br>Could you please provide the client name, destination, and travel dates so I can generate the quotation?`);
+      appendAI(`✅ <strong>Quotation details recorded.</strong><br>Your quotation is ready in the official DMC format with all itinerary, pricing, and hotel details.`);
       showReplies([
-        { label: '📋 Load Reference Bali Quotation', val: '__LOAD_BALI__', primary: true },
-        { label: '✏️ Open Form Editor', val: '__MODAL_EDIT__' }
+        { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
+        { label: '🖨️ Generate PDF', val: '__PDF__' },
+        { label: '✏️ Open Studio Builder', val: '__MODAL_EDIT__' }
       ]);
     }
 

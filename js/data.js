@@ -84,13 +84,13 @@ const DEMO_REFERENCE_THAILAND_12D = {
     destinations: 'Krabi + Phuket + Koh Yao Yai, Thailand',
     travellers: '2 Adults',
     paxCount: 2,
-    clientName: 'Mr. Rajesh Sharma & Family',
-    clientContact: '+91 98200 12345',
-    clientEmail: 'rajesh.sharma@example.com',
-    pickupFrom: 'Bangkok / Phuket Airport',
+    clientName: 'Package for 2 pax',
+    clientContact: '+91 80075 86881',
+    clientEmail: 'info@letsexploredmc.com',
+    pickupFrom: 'Phuket / Krabi Airport',
     quoteRef: 'LE-DMC-THAI-2027-112',
-    preparedDate: '02 Jan 2027',
-    usdToInrRate: 87.5,
+    preparedDate: '2 Jan to 13 Jan',
+    usdToInrRate: 87.0,
     currency: 'BOTH'
   },
   days: [
@@ -101,9 +101,9 @@ const DEMO_REFERENCE_THAILAND_12D = {
       items: [
         {
           title: 'Arrival to Krabi',
-          subtitle: 'Welcome assistance upon arrival at Krabi Airport',
+          subtitle: '',
           category: 'Transfer',
-          pax: 2,
+          pax: '',
           unitPrice: 0,
           amountUSD: 0,
           amountINR: 0,
@@ -116,71 +116,73 @@ const DEMO_REFERENCE_THAILAND_12D = {
           pax: 2,
           unitPrice: 81.00,
           amountUSD: 162.00,
-          amountINR: 14175,
+          amountINR: 0,
           tag: ''
         }
       ],
       hotel: {
         name: 'Krabi Resort',
         dates: '2 Jan to 6 Jan',
-        nights: 4,
-        roomType: 'Deluxe Pool View Room',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
-        notes: 'Complimentary Wi-Fi & welcome drink'
+        pax: 2,
+        amountINR: 129452,
+        amountUSD: 0,
+        notes: ''
       },
       dayNotes: ''
     },
     {
       dayNumber: 2,
       date: '3 Jan',
-      title: 'Krabi 4 Islands Tour by Speedboat',
+      title: '4 Islands Tour by Long Boat',
       items: [
         {
-          title: 'Krabi 4 Island Tour by Speedboat',
-          subtitle: 'Phra Nang Cave, Tup Island, Chicken Island & Poda Island · Adult · 35.00 × 2',
+          title: '4 Island Tour by Long Boat',
+          subtitle: '4 Island Tour · Adult · 44.40 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 35.00,
-          amountUSD: 70.00,
-          amountINR: 6125,
-          tag: 'National Park Fee Included'
+          unitPrice: 44.40,
+          amountUSD: 88.80,
+          amountINR: 0,
+          tag: ''
         }
       ],
       hotel: {
         name: 'Krabi Resort',
         dates: '2 Jan to 6 Jan',
-        nights: 4,
-        roomType: 'Deluxe Pool View Room',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
-      dayNotes: 'Includes snorkeling gear, life jacket and English-speaking guide.'
+      dayNotes: ''
     },
     {
       dayNumber: 3,
       date: '4 Jan',
-      title: 'Hong Island Tour with Lunch',
+      title: 'Krabi City Tour (6 hours)',
       items: [
+        { title: 'Phra Nang Beach', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Limestone Cliffs', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Cafe - Lunch (Personal Expense)', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'Personal Expense' },
+        { title: 'Sunset Time on Beach', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Private Transfer', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
-          title: 'Hong Island Tour by Speedboat with Lunch',
-          subtitle: 'Hong Lagoon, Koh Lao Lading & Koh Pakbia · Adult · 48.00 × 2',
+          title: 'City Tour Krabi',
+          subtitle: 'City Tour Krabi · 6 hrs · Adult · 60.50 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 48.00,
-          amountUSD: 96.00,
-          amountINR: 8400,
-          tag: 'National Park Fee Included'
+          unitPrice: 60.50,
+          amountUSD: 121.00,
+          amountINR: 0,
+          tag: ''
         }
       ],
       hotel: {
         name: 'Krabi Resort',
         dates: '2 Jan to 6 Jan',
-        nights: 4,
-        roomType: 'Deluxe Pool View Room',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -188,36 +190,27 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 4,
       date: '5 Jan',
-      title: 'Krabi Leisure & Sunset',
+      title: 'ATV Ride',
       items: [
+        { title: 'ATV Ride 30 mins', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Driver + Pillion Driver', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
-          title: 'Day @ Leisure · Explore Ao Nang Beach',
-          subtitle: 'Free day for shopping, local cafe hopping, Thai massage and Ao Nang sunset walk',
-          category: 'Leisure',
+          title: 'ATV Ride',
+          subtitle: 'ATV Ride · Adult · 60.50 × 2',
+          category: 'Activity',
           pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
+          unitPrice: 60.50,
+          amountUSD: 121.00,
           amountINR: 0,
-          tag: 'Day @ Leisure'
-        },
-        {
-          title: 'Local Lunch & Dinner',
-          subtitle: 'Explore authentic Thai cuisine at local restaurants',
-          category: 'Meals',
-          pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
-          amountINR: 0,
-          tag: 'meals not included'
+          tag: ''
         }
       ],
       hotel: {
         name: 'Krabi Resort',
         dates: '2 Jan to 6 Jan',
-        nights: 4,
-        roomType: 'Deluxe Pool View Room',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -225,73 +218,63 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 5,
       date: '6 Jan',
-      title: 'Transfer Krabi to Koh Yao Yai',
+      title: 'Phi-Phi Island',
       items: [
         {
-          title: 'Private Transfer from Krabi Resort to Pier',
-          subtitle: 'Private AC minivan transfer · Adult · 25.00 × 2',
+          title: 'Transfer to Phi-Phi Island + Maya Bay + Pileh Lagoon ( NPF included )',
+          subtitle: '',
           category: 'Transfer',
-          pax: 2,
-          unitPrice: 25.00,
-          amountUSD: 50.00,
-          amountINR: 4375,
-          tag: ''
+          pax: '',
+          unitPrice: 0,
+          amountUSD: 0,
+          amountINR: 0,
+          tag: 'National Park Fee Included'
         },
         {
-          title: 'Speedboat Transfer to Koh Yao Yai',
-          subtitle: 'Scenic shared speedboat across Phang Nga Bay · Adult · 32.00 × 2',
-          category: 'Transfer',
+          title: 'Phi-Phi Island + NPF',
+          subtitle: 'Phi-Phi Island + NPF · Adult · 104.53 × 2',
+          category: 'Sightseeing',
           pax: 2,
-          unitPrice: 32.00,
-          amountUSD: 64.00,
-          amountINR: 5600,
+          unitPrice: 104.53,
+          amountUSD: 209.06,
+          amountINR: 0,
           tag: ''
         }
       ],
       hotel: {
-        name: 'Santhiya Koh Yao Yai Resort & Spa',
-        dates: '6 Jan to 8 Jan',
-        nights: 2,
-        roomType: 'Supreme Deluxe Sea View',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
-        notes: 'Luxury Eco-resort with panoramic ocean view'
+        name: 'Phi Phi Island',
+        dates: '6 Jan to 7 Jan',
+        pax: 2,
+        amountINR: 18477,
+        amountUSD: 0,
+        notes: ''
       },
       dayNotes: ''
     },
     {
       dayNumber: 6,
       date: '7 Jan',
-      title: 'Koh Yao Yai Island Relaxation',
+      title: 'Transfer to Phuket',
       items: [
+        { title: 'Transfer to Phuket', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Day @ Leisure', subtitle: '', category: 'Leisure', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'Day @ Leisure' },
         {
-          title: 'Full Day @ Leisure / Island Exploration',
-          subtitle: 'Relax at resort infinity pool, visit private beach or rent a scooter for village tour',
-          category: 'Leisure',
+          title: 'Transfer to Phuket',
+          subtitle: 'Transfer to Phuket · Adult · 80.75 × 2',
+          category: 'Transfer',
           pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
+          unitPrice: 80.75,
+          amountUSD: 161.50,
           amountINR: 0,
-          tag: 'Day @ Leisure'
-        },
-        {
-          title: 'Water Sports & Spa Treatment',
-          subtitle: 'Kayaking, paddle boarding, Ayurvana spa facilities',
-          category: 'Activity',
-          pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
-          amountINR: 0,
-          tag: 'Personal Expense'
+          tag: ''
         }
       ],
       hotel: {
-        name: 'Santhiya Koh Yao Yai Resort & Spa',
-        dates: '6 Jan to 8 Jan',
-        nights: 2,
-        roomType: 'Supreme Deluxe Sea View',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        name: 'Panwaburi Queen',
+        dates: '7 Jan to 8 Jan',
+        pax: 2,
+        amountINR: 41826,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -299,63 +282,69 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 7,
       date: '8 Jan',
-      title: 'Koh Yao Yai to Phuket',
+      title: 'Phuket City Tour',
       items: [
+        { title: 'Chalong Temple', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Big Buddha', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Old Town', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Promthep Cape', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Private Transfer by Car', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
-          title: 'Speedboat Transfer from Koh Yao Yai to Phuket Pier',
-          subtitle: 'Resort private pier transfer + Speedboat · Adult · 32.00 × 2',
-          category: 'Transfer',
+          title: 'City Tour',
+          subtitle: 'City Tour · Adult · 60.50 × 2',
+          category: 'Sightseeing',
           pax: 2,
-          unitPrice: 32.00,
-          amountUSD: 64.00,
-          amountINR: 5600,
-          tag: ''
-        },
-        {
-          title: 'Transfer from Pier to Phuket Hotel',
-          subtitle: 'Private transfer from Phuket Pier to Graceland Resort · Adult · 22.00 × 2',
-          category: 'Transfer',
-          pax: 2,
-          unitPrice: 22.00,
-          amountUSD: 44.00,
-          amountINR: 3850,
+          unitPrice: 60.50,
+          amountUSD: 121.00,
+          amountINR: 0,
           tag: ''
         }
       ],
       hotel: {
-        name: 'Phuket Graceland Resort & Spa',
-        dates: '8 Jan to 13 Jan',
-        nights: 5,
-        roomType: 'Deluxe Sunset Wing',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
-        notes: 'Prime beachfront location on Patong Beach'
+        name: 'Sunset Beach Resort',
+        dates: '8 Jan to 10 Jan',
+        pax: 2,
+        amountINR: 22132,
+        amountUSD: 0,
+        notes: ''
       },
       dayNotes: ''
     },
     {
       dayNumber: 8,
       date: '9 Jan',
-      title: 'Phi Phi Islands Tour by Speedboat',
+      title: 'Oasis Spa & Candle Light Dinner',
       items: [
+        { title: 'Oasis Spa & Massage', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Aromatherapy Hot Oil Massage', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'Candle Light Dinner at Beach @ Thauren Resort', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
         {
-          title: 'Phi Phi, Maya Bay & Khai Island Tour',
-          subtitle: 'Speedboat tour with buffet lunch, snorkeling & Maya Bay sightseeing · Adult · 55.00 × 2',
-          category: 'Sightseeing',
+          title: 'Oasis Spa & Massage',
+          subtitle: 'Oasis Spa & Massage · Adult · 95.12 × 2',
+          category: 'Activity',
           pax: 2,
-          unitPrice: 55.00,
-          amountUSD: 110.00,
-          amountINR: 9625,
-          tag: 'National Park Fee Included'
+          unitPrice: 95.12,
+          amountUSD: 190.24,
+          amountINR: 0,
+          tag: ''
+        },
+        {
+          title: 'Candle Light Dinner',
+          subtitle: 'Candle Light Dinner · Adult · 147.00 × 2',
+          category: 'Meals',
+          pax: 2,
+          unitPrice: 147.00,
+          amountUSD: 294.00,
+          amountINR: 0,
+          tag: ''
         }
       ],
       hotel: {
-        name: 'Phuket Graceland Resort & Spa',
-        dates: '8 Jan to 13 Jan',
-        nights: 5,
-        roomType: 'Deluxe Sunset Wing',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        name: 'Thavorn Beach Village Resort & Spa, Phuket',
+        dates: '8 Jan to 10 Jan',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -363,26 +352,27 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 9,
       date: '10 Jan',
-      title: 'Phuket City Tour',
+      title: 'James Bond Island by Speed Boat',
       items: [
+        { title: 'James Bond Island by Speed Boat', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
+        { title: 'National Park Fee Included', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'National Park Fee Included' },
         {
-          title: 'Phuket Half Day City & Highlights Tour',
-          subtitle: 'Big Buddha, Wat Chalong Temple, Karon Viewpoint, Cashew Nut Factory · 6 hrs · Adult · 28.00 × 2',
+          title: 'James Bond Island',
+          subtitle: 'James Bond Island · Adult · 82.35 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 28.00,
-          amountUSD: 56.00,
-          amountINR: 4900,
+          unitPrice: 82.35,
+          amountUSD: 164.70,
+          amountINR: 0,
           tag: ''
         }
       ],
       hotel: {
-        name: 'Phuket Graceland Resort & Spa',
-        dates: '8 Jan to 13 Jan',
-        nights: 5,
-        roomType: 'Deluxe Sunset Wing',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        name: 'Esmeralda View',
+        dates: '10 Jan to 12 Jan',
+        pax: 2,
+        amountINR: 48095,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -390,26 +380,26 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 10,
       date: '11 Jan',
-      title: 'James Bond Island Tour',
+      title: 'Phuket to Koh Yao Yai',
       items: [
+        { title: 'Phuket to Koh Yao Yai by Big Boat', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
-          title: 'James Bond Island & Phang Nga Bay by Big Boat',
-          subtitle: 'Sea canoe exploration into caves at Hong Island, Koh Tapu, buffet lunch · Adult · 52.00 × 2',
-          category: 'Sightseeing',
+          title: 'Phuket to Koh Yao Yai',
+          subtitle: 'Phuket to Koh Yao Yai · Adult · 25.34 × 2',
+          category: 'Transfer',
           pax: 2,
-          unitPrice: 52.00,
-          amountUSD: 104.00,
-          amountINR: 9100,
-          tag: 'National Park Fee Included'
+          unitPrice: 25.34,
+          amountUSD: 50.68,
+          amountINR: 0,
+          tag: ''
         }
       ],
       hotel: {
-        name: 'Phuket Graceland Resort & Spa',
-        dates: '8 Jan to 13 Jan',
-        nights: 5,
-        roomType: 'Deluxe Sunset Wing',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        name: 'Esmeralda View',
+        dates: '10 Jan to 12 Jan',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -417,36 +407,16 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 11,
       date: '12 Jan',
-      title: 'Phuket Shopping & Leisure',
+      title: 'Beach Visit & Relaxation',
       items: [
-        {
-          title: 'Day @ Leisure · Patong Beach & Jungceylon Shopping',
-          subtitle: 'Free day for shopping, souvenirs, Bangla Road nightlife and beach relaxation',
-          category: 'Leisure',
-          pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
-          amountINR: 0,
-          tag: 'Day @ Leisure'
-        },
-        {
-          title: 'Lunch & Dinner at Local Eateries',
-          subtitle: 'Seafood dinner at Patong night market',
-          category: 'Meals',
-          pax: 2,
-          unitPrice: 0,
-          amountUSD: 0,
-          amountINR: 0,
-          tag: 'Personal Expense'
-        }
+        { title: 'Beach Visit & Relaxation on Own', subtitle: '', category: 'Leisure', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'Day @ Leisure' }
       ],
       hotel: {
-        name: 'Phuket Graceland Resort & Spa',
-        dates: '8 Jan to 13 Jan',
-        nights: 5,
-        roomType: 'Deluxe Sunset Wing',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
+        name: 'Esmeralda View',
+        dates: '10 Jan to 12 Jan',
+        pax: '',
+        amountINR: 0,
+        amountUSD: 0,
         notes: ''
       },
       dayNotes: ''
@@ -454,33 +424,32 @@ const DEMO_REFERENCE_THAILAND_12D = {
     {
       dayNumber: 12,
       date: '13 Jan',
-      title: 'Departure from Phuket',
+      title: 'Koh Yao Yai to Phuket Airport',
       items: [
+        { title: 'Koh Yao Yai to Phuket by Big Boat to Phuket Airport', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
-          title: 'Private Airport Departure Transfer',
-          subtitle: 'Graceland Resort Patong to Phuket International Airport (HKT) · Adult · 25.00 × 2',
+          title: 'Airport Transfer',
+          subtitle: 'Airport Transfer · Adult · 49.13 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 25.00,
-          amountUSD: 50.00,
-          amountINR: 4375,
+          unitPrice: 49.13,
+          amountUSD: 98.26,
+          amountINR: 0,
           tag: ''
         }
       ],
       hotel: null,
-      dayNotes: 'Please ensure room checkout before transfer timing. Safe travels!'
+      dayNotes: ''
     }
   ],
   summary: {
     items: [
-      { name: 'Hotel Costing (11 Nights Accommodation across 3 Resorts)', amountUSD: 1480.00, amountINR: 129500 },
-      { name: 'Land Part (All Private Minivan & Speedboat Ferry Transfers)', amountUSD: 434.00, amountINR: 37975 },
-      { name: 'Activities & Sightseeing (Speedboat Excursions, Guide & Fees)', amountUSD: 590.00, amountINR: 51625 },
-      { name: 'Taxes & DMC Service Charges', amountUSD: 120.00, amountINR: 10500 }
+      { name: 'Hotel Costing\nfor 2 adults', amountINR: 259982, amountUSD: 0 },
+      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1488.00 }
     ],
-    autoCalculate: true,
-    totalUSD: 2624.00,
-    totalINR: 229600
+    autoCalculate: false,
+    totalINR: 259982,
+    totalUSD: 1488.00
   },
   offices: [
     {

@@ -459,8 +459,8 @@ const PDFGenerator = (() => {
 
     /* Hotel Row */
     .dmc-hotel-row {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr 50px 105px 105px;
       align-items: center;
       background: #F8FAFC;
       border-top: 1px dashed var(--dmc-border, #CBD5E1);
