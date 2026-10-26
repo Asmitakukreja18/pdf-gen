@@ -83,6 +83,46 @@
            SECTION 1: DMC QUOTATION STUDIO & LIVE PREVIEW
            ========================================== -->
       <section class="section-generator" id="sectionGenerator">
+
+        <!-- ─── TOP: MULTI-DOCUMENT FORMAT SUITE SWITCHER ─── -->
+        <div class="doc-format-suite-bar">
+          <div class="suite-title">
+            <span class="suite-brand-badge">LET'S EXPLORE DMC</span>
+            <strong>DOCUMENT FORMAT SUITE:</strong>
+            <span class="suite-subtitle">Consistent Brand Identity · 7 Tailored Document Formats</span>
+          </div>
+          <div class="suite-format-pills" id="suiteFormatPills">
+            <button class="doc-pill active" data-doctype="itinerary" title="Day-by-day travel experience for guests">
+              <span class="pill-icon">🗺️</span>
+              <span class="pill-label">1. Itinerary</span>
+            </button>
+            <button class="doc-pill" data-doctype="quotation" title="Detailed pricing and costing tables">
+              <span class="pill-icon">💰</span>
+              <span class="pill-label">2. Quotation</span>
+            </button>
+            <button class="doc-pill" data-doctype="hotel_costing" title="Hotel comparison, room types & tariff options">
+              <span class="pill-icon">🏨</span>
+              <span class="pill-label">3. Hotel Costing</span>
+            </button>
+            <button class="doc-pill" data-doctype="summary" title="Compact executive trip overview & breakdown">
+              <span class="pill-icon">📋</span>
+              <span class="pill-label">4. Package Summary</span>
+            </button>
+            <button class="doc-pill" data-doctype="confirmation" title="Official booking voucher with confirmed hotels & tours">
+              <span class="pill-icon">🎟️</span>
+              <span class="pill-label">5. Confirmation Voucher</span>
+            </button>
+            <button class="doc-pill" data-doctype="invoice" title="Corporate Tax Invoice with GST & Bank Details">
+              <span class="pill-icon">🧾</span>
+              <span class="pill-label">6. Tax Invoice</span>
+            </button>
+            <button class="doc-pill" data-doctype="custom" title="Custom modular document builder">
+              <span class="pill-icon">🛠️</span>
+              <span class="pill-label">7. Custom Builder</span>
+            </button>
+          </div>
+        </div>
+
         <div class="dmc-studio-layout">
 
           <!-- ─── LEFT: COMPREHENSIVE QUOTATION BUILDER ─── -->
@@ -90,7 +130,7 @@
             <div class="builder-header">
               <div class="builder-title-row">
                 <h3>
-                  <span>✏️ Quotation Builder</span>
+                  <span>✏️ Document Studio Builder</span>
                 </h3>
                 <div class="builder-quick-actions">
                   <button class="btn btn-xs btn-outline" id="btnResetToDefault" title="Reset to 12D Master Reference">
@@ -103,9 +143,13 @@
               <div class="builder-tabs-bar">
                 <button class="b-tab active" data-tab="tabPackage">📋 Package</button>
                 <button class="b-tab" data-tab="tabDays">📅 Day Itinerary (<span id="countDaysBadge">12</span>)</button>
-                <button class="b-tab" data-tab="tabSummary">💰 Summary</button>
+                <button class="b-tab" data-tab="tabHotels">🏨 Hotels (<span id="countHotelsBadge">5</span>)</button>
+                <button class="b-tab" data-tab="tabSummary">💰 Costing & Markup</button>
+                <button class="b-tab" data-tab="tabInvoice">🧾 Invoice</button>
+                <button class="b-tab" data-tab="tabConfirmation">🎟️ Voucher</button>
+                <button class="b-tab" data-tab="tabCustomBuilder">🛠️ Custom</button>
                 <button class="b-tab" data-tab="tabOffices">🏢 Offices</button>
-                <button class="b-tab" data-tab="tabSections">🧩 Custom Blocks</button>
+                <button class="b-tab" data-tab="tabSections">🧩 Notes/Terms</button>
                 <button class="b-tab" data-tab="tabTheme">🎨 Theme</button>
                 <button class="b-tab" data-tab="tabAI">⚡ AI Input</button>
               </div>
@@ -190,6 +234,21 @@
                 </div>
               </div>
 
+              <!-- TAB: HOTEL PROPERTIES & COMPARISON MANAGER -->
+              <div class="tab-pane" id="tabHotels">
+                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4>Hotel Properties & Comparison Manager</h4>
+                    <p>Manage resort properties, room categories, meal plans, and 3-tier tariff options (Free cancellation, Non-refundable, Partial refund).</p>
+                  </div>
+                  <button class="btn btn-sm btn-primary" id="btnAddHotelBtn">+ Add Hotel</button>
+                </div>
+
+                <div id="hotelsEditorContainer">
+                  <!-- Populated by App.renderHotelsEditor() -->
+                </div>
+              </div>
+
               <!-- TAB 3: PRICE SUMMARY -->
               <div class="tab-pane" id="tabSummary">
                 <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
@@ -238,6 +297,129 @@
                     <span class="total-amount" id="studioTotalInr">₹ 2,29,600</span>
                     <span style="font-size: 14px; opacity: 0.9;" id="studioTotalUsd">($ 2,624.00)</span>
                   </div>
+                </div>
+              </div>
+
+              <!-- TAB: TAX INVOICE & BILLING -->
+              <div class="tab-pane" id="tabInvoice">
+                <div class="builder-section-intro">
+                  <h4>Corporate Tax Invoice & Billing Details</h4>
+                  <p>Configure invoice numbering, GST tax rate, banking details, and authorized signatory.</p>
+                </div>
+
+                <div class="form-grid-3" style="margin-bottom: 12px;">
+                  <div class="form-group">
+                    <label>Invoice Number</label>
+                    <input type="text" id="bInvNumber" class="form-input" placeholder="LE-INV-2027-112" />
+                  </div>
+                  <div class="form-group">
+                    <label>Invoice Date</label>
+                    <input type="text" id="bInvDate" class="form-input" placeholder="02 Jan 2027" />
+                  </div>
+                  <div class="form-group">
+                    <label>Payment Due Date</label>
+                    <input type="text" id="bInvDueDate" class="form-input" placeholder="13 Jan 2027" />
+                  </div>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom: 12px;">
+                  <div class="form-group">
+                    <label>Billed To (Client / Agency Details)</label>
+                    <textarea id="bInvBillTo" class="form-input" rows="2" placeholder="Company Name / Client Name..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Tax / GST Rate (%)</label>
+                    <input type="number" id="bInvTaxRate" class="form-input" value="5" min="0" max="28" />
+                  </div>
+                </div>
+
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank Remittance Details</span>
+                  <div class="form-grid-3" style="margin-top:6px;">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Bank Name</label>
+                      <input type="text" id="bInvBankName" class="form-input form-input-sm" placeholder="HDFC Bank Ltd" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Account Number</label>
+                      <input type="text" id="bInvAccNo" class="form-input form-input-sm" placeholder="50200088991122" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">IFSC Code</label>
+                      <input type="text" id="bInvIfsc" class="form-input form-input-sm" placeholder="HDFC0001234" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">UPI ID</label>
+                      <input type="text" id="bInvUpi" class="form-input form-input-sm" placeholder="letsexplore@hdfcbank" />
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label style="font-size:10px;">Authorized Signatory Label</label>
+                      <input type="text" id="bInvSignatory" class="form-input form-input-sm" placeholder="Let's Explore DMC Authorized Signatory" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB: TRAVEL CONFIRMATION VOUCHER -->
+              <div class="tab-pane" id="tabConfirmation">
+                <div class="builder-section-intro">
+                  <h4>Travel Confirmation Voucher Details</h4>
+                  <p>Configure voucher booking reference, emergency on-ground contacts, and guest instructions.</p>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom: 12px;">
+                  <div class="form-group">
+                    <label>Voucher / Booking Ref</label>
+                    <input type="text" id="bConfBookingRef" class="form-input" placeholder="CONF-LE-THAI-8891" />
+                  </div>
+                  <div class="form-group">
+                    <label>Lead Passenger Name</label>
+                    <input type="text" id="bConfLeadPax" class="form-input" placeholder="Package for 2 pax" />
+                  </div>
+                  <div class="form-group">
+                    <label>Guest Contact Phone</label>
+                    <input type="text" id="bConfContact" class="form-input" placeholder="+91 80075 86881" />
+                  </div>
+                  <div class="form-group">
+                    <label>24/7 Emergency On-Ground Hotline</label>
+                    <input type="text" id="bConfEmergency" class="form-input" placeholder="+66 818311204 (Mr. Jumphol Vongchun)" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Important Check-in & Journey Instructions (One per line)</label>
+                  <textarea id="bConfInstructions" class="form-input" rows="4" placeholder="Please present this voucher upon hotel check-in...&#10;Check-in time is 14:00 hrs..."></textarea>
+                </div>
+              </div>
+
+              <!-- TAB: CUSTOM DOCUMENT BUILDER -->
+              <div class="tab-pane" id="tabCustomBuilder">
+                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4>Custom Modular Document Builder</h4>
+                    <p>Build your own customized document layout by adding, removing, and re-ordering custom sections.</p>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <select id="selectNewCustomSecType" class="form-input form-input-sm" style="width:140px;">
+                      <option value="text">📝 Text Block</option>
+                      <option value="hotel">🏨 Hotel Table</option>
+                      <option value="activity">✦ Activities List</option>
+                      <option value="pricing">💰 Pricing Table</option>
+                      <option value="notes">📌 Important Notes</option>
+                      <option value="office">🏢 Global Offices</option>
+                      <option value="signature">✍️ Signature Box</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" id="btnAddCustomSecBtn">+ Add Section</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label>Custom Document Main Title</label>
+                  <input type="text" id="bCustomDocTitle" class="form-input" placeholder="e.g. VIP Tailored Travel Dossier" />
+                </div>
+
+                <div id="customDocSectionsContainer">
+                  <!-- Populated by App.renderCustomDocEditor() -->
                 </div>
               </div>
 

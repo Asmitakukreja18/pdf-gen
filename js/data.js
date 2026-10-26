@@ -12,6 +12,59 @@
  * - Multi-template & Color Theme Settings
  */
 
+// ─── DOCUMENT TYPES (MULTI-FORMAT SUITE) ───────────────────────────────────────
+const DOCUMENT_TYPES = {
+  'itinerary': {
+    id: 'itinerary',
+    name: 'Travel Itinerary',
+    badge: 'Experience Focused',
+    icon: '🗺️',
+    description: 'Day-by-day travel experience, sightseeing, transfers, meals, leisure, and hotels. Easy to read during travel.'
+  },
+  'quotation': {
+    id: 'quotation',
+    name: 'Costing Quotation',
+    badge: 'Pricing Focused',
+    icon: '💰',
+    description: 'Detailed service breakdown with Unit Rates, Pax, Quantity, Hotel, Activity, Transfer, and Total package pricing.'
+  },
+  'hotel_costing': {
+    id: 'hotel_costing',
+    name: 'Hotel Comparison & Costing',
+    badge: 'Hotel Focused',
+    icon: '🏨',
+    description: 'Hotel-wise comparison blocks with City, Room Type, Meal Plan, Free Cancellation, Non-refundable options, and totals.'
+  },
+  'summary': {
+    id: 'summary',
+    name: 'Package Summary',
+    badge: 'Overview Focused',
+    icon: '📋',
+    description: 'Compact executive summary, cost breakdown table, package inclusions, exclusions, and essential trip guidelines.'
+  },
+  'confirmation': {
+    id: 'confirmation',
+    name: 'Travel Confirmation Voucher',
+    badge: 'Booking Focused',
+    icon: '🎟️',
+    description: 'Official booking confirmation with voucher ref, confirmed hotels, sightseeing, transfers, and emergency contacts.'
+  },
+  'invoice': {
+    id: 'invoice',
+    name: 'Tax Invoice / Billing',
+    badge: 'Billing Focused',
+    icon: '🧾',
+    description: 'Corporate invoice with Invoice #, Bill To, itemized charges, GST/tax calculation, bank payment details, and signature.'
+  },
+  'custom': {
+    id: 'custom',
+    name: 'Custom Document Builder',
+    badge: 'Modular Builder',
+    icon: '🛠️',
+    description: 'Build any custom document by adding, removing, and re-ordering custom text, tables, hotels, activities, terms, and signatures.'
+  }
+};
+
 // ─── THEME PRESETS ─────────────────────────────────────────────────────────────
 const THEME_PRESETS = {
   'classic-blue': {
@@ -317,7 +370,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
       items: [
         { title: 'Oasis Spa & Massage', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         { title: 'Aromatherapy Hot Oil Massage', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
-        { title: 'Candle Light Dinner at Beach @ Thauren Resort', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
+        { title: 'Candle Light Dinner at Beach @ Thavorn Beach Village Resort & Spa Phuket', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
         {
           title: 'Oasis Spa & Massage',
           subtitle: 'Oasis Spa & Massage · Adult · 115.12 × 2',
@@ -340,7 +393,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Thavorn Beach Village Resort & Spa, Phuket',
+        name: 'Sunset Beach Resort',
         dates: '8 Jan to 10 Jan',
         pax: '',
         amountINR: 0,
@@ -540,6 +593,152 @@ const DEMO_REFERENCE_THAILAND_12D = {
     { key: 'Travel Insurance', value: 'Available upon request at nominal surcharge' },
     { key: 'Vehicle Type', value: 'Private Air-Conditioned Minivan (Toyota Commuter)' }
   ],
+  activeDocType: 'itinerary',
+  hotels: [
+    {
+      id: 'h_1',
+      name: 'Krabi Resort',
+      city: 'Krabi (Ao Nang Beach)',
+      checkIn: '2 Jan',
+      checkOut: '6 Jan',
+      nights: 4,
+      roomType: 'Deluxe Garden View Room',
+      rooms: 1,
+      mealPlan: 'Bed & Breakfast (CP)',
+      amountINR: 142397,
+      amountUSD: 1627.40,
+      opt1FreeCancel: 142397,
+      opt2NonRefund: 129452,
+      opt3PartialRefund: 135000,
+      cancellation: 'Free cancellation until 20 Dec 2026',
+      refundability: 'Refundable',
+      status: 'Confirmed',
+      notes: 'Direct beach access, walking distance to Ao Nang night market'
+    },
+    {
+      id: 'h_2',
+      name: 'Phi Phi Island Hotel',
+      city: 'Koh Phi Phi Don',
+      checkIn: '6 Jan',
+      checkOut: '7 Jan',
+      nights: 1,
+      roomType: 'Superior Tropical Bungalow',
+      rooms: 1,
+      mealPlan: 'Daily Buffet Breakfast',
+      amountINR: 20325,
+      amountUSD: 232.28,
+      opt1FreeCancel: 20325,
+      opt2NonRefund: 18477,
+      opt3PartialRefund: 19500,
+      cancellation: 'Free cancellation until 24 Dec 2026',
+      refundability: 'Refundable',
+      status: 'Confirmed',
+      notes: 'Luggage porter service included at Tonsai Pier'
+    },
+    {
+      id: 'h_3',
+      name: 'Panwaburi Queen',
+      city: 'Phuket (Cape Panwa)',
+      checkIn: '7 Jan',
+      checkOut: '8 Jan',
+      nights: 1,
+      roomType: 'Deluxe Pool Access Suite',
+      rooms: 1,
+      mealPlan: 'American Breakfast',
+      amountINR: 46009,
+      amountUSD: 525.82,
+      opt1FreeCancel: 46009,
+      opt2NonRefund: 41826,
+      opt3PartialRefund: 44000,
+      cancellation: 'Non-refundable tariff after booking confirmation',
+      refundability: 'Non-Refundable',
+      status: 'Confirmed',
+      notes: 'Iconic glass pool and serene beachside location'
+    },
+    {
+      id: 'h_4',
+      name: 'Sunset Beach Resort',
+      city: 'Phuket (North Patong Beach)',
+      checkIn: '8 Jan',
+      checkOut: '10 Jan',
+      nights: 2,
+      roomType: 'Sea Facing Premier Room',
+      rooms: 1,
+      mealPlan: 'Buffet Breakfast Included',
+      amountINR: 24345,
+      amountUSD: 278.23,
+      opt1FreeCancel: 24345,
+      opt2NonRefund: 22132,
+      opt3PartialRefund: 23200,
+      cancellation: 'Free cancellation until 30 Dec 2026',
+      refundability: 'Refundable',
+      status: 'Confirmed',
+      notes: 'Overlooks Kalim bay; Candle Light Dinner venue on 9 Jan is set at Thavorn Beach Village Resort'
+    },
+    {
+      id: 'h_5',
+      name: 'Esmeralda View',
+      city: 'Koh Yao Yai',
+      checkIn: '10 Jan',
+      checkOut: '12 Jan',
+      nights: 2,
+      roomType: 'Ocean Panorama Cliff Villa',
+      rooms: 1,
+      mealPlan: 'Daily Island Breakfast',
+      amountINR: 52905,
+      amountUSD: 604.63,
+      opt1FreeCancel: 52905,
+      opt2NonRefund: 48095,
+      opt3PartialRefund: 50500,
+      cancellation: 'Free cancellation until 1 Jan 2027',
+      refundability: 'Refundable',
+      status: 'Confirmed',
+      notes: 'Speedboat transfers to/from Chong Lard Pier coordinated by resort'
+    }
+  ],
+  invoice: {
+    invoiceNumber: 'LE-INV-2027-112',
+    invoiceDate: '2 Jan 2027',
+    dueDate: '13 Jan 2027',
+    billTo: 'Package for 2 pax\nContact: +91 80075 86881\ninfo@letsexploredmc.com',
+    taxRate: 5,
+    taxAmount: 14299,
+    discountAmount: 0,
+    bankName: 'HDFC Bank Ltd',
+    accountName: "Let's Explore DMC Pvt Ltd",
+    accountNumber: '50200088991122',
+    ifsc: 'HDFC0001234',
+    swift: 'HDFCINBBXXX',
+    upi: 'letsexplore@hdfcbank',
+    terms: 'Full payment due prior to departure. All reservations subject to Let\'s Explore DMC standard terms & individual airline/hotel cancellation schedules.',
+    authorizedSignatory: 'Let\'s Explore DMC Authorized Signatory'
+  },
+  confirmation: {
+    bookingRef: 'CONF-LE-THAI-8891',
+    leadPassenger: 'Package for 2 pax',
+    contact: '+91 80075 86881',
+    emergencyContact: '+66 818311204 (Mr. Jumphol Vongchun - Thailand Director) | +91 80075 86881',
+    instructions: [
+      'Please present a printed or digital copy of this official DMC travel confirmation voucher upon hotel check-in and at excursion departure piers.',
+      'Hotel standard check-in is 14:00 hrs; early check-in is subject to room availability upon arrival unless explicitly reserved in advance.',
+      'Candle Light Dinner venue on 9 Jan is set at beachside Thavorn Beach Village Resort & Spa Phuket; accommodation stay is Sunset Beach Resort.',
+      'Speedboat sea transfers between Phuket, Koh Yao Yai and Krabi operate subject to maritime weather safety clearances.',
+      'Our dedicated 24/7 on-ground Thailand DMC supervisor hotline is available at +66 818311204 throughout your journey.'
+    ]
+  },
+  customDocument: {
+    title: 'Executive Journey Dossier',
+    docTypeLabel: 'Bespoke Travel Brief',
+    sections: [
+      { id: 'sec_1', type: 'text', title: 'Executive Introduction', content: 'Warm greetings from Let\'s Explore DMC. We take immense pleasure in presenting your custom-crafted 12-day Thailand luxury journey covering Krabi, Phuket, and the pristine shores of Koh Yao Yai.' },
+      { id: 'sec_2', type: 'hotel', title: 'Selected Hotels & Resort Stays' },
+      { id: 'sec_3', type: 'activity', title: 'Curated Sightseeing & Island Excursions' },
+      { id: 'sec_4', type: 'pricing', title: 'Price Summary & Payment Schedule' },
+      { id: 'sec_5', type: 'notes', title: 'Important Journey Guidelines & Notes' },
+      { id: 'sec_6', type: 'office', title: 'Global Offices & On-Ground Support Network' },
+      { id: 'sec_7', type: 'signature', title: 'Authorization & DMC Sign-Off' }
+    ]
+  },
   footerSettings: {
     companyName: "Let's Explore DMC",
     phones: '+91 80075 86881 | +91 95459 55966',
@@ -1344,7 +1543,11 @@ function loadSampleDataset(key) {
   else if (key === 'thailand') demo = DEMO_REFERENCE_THAILAND_12D;
   else if (key === 'reference') demo = DEMO_REFERENCE_THAILAND_12D;
 
-  const clone = JSON.parse(JSON.stringify(demo));
+  QuotationData.activeDocType = clone.activeDocType || 'itinerary';
+  QuotationData.hotels = clone.hotels || [];
+  QuotationData.invoice = clone.invoice || {};
+  QuotationData.confirmation = clone.confirmation || {};
+  QuotationData.customDocument = clone.customDocument || { title: 'Custom Travel Document', sections: [] };
   QuotationData.package = clone.package;
   QuotationData.days = clone.days;
   QuotationData.summary = clone.summary;

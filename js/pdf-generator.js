@@ -27,23 +27,67 @@ const PDFGenerator = (() => {
 
     const htmlContent = buildFullPrintDocument();
 
-    const printWindow = window.open('', '_blank', 'width=1100,height=900');
-    if (!printWindow) {
-      showToast('Pop-up was blocked. Please allow pop-ups for this page to download PDF.', 'error');
+    let printWindow = null;
+    try {
+      printWindow = window.open('', '_blank', 'width=1100,height=900');
+    } catch (e) {
+      printWindow = null;
+    }
+
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      printWindow.onload = () => {
+        setTimeout(() => {
+          try {
+            printWindow.focus();
+            printWindow.print();
+            showToast('Print dialog opened! Choose "Save as PDF" to save your document.', 'success');
+          } catch (e) {}
+        }, 500);
+      };
+
+      setTimeout(() => {
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (e) {}
+      }, 1000);
       return;
     }
 
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    // ── FALLBACK: Hidden Iframe Print (100% immune to pop-up blockers) ──
+    let printFrame = document.getElementById('dmcPrintHiddenFrame');
+    if (!printFrame) {
+      printFrame = document.createElement('iframe');
+      printFrame.id = 'dmcPrintHiddenFrame';
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      document.body.appendChild(printFrame);
+    }
 
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-        showToast('Print dialog opened. Select "Save as PDF" to save the official quotation.', 'success');
-      }, 700);
-    };
+    const frameDoc = printFrame.contentWindow || printFrame.contentDocument;
+    const doc = frameDoc.document || frameDoc;
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
+
+    setTimeout(() => {
+      try {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+        showToast('Print dialog opened via fallback frame! Select "Save as PDF".', 'success');
+      } catch (err) {
+        console.error('Iframe print error:', err);
+        window.print();
+      }
+    }, 600);
   }
 
   /**

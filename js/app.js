@@ -22,6 +22,7 @@ const App = (() => {
    */
   function init() {
     setupNavigation();
+    setupDocTypeSuite();
     setupBuilderTabs();
     setupZoomControls();
     setupSamplePickers();
@@ -88,6 +89,52 @@ const App = (() => {
 
     safe('btnBackToEditor', () => showSection('generator'));
     safe('btnPreviewStudio', () => showSection('preview'));
+  }
+
+  /**
+   * Document Format Suite Switcher (Itinerary, Quotation, Hotel Costing, Summary, Confirmation, Invoice, Custom)
+   */
+  function setupDocTypeSuite() {
+    document.querySelectorAll('.doc-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const docType = pill.dataset.doctype;
+        switchDocType(docType);
+      });
+    });
+  }
+
+  function switchDocType(docType) {
+    if (!docType) return;
+    QuotationData.activeDocType = docType;
+
+    // Update active pill
+    document.querySelectorAll('.doc-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.doctype === docType);
+    });
+
+    // Auto-navigate to relevant editor tab for user convenience
+    const tabMap = {
+      'itinerary': 'tabDays',
+      'quotation': 'tabSummary',
+      'hotel_costing': 'tabHotels',
+      'summary': 'tabSummary',
+      'confirmation': 'tabConfirmation',
+      'invoice': 'tabInvoice',
+      'custom': 'tabCustomBuilder'
+    };
+
+    const targetTab = tabMap[docType];
+    if (targetTab) {
+      document.querySelectorAll('.b-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === targetTab));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === targetTab));
+    }
+
+    if (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[docType]) {
+      const meta = DOCUMENT_TYPES[docType];
+      showToast(`Switched format: ${meta.name} (${meta.badge})`, 'info');
+    }
+
+    updateLivePreviews();
   }
 
   /**
@@ -222,9 +269,16 @@ const App = (() => {
 
     // Dynamic Lists
     renderDaysEditor();
+    renderHotelsEditor();
     renderSummaryEditor();
     renderOfficesEditor();
     renderCustomFields();
+    renderCustomDocEditor();
+
+    // Multi-format tab fields
+    populateInvoiceFields();
+    populateConfirmationFields();
+    populateCustomDocFields();
 
     // Update Totals and Live View
     updateLiveTotalsDisplay();
@@ -280,6 +334,42 @@ const App = (() => {
     safe('btnAddSummaryItem', addNewSummaryItem);
     safe('btnAddOfficeBtn', addNewOffice);
     safe('btnAddCustomFieldBtn', addNewCustomField);
+    safe('btnAddHotelBtn', addNewHotel);
+    safe('btnAddCustomSecBtn', addNewCustomSection);
+
+    // Invoice input listeners
+    const invIds = ['bInvNumber', 'bInvDate', 'bInvDueDate', 'bInvBillTo', 'bInvTaxRate', 'bInvBankName', 'bInvAccNo', 'bInvIfsc', 'bInvUpi', 'bInvSignatory'];
+    invIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          syncInvoiceData();
+          updateLivePreviews();
+        });
+      }
+    });
+
+    // Confirmation input listeners
+    const confIds = ['bConfBookingRef', 'bConfLeadPax', 'bConfContact', 'bConfEmergency', 'bConfInstructions'];
+    confIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          syncConfirmationData();
+          updateLivePreviews();
+        });
+      }
+    });
+
+    // Custom Document Title listener
+    const custTitle = document.getElementById('bCustomDocTitle');
+    if (custTitle) {
+      custTitle.addEventListener('input', () => {
+        if (!QuotationData.customDocument) QuotationData.customDocument = { title: '', sections: [] };
+        QuotationData.customDocument.title = custTitle.value;
+        updateLivePreviews();
+      });
+    }
 
     // Quick Markup & Surcharges
     safe('btnApplyHotelMarkup', () => {
@@ -287,6 +377,7 @@ const App = (() => {
       applyMarkupAdjustments({ hotelPercent: pct });
       renderSummaryEditor();
       renderDaysEditor();
+      renderHotelsEditor();
       updateLiveTotalsDisplay();
       updateLivePreviews();
     });
@@ -296,6 +387,7 @@ const App = (() => {
       applyMarkupAdjustments({ activityUSD: usd });
       renderSummaryEditor();
       renderDaysEditor();
+      renderHotelsEditor();
       updateLiveTotalsDisplay();
       updateLivePreviews();
     });
@@ -306,6 +398,7 @@ const App = (() => {
       applyMarkupAdjustments({ hotelPercent: pct, activityUSD: usd });
       renderSummaryEditor();
       renderDaysEditor();
+      renderHotelsEditor();
       updateLiveTotalsDisplay();
       updateLivePreviews();
     });
@@ -328,9 +421,11 @@ const App = (() => {
     recalculateQuotationPricing();
   }
 
-  function syncCustomSections() {
-    const parseLines = (id) => (get(id) || '').split('\n').map(s => s.trim()).filter(Boolean);
+  function parseLines(id) {
+    return (get(id) || '').split('\n').map(s => s.trim()).filter(Boolean);
+  }
 
+  function syncCustomSections() {
     let incl = QuotationData.customSections.find(s => s.id === 'inclusions');
     if (!incl) {
       incl = { id: 'inclusions', title: 'Package Inclusions', type: 'list', items: [] };
@@ -351,6 +446,59 @@ const App = (() => {
       QuotationData.customSections.push(notes);
     }
     notes.items = parseLines('bImportantNotesText');
+  }
+
+  function populateInvoiceFields() {
+    const inv = QuotationData.invoice || {};
+    val('bInvNumber', inv.number || 'LE-INV-2027-112');
+    val('bInvDate', inv.date || '02 Jan 2027');
+    val('bInvDueDate', inv.dueDate || '13 Jan 2027');
+    val('bInvBillTo', inv.billTo || QuotationData.package.clientName || 'Package for 2 pax');
+    val('bInvTaxRate', inv.taxRate !== undefined ? inv.taxRate : 5);
+    val('bInvBankName', inv.bankName || 'HDFC Bank Ltd');
+    val('bInvAccNo', inv.accountNumber || '50200088991122');
+    val('bInvIfsc', inv.ifsc || 'HDFC0001234');
+    val('bInvUpi', inv.upi || 'letsexplore@hdfcbank');
+    val('bInvSignatory', inv.signatory || "Let's Explore DMC Authorized Signatory");
+  }
+
+  function syncInvoiceData() {
+    if (!QuotationData.invoice) QuotationData.invoice = {};
+    const inv = QuotationData.invoice;
+    inv.number = get('bInvNumber');
+    inv.date = get('bInvDate');
+    inv.dueDate = get('bInvDueDate');
+    inv.billTo = get('bInvBillTo');
+    inv.taxRate = parseFloat(get('bInvTaxRate')) || 0;
+    inv.bankName = get('bInvBankName');
+    inv.accountNumber = get('bInvAccNo');
+    inv.ifsc = get('bInvIfsc');
+    inv.upi = get('bInvUpi');
+    inv.signatory = get('bInvSignatory');
+  }
+
+  function populateConfirmationFields() {
+    const conf = QuotationData.confirmation || {};
+    val('bConfBookingRef', conf.bookingRef || 'CONF-LE-THAI-8891');
+    val('bConfLeadPax', conf.leadPax || QuotationData.package.clientName || 'Package for 2 pax');
+    val('bConfContact', conf.contactPhone || QuotationData.package.clientContact || '+91 80075 86881');
+    val('bConfEmergency', conf.emergencyContact || '+66 818311204 (Mr. Jumphol Vongchun)');
+    val('bConfInstructions', (conf.instructions || []).join('\n'));
+  }
+
+  function syncConfirmationData() {
+    if (!QuotationData.confirmation) QuotationData.confirmation = {};
+    const conf = QuotationData.confirmation;
+    conf.bookingRef = get('bConfBookingRef');
+    conf.leadPax = get('bConfLeadPax');
+    conf.contactPhone = get('bConfContact');
+    conf.emergencyContact = get('bConfEmergency');
+    conf.instructions = parseLines('bConfInstructions');
+  }
+
+  function populateCustomDocFields() {
+    const cust = QuotationData.customDocument || {};
+    val('bCustomDocTitle', cust.title || 'VIP Travel Dossier & Custom Quotation');
   }
 
   /**
@@ -893,6 +1041,330 @@ const App = (() => {
 
   /**
    * ─────────────────────────────────────────────────────────────
+   * DYNAMIC HOTEL PROPERTIES & COMPARISON EDITOR
+   * ─────────────────────────────────────────────────────────────
+   */
+  function renderHotelsEditor() {
+    const container = document.getElementById('hotelsEditorContainer');
+    if (!container) return;
+
+    const hotels = QuotationData.hotels || [];
+    const countBadge = document.getElementById('countHotelsBadge');
+    if (countBadge) countBadge.textContent = hotels.length;
+
+    container.innerHTML = '';
+
+    if (hotels.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:20px; color:#64748B; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:6px;">
+          No hotel properties added yet. Click "+ Add Hotel" above to configure accommodations.
+        </div>
+      `;
+      return;
+    }
+
+    hotels.forEach((hotel, hIdx) => {
+      const card = document.createElement('div');
+      card.className = 'hotel-edit-card';
+      card.style.cssText = 'background:#FFFFFF; border:1px solid #CBD5E1; border-radius:8px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);';
+      
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #E2E8F0; padding-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background:#0F2C59; color:#FFFFFF; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">HOTEL ${hIdx + 1}</span>
+            <strong style="color:#0F2C59; font-size:13.5px;" class="h-title-text">${hotel.name || 'New Hotel'}</strong>
+            <span style="font-size:11px; color:#64748B;">(${hotel.city || 'Destination'})</span>
+          </div>
+          <button class="btn-icon btn-del-hotel" title="Remove Hotel" style="color:#DC2626; font-size:12px; font-weight:600; cursor:pointer; background:none; border:none;">🗑️ Delete</button>
+        </div>
+
+        <div class="form-grid-3" style="gap:10px; margin-bottom:10px;">
+          <div class="form-group" style="grid-column: span 2;">
+            <label style="font-size:11px;">Hotel Property Name</label>
+            <input type="text" class="form-input form-input-sm h-name-inp" value="${escapeVal(hotel.name)}" placeholder="e.g. Sunset Beach Resort" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">City / Area</label>
+            <input type="text" class="form-input form-input-sm h-city-inp" value="${escapeVal(hotel.city)}" placeholder="e.g. Phuket" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Check-In Date</label>
+            <input type="text" class="form-input form-input-sm h-checkin-inp" value="${escapeVal(hotel.checkIn)}" placeholder="e.g. 08 Jan 2027" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Check-Out Date</label>
+            <input type="text" class="form-input form-input-sm h-checkout-inp" value="${escapeVal(hotel.checkOut)}" placeholder="e.g. 10 Jan 2027" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Nights</label>
+            <input type="number" class="form-input form-input-sm h-nights-inp" value="${hotel.nights || 1}" min="1" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Room Category</label>
+            <input type="text" class="form-input form-input-sm h-room-inp" value="${escapeVal(hotel.roomType)}" placeholder="e.g. Superior Room Sea View" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Number of Rooms</label>
+            <input type="number" class="form-input form-input-sm h-rooms-inp" value="${hotel.rooms || 1}" min="1" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Meal Plan</label>
+            <input type="text" class="form-input form-input-sm h-meal-inp" value="${escapeVal(hotel.mealPlan)}" placeholder="e.g. Bed & Breakfast (CP)" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Cancellation Policy</label>
+            <input type="text" class="form-input form-input-sm h-cancel-inp" value="${escapeVal(hotel.cancellation)}" placeholder="e.g. Free cancellation until 48 hrs" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Cost INR (₹)</label>
+            <input type="number" class="form-input form-input-sm h-inr-inp" value="${hotel.amountInr || 0}" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:11px;">Cost USD ($)</label>
+            <input type="number" step="0.01" class="form-input form-input-sm h-usd-inp" value="${hotel.amountUsd || 0}" />
+          </div>
+        </div>
+
+        <!-- 3-Tier Tariff Comparison for Hotel Costing Format -->
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:8px 10px; margin-top:8px;">
+          <span style="font-size:10.5px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.5px;">Hotel Costing Document — 3-Tier Comparison Options</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:6px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10px; color:#166534;">Option 1: Free Cancellation (₹)</label>
+              <input type="number" class="form-input form-input-sm h-opt1-inp" value="${hotel.option1Price || hotel.amountInr || 0}" />
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10px; color:#991B1B;">Option 2: Non-Refundable (₹)</label>
+              <input type="number" class="form-input form-input-sm h-opt2-inp" value="${hotel.option2Price || Math.round((hotel.amountInr || 0) * 0.9)}" />
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10px; color:#854D0E;">Option 3: Partial Refund (₹)</label>
+              <input type="number" class="form-input form-input-sm h-opt3-inp" value="${hotel.option3Price || Math.round((hotel.amountInr || 0) * 0.95)}" />
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      const nameInp = card.querySelector('.h-name-inp');
+      const cityInp = card.querySelector('.h-city-inp');
+      const cinInp = card.querySelector('.h-checkin-inp');
+      const coutInp = card.querySelector('.h-checkout-inp');
+      const nInp = card.querySelector('.h-nights-inp');
+      const rInp = card.querySelector('.h-room-inp');
+      const roomsInp = card.querySelector('.h-rooms-inp');
+      const mInp = card.querySelector('.h-meal-inp');
+      const canInp = card.querySelector('.h-cancel-inp');
+      const inrInp = card.querySelector('.h-inr-inp');
+      const usdInp = card.querySelector('.h-usd-inp');
+      const opt1Inp = card.querySelector('.h-opt1-inp');
+      const opt2Inp = card.querySelector('.h-opt2-inp');
+      const opt3Inp = card.querySelector('.h-opt3-inp');
+      const delBtn = card.querySelector('.btn-del-hotel');
+
+      const syncHotel = () => {
+        hotel.name = nameInp.value;
+        hotel.city = cityInp.value;
+        hotel.checkIn = cinInp.value;
+        hotel.checkOut = coutInp.value;
+        hotel.nights = parseInt(nInp.value, 10) || 1;
+        hotel.roomType = rInp.value;
+        hotel.rooms = parseInt(roomsInp.value, 10) || 1;
+        hotel.mealPlan = mInp.value;
+        hotel.cancellation = canInp.value;
+        hotel.amountInr = parseFloat(inrInp.value) || 0;
+        hotel.amountUsd = parseFloat(usdInp.value) || 0;
+        hotel.option1Price = parseFloat(opt1Inp.value) || hotel.amountInr;
+        hotel.option2Price = parseFloat(opt2Inp.value) || 0;
+        hotel.option3Price = parseFloat(opt3Inp.value) || 0;
+        
+        card.querySelector('.h-title-text').textContent = hotel.name || 'New Hotel';
+        updateLivePreviews();
+      };
+
+      [nameInp, cityInp, cinInp, coutInp, nInp, rInp, roomsInp, mInp, canInp, inrInp, usdInp, opt1Inp, opt2Inp, opt3Inp].forEach(el => {
+        el.addEventListener('input', syncHotel);
+      });
+
+      delBtn.addEventListener('click', () => {
+        hotels.splice(hIdx, 1);
+        renderHotelsEditor();
+        updateLivePreviews();
+      });
+    });
+  }
+
+  function addNewHotel() {
+    if (!QuotationData.hotels) QuotationData.hotels = [];
+    QuotationData.hotels.push({
+      id: 'hotel-' + Date.now(),
+      name: 'New Luxury Resort & Spa',
+      city: QuotationData.package.destinations ? QuotationData.package.destinations.split('+')[0].trim() : 'Destination',
+      checkIn: '02 Jan 2027',
+      checkOut: '05 Jan 2027',
+      nights: 3,
+      roomType: 'Deluxe Room',
+      rooms: 1,
+      mealPlan: 'Bed & Breakfast (CP)',
+      cancellation: 'Free cancellation until 48 hrs prior',
+      refundability: 'Refundable',
+      amountInr: 25000,
+      amountUsd: 285.71,
+      option1Price: 25000,
+      option2Price: 22500,
+      option3Price: 23750,
+      notes: 'Welcome drink and complimentary Wi-Fi'
+    });
+    renderHotelsEditor();
+    updateLivePreviews();
+    showToast('Added new hotel property.', 'success');
+  }
+
+  /**
+   * ─────────────────────────────────────────────────────────────
+   * CUSTOM MODULAR DOCUMENT BUILDER EDITOR
+   * ─────────────────────────────────────────────────────────────
+   */
+  function renderCustomDocEditor() {
+    const container = document.getElementById('customDocSectionsContainer');
+    if (!container) return;
+
+    if (!QuotationData.customDocument) {
+      QuotationData.customDocument = {
+        title: 'VIP Travel Dossier & Custom Quotation',
+        sections: []
+      };
+    }
+
+    const doc = QuotationData.customDocument;
+    const sections = doc.sections || [];
+    container.innerHTML = '';
+
+    if (sections.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:20px; color:#64748B; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:6px;">
+          No sections added to this custom document yet. Use the dropdown and "+ Add Section" above to construct your layout!
+        </div>
+      `;
+      return;
+    }
+
+    sections.forEach((sec, sIdx) => {
+      const card = document.createElement('div');
+      card.className = 'custom-sec-edit-card';
+      card.style.cssText = 'background:#FFFFFF; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);';
+
+      const typeLabels = {
+        text: '📝 Text Block',
+        hotel: '🏨 Hotel Table',
+        activity: '✦ Activities List',
+        pricing: '💰 Pricing Schedule',
+        notes: '📌 Important Notes',
+        office: '🏢 Global Offices',
+        signature: '✍️ Signature Box'
+      };
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background:#2563EB; color:#FFF; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;">${typeLabels[sec.type] || sec.type}</span>
+            <input type="text" class="form-input form-input-sm sec-title-inp" value="${escapeVal(sec.title)}" placeholder="Section Title" style="font-weight:600; width:220px;" />
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn btn-xs btn-outline btn-sec-up" ${sIdx === 0 ? 'disabled style="opacity:0.4;"' : ''} title="Move Up">▲</button>
+            <button class="btn btn-xs btn-outline btn-sec-down" ${sIdx === sections.length - 1 ? 'disabled style="opacity:0.4;"' : ''} title="Move Down">▼</button>
+            <button class="btn-icon btn-del-sec" style="color:#DC2626; font-size:12px; cursor:pointer; background:none; border:none;" title="Delete Section">🗑️</button>
+          </div>
+        </div>
+
+        ${sec.type === 'text' || sec.type === 'notes' ? `
+          <textarea class="form-input form-input-sm sec-content-inp" rows="3" placeholder="Enter paragraph content or bullet lines (one per line)...">${escapeVal(sec.content || '')}</textarea>
+        ` : `
+          <div style="font-size:11px; color:#475569; background:#F1F5F9; padding:6px 10px; border-radius:4px;">
+            ⚡ Dynamically renders synced data from your central package (${sec.type.toUpperCase()}). You can optionally add custom footnotes below:
+            <textarea class="form-input form-input-sm sec-content-inp" rows="2" style="margin-top:6px;" placeholder="Optional notes or remarks for this section...">${escapeVal(sec.content || '')}</textarea>
+          </div>
+        `}
+      `;
+
+      container.appendChild(card);
+
+      const titleInp = card.querySelector('.sec-title-inp');
+      const contentInp = card.querySelector('.sec-content-inp');
+      const upBtn = card.querySelector('.btn-sec-up');
+      const downBtn = card.querySelector('.btn-sec-down');
+      const delBtn = card.querySelector('.btn-del-sec');
+
+      titleInp.addEventListener('input', () => {
+        sec.title = titleInp.value;
+        updateLivePreviews();
+      });
+
+      if (contentInp) {
+        contentInp.addEventListener('input', () => {
+          sec.content = contentInp.value;
+          updateLivePreviews();
+        });
+      }
+
+      if (upBtn && sIdx > 0) {
+        upBtn.addEventListener('click', () => {
+          const temp = sections[sIdx];
+          sections[sIdx] = sections[sIdx - 1];
+          sections[sIdx - 1] = temp;
+          renderCustomDocEditor();
+          updateLivePreviews();
+        });
+      }
+
+      if (downBtn && sIdx < sections.length - 1) {
+        downBtn.addEventListener('click', () => {
+          const temp = sections[sIdx];
+          sections[sIdx] = sections[sIdx + 1];
+          sections[sIdx + 1] = temp;
+          renderCustomDocEditor();
+          updateLivePreviews();
+        });
+      }
+
+      delBtn.addEventListener('click', () => {
+        sections.splice(sIdx, 1);
+        renderCustomDocEditor();
+        updateLivePreviews();
+      });
+    });
+  }
+
+  function addNewCustomSection() {
+    if (!QuotationData.customDocument) QuotationData.customDocument = { title: 'VIP Travel Dossier', sections: [] };
+    const typeSel = document.getElementById('selectNewCustomSecType');
+    const type = typeSel ? typeSel.value : 'text';
+
+    const defaultNames = {
+      text: 'Special Guidelines & Overview',
+      hotel: 'Accommodation & Stay Summary',
+      activity: 'Curated Sightseeing Schedule',
+      pricing: 'Commercial Price Breakdown',
+      notes: 'Important Terms & Conditions',
+      office: 'Global Concierge & Network Desks',
+      signature: 'Authorization & Sign-Off'
+    };
+
+    QuotationData.customDocument.sections.push({
+      id: 'sec-' + Date.now(),
+      type: type,
+      title: defaultNames[type] || 'Custom Section',
+      content: type === 'text' || type === 'notes' ? 'Enter detailed information or instructions here.' : ''
+    });
+
+    renderCustomDocEditor();
+    updateLivePreviews();
+    showToast(`Added ${defaultNames[type]} section to Custom Document.`, 'success');
+  }
+
+  /**
+   * ─────────────────────────────────────────────────────────────
    * THEME & TEMPLATE CONTROLLERS
    * ─────────────────────────────────────────────────────────────
    */
@@ -1087,10 +1559,19 @@ const App = (() => {
   function setupExportButtons() {
     // Generate PDF buttons
     const triggerPDF = () => {
-      syncPackageData();
-      syncCustomSections();
-      if (typeof DBManager !== 'undefined') DBManager.saveQuotation();
-      PDFGenerator.generate();
+      try {
+        syncPackageData();
+        syncCustomSections();
+        syncInvoiceData();
+        syncConfirmationData();
+        if (typeof DBManager !== 'undefined') {
+          try { DBManager.saveQuotation(); } catch (e) { console.warn('DB autosave notice:', e); }
+        }
+        PDFGenerator.generate();
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        showToast('PDF error: ' + (err.message || err), 'error');
+      }
     };
 
     safe('btnGeneratePDF', triggerPDF);
@@ -1099,10 +1580,19 @@ const App = (() => {
 
     // DOCX buttons
     const triggerDOCX = () => {
-      syncPackageData();
-      syncCustomSections();
-      if (typeof DBManager !== 'undefined') DBManager.saveQuotation();
-      DOCXGenerator.generate();
+      try {
+        syncPackageData();
+        syncCustomSections();
+        syncInvoiceData();
+        syncConfirmationData();
+        if (typeof DBManager !== 'undefined') {
+          try { DBManager.saveQuotation(); } catch (e) { console.warn('DB autosave notice:', e); }
+        }
+        DOCXGenerator.generate();
+      } catch (err) {
+        console.error('DOCX generation error:', err);
+        showToast('DOCX error: ' + (err.message || err), 'error');
+      }
     };
 
     safe('btnGenerateDOCX', triggerDOCX);
@@ -1124,9 +1614,16 @@ const App = (() => {
     });
 
     const triggerSave = () => {
-      syncPackageData();
-      syncCustomSections();
-      if (typeof DBManager !== 'undefined') DBManager.saveQuotation();
+      try {
+        syncPackageData();
+        syncCustomSections();
+        syncInvoiceData();
+        syncConfirmationData();
+        if (typeof DBManager !== 'undefined') DBManager.saveQuotation();
+      } catch (err) {
+        console.error('Save error:', err);
+        showToast('Save error: ' + err.message, 'error');
+      }
     };
 
     safe('btnSaveToDbStudio', triggerSave);
@@ -1163,10 +1660,13 @@ const App = (() => {
   return {
     init,
     showSection,
+    switchDocType,
     renderDaysEditor,
+    renderHotelsEditor,
     renderSummaryEditor,
     renderOfficesEditor,
     renderCustomFields,
+    renderCustomDocEditor,
     updateLivePreviews
   };
 

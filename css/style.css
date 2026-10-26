@@ -1499,4 +1499,672 @@ p { color: var(--text-sec); line-height: 1.6; }
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DOCUMENT FORMAT SUITE SWITCHER & MULTI-DOCUMENT THEME STYLES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.doc-format-suite-bar {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-left: 4px solid var(--primary, #0F2C59);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.suite-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.suite-brand-badge {
+  background: #0F2C59;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.suite-title strong {
+  font-size: 12px;
+  color: #0F2C59;
+  letter-spacing: 0.3px;
+}
+.suite-subtitle {
+  font-size: 11px;
+  color: #64748B;
+}
+.suite-format-pills {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 3px;
+}
+.doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+.doc-pill:hover {
+  background: #EFF6FF;
+  border-color: #3B82F6;
+  color: #1D4ED8;
+  transform: translateY(-1px);
+}
+.doc-pill.active {
+  background: linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%);
+  border-color: #0F2C59;
+  color: #FFFFFF;
+  box-shadow: 0 2px 5px rgba(15,44,89,0.25);
+}
+.doc-pill .pill-icon {
+  font-size: 14px;
+}
+
+/* ── 1. ITINERARY FORMAT STYLES ── */
+.itinerary-highlights-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 8pt;
+}
+.hl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1E293B;
+}
+.itinerary-day-card {
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  background: #FFFFFF;
+  overflow: hidden;
+  break-inside: avoid;
+}
+.itin-day-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F1F5F9;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 5px 10px;
+}
+.itin-day-badge {
+  background: var(--dmc-primary, #0F2C59);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 7.5pt;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.itin-date-badge {
+  font-size: 7.5pt;
+  color: #64748B;
+  font-weight: 600;
+}
+.itin-day-title {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: var(--dmc-primary, #0F2C59);
+  margin: 0;
+}
+.itin-day-body {
+  padding: 8px 10px;
+}
+.itin-activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.itin-act-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 8pt;
+  line-height: 1.35;
+}
+.itin-bullet {
+  color: var(--dmc-accent, #2563EB);
+  font-size: 8pt;
+  line-height: 1;
+  margin-top: 2px;
+}
+.itin-act-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.itin-hotel-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  font-size: 7.5pt;
+}
+.itin-hotel-label {
+  color: #64748B;
+}
+.itin-hotel-name {
+  color: var(--dmc-primary, #0F2C59);
+}
+.itin-hotel-dates {
+  color: #64748B;
+}
+.itin-hotel-pill {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.itin-day-note {
+  margin-top: 6px;
+  padding: 4px 6px;
+  background: #FFFBEB;
+  border-left: 3px solid #F59E0B;
+  font-size: 7pt;
+  color: #92400E;
+}
+
+/* ── 2. QUOTATION FORMAT STYLES ── */
+.quotation-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  background: #F8FAFC;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 7.5pt;
+}
+.q-meta-cell span { color: #64748B; margin-right: 4px; }
+.q-meta-cell strong { color: var(--dmc-primary, #0F2C59); }
+
+/* ── 3. HOTEL COSTING FORMAT STYLES ── */
+.hotel-overview-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 8pt;
+}
+.hotel-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hotel-comparison-card {
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-radius: 6px;
+  background: #FFFFFF;
+  padding: 10px 12px;
+  break-inside: avoid;
+}
+.h-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+.h-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.h-number {
+  background: var(--dmc-primary, #0F2C59);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 9pt;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.h-resort-name {
+  font-size: 10pt;
+  font-weight: 700;
+  color: var(--dmc-primary, #0F2C59);
+  margin: 0;
+}
+.h-resort-city {
+  font-size: 7.5pt;
+  color: #64748B;
+}
+.h-stay-badge {
+  text-align: right;
+  font-size: 7.5pt;
+  color: #64748B;
+}
+.h-stay-badge strong {
+  display: block;
+  font-size: 8.5pt;
+  color: var(--dmc-primary, #0F2C59);
+}
+.h-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 6px;
+  font-size: 7.5pt;
+  margin-bottom: 10px;
+}
+.spec-label { color: #64748B; margin-right: 4px; }
+.h-status-confirmed {
+  background: #DCFCE7;
+  color: #166534;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.h-options-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.h-opt-box {
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 6px 8px;
+  text-align: center;
+  background: #F8FAFC;
+}
+.h-opt-box.opt-primary {
+  border-color: #2563EB;
+  background: #EFF6FF;
+}
+.opt-name {
+  font-size: 6.5pt;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.3px;
+}
+.opt-price {
+  font-size: 10pt;
+  font-weight: 800;
+  color: var(--dmc-primary, #0F2C59);
+  margin: 3px 0 1px 0;
+}
+.opt-desc {
+  font-size: 6.5pt;
+  color: #64748B;
+}
+.h-special-note {
+  font-size: 7pt;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+.hotel-grand-cost-card {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%);
+  color: #FFFFFF;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.h-cost-label {
+  font-weight: 700;
+  font-size: 8.5pt;
+  letter-spacing: 0.5px;
+}
+.h-cost-total {
+  font-size: 14pt;
+  font-weight: 800;
+}
+.h-cost-sub {
+  font-size: 7.5pt;
+  opacity: 0.85;
+}
+
+/* ── 4. PACKAGE SUMMARY FORMAT STYLES ── */
+.summary-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: #FFFFFF;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-top: none;
+}
+.so-cell {
+  font-size: 8pt;
+}
+.so-label {
+  display: block;
+  font-size: 6.8pt;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.so-val {
+  color: var(--dmc-primary, #0F2C59);
+}
+.summary-inclusions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.summary-section-box {
+  background: #FFFFFF;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-radius: 6px;
+  padding: 10px;
+}
+.sum-sec-title {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: var(--dmc-primary, #0F2C59);
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 4px;
+  margin: 0 0 6px 0;
+}
+
+/* ── 5. TRAVEL CONFIRMATION VOUCHER STYLES ── */
+.voucher-status-badge {
+  text-align: right;
+}
+.v-confirmed-text {
+  background: #166534;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 8pt;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.v-ref {
+  display: block;
+  font-size: 7pt;
+  color: #64748B;
+  margin-top: 3px;
+}
+.voucher-title-banner {
+  background: #0F2C59;
+  color: #FFFFFF;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+.voucher-title-banner h2 {
+  color: #FFFFFF;
+  margin: 0 0 2px 0;
+  font-size: 11pt;
+  letter-spacing: 0.5px;
+}
+.voucher-title-banner p {
+  margin: 0;
+  font-size: 7.5pt;
+  opacity: 0.85;
+}
+.voucher-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: #FFFFFF;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-top: none;
+  font-size: 7.5pt;
+}
+.v-lbl { color: #64748B; margin-right: 4px; }
+.voucher-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.5pt;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-top: none;
+  background: #FFFFFF;
+}
+.voucher-table th {
+  background: #F1F5F9;
+  padding: 5px 8px;
+  font-weight: 700;
+  color: #0F2C59;
+  border-bottom: 1px solid #CBD5E1;
+  text-align: left;
+}
+.voucher-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #E2E8F0;
+}
+.badge-v-confirmed {
+  background: #DCFCE7;
+  color: #166534;
+  font-weight: 700;
+  font-size: 6.8pt;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.voucher-services-list {
+  background: #FFFFFF;
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-top: none;
+  padding: 6px 10px;
+}
+.v-day-row {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dotted #E2E8F0;
+  font-size: 7.5pt;
+}
+.v-day-meta {
+  width: 70px;
+  flex-shrink: 0;
+  color: #0F2C59;
+}
+.v-day-meta span { display: block; font-size: 6.5pt; color: #64748B; }
+.v-day-items { font-size: 7pt; color: #475569; margin-top: 2px; }
+
+/* ── 6. TAX INVOICE FORMAT STYLES ── */
+.invoice-header {
+  border-bottom: 2px solid #0F2C59;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.inv-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.inv-brand-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.inv-tax-no {
+  display: block;
+  font-size: 7.5pt;
+  color: #64748B;
+  font-weight: 600;
+}
+.inv-title-box {
+  text-align: right;
+}
+.inv-word {
+  color: #0F2C59;
+  font-size: 16pt;
+  font-weight: 900;
+  margin: 0 0 4px 0;
+  letter-spacing: 1px;
+}
+.inv-meta-grid {
+  font-size: 7.5pt;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.im-lbl { color: #64748B; margin-right: 4px; }
+.inv-bill-to-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 7.5pt;
+}
+.bt-title {
+  display: block;
+  font-size: 6.8pt;
+  font-weight: 800;
+  color: #0F2C59;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+.inv-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8pt;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+}
+.inv-items-table th {
+  background: #0F2C59;
+  color: #FFFFFF;
+  padding: 6px 10px;
+  font-size: 7.5pt;
+  letter-spacing: 0.5px;
+}
+.inv-items-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #E2E8F0;
+}
+.inv-calc-container {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+.inv-bank-box {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 7.2pt;
+}
+.inv-bank-box h4 {
+  font-size: 7.5pt;
+  font-weight: 800;
+  color: #0F2C59;
+  margin: 0 0 6px 0;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 3px;
+}
+.bank-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.inv-totals-box {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 8pt;
+}
+.inv-tot-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  border-bottom: 1px dotted #E2E8F0;
+}
+.inv-tot-row.grand-total-row {
+  border-top: 2px solid #0F2C59;
+  border-bottom: 2px solid #0F2C59;
+  padding: 6px 0;
+  font-size: 10pt;
+  color: #0F2C59;
+  font-weight: 800;
+}
+.inv-in-words {
+  font-size: 6.8pt;
+  font-style: italic;
+  color: #64748B;
+  margin-top: 4px;
+}
+.inv-bottom-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: flex-end;
+}
+.inv-terms {
+  font-size: 7pt;
+  color: #64748B;
+}
+.inv-terms h5 {
+  font-size: 7.2pt;
+  color: #0F2C59;
+  margin: 0 0 2px 0;
+}
+.inv-sign-box {
+  text-align: right;
+  font-size: 7.5pt;
+}
+.sign-line {
+  width: 140px;
+  border-bottom: 1px solid #1E293B;
+  margin: 0 0 4px auto;
+}
+
+/* ── 7. CUSTOM MODULAR DOCUMENT STYLES ── */
+.custom-sections-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.custom-sec-block {
+  break-inside: avoid;
+}
+.custom-sec-body {
+  border: 1px solid var(--dmc-border, #CBD5E1);
+  border-top: none;
+  background: #FFFFFF;
+  padding: 10px 12px;
+}
+.custom-rich-text {
+  font-size: 8.5pt;
+  line-height: 1.45;
+  color: var(--dmc-text, #1E293B);
+  margin: 0;
+}
+
+
 
