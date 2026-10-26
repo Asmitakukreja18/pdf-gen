@@ -517,6 +517,75 @@ JSON SCHEMA:
     if (!data.contact.email) data.contact.email = CONFIG.COMPANY.email;
     if (!data.contact.website) data.contact.website = CONFIG.COMPANY.website;
 
+    // Synthesize new reference schema fields if missing
+    if (!data.package) {
+      const paxNum = parseInt(data.trip.travellers, 10) || 2;
+      data.package = {
+        title: 'PACKAGE TOUR',
+        duration: data.trip.duration || `${data.landArrangement.itinerary?.length || 5} Days`,
+        destinations: data.trip.destination || 'Thailand',
+        travellers: data.trip.travellers || `${paxNum} Adults`,
+        paxCount: paxNum,
+        clientName: data.client.name || 'Respected Client',
+        clientContact: data.client.contact || '',
+        clientEmail: data.client.details || '',
+        pickupFrom: data.client.pickupFrom || '',
+        quoteRef: 'LE-DMC-QUOT-' + Math.floor(1000 + Math.random() * 9000),
+        preparedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        usdToInrRate: 87.5,
+        currency: 'BOTH'
+      };
+    }
+
+    if (!data.days || data.days.length === 0) {
+      const pax = data.package.paxCount || 2;
+      data.days = (data.landArrangement.itinerary || []).map((it, idx) => {
+        const dNum = idx + 1;
+        const isLast = idx === data.landArrangement.itinerary.length - 1;
+        const actText = it.activity || it.title || '';
+        const isLeisure = /leisure|free day/i.test(actText);
+        return {
+          dayNumber: dNum,
+          date: `Day ${dNum}`,
+          title: actText.split(/[•·–—;:]/)[0].trim() || `Day ${dNum} Itinerary`,
+          items: [
+            {
+              title: actText,
+              subtitle: isLeisure ? '' : `Sightseeing / Transfer · Adult · 35.00 × ${pax}`,
+              category: /transfer|airport/i.test(actText) ? 'Transfer' : (isLeisure ? 'Leisure' : 'Sightseeing'),
+              pax: pax,
+              unitPrice: isLeisure ? 0 : 35,
+              amountUSD: isLeisure ? 0 : 35 * pax,
+              amountINR: isLeisure ? 0 : Math.round(35 * pax * 87.5),
+              tag: isLeisure ? 'Day @ Leisure' : ''
+            }
+          ],
+          hotel: (!isLast && data.landArrangement.hotel) ? {
+            name: data.landArrangement.hotel,
+            dates: `Day 1 to Day ${data.landArrangement.itinerary.length}`,
+            roomType: data.landArrangement.sharing || 'Deluxe Room',
+            mealPlan: 'Daily Buffet Breakfast',
+            notes: ''
+          } : null,
+          dayNotes: isLeisure ? 'Day @ Leisure / meals not included' : ''
+        };
+      });
+    }
+
+    if (!data.summary || !data.summary.items || data.summary.items.length === 0) {
+      const totINR = data.pricing.total || data.pricing.landPackage || 50000;
+      data.summary = {
+        items: [
+          { name: 'Hotel & Resort Accommodation', amountUSD: Math.round(totINR * 0.6 / 87.5), amountINR: Math.round(totINR * 0.6) },
+          { name: 'Land Part (Private Transfers & Ferries)', amountUSD: Math.round(totINR * 0.2 / 87.5), amountINR: Math.round(totINR * 0.2) },
+          { name: 'Activities & Excursions', amountUSD: Math.round(totINR * 0.2 / 87.5), amountINR: Math.round(totINR * 0.2) }
+        ],
+        autoCalculate: true,
+        totalUSD: Math.round(totINR / 87.5),
+        totalINR: totINR
+      };
+    }
+
     return data;
   }
 
@@ -526,3 +595,4 @@ JSON SCHEMA:
   };
 
 })();
+
