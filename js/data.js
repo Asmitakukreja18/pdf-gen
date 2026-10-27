@@ -131,6 +131,7 @@ const THEME_PRESETS = {
 
 // ─── MASTER REFERENCE SAMPLE: 12-DAY THAILAND ITINERARY ────────────────────────
 const DEMO_REFERENCE_THAILAND_12D = {
+  activeDocType: 'quotation',
   package: {
     title: 'PACKAGE TOUR',
     duration: '12 Days / 11 Nights',
@@ -1319,6 +1320,7 @@ const DEMO_KASHMIR_DATA = {
 
 // ─── ACTIVE WORKING QUOTATION DATA (CENTRAL INSTANCE) ──────────────────────────
 const QuotationData = JSON.parse(JSON.stringify(DEMO_REFERENCE_THAILAND_12D));
+QuotationData.activeDocType = 'quotation';
 
 // ─── BACKWARDS COMPATIBILITY ALIASES ──────────────────────────────────────────
 // Ensures any legacy code accessing QuotationData.client, trip, pricing doesn't crash
@@ -1545,7 +1547,7 @@ function loadSampleDataset(key) {
 
   const clone = JSON.parse(JSON.stringify(demo));
 
-  QuotationData.activeDocType = clone.activeDocType || 'itinerary';
+  QuotationData.activeDocType = clone.activeDocType || 'quotation';
   QuotationData.hotels = clone.hotels || [];
   QuotationData.invoice = clone.invoice || {};
   QuotationData.confirmation = clone.confirmation || {};

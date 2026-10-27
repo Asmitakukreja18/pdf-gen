@@ -33,11 +33,11 @@ const Preview = (() => {
    * @param {boolean} isForPrint - Flag if rendering inside standalone print window
    */
   function buildQuotationHTML(data = QuotationData, isForPrint = false) {
-    const docType = data.activeDocType || 'itinerary';
+    const docType = data.activeDocType || 'quotation';
 
     switch (docType) {
-      case 'quotation':
-        return renderQuotationDocument(data, isForPrint);
+      case 'itinerary':
+        return renderItineraryDocument(data, isForPrint);
       case 'hotel_costing':
         return renderHotelCostingDocument(data, isForPrint);
       case 'summary':
@@ -48,9 +48,9 @@ const Preview = (() => {
         return renderInvoiceDocument(data, isForPrint);
       case 'custom':
         return renderCustomDocument(data, isForPrint);
-      case 'itinerary':
+      case 'quotation':
       default:
-        return renderItineraryDocument(data, isForPrint);
+        return renderQuotationDocument(data, isForPrint);
     }
   }
 
@@ -247,14 +247,25 @@ const Preview = (() => {
 
     return `
       <div class="dmc-quotation-doc doc-quotation-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, 'OFFICIAL COSTING QUOTATION', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, pkg.title || 'PACKAGE TOUR', pkg.quoteRef)}
 
-        <!-- Quotation Meta Strip -->
-        <div class="quotation-meta-strip">
-          <div class="q-meta-cell"><span>Quote Ref:</span> <strong>${escapeHTML(pkg.quoteRef || 'LE-DMC-QUOTE')}</strong></div>
-          <div class="q-meta-cell"><span>Issue Date:</span> <strong>${escapeHTML(pkg.preparedDate || '—')}</strong></div>
-          <div class="q-meta-cell"><span>Tariff Pax:</span> <strong>${escapeHTML(pkg.travellers || '2 Adults')}</strong></div>
-          <div class="q-meta-cell"><span>Forex Rate:</span> <strong>1 USD = ₹ ${pkg.usdToInrRate || 87.5}</strong></div>
+        <!-- 3 Stat Cards Matching Reference PDF -->
+        <div class="dmc-stats-grid">
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">DURATION</span>
+            <div class="stat-card-main">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : 'Day 1 to Day 12 (2 Jan to 13 Jan)')}</div>
+          </div>
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">DESTINATIONS</span>
+            <div class="stat-card-main">${escapeHTML(pkg.destinations || 'Krabi · Phuket + Koh Yao Yai')}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.country || 'Thailand')}</div>
+          </div>
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">TRAVELLERS</span>
+            <div class="stat-card-main">${escapeHTML(pkg.travellers || '2 Adults')}</div>
+            <div class="stat-card-sub">Package for ${pkg.paxCount || 2} pax</div>
+          </div>
         </div>
 
         <!-- 4-Column Day-Wise Services & Costing Table (Reference PDF Standard) -->
@@ -274,6 +285,60 @@ const Preview = (() => {
             ${days.map(day => renderDayPricingCardHTML(day)).join('')}
           </div>
         </section>
+
+        <!-- Hotels Included Section (Direct Reference PDF Match) -->
+        ${data.hotels && data.hotels.length > 0 ? `
+        <section class="dmc-section dmc-hotels-section">
+          <div class="dmc-section-header">
+            <span>Hotels Included & Accommodation Summary</span>
+          </div>
+          <table class="dmc-hotels-table">
+            <thead>
+              <tr>
+                <th style="width: 16%;">CITY</th>
+                <th style="width: 30%;">HOTEL / RESORT</th>
+                <th style="width: 18%;">STAY DATES</th>
+                <th style="width: 16%;">ROOM TYPE</th>
+                <th style="width: 8%; text-align: center;">PAX</th>
+                <th style="width: 12%; text-align: right;">TARIFF (INR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.hotels.map(h => `
+                <tr>
+                  <td><strong>${escapeHTML(h.city || 'Thailand')}</strong></td>
+                  <td><strong>${escapeHTML(h.name)}</strong></td>
+                  <td>${escapeHTML(h.checkIn || '')} to ${escapeHTML(h.checkOut || '')}</td>
+                  <td>${escapeHTML(h.roomType || 'Deluxe Room')}</td>
+                  <td style="text-align: center;">${h.pax || 2}</td>
+                  <td style="text-align: right; font-weight: 700; color: var(--dmc-primary, #0F2C59);">
+                    ${h.amountINR ? formatCurrencyINR(h.amountINR) : 'Included'}
+                  </td>
+                </tr>
+              `).join('')}
+              <tr class="dmc-hotel-total-row">
+                <td colspan="5" style="text-align: right; font-weight: 700;">TOTAL HOTEL COSTING:</td>
+                <td style="text-align: right; font-weight: 800; color: var(--dmc-primary, #0F2C59);">
+                  ${formatCurrencyINR(data.hotels.reduce((s, h) => s + (Number(h.amountINR) || 0), 0))}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>` : ''}
+
+        <!-- Dynamic Custom Sections (Inclusions, Exclusions, Notes) -->
+        ${(data.customSections || []).filter(sec => sec.items && sec.items.length > 0).map(sec => `
+          <section class="dmc-section dmc-custom-section">
+            <div class="dmc-section-header">
+              <span>${escapeHTML(sec.title)}</span>
+            </div>
+            <div class="dmc-custom-section-content">
+              <ul class="dmc-bullet-list">
+                ${sec.items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}
+              </ul>
+            </div>
+          </section>
+        `).join('')}
 
         <!-- Final Price Summary Table -->
         <section class="dmc-section dmc-summary-section">
@@ -848,44 +913,59 @@ const Preview = (() => {
    * Day Pricing Card for Quotation format (4-column grid)
    */
   function renderDayPricingCardHTML(day) {
+    const items = day.items || [];
+    const hasHotel = day.hotel && day.hotel.name && day.hotel.name.trim() !== '';
+
     return `
       <div class="dmc-day-card" id="day-card-${day.dayNumber}">
-        <div class="dmc-day-title-row">
-          <span class="day-badge">DAY ${day.dayNumber}</span>
-          <span class="day-date-sep">·</span>
-          <span class="day-date">${escapeHTML(day.date || '')}</span>
-          <span class="day-pipe">|</span>
-          <span class="day-headline">${escapeHTML(day.title || 'Day Tour')}</span>
+        <div class="dmc-day-heading-bar">
+          <div class="day-badge-col">
+            <span class="day-pill">DAY ${day.dayNumber}</span>
+            <span class="day-sep-dot">·</span>
+            <span class="day-date-text">${escapeHTML(day.date || '')}</span>
+          </div>
+          <div class="day-title-col">
+            <span class="day-pipe">|</span>
+            <span class="day-main-title">${escapeHTML(day.title || 'Itinerary Schedule')}</span>
+          </div>
         </div>
 
-        <div class="dmc-activities-table">
-          ${(day.items || []).map(item => `
-            <div class="dmc-activity-row ${item.unitPrice > 0 ? 'is-priced' : 'is-unpriced'}">
+        <div class="dmc-day-items-table">
+          ${items.map(item => `
+            <div class="dmc-item-row ${item.tag ? 'has-tag' : ''}">
               <div class="item-desc-col">
-                <span class="bullet-dot">•</span>
-                <span class="act-name">${escapeHTML(item.title)}</span>
-                ${item.subtitle ? `<div class="act-subtitle">${escapeHTML(item.subtitle)}</div>` : ''}
-                ${item.tag ? renderTagBadge(item.tag) : ''}
+                <div class="item-title-line">
+                  <span class="item-bullet">•</span>
+                  <span class="item-name">${escapeHTML(item.title)}</span>
+                  ${item.tag ? renderTagBadge(item.tag) : ''}
+                </div>
+                ${item.subtitle ? `<div class="item-subtitle">${escapeHTML(item.subtitle)}</div>` : ''}
               </div>
-              <div class="item-pax-col">${item.pax ? `<span class="col-val">${escapeHTML(item.pax)}</span>` : ''}</div>
-              <div class="item-inr-col">${item.amountINR ? `<span class="col-val">${Number(item.amountINR).toLocaleString('en-IN')}</span>` : ''}</div>
-              <div class="item-usd-col">${item.amountUSD ? `<span class="col-val">${Number(item.amountUSD).toFixed(2)}</span>` : ''}</div>
+              <div class="item-pax-col">${item.pax ? `<span class="col-val">${escapeHTML(item.pax)}</span>` : '<span class="col-val">—</span>'}</div>
+              <div class="item-inr-col">${item.amountINR ? `<span class="col-val">${formatCurrencyINR(item.amountINR)}</span>` : '<span class="col-val">—</span>'}</div>
+              <div class="item-usd-col">${item.amountUSD ? `<span class="col-val">${formatCurrencyUSD(item.amountUSD)}</span>` : '<span class="col-val">—</span>'}</div>
             </div>
           `).join('')}
         </div>
 
-        ${day.hotel && day.hotel.name ? `
-        <div class="dmc-hotel-row ${day.hotel.amountINR ? 'has-price' : 'no-price'}">
+        ${hasHotel ? `
+        <div class="dmc-hotel-row ${day.hotel.amountINR ? 'has-price' : ''}">
           <div class="item-desc-col">
-            <div class="hotel-inline-desc">
+            <div class="hotel-name-line">
               <span class="hotel-label">Hotel :</span>
               <strong class="hotel-title">${escapeHTML(day.hotel.name)}</strong>
               ${day.hotel.dates ? `<span class="hotel-stay-dates">( ${escapeHTML(day.hotel.dates)} )</span>` : ''}
             </div>
+            ${(day.hotel.roomType || day.hotel.mealPlan || day.hotel.notes) ? `
+            <div class="hotel-sub-details">
+              ${day.hotel.roomType ? `<span class="hotel-pill">🛏️ ${escapeHTML(day.hotel.roomType)}</span>` : ''}
+              ${day.hotel.mealPlan ? `<span class="hotel-pill">☕ ${escapeHTML(day.hotel.mealPlan)}</span>` : ''}
+              ${day.hotel.notes ? `<span class="hotel-note-text">${escapeHTML(day.hotel.notes)}</span>` : ''}
+            </div>` : ''}
           </div>
           <div class="item-pax-col">${day.hotel.amountINR ? `<span class="col-val">${day.hotel.pax || 2}</span>` : ''}</div>
-          <div class="item-inr-col">${day.hotel.amountINR ? `<span class="col-val">${Number(day.hotel.amountINR).toLocaleString('en-IN')}</span>` : ''}</div>
-          <div class="item-usd-col">${day.hotel.amountUSD ? `<span class="col-val">${Number(day.hotel.amountUSD).toFixed(2)}</span>` : ''}</div>
+          <div class="item-inr-col">${day.hotel.amountINR ? `<span class="col-val">${formatCurrencyINR(day.hotel.amountINR)}</span>` : ''}</div>
+          <div class="item-usd-col">${day.hotel.amountUSD ? `<span class="col-val">${formatCurrencyUSD(day.hotel.amountUSD)}</span>` : ''}</div>
         </div>` : ''}
 
         ${day.dayNotes ? `

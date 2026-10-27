@@ -280,6 +280,12 @@ const App = (() => {
     populateConfirmationFields();
     populateCustomDocFields();
 
+    // Sync active format pill to match QuotationData.activeDocType
+    const activeDoc = d.activeDocType || 'quotation';
+    document.querySelectorAll('.doc-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.doctype === activeDoc);
+    });
+
     // Update Totals and Live View
     updateLiveTotalsDisplay();
     updateLivePreviews();

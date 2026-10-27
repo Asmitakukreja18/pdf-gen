@@ -314,6 +314,81 @@ const PDFGenerator = (() => {
       color: var(--dmc-text, #1E293B);
     }
 
+    /* ── 3 STAT CARDS (REFERENCE PDF EXACT SPECIFICATION) ── */
+    .dmc-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 10px 0 14px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .dmc-stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--dmc-border, #CBD5E1);
+      border-top: 3px solid var(--dmc-primary, #0F2C59);
+      border-radius: 4px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-card-title {
+      font-size: 7.5pt;
+      font-weight: 800;
+      color: var(--dmc-primary, #0F2C59);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .stat-card-main {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: var(--dmc-secondary, #1E3A8A);
+      line-height: 1.25;
+    }
+    .stat-card-sub {
+      font-size: 8pt;
+      color: var(--dmc-muted, #64748B);
+      margin-top: 2px;
+      line-height: 1.25;
+    }
+
+    /* ── HOTELS INCLUDED TABLE (REFERENCE PDF EXACT SPECIFICATION) ── */
+    .dmc-hotels-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--dmc-border, #CBD5E1);
+      border-top: none;
+      font-size: 8.5pt;
+      background: #FFFFFF;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .dmc-hotels-table thead th {
+      background: #E2E8F0;
+      padding: 5px 10px;
+      font-weight: 700;
+      font-size: 7.5pt;
+      color: var(--dmc-primary, #0F2C59);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--dmc-border, #CBD5E1);
+    }
+    .dmc-hotels-table tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #F1F5F9;
+      color: var(--dmc-text, #1E293B);
+    }
+    .dmc-hotels-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .dmc-hotel-total-row td {
+      background: #F8FAFC;
+      border-top: 2px solid var(--dmc-primary, #0F2C59) !important;
+      padding: 7px 10px;
+      font-size: 9pt;
+    }
+
     /* ── 2. SECTION COMMON ── */
     .dmc-section {
       margin-bottom: 14px;
