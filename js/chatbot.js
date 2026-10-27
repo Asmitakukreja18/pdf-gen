@@ -1,8 +1,12 @@
 /**
- * chatbot.js — Conversational AI Travel Quotation Assistant
- * Integrates directly with AIParser and QuotationData.
- * Extracts trip details, gives rich instant responses, auto-verifies calculations,
- * and enables 1-click preview, PDF, and DOCX generation.
+ * chatbot.js — Conversational AI Travel Quotation & Multi-Format Document Assistant
+ * Multimodal Document Agent for Let's Explore DMC:
+ * - Natural Language understanding (Hindi, English, Hinglish)
+ * - Multimodal file attachment analysis (PDF, Docs, Images)
+ * - Hotel replacement & dynamic price recalculation
+ * - Document Suite format switcher (Itinerary, Quotation, Hotel Costing, Invoice, Voucher)
+ * - Live real-time studio & preview synchronization
+ * - 1-Click PDF and DOCX generation
  */
 
 const Chatbot = (() => {
@@ -11,6 +15,7 @@ const Chatbot = (() => {
   let history = [];
   let isTyping = false;
   let initialized = false;
+  let activeAttachment = null;
 
   // DOM Refs
   const $ = (id) => document.getElementById(id);
@@ -29,21 +34,78 @@ const Chatbot = (() => {
     history = [];
     renderWelcome();
     setupInputHandlers();
+    setupAttachmentHandlers();
   }
 
   function renderWelcome() {
     appendAI(
-      `Hi there! 👋 Welcome to <strong>Let's Explore DMC</strong> AI Quotation Engine.<br>` +
-      `I can extract package details from natural language, WhatsApp messages, or rough notes for <strong>any destination worldwide</strong> (Dubai, Thailand, Kashmir, Bali, Singapore, etc.) and generate a locked professional 12-section quotation instantly.<br><br>` +
-      `Choose a quick sample below or type/paste your enquiry details naturally!`
+      `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC AI Document Agent</strong>.<br>` +
+      `Aap mujhse natural language mein baat kar sakte hain jaise: <br>` +
+      `• <em>"Hotel change karke ye hotels add karo"</em><br>` +
+      `• <em>"Quotation format banao"</em> ya <em>"Invoice banao"</em><br>` +
+      `• <em>"PDF generate karo"</em> ya <em>"DOCX bhejo"</em><br>` +
+      `• Aap <strong>📎 button</strong> se reference PDF, document, ya image bhi attach kar sakte hain!`
     );
     showReplies([
-      { label: '🌟 Dubai Luxury (5D)', val: '__SAMPLE_DUBAI__', primary: true },
-      { label: '🌴 Thailand Escape (6D)', val: '__SAMPLE_THAI__' },
-      { label: '🏔️ Kashmir Valley (6D)', val: '__SAMPLE_KASH__' },
-      { label: '🌺 Bali Holiday (5D)', val: '__SAMPLE_BALI__' },
-      { label: '✍️ Messy Notes Demo', val: '__SAMPLE_MESSY__' }
+      { label: '🌴 Apply v5 Thailand Hotels (₹ 1,69,143)', val: '__APPLY_V5_HOTELS__', primary: true },
+      { label: '💰 Switch to Quotation Format', val: '__SWITCH_QUOTATION__' },
+      { label: '🏨 Hotel Costing Comparison', val: '__SWITCH_HOTEL_COSTING__' },
+      { label: '🧾 Tax Invoice Format', val: '__SWITCH_INVOICE__' },
+      { label: '🎟️ Confirmation Voucher', val: '__SWITCH_CONFIRMATION__' },
+      { label: '🖨️ Generate PDF', val: '__PDF__' }
     ]);
+  }
+
+  /**
+   * Setup Attachment Handlers (Multimodal file support)
+   */
+  function setupAttachmentHandlers() {
+    const attachBtn = $('btnAttachFile');
+    const fileInput = $('chatDocUpload');
+    const badge = $('chatAttachmentBadge');
+    const badgeText = $('chatAttachmentText');
+    const removeBtn = $('btnRemoveChatAttachment');
+
+    if (attachBtn && fileInput) {
+      attachBtn.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        activeAttachment = {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        };
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          activeAttachment.content = event.target.result;
+          if (badge && badgeText) {
+            badgeText.textContent = `📎 Attached: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+            badge.style.display = 'flex';
+          }
+          if (typeof showToast === 'function') {
+            showToast(`Attached ${file.name} for AI analysis`, 'info');
+          }
+        };
+
+        if (file.type.includes('image') || file.type.includes('pdf')) {
+          reader.readAsDataURL(file);
+        } else {
+          reader.readAsText(file);
+        }
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        activeAttachment = null;
+        if (badge) badge.style.display = 'none';
+        if (fileInput) fileInput.value = '';
+      });
+    }
   }
 
   /**
@@ -69,38 +131,60 @@ const Chatbot = (() => {
   }
 
   function submitInput(text) {
-    if (!text || isTyping) return;
+    if (!text && !activeAttachment) return;
+    if (isTyping) return;
+
+    let fullPrompt = text;
+    if (activeAttachment) {
+      fullPrompt = `[Attached File: ${activeAttachment.name}]\n` + (text || 'Please inspect this reference file and update document.');
+    }
+
     clearInput();
     clearReplies();
-    appendUser(text);
-    processMessage(text);
+    appendUser(fullPrompt);
+
+    // Reset attachment badge after sending
+    const badge = $('chatAttachmentBadge');
+    if (badge) badge.style.display = 'none';
+    const uploadInput = $('chatDocUpload');
+    if (uploadInput) uploadInput.value = '';
+    const attachedFileBackup = activeAttachment;
+    activeAttachment = null;
+
+    processMessage(fullPrompt, attachedFileBackup);
   }
 
   /**
    * Main Message Processing
    */
-  async function processMessage(text) {
+  async function processMessage(text, attachment = null) {
     const t = text.trim();
 
-    // Check single-action command intents
-    if (/^(pdf|download\s*pdf|generate\s*pdf)$/i.test(t)) {
-      PDFGenerator.generate();
-      appendAI('Opening print-ready A4 PDF quotation dialog...');
+    // 1. Direct PDF trigger
+    if (/^(pdf|download\s*pdf|generate\s*pdf|pdf\s*bhejo|pdf\s*banao)$/i.test(t)) {
+      if (typeof PDFGenerator !== 'undefined') PDFGenerator.generate();
+      appendAI('Opening print-ready A4 PDF document dialog... You can save as PDF directly!');
       return;
     }
-    if (/^(docx|word|download\s*docx|generate\s*docx)$/i.test(t)) {
-      DOCXGenerator.generate();
-      appendAI('Preparing and downloading your editable Word (.docx) quotation...');
+
+    // 2. Direct DOCX trigger
+    if (/^(docx|word|download\s*docx|generate\s*docx|word\s*file|docx\s*bhejo)$/i.test(t)) {
+      if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
+      appendAI('Preparing and downloading your editable Microsoft Word (.doc/.docx) document...');
       return;
     }
+
+    // 3. Direct Preview trigger
     if (/^(preview|view\s*preview|show\s*preview|dekho)$/i.test(t)) {
-      App.showSection('preview');
-      appendAI('Switching to official Quotation Preview!');
+      if (typeof App !== 'undefined') App.showSection('preview');
+      appendAI('Switching to official Document Master Preview!');
       return;
     }
+
+    // 4. Reset trigger
     if (/^(restart|reset|naya|new|fresh|clear)$/i.test(t)) {
-      resetQuotationData();
-      App.showSection('generator');
+      if (typeof resetQuotationData === 'function') resetQuotationData();
+      if (typeof App !== 'undefined') App.showSection('generator');
       appendAI('Cleared! Tell me the client name, destination, and travel dates to start a new quotation.');
       return;
     }
@@ -108,121 +192,119 @@ const Chatbot = (() => {
     setTyping(true);
 
     try {
-      // Check if user is requesting Day 8 or Thavorn hotel correction
-      if (/Thavorn|Candle\s*Light\s*Dinner|Sunset\s*Beach\s*Resort|correct\s*resort|hotel.*name/i.test(text)) {
-        const day8 = QuotationData.days.find(d => d.dayNumber === 8 || /Oasis|Candle/i.test(d.title));
-        if (day8 && day8.hotel) {
-          day8.hotel.name = 'Thavorn Beach Village Resort & Spa, Phuket';
-        }
-        recalculateQuotationPricing();
-        if (typeof App !== 'undefined') {
-          App.updateLivePreviews();
-        }
+      // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View)
+      if (t === '__APPLY_V5_HOTELS__' ||
+          /hotel.*change|change.*hotel|naya\s*hotel|naya\s*rate|ramada|andakira|mountain\s*beach|169143|1,69,143|panwaburi.*36|esmeralda.*32|v5/i.test(text)) {
+        
+        applyNewThailandHotelsAndRates();
         setTyping(false);
 
         appendAI(
-          `✅ <strong>Hotel Name Corrected Successfully!</strong><br><br>` +
-          `• <strong>DAY 8 · 9 Jan | Oasis Spa & Candle Light Dinner</strong><br>` +
-          `• Hotel / Resort: <strong>Thavorn Beach Village Resort & Spa, Phuket</strong> (8 Jan to 10 Jan)<br>` +
-          `• All activities, Candle Light Dinner, pricing, and formatting have been strictly preserved.<br>` +
-          `• The change is now reflected live in your Quotation Preview and Print PDF!`
+          `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 ready hai!</strong><br><br>` +
+          `Itinerary, design aur USD land rates same rakhe hain, sirf hotels aur hotel rates badle hain:<br><br>` +
+          `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
+          `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Purana Hotel</th><th style="padding:6px 8px; text-align:left;">Naya Hotel</th><th style="padding:6px 8px; text-align:right;">Rate (INR)</th></tr>` +
+          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px; color:#64748B;">Krabi Resort (1,04,025)</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 39,146</td></tr>` +
+          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px; color:#64748B;">Phi Phi Island Cabana (43,262)</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 27,204</td></tr>` +
+          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px; color:#64748B;">Sunset Beach Resort (27,944)</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 34,095</td></tr>` +
+          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px; color:#64748B;">Panwaburi Beachfront</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 36,318</td></tr>` +
+          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px; color:#64748B;">Esmeralda View</td><td style="padding:5px 8px;"><strong>Esmeralda View (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 32,380</td></tr>` +
+          `</table>` +
+          `• <strong>Price Summary</strong>: Hotel Costing ab <strong>₹ 1,69,143</strong> hai (pehle 2,43,929 thi), jo in paanchon rates ka sum hai.<br>` +
+          `• <strong>Land Part</strong>: <strong>$ 1,808.00 USD</strong> hi hai.<br>` +
+          `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
+          `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
         );
 
         showReplies([
-          { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Generate PDF', val: '__PDF__' },
-          { label: '📄 Download DOCX', val: '__DOCX__' },
-          { label: '✏️ Back to Studio', val: '__MODAL_EDIT__' }
+          { label: '🖨️ Generate PDF (v5)', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+          { label: '💰 Quotation Format', val: '__SWITCH_QUOTATION__' },
+          { label: '🏨 Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
+          { label: '🧾 Tax Invoice', val: '__SWITCH_INVOICE__' }
         ]);
         scrollBottom();
         return;
       }
 
-      // Check if user pasted 12-day Thailand quotation
-      if (/Krabi.*Phuket.*Koh\s*Yao\s*Yai|12\s*Days.*11\s*Nights/i.test(text)) {
-        loadSampleDataset('reference');
-        if (typeof App !== 'undefined') {
-          App.updateLivePreviews();
+      // 6. Check Document Format Switch Requests
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:invoice|bill)|(?:invoice|bill).*(?:format|layout|banao|me)/i.test(text)) {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('invoice');
         }
         setTyping(false);
-
-        appendAI(
-          `✅ <strong>12-Day Thailand Quotation Loaded!</strong><br><br>` +
-          `• <strong>Krabi + Phuket + Koh Yao Yai, Thailand</strong> (12 Days / 11 Nights · 2 Jan to 13 Jan)<br>` +
-          `• <strong>Day 8 Resort</strong>: Thavorn Beach Village Resort & Spa, Phuket (8 Jan to 10 Jan)<br>` +
-          `• <strong>Hotel Costing</strong>: ₹ 2,59,982 | <strong>Land Part</strong>: $ 1,488.00<br>` +
-          `• All 12 days, hotels, tours, and office directory are locked in the official master format.`
-        );
-
+        appendAI('✅ <strong>Switched to Corporate Tax Invoice Format!</strong><br>Billed-to details, GST calculations, bank remittance, and signature block are now active in the live preview.');
         showReplies([
-          { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Generate PDF', val: '__PDF__' },
-          { label: '📄 Download DOCX', val: '__DOCX__' }
+          { label: '🖨️ Print / Save PDF Invoice', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__' }
         ]);
         scrollBottom();
         return;
       }
 
-      // Check if user is requesting markup or pricing adjustments
-      if (/markup|increase|badao|badhao|hike|surcharge|percent|10\s*percent|20\s*usd|hotel.*(?:10%|percent|increase)|activit.*(?:20|usd|increase)/i.test(text)) {
-        let hotelPct = 0;
-        let actUSD = 0;
-
-        const hMatch = text.match(/hotel[^\d]*(\d+(?:\.\d+)?)\s*(?:%|percent)/i) || 
-                       text.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)[^\d]*hotel/i);
-        if (hMatch) {
-          hotelPct = parseFloat(hMatch[1]);
-        } else if (/hotel/i.test(text) && /10/i.test(text)) {
-          hotelPct = 10;
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:quotation|quote)|(?:quotation|quote).*(?:format|layout|banao|me)/i.test(text)) {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('quotation');
         }
-
-        const aMatch = text.match(/(\d+(?:\.\d+)?)\s*usd[^\w]*activit/i) || 
-                       text.match(/activit[^\d]*(\d+(?:\.\d+)?)\s*usd/i) || 
-                       text.match(/(\d+(?:\.\d+)?)\s*usd.*each/i) ||
-                       text.match(/each\s*activity.*(\d+(?:\.\d+)?)\s*usd/i);
-        if (aMatch) {
-          actUSD = parseFloat(aMatch[1]);
-        } else if (/activit/i.test(text) && /20/i.test(text)) {
-          actUSD = 20;
-        }
-
-        if (hotelPct === 0 && /10\s*(?:%|percent)/i.test(text)) hotelPct = 10;
-        if (actUSD === 0 && /20\s*usd/i.test(text)) actUSD = 20;
-
-        if (hotelPct > 0 || actUSD > 0) {
-          applyMarkupAdjustments({ hotelPercent: hotelPct, activityUSD: actUSD });
-
-          if (typeof App !== 'undefined') {
-            App.updateLivePreviews();
-            if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
-            if (typeof App.renderDayCards === 'function') App.renderDayCards();
-          }
-
-          setTyping(false);
-
-          const hCost = QuotationData.summary.items.find(i => /hotel/i.test(i.name));
-          const lCost = QuotationData.summary.items.find(i => /land/i.test(i.name));
-
-          appendAI(
-            `✅ <strong>Quotation Markup Applied Successfully!</strong><br><br>` +
-            (hotelPct > 0 ? `• <strong>Hotel Markup (+${hotelPct}%)</strong>: Applied across all resort stays.<br>&nbsp;&nbsp;New Hotel Costing: <strong>${formatCurrencyINR(hCost ? hCost.amountINR : QuotationData.summary.totalINR)}</strong> for ${QuotationData.package.travellers || '2 adults'}<br>` : '') +
-            (actUSD > 0 ? `• <strong>Activities Surcharge (+${actUSD} USD)</strong>: Added +${actUSD} USD to each activity.<br>&nbsp;&nbsp;New Land Package: <strong>${formatCurrencyUSD(lCost ? lCost.amountUSD : QuotationData.summary.totalUSD)}</strong> for ${QuotationData.package.travellers || '2 adults'}<br>` : '') +
-            `• <strong>Day 8 Resort</strong>: <strong>Thavorn Beach Village Resort & Spa, Phuket</strong> (8 Jan to 10 Jan preserved)<br>` +
-            `• All day-wise pricing columns, calculations, and Print PDF are updated live!`
-          );
-
-          showReplies([
-            { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
-            { label: '🖨️ Generate PDF', val: '__PDF__' },
-            { label: '📄 Download DOCX', val: '__DOCX__' },
-            { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' }
-          ]);
-          scrollBottom();
-          return;
-        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Commercial Quotation Format!</strong><br>Day-by-day Pax, INR, USD columns, pricing summary, and commercial total are active in the live preview.');
+        showReplies([
+          { label: '🖨️ Print / Save PDF Quotation', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__' }
+        ]);
+        scrollBottom();
+        return;
       }
 
-      // General extraction via AIParser
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text)) {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('hotel_costing');
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options (Free cancellation, Non-refundable, Partial refund) for all 5 hotels are active.');
+        showReplies([
+          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text)) {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('confirmation');
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Travel Confirmation Voucher Format!</strong><br>Booking reference, lead pax, confirmed hotel schedule, and 24/7 emergency hotline are active.');
+        showReplies([
+          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:itinerary|daywise|day-wise)|(?:itinerary).*(?:format|layout|banao|me)/i.test(text)) {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('itinerary');
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Travel Experience Itinerary Format!</strong><br>Day-by-day travel timeline, sightseeing, activities, and hotel stays are active.');
+        showReplies([
+          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__', primary: true },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // 7. General extraction via AIParser
       const extracted = await AIParser.parseText(text);
 
       if (extracted.package && (extracted._hasExplicitDestination || !QuotationData.package.destinations)) {
@@ -237,6 +319,9 @@ const Chatbot = (() => {
 
       recalculateQuotationPricing();
       if (typeof App !== 'undefined') {
+        if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
+        if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+        if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
         App.updateLivePreviews();
       }
 
@@ -247,7 +332,7 @@ const Chatbot = (() => {
         `✅ <strong>Quotation Updated Successfully!</strong><br><br>` +
         `📍 <strong>${pkg.destinations || 'Holiday'}</strong> (${pkg.duration || '—'})<br>` +
         `👥 <strong>${pkg.travellers || '2 Adults'}</strong> · 📅 Dates: <strong>${pkg.preparedDate || '—'}</strong><br>` +
-        `🗺️ <strong>${QuotationData.days.length} Days Day-wise Itinerary & Pricing Configured</strong><br><br>` +
+        `🗺️ <strong>${QuotationData.days.length} Days Itinerary & Costing Configured</strong><br><br>` +
         `What would you like to do next?`
       );
 
@@ -270,6 +355,204 @@ const Chatbot = (() => {
     }
 
     scrollBottom();
+  }
+
+  /**
+   * Helper: Apply v5 Thailand Hotels & Rates (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View)
+   */
+  function applyNewThailandHotelsAndRates() {
+    loadSampleDataset('reference');
+
+    // 1. Update Day 1-12 hotels
+    const d = QuotationData;
+    if (d.days && d.days.length >= 12) {
+      // Days 1-3: Ramada
+      [0, 1, 2].forEach(idx => {
+        d.days[idx].hotel = {
+          name: 'Ramada By Wyndham',
+          dates: '2 Jan to 5 Jan',
+          pax: idx === 0 ? 2 : '',
+          amountINR: idx === 0 ? 39146 : 0,
+          amountUSD: 0,
+          notes: ''
+        };
+      });
+
+      // Days 4-5: Phi Phi Mountain Beach Resort
+      [3, 4].forEach(idx => {
+        d.days[idx].hotel = {
+          name: 'Phi Phi Mountain Beach Resort',
+          dates: '5 Jan to 7 Jan',
+          pax: idx === 3 ? 2 : '',
+          amountINR: idx === 3 ? 27204 : 0,
+          amountUSD: 0,
+          notes: ''
+        };
+      });
+
+      // Days 6-7: Hotel Andakira Phuket
+      [5, 6].forEach(idx => {
+        d.days[idx].hotel = {
+          name: 'Hotel Andakira Phuket',
+          dates: '7 Jan to 9 Jan',
+          pax: idx === 5 ? 2 : '',
+          amountINR: idx === 5 ? 34095 : 0,
+          amountUSD: 0,
+          notes: ''
+        };
+      });
+
+      // Day 8: Panwaburi Beachfront stay, Candle Light Dinner venue Thavorn Beach Village Resort
+      d.days[7].hotel = {
+        name: 'Panwaburi Beachfront',
+        dates: '9 Jan to 10 Jan',
+        pax: 2,
+        amountINR: 36318,
+        amountUSD: 0,
+        notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort'
+      };
+
+      // Days 9-11: Esmeralda View
+      [8, 9, 10].forEach(idx => {
+        d.days[idx].hotel = {
+          name: 'Esmeralda View',
+          dates: '10 Jan to 13 Jan',
+          pax: idx === 8 ? 2 : '',
+          amountINR: idx === 8 ? 32380 : 0,
+          amountUSD: 0,
+          notes: ''
+        };
+      });
+
+      // Day 12: Departure
+      d.days[11].hotel = null;
+    }
+
+    // 2. Update Hotel Properties Comparison List
+    d.hotels = [
+      {
+        id: 'h_1',
+        name: 'Ramada By Wyndham',
+        city: 'Krabi (Ao Nang Beach)',
+        checkIn: '2 Jan',
+        checkOut: '5 Jan',
+        nights: 3,
+        roomType: 'Deluxe Room',
+        rooms: 1,
+        mealPlan: 'Bed & Breakfast (CP)',
+        amountINR: 39146,
+        amountUSD: 447.38,
+        opt1FreeCancel: 39146,
+        opt2NonRefund: 35231,
+        opt3PartialRefund: 37188,
+        cancellation: 'Free cancellation until 20 Dec 2026',
+        refundability: 'Refundable',
+        status: 'Confirmed',
+        notes: 'Walking distance to Ao Nang Beach & night market'
+      },
+      {
+        id: 'h_2',
+        name: 'Phi Phi Mountain Beach Resort',
+        city: 'Koh Phi Phi Don',
+        checkIn: '5 Jan',
+        checkOut: '7 Jan',
+        nights: 2,
+        roomType: 'Superior Ocean View Bungalow',
+        rooms: 1,
+        mealPlan: 'Daily Buffet Breakfast',
+        amountINR: 27204,
+        amountUSD: 310.90,
+        opt1FreeCancel: 27204,
+        opt2NonRefund: 24483,
+        opt3PartialRefund: 25843,
+        cancellation: 'Free cancellation until 24 Dec 2026',
+        refundability: 'Refundable',
+        status: 'Confirmed',
+        notes: 'Hillside resort with scenic panoramic sea view'
+      },
+      {
+        id: 'h_3',
+        name: 'Hotel Andakira Phuket',
+        city: 'Phuket (Patong Beach)',
+        checkIn: '7 Jan',
+        checkOut: '9 Jan',
+        nights: 2,
+        roomType: 'Deluxe Premier Room',
+        rooms: 1,
+        mealPlan: 'Buffet Breakfast Included',
+        amountINR: 34095,
+        amountUSD: 389.66,
+        opt1FreeCancel: 34095,
+        opt2NonRefund: 30685,
+        opt3PartialRefund: 32390,
+        cancellation: 'Free cancellation until 30 Dec 2026',
+        refundability: 'Refundable',
+        status: 'Confirmed',
+        notes: 'Overlooks Patong Bay; Candle Light Dinner venue on 9 Jan is set at Thavorn Beach Village Resort'
+      },
+      {
+        id: 'h_4',
+        name: 'Panwaburi Beachfront',
+        city: 'Phuket (Cape Panwa)',
+        checkIn: '9 Jan',
+        checkOut: '10 Jan',
+        nights: 1,
+        roomType: 'Deluxe Pool Access Suite',
+        rooms: 1,
+        mealPlan: 'American Breakfast',
+        amountINR: 36318,
+        amountUSD: 415.06,
+        opt1FreeCancel: 36318,
+        opt2NonRefund: 32686,
+        opt3PartialRefund: 34502,
+        cancellation: 'Non-refundable tariff after confirmation',
+        refundability: 'Non-Refundable',
+        status: 'Confirmed',
+        notes: 'Iconic beachfront glass pool resort'
+      },
+      {
+        id: 'h_5',
+        name: 'Esmeralda View',
+        city: 'Koh Yao Yai',
+        checkIn: '10 Jan',
+        checkOut: '13 Jan',
+        nights: 3,
+        roomType: 'Ocean Panorama Cliff Villa',
+        rooms: 1,
+        mealPlan: 'Daily Island Breakfast',
+        amountINR: 32380,
+        amountUSD: 370.06,
+        opt1FreeCancel: 32380,
+        opt2NonRefund: 29142,
+        opt3PartialRefund: 30761,
+        cancellation: 'Free cancellation until 1 Jan 2027',
+        refundability: 'Refundable',
+        status: 'Confirmed',
+        notes: 'Speedboat transfers to/from Chong Lard Pier included'
+      }
+    ];
+
+    // 3. Update Summary
+    d.summary = {
+      items: [
+        { name: 'Hotel Costing\nfor 2 adults', amountINR: 169143, amountUSD: 0 },
+        { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1808.00 }
+      ],
+      autoCalculate: false,
+      totalINR: 169143,
+      totalUSD: 1808.00
+    };
+
+    // 4. Synchronize Studio & Live Preview
+    if (typeof App !== 'undefined') {
+      if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
+      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+      if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
+      App.updateLivePreviews();
+    }
+    if (typeof showToast === 'function') {
+      showToast('Loaded updated v5 hotels & rates: ₹ 1,69,143', 'success');
+    }
   }
 
   /**
@@ -321,68 +604,51 @@ const Chatbot = (() => {
     if (opt.val === 'restart') {
       resetQuotationData();
       if (typeof App !== 'undefined') {
-        if (typeof App.populateFormFromData === 'function') App.populateFormFromData();
-        if (typeof App.updateLivePriceDisplay === 'function') App.updateLivePriceDisplay();
         App.showSection('generator');
       }
       appendAI('Starting a fresh quotation! Enter client details or destination.');
       return;
     }
-    if (opt.val.startsWith('__SAMPLE_') || opt.val === '__LOAD_BALI__') {
-      let sampleKey = 'dubai';
-      if (opt.val === '__SAMPLE_THAI__') sampleKey = 'thailand';
-      else if (opt.val === '__SAMPLE_KASH__') sampleKey = 'kashmir';
-      else if (opt.val === '__SAMPLE_BALI__' || opt.val === '__LOAD_BALI__') sampleKey = 'bali';
-      else if (opt.val === '__SAMPLE_MESSY__') {
-        // Parse the messy unstructured WhatsApp text
-        appendUser(opt.label);
-        processMessage(SAMPLE_PROMPTS.messy);
-        return;
-      }
 
-      loadSampleDataset(sampleKey);
-      if (typeof App !== 'undefined') {
-        if (typeof App.populateFormFromData === 'function') App.populateFormFromData();
-        if (typeof App.updateLivePriceDisplay === 'function') App.updateLivePriceDisplay();
-      }
-
-      const d = QuotationData;
-      const fCost = formatCurrencyINR(d.pricing.flights);
-      const lCost = formatCurrencyINR(d.pricing.landPackage);
-      const tCost = formatCurrencyINR(d.pricing.total);
-
-      appendAI(
-        `✅ <strong>${d.trip.destination} Quotation Loaded!</strong><br><br>` +
-        `📍 <strong>${d.trip.destination}</strong> (${d.trip.duration})<br>` +
-        `👤 Client: <strong>${d.client.name}</strong> (Contact: ${d.client.contact})<br>` +
-        `✈️ Flights: <strong>${d.flights.onward.airline} ${d.flights.onward.flightNumber}</strong> (${d.flights.origin} ⇄ ${d.flights.destination})<br>` +
-        `🏨 Hotel: <strong>${d.landArrangement.hotel}</strong> (${d.landArrangement.nights} Nights, ${d.landArrangement.sharing})<br>` +
-        `💰 Total Price: <strong>${tCost}</strong> (Flights: ${fCost} + Land: ${lCost})`
-      );
-
-      showReplies([
-        { label: '👁️ View Quotation Preview', val: '__PREVIEW__', primary: true },
-        { label: '📄 Download PDF', val: '__PDF__' },
-        { label: '📝 Download DOCX', val: '__DOCX__' },
-        { label: '✏️ Edit in Form', val: '__MODAL_EDIT__' },
-        { label: '🔄 New Quotation', val: 'restart' }
-      ]);
+    if (opt.val === '__APPLY_V5_HOTELS__') {
+      processMessage('__APPLY_V5_HOTELS__');
       return;
     }
+
+    if (opt.val === '__SWITCH_QUOTATION__') {
+      processMessage('quotation format banao');
+      return;
+    }
+
+    if (opt.val === '__SWITCH_HOTEL_COSTING__') {
+      processMessage('hotel costing format banao');
+      return;
+    }
+
+    if (opt.val === '__SWITCH_INVOICE__') {
+      processMessage('invoice banao');
+      return;
+    }
+
+    if (opt.val === '__SWITCH_CONFIRMATION__') {
+      processMessage('confirmation voucher banao');
+      return;
+    }
+
     if (opt.val === '__PREVIEW__') {
-      App.showSection('preview');
+      if (typeof App !== 'undefined') App.showSection('preview');
       return;
     }
     if (opt.val === '__PDF__') {
-      PDFGenerator.generate();
+      if (typeof PDFGenerator !== 'undefined') PDFGenerator.generate();
       return;
     }
     if (opt.val === '__DOCX__') {
-      DOCXGenerator.generate();
+      if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
       return;
     }
     if (opt.val === '__MODAL_EDIT__') {
-      App.showSection('generator');
+      if (typeof App !== 'undefined') App.showSection('generator');
       return;
     }
 
@@ -392,7 +658,8 @@ const Chatbot = (() => {
 
   function clearReplies() {
     const el = replies();
-    if (el) el.innerHTML = '';
+    if (!el) return;
+    el.innerHTML = '';
   }
 
   function clearInput() {
@@ -429,7 +696,8 @@ const Chatbot = (() => {
   return {
     init,
     reset,
-    processMessage
+    processMessage,
+    applyNewThailandHotelsAndRates
   };
 
 })();

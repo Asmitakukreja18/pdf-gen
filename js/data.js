@@ -174,10 +174,10 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Krabi Resort',
-        dates: '2 Jan to 6 Jan',
+        name: 'Ramada By Wyndham',
+        dates: '2 Jan to 5 Jan',
         pax: 2,
-        amountINR: 142397,
+        amountINR: 39146,
         amountUSD: 0,
         notes: ''
       },
@@ -200,8 +200,8 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Krabi Resort',
-        dates: '2 Jan to 6 Jan',
+        name: 'Ramada By Wyndham',
+        dates: '2 Jan to 5 Jan',
         pax: '',
         amountINR: 0,
         amountUSD: 0,
@@ -231,8 +231,8 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Krabi Resort',
-        dates: '2 Jan to 6 Jan',
+        name: 'Ramada By Wyndham',
+        dates: '2 Jan to 5 Jan',
         pax: '',
         amountINR: 0,
         amountUSD: 0,
@@ -259,10 +259,10 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Krabi Resort',
-        dates: '2 Jan to 6 Jan',
-        pax: '',
-        amountINR: 0,
+        name: 'Phi Phi Mountain Beach Resort',
+        dates: '5 Jan to 7 Jan',
+        pax: 2,
+        amountINR: 27204,
         amountUSD: 0,
         notes: ''
       },
@@ -295,10 +295,10 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Phi Phi Island',
-        dates: '6 Jan to 7 Jan',
-        pax: 2,
-        amountINR: 20325,
+        name: 'Phi Phi Mountain Beach Resort',
+        dates: '5 Jan to 7 Jan',
+        pax: '',
+        amountINR: 0,
         amountUSD: 0,
         notes: ''
       },
@@ -323,10 +323,10 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Panwaburi Queen',
-        dates: '7 Jan to 8 Jan',
+        name: 'Hotel Andakira Phuket',
+        dates: '7 Jan to 9 Jan',
         pax: 2,
-        amountINR: 46009,
+        amountINR: 34095,
         amountUSD: 0,
         notes: ''
       },
@@ -354,10 +354,10 @@ const DEMO_REFERENCE_THAILAND_12D = {
         }
       ],
       hotel: {
-        name: 'Sunset Beach Resort',
-        dates: '8 Jan to 10 Jan',
-        pax: 2,
-        amountINR: 24345,
+        name: 'Hotel Andakira Phuket',
+        dates: '7 Jan to 9 Jan',
+        pax: '',
+        amountINR: 0,
         amountUSD: 0,
         notes: ''
       },
@@ -373,32 +373,32 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Candle Light Dinner at Beach @ Thavorn Beach Village Resort & Spa Phuket', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
         {
           title: 'Oasis Spa & Massage',
-          subtitle: 'Oasis Spa & Massage · Adult · 115.12 × 2',
+          subtitle: 'Oasis Spa & Massage · Adult · 95.12 × 2',
           category: 'Activity',
           pax: 2,
-          unitPrice: 115.12,
-          amountUSD: 230.24,
+          unitPrice: 95.12,
+          amountUSD: 190.24,
           amountINR: 0,
           tag: ''
         },
         {
           title: 'Candle Light Dinner',
-          subtitle: 'Candle Light Dinner · Adult · 167.00 × 2',
+          subtitle: 'Candle Light Dinner · Adult · 147.00 × 2',
           category: 'Meals',
           pax: 2,
-          unitPrice: 167.00,
-          amountUSD: 334.00,
+          unitPrice: 147.00,
+          amountUSD: 294.00,
           amountINR: 0,
           tag: ''
         }
       ],
       hotel: {
-        name: 'Sunset Beach Resort',
-        dates: '8 Jan to 10 Jan',
-        pax: '',
-        amountINR: 0,
+        name: 'Panwaburi Beachfront',
+        dates: '9 Jan to 10 Jan',
+        pax: 2,
+        amountINR: 36318,
         amountUSD: 0,
-        notes: ''
+        notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort'
       },
       dayNotes: ''
     },
@@ -422,9 +422,9 @@ const DEMO_REFERENCE_THAILAND_12D = {
       ],
       hotel: {
         name: 'Esmeralda View',
-        dates: '10 Jan to 12 Jan',
+        dates: '10 Jan to 13 Jan',
         pax: 2,
-        amountINR: 52905,
+        amountINR: 32380,
         amountUSD: 0,
         notes: ''
       },
@@ -449,7 +449,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
       ],
       hotel: {
         name: 'Esmeralda View',
-        dates: '10 Jan to 12 Jan',
+        dates: '10 Jan to 13 Jan',
         pax: '',
         amountINR: 0,
         amountUSD: 0,
@@ -466,7 +466,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
       ],
       hotel: {
         name: 'Esmeralda View',
-        dates: '10 Jan to 12 Jan',
+        dates: '10 Jan to 13 Jan',
         pax: '',
         amountINR: 0,
         amountUSD: 0,
@@ -497,12 +497,12 @@ const DEMO_REFERENCE_THAILAND_12D = {
   ],
   summary: {
     items: [
-      { name: 'Hotel Costing\nfor 2 adults', amountINR: 285980, amountUSD: 0 },
-      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 2262.24 }
+      { name: 'Hotel Costing\nfor 2 adults', amountINR: 169143, amountUSD: 0 },
+      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1808.00 }
     ],
     autoCalculate: false,
-    totalINR: 285980,
-    totalUSD: 2262.24
+    totalINR: 169143,
+    totalUSD: 1808.00
   },
   offices: [
     {
@@ -597,103 +597,103 @@ const DEMO_REFERENCE_THAILAND_12D = {
   hotels: [
     {
       id: 'h_1',
-      name: 'Krabi Resort',
+      name: 'Ramada By Wyndham',
       city: 'Krabi (Ao Nang Beach)',
       checkIn: '2 Jan',
-      checkOut: '6 Jan',
-      nights: 4,
-      roomType: 'Deluxe Garden View Room',
+      checkOut: '5 Jan',
+      nights: 3,
+      roomType: 'Deluxe Room',
       rooms: 1,
       mealPlan: 'Bed & Breakfast (CP)',
-      amountINR: 142397,
-      amountUSD: 1627.40,
-      opt1FreeCancel: 142397,
-      opt2NonRefund: 129452,
-      opt3PartialRefund: 135000,
+      amountINR: 39146,
+      amountUSD: 447.38,
+      opt1FreeCancel: 39146,
+      opt2NonRefund: 35231,
+      opt3PartialRefund: 37188,
       cancellation: 'Free cancellation until 20 Dec 2026',
       refundability: 'Refundable',
       status: 'Confirmed',
-      notes: 'Direct beach access, walking distance to Ao Nang night market'
+      notes: 'Walking distance to Ao Nang Beach & night market'
     },
     {
       id: 'h_2',
-      name: 'Phi Phi Island Hotel',
+      name: 'Phi Phi Mountain Beach Resort',
       city: 'Koh Phi Phi Don',
-      checkIn: '6 Jan',
+      checkIn: '5 Jan',
       checkOut: '7 Jan',
-      nights: 1,
-      roomType: 'Superior Tropical Bungalow',
+      nights: 2,
+      roomType: 'Superior Ocean View Bungalow',
       rooms: 1,
       mealPlan: 'Daily Buffet Breakfast',
-      amountINR: 20325,
-      amountUSD: 232.28,
-      opt1FreeCancel: 20325,
-      opt2NonRefund: 18477,
-      opt3PartialRefund: 19500,
+      amountINR: 27204,
+      amountUSD: 310.90,
+      opt1FreeCancel: 27204,
+      opt2NonRefund: 24483,
+      opt3PartialRefund: 25843,
       cancellation: 'Free cancellation until 24 Dec 2026',
       refundability: 'Refundable',
       status: 'Confirmed',
-      notes: 'Luggage porter service included at Tonsai Pier'
+      notes: 'Hillside resort with scenic panoramic sea view'
     },
     {
       id: 'h_3',
-      name: 'Panwaburi Queen',
-      city: 'Phuket (Cape Panwa)',
+      name: 'Hotel Andakira Phuket',
+      city: 'Phuket (Patong Beach)',
       checkIn: '7 Jan',
-      checkOut: '8 Jan',
+      checkOut: '9 Jan',
+      nights: 2,
+      roomType: 'Deluxe Premier Room',
+      rooms: 1,
+      mealPlan: 'Buffet Breakfast Included',
+      amountINR: 34095,
+      amountUSD: 389.66,
+      opt1FreeCancel: 34095,
+      opt2NonRefund: 30685,
+      opt3PartialRefund: 32390,
+      cancellation: 'Free cancellation until 30 Dec 2026',
+      refundability: 'Refundable',
+      status: 'Confirmed',
+      notes: 'Overlooks Patong Bay; Candle Light Dinner venue on 9 Jan is set at Thavorn Beach Village Resort'
+    },
+    {
+      id: 'h_4',
+      name: 'Panwaburi Beachfront',
+      city: 'Phuket (Cape Panwa)',
+      checkIn: '9 Jan',
+      checkOut: '10 Jan',
       nights: 1,
       roomType: 'Deluxe Pool Access Suite',
       rooms: 1,
       mealPlan: 'American Breakfast',
-      amountINR: 46009,
-      amountUSD: 525.82,
-      opt1FreeCancel: 46009,
-      opt2NonRefund: 41826,
-      opt3PartialRefund: 44000,
-      cancellation: 'Non-refundable tariff after booking confirmation',
+      amountINR: 36318,
+      amountUSD: 415.06,
+      opt1FreeCancel: 36318,
+      opt2NonRefund: 32686,
+      opt3PartialRefund: 34502,
+      cancellation: 'Non-refundable tariff after confirmation',
       refundability: 'Non-Refundable',
       status: 'Confirmed',
-      notes: 'Iconic glass pool and serene beachside location'
-    },
-    {
-      id: 'h_4',
-      name: 'Sunset Beach Resort',
-      city: 'Phuket (North Patong Beach)',
-      checkIn: '8 Jan',
-      checkOut: '10 Jan',
-      nights: 2,
-      roomType: 'Sea Facing Premier Room',
-      rooms: 1,
-      mealPlan: 'Buffet Breakfast Included',
-      amountINR: 24345,
-      amountUSD: 278.23,
-      opt1FreeCancel: 24345,
-      opt2NonRefund: 22132,
-      opt3PartialRefund: 23200,
-      cancellation: 'Free cancellation until 30 Dec 2026',
-      refundability: 'Refundable',
-      status: 'Confirmed',
-      notes: 'Overlooks Kalim bay; Candle Light Dinner venue on 9 Jan is set at Thavorn Beach Village Resort'
+      notes: 'Iconic beachfront glass pool resort'
     },
     {
       id: 'h_5',
       name: 'Esmeralda View',
       city: 'Koh Yao Yai',
       checkIn: '10 Jan',
-      checkOut: '12 Jan',
-      nights: 2,
+      checkOut: '13 Jan',
+      nights: 3,
       roomType: 'Ocean Panorama Cliff Villa',
       rooms: 1,
       mealPlan: 'Daily Island Breakfast',
-      amountINR: 52905,
-      amountUSD: 604.63,
-      opt1FreeCancel: 52905,
-      opt2NonRefund: 48095,
-      opt3PartialRefund: 50500,
+      amountINR: 32380,
+      amountUSD: 370.06,
+      opt1FreeCancel: 32380,
+      opt2NonRefund: 29142,
+      opt3PartialRefund: 30761,
       cancellation: 'Free cancellation until 1 Jan 2027',
       refundability: 'Refundable',
       status: 'Confirmed',
-      notes: 'Speedboat transfers to/from Chong Lard Pier coordinated by resort'
+      notes: 'Speedboat transfers to/from Chong Lard Pier included'
     }
   ],
   invoice: {
