@@ -86,10 +86,46 @@ const CONFIG = {
   // Dynamic Fare Note
   DYNAMIC_FARE_NOTE: 'Airline ticket pricing is dynamic. Fares are valid as of now and may change at the time of issuance.',
 
-  // Standard Quotation Note
-  DEFAULT_ACCOMMODATION_NOTE: 'Accommodation based on leading category / lowest category.',
-
   // Thank You Message
   THANK_YOU_TITLE: "Thank you for choosing LET'S EXPLORE DMC.",
   SUPPORT_LABEL: 'For any support:'
 };
+
+/**
+ * Global Toast Notification System
+ * Displays temporary animated notifications to the user
+ */
+function showToast(message, type = 'info') {
+  if (typeof document === 'undefined') return;
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container';
+    if (document.body) document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  const icons = {
+    info: 'ℹ️',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌'
+  };
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+    <span class="toast-message">${message}</span>
+  `;
+
+  if (container) container.appendChild(toast);
+
+  // Auto remove after 3.5 seconds
+  setTimeout(() => {
+    toast.classList.add('toast-fading');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 400);
+  }, 3500);
+}
+

@@ -1543,6 +1543,8 @@ function loadSampleDataset(key) {
   else if (key === 'thailand') demo = DEMO_REFERENCE_THAILAND_12D;
   else if (key === 'reference') demo = DEMO_REFERENCE_THAILAND_12D;
 
+  const clone = JSON.parse(JSON.stringify(demo));
+
   QuotationData.activeDocType = clone.activeDocType || 'itinerary';
   QuotationData.hotels = clone.hotels || [];
   QuotationData.invoice = clone.invoice || {};

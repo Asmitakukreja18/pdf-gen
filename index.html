@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Let's Explore DMC — Master Quotation & Itinerary Engine</title>
-  <meta name="description" content="Professional DMC Travel Quotation Generator matching official master reference standards. Day-wise itineraries, variable activities, dual-currency pricing, dynamic offices, and multi-page print-ready PDFs." />
+  <meta name="description"
+    content="Professional DMC Travel Quotation Generator matching official master reference standards. Day-wise itineraries, variable activities, dual-currency pricing, dynamic offices, and multi-page print-ready PDFs." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
 
   <!-- ========== APP WRAPPER ========== -->
@@ -31,21 +36,21 @@
         <nav class="header-nav" id="headerNav">
           <a href="#" class="nav-link active" data-section="generator" id="navGenerator">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M3 9h18M9 21V9"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M9 21V9" />
             </svg>
             Quotation Studio & Builder
           </a>
           <a href="#" class="nav-link" data-section="preview" id="navPreview">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
             Full-Page Preview
           </a>
           <a href="#" class="nav-link" data-section="chat" id="navChat">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
             AI Assistant
           </a>
@@ -108,7 +113,8 @@
               <span class="pill-icon">📋</span>
               <span class="pill-label">4. Package Summary</span>
             </button>
-            <button class="doc-pill" data-doctype="confirmation" title="Official booking voucher with confirmed hotels & tours">
+            <button class="doc-pill" data-doctype="confirmation"
+              title="Official booking voucher with confirmed hotels & tours">
               <span class="pill-icon">🎟️</span>
               <span class="pill-label">5. Confirmation Voucher</span>
             </button>
@@ -175,7 +181,8 @@
                   </div>
                   <div class="form-group full-width" style="grid-column: span 2;">
                     <label>Destination Combination</label>
-                    <input type="text" id="bPkgDestinations" class="form-input" placeholder="e.g. Krabi + Phuket + Koh Yao Yai, Thailand" />
+                    <input type="text" id="bPkgDestinations" class="form-input"
+                      placeholder="e.g. Krabi + Phuket + Koh Yao Yai, Thailand" />
                   </div>
                   <div class="form-group">
                     <label>Travellers Description</label>
@@ -195,7 +202,8 @@
                   </div>
                   <div class="form-group">
                     <label>Client / Agency Name</label>
-                    <input type="text" id="bPkgClientName" class="form-input" placeholder="e.g. Mr. Rajesh Sharma & Family" />
+                    <input type="text" id="bPkgClientName" class="form-input"
+                      placeholder="e.g. Mr. Rajesh Sharma & Family" />
                   </div>
                   <div class="form-group">
                     <label>Contact Phone</label>
@@ -214,7 +222,8 @@
 
               <!-- TAB 2: DAY-WISE ITINERARY & PRICING -->
               <div class="tab-pane" id="tabDays">
-                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="builder-section-intro"
+                  style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h4>Day-wise Itinerary & Pricing</h4>
                     <p>Build variable activities, pricing columns (Pax, INR, USD), hotel stay blocks, and tags.</p>
@@ -236,10 +245,12 @@
 
               <!-- TAB: HOTEL PROPERTIES & COMPARISON MANAGER -->
               <div class="tab-pane" id="tabHotels">
-                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="builder-section-intro"
+                  style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h4>Hotel Properties & Comparison Manager</h4>
-                    <p>Manage resort properties, room categories, meal plans, and 3-tier tariff options (Free cancellation, Non-refundable, Partial refund).</p>
+                    <p>Manage resort properties, room categories, meal plans, and 3-tier tariff options (Free
+                      cancellation, Non-refundable, Partial refund).</p>
                   </div>
                   <button class="btn btn-sm btn-primary" id="btnAddHotelBtn">+ Add Hotel</button>
                 </div>
@@ -251,7 +262,8 @@
 
               <!-- TAB 3: PRICE SUMMARY -->
               <div class="tab-pane" id="tabSummary">
-                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="builder-section-intro"
+                  style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h4>Final Price Summary Table</h4>
                     <p>Matches reference summary: Hotel Costing, Land Part, Activities, Transfers, and auto-totals.</p>
@@ -260,27 +272,35 @@
                 </div>
 
                 <!-- Quick Markup & Surcharges Engine -->
-                <div class="markup-panel-card" style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+                <div class="markup-panel-card"
+                  style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <span style="font-size:12px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.5px;">⚡ Quick Markup & Surcharge Engine</span>
+                    <span
+                      style="font-size:12px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.5px;">⚡
+                      Quick Markup & Surcharge Engine</span>
                     <span style="font-size:11px; color:#64748B;">Auto-calculates across all days & preview</span>
                   </div>
                   <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items:flex-end;">
                     <div class="form-group" style="margin-bottom:0;">
                       <label style="font-size:11px; margin-bottom:4px;">Hotel Markup (%)</label>
                       <div style="display:flex; gap:6px;">
-                        <input type="number" id="quickMarkupHotelPct" class="form-input form-input-sm" value="10" placeholder="10" style="width:70px;" />
-                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyHotelMarkup">+10% Hotels</button>
+                        <input type="number" id="quickMarkupHotelPct" class="form-input form-input-sm" value="10"
+                          placeholder="10" style="width:70px;" />
+                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyHotelMarkup">+10%
+                          Hotels</button>
                       </div>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                       <label style="font-size:11px; margin-bottom:4px;">Activity Surcharge (+USD)</label>
                       <div style="display:flex; gap:6px;">
-                        <input type="number" id="quickMarkupActivityUSD" class="form-input form-input-sm" value="20" placeholder="20" style="width:70px;" />
-                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyActivityUSD">+$20 Activities</button>
+                        <input type="number" id="quickMarkupActivityUSD" class="form-input form-input-sm" value="20"
+                          placeholder="20" style="width:70px;" />
+                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyActivityUSD">+$20
+                          Activities</button>
                       </div>
                     </div>
-                    <button type="button" class="btn btn-sm btn-primary" id="btnApplyCombinedMarkup" style="white-space:nowrap; height:34px;">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnApplyCombinedMarkup"
+                      style="white-space:nowrap; height:34px;">
                       Apply Both
                     </button>
                   </div>
@@ -325,7 +345,8 @@
                 <div class="form-grid-2" style="margin-bottom: 12px;">
                   <div class="form-group">
                     <label>Billed To (Client / Agency Details)</label>
-                    <textarea id="bInvBillTo" class="form-input" rows="2" placeholder="Company Name / Client Name..."></textarea>
+                    <textarea id="bInvBillTo" class="form-input" rows="2"
+                      placeholder="Company Name / Client Name..."></textarea>
                   </div>
                   <div class="form-group">
                     <label>Tax / GST Rate (%)</label>
@@ -333,12 +354,15 @@
                   </div>
                 </div>
 
-                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank Remittance Details</span>
+                <div
+                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank
+                    Remittance Details</span>
                   <div class="form-grid-3" style="margin-top:6px;">
                     <div class="form-group">
                       <label style="font-size:10px;">Bank Name</label>
-                      <input type="text" id="bInvBankName" class="form-input form-input-sm" placeholder="HDFC Bank Ltd" />
+                      <input type="text" id="bInvBankName" class="form-input form-input-sm"
+                        placeholder="HDFC Bank Ltd" />
                     </div>
                     <div class="form-group">
                       <label style="font-size:10px;">Account Number</label>
@@ -350,11 +374,13 @@
                     </div>
                     <div class="form-group">
                       <label style="font-size:10px;">UPI ID</label>
-                      <input type="text" id="bInvUpi" class="form-input form-input-sm" placeholder="letsexplore@hdfcbank" />
+                      <input type="text" id="bInvUpi" class="form-input form-input-sm"
+                        placeholder="letsexplore@hdfcbank" />
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                       <label style="font-size:10px;">Authorized Signatory Label</label>
-                      <input type="text" id="bInvSignatory" class="form-input form-input-sm" placeholder="Let's Explore DMC Authorized Signatory" />
+                      <input type="text" id="bInvSignatory" class="form-input form-input-sm"
+                        placeholder="Let's Explore DMC Authorized Signatory" />
                     </div>
                   </div>
                 </div>
@@ -382,22 +408,26 @@
                   </div>
                   <div class="form-group">
                     <label>24/7 Emergency On-Ground Hotline</label>
-                    <input type="text" id="bConfEmergency" class="form-input" placeholder="+66 818311204 (Mr. Jumphol Vongchun)" />
+                    <input type="text" id="bConfEmergency" class="form-input"
+                      placeholder="+66 818311204 (Mr. Jumphol Vongchun)" />
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label>Important Check-in & Journey Instructions (One per line)</label>
-                  <textarea id="bConfInstructions" class="form-input" rows="4" placeholder="Please present this voucher upon hotel check-in...&#10;Check-in time is 14:00 hrs..."></textarea>
+                  <textarea id="bConfInstructions" class="form-input" rows="4"
+                    placeholder="Please present this voucher upon hotel check-in...&#10;Check-in time is 14:00 hrs..."></textarea>
                 </div>
               </div>
 
               <!-- TAB: CUSTOM DOCUMENT BUILDER -->
               <div class="tab-pane" id="tabCustomBuilder">
-                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="builder-section-intro"
+                  style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h4>Custom Modular Document Builder</h4>
-                    <p>Build your own customized document layout by adding, removing, and re-ordering custom sections.</p>
+                    <p>Build your own customized document layout by adding, removing, and re-ordering custom sections.
+                    </p>
                   </div>
                   <div style="display:flex; gap:6px;">
                     <select id="selectNewCustomSecType" class="form-input form-input-sm" style="width:140px;">
@@ -415,7 +445,8 @@
 
                 <div class="form-group" style="margin-bottom: 12px;">
                   <label>Custom Document Main Title</label>
-                  <input type="text" id="bCustomDocTitle" class="form-input" placeholder="e.g. VIP Tailored Travel Dossier" />
+                  <input type="text" id="bCustomDocTitle" class="form-input"
+                    placeholder="e.g. VIP Tailored Travel Dossier" />
                 </div>
 
                 <div id="customDocSectionsContainer">
@@ -425,7 +456,8 @@
 
               <!-- TAB 4: OFFICES & CONTACT -->
               <div class="tab-pane" id="tabOffices">
-                <div class="builder-section-intro" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="builder-section-intro"
+                  style="display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h4>Global Offices & Contact Directory</h4>
                     <p>Dynamic office cards. Add, edit, remove, or customize any office desk worldwide.</p>
@@ -437,7 +469,8 @@
                 <div class="form-grid-3" style="margin-bottom: 14px;">
                   <div class="form-group">
                     <label>Phone Numbers</label>
-                    <input type="text" id="bFooterPhones" class="form-input" placeholder="+91 80075 86881 | +91 95459 55966" />
+                    <input type="text" id="bFooterPhones" class="form-input"
+                      placeholder="+91 80075 86881 | +91 95459 55966" />
                   </div>
                   <div class="form-group">
                     <label>Official Website</label>
@@ -465,19 +498,22 @@
                 <!-- Inclusions -->
                 <div class="form-group" style="margin-bottom: 12px;">
                   <label>Package Inclusions (One per line)</label>
-                  <textarea id="bInclusionsText" class="form-input" rows="4" placeholder="11 Nights luxury accommodation with daily breakfast&#10;All inter-destination speedboat and ferry transfers&#10;Private airport transfers..."></textarea>
+                  <textarea id="bInclusionsText" class="form-input" rows="4"
+                    placeholder="11 Nights luxury accommodation with daily breakfast&#10;All inter-destination speedboat and ferry transfers&#10;Private airport transfers..."></textarea>
                 </div>
 
                 <!-- Exclusions -->
                 <div class="form-group" style="margin-bottom: 12px;">
                   <label>Package Exclusions (One per line)</label>
-                  <textarea id="bExclusionsText" class="form-input" rows="3" placeholder="International and domestic flight tickets&#10;Personal expenses & laundry&#10;Travel insurance..."></textarea>
+                  <textarea id="bExclusionsText" class="form-input" rows="3"
+                    placeholder="International and domestic flight tickets&#10;Personal expenses & laundry&#10;Travel insurance..."></textarea>
                 </div>
 
                 <!-- Important Notes -->
                 <div class="form-group" style="margin-bottom: 12px;">
                   <label>Important Quotation Notes (One per line)</label>
-                  <textarea id="bImportantNotesText" class="form-input" rows="3" placeholder="Accommodation based on leading category...&#10;Speedboat schedules subject to sea conditions..."></textarea>
+                  <textarea id="bImportantNotesText" class="form-input" rows="3"
+                    placeholder="Accommodation based on leading category...&#10;Speedboat schedules subject to sea conditions..."></textarea>
                 </div>
 
                 <!-- Custom Fields -->
@@ -523,27 +559,33 @@
                 <div class="form-grid-3">
                   <div class="form-group">
                     <label>Primary Brand Color</label>
-                    <input type="color" id="bColPrimary" class="form-input" style="height:38px; padding:2px;" value="#0F2C59" />
+                    <input type="color" id="bColPrimary" class="form-input" style="height:38px; padding:2px;"
+                      value="#0F2C59" />
                   </div>
                   <div class="form-group">
                     <label>Secondary Color</label>
-                    <input type="color" id="bColSecondary" class="form-input" style="height:38px; padding:2px;" value="#1E3A8A" />
+                    <input type="color" id="bColSecondary" class="form-input" style="height:38px; padding:2px;"
+                      value="#1E3A8A" />
                   </div>
                   <div class="form-group">
                     <label>Accent Color</label>
-                    <input type="color" id="bColAccent" class="form-input" style="height:38px; padding:2px;" value="#2563EB" />
+                    <input type="color" id="bColAccent" class="form-input" style="height:38px; padding:2px;"
+                      value="#2563EB" />
                   </div>
                   <div class="form-group">
                     <label>Table Header Background</label>
-                    <input type="color" id="bColTableBg" class="form-input" style="height:38px; padding:2px;" value="#0F2C59" />
+                    <input type="color" id="bColTableBg" class="form-input" style="height:38px; padding:2px;"
+                      value="#0F2C59" />
                   </div>
                   <div class="form-group">
                     <label>Body Text Color</label>
-                    <input type="color" id="bColText" class="form-input" style="height:38px; padding:2px;" value="#1E293B" />
+                    <input type="color" id="bColText" class="form-input" style="height:38px; padding:2px;"
+                      value="#1E293B" />
                   </div>
                   <div class="form-group">
                     <label>Border Color</label>
-                    <input type="color" id="bColBorder" class="form-input" style="height:38px; padding:2px;" value="#CBD5E1" />
+                    <input type="color" id="bColBorder" class="form-input" style="height:38px; padding:2px;"
+                      value="#CBD5E1" />
                   </div>
                 </div>
               </div>
@@ -564,18 +606,14 @@
                 </div>
 
                 <div class="input-box-wrapper">
-                  <textarea
-                    id="aiRawInput"
-                    class="ai-textarea"
-                    rows="9"
-                    placeholder="Paste travel enquiry details here..."
-                  ></textarea>
+                  <textarea id="aiRawInput" class="ai-textarea" rows="9"
+                    placeholder="Paste travel enquiry details here..."></textarea>
                 </div>
 
                 <div class="ai-actions-bar" style="margin-top: 8px;">
                   <button class="btn btn-primary" id="btnExtractAI">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                     </svg>
                     <span>Extract & Populate Quotation</span>
                   </button>
@@ -606,7 +644,8 @@
             </div>
 
             <!-- Builder Action Bar (Fixed at bottom of builder) -->
-            <div class="form-export-bar" style="background:#FAFBFD; border-top:1px solid var(--border); padding:12px 18px;">
+            <div class="form-export-bar"
+              style="background:#FAFBFD; border-top:1px solid var(--border); padding:12px 18px;">
               <button class="btn btn-outline btn-sm" id="btnResetStudio">
                 🔄 Reset Form
               </button>
@@ -619,16 +658,16 @@
                 </button>
                 <button class="btn btn-accent btn-sm" id="btnDirectPDFStudio">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                   Generate PDF
                 </button>
                 <button class="btn btn-success btn-sm" id="btnDirectDOCXStudio">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
                   </svg>
                   DOCX
                 </button>
@@ -684,16 +723,16 @@
               </button>
               <button class="btn btn-primary" id="btnGeneratePDF">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
                 Generate & Save PDF
               </button>
               <button class="btn btn-success" id="btnGenerateDOCX">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
                 </svg>
                 Generate Editable DOCX
               </button>
@@ -718,11 +757,13 @@
             <div class="chat-panel-header">
               <div class="ai-avatar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="#EFF6FF" stroke="#0F2C59" stroke-width="1.5"/>
-                  <path d="M8 12C8 9.8 9.8 8 12 8C14.2 8 16 9.8 16 12" stroke="#0F2C59" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="9" cy="13" r="1" fill="#0F2C59"/>
-                  <circle cx="15" cy="13" r="1" fill="#0F2C59"/>
-                  <path d="M9 16C9.5 17 10.7 17.5 12 17.5C13.3 17.5 14.5 17 15 16" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="12" cy="12" r="10" fill="#EFF6FF" stroke="#0F2C59" stroke-width="1.5" />
+                  <path d="M8 12C8 9.8 9.8 8 12 8C14.2 8 16 9.8 16 12" stroke="#0F2C59" stroke-width="1.5"
+                    stroke-linecap="round" />
+                  <circle cx="9" cy="13" r="1" fill="#0F2C59" />
+                  <circle cx="15" cy="13" r="1" fill="#0F2C59" />
+                  <path d="M9 16C9.5 17 10.7 17.5 12 17.5C13.3 17.5 14.5 17 15 16" stroke="#2563EB" stroke-width="1.5"
+                    stroke-linecap="round" />
                 </svg>
               </div>
               <div class="ai-info">
@@ -733,22 +774,21 @@
 
             <div class="chat-messages" id="chatMessages">
               <div class="chat-bubble bot-bubble">
-                <p>Hello! I am your Let's Explore DMC Assistant. You can provide me with any trip itinerary or package request, and I will help you build or refine the official quotation.</p>
+                <p>Hello! I am your Let's Explore DMC Assistant. You can provide me with any trip itinerary or package
+                  request, and I will help you build or refine the official quotation.</p>
               </div>
             </div>
 
             <div class="chat-input-area">
               <div class="input-wrapper">
-                <textarea
-                  id="chatInput"
-                  class="chat-textarea"
-                  placeholder="Type or paste trip details here..."
-                  rows="1"
-                ></textarea>
+                <textarea id="chatInput" class="chat-textarea" placeholder="Type or paste trip details here..."
+                  rows="1"></textarea>
                 <button class="btn-send" id="btnSend">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
                   </svg>
                 </button>
               </div>
@@ -781,7 +821,8 @@
         <button class="btn-icon btn-close-modal" id="btnCloseDbModal" title="Close">✕</button>
       </div>
       <div class="db-modal-toolbar">
-        <input type="text" id="dbSearchInput" class="form-input" placeholder="🔍 Search by client name, destination, phone, or ref..." />
+        <input type="text" id="dbSearchInput" class="form-input"
+          placeholder="🔍 Search by client name, destination, phone, or ref..." />
         <button class="btn btn-sm btn-subtle" id="btnRefreshDbHistory">🔄 Refresh</button>
       </div>
       <div class="db-modal-body">
@@ -810,7 +851,6 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ========== SCRIPTS ========== -->
-  <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/ai-parser.js"></script>
@@ -821,4 +861,5 @@
   <script src="js/chatbot.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>
