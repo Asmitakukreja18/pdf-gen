@@ -1049,59 +1049,59 @@ p { color: var(--text-sec); line-height: 1.6; }
   color: var(--dmc-primary, #0F2C59);
 }
 
-.dmc-banner-box {
-  background: #F8FAFC;
-  border: 1px solid var(--dmc-border, #CBD5E1);
-  border-left: 4px solid var(--dmc-primary, #0F2C59);
-  padding: 10px 14px;
-  border-radius: 4px;
-  margin-bottom: 8px;
+/* ─── LUXURY HERO BANNER (MATCHING REFERENCE PDF SPECIFICATION) ─── */
+.dmc-hero-banner {
+  padding: 8px 0 12px 0;
+  border-bottom: 1px solid var(--dmc-border, #CBD5E1);
+  margin-bottom: 10px;
 }
-.dmc-main-title {
-  font-size: 16pt;
-  font-weight: 800;
-  color: var(--dmc-primary, #0F2C59);
-  letter-spacing: 1px;
-  line-height: 1.1;
-  margin-bottom: 4px;
-}
-.dmc-duration-tag {
-  font-size: 10.5pt;
-  font-weight: 700;
-  color: var(--dmc-secondary, #1E3A8A);
-  margin-bottom: 3px;
-}
-.dmc-destinations {
-  font-size: 9.5pt;
-  font-weight: 600;
-  color: var(--dmc-text, #1E293B);
-  margin-bottom: 4px;
-}
-.dmc-travellers-line {
+.hero-label-badge {
   font-size: 8.5pt;
-  color: var(--dmc-muted, #64748B);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-weight: 800;
+  color: var(--dmc-secondary, #1E3A8A);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  display: inline-block;
 }
-.pax-badge {
-  font-weight: 700;
+.hero-duration-title {
+  font-size: 22pt;
+  font-weight: 900;
   color: var(--dmc-primary, #0F2C59);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.hero-destination-subtitle {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--dmc-accent, #2563EB);
+  line-height: 1.25;
 }
 
+/* ─── CLIENT METADATA STRIP ─── */
 .dmc-client-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  background: #F1F5F9;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border: 1px solid var(--dmc-border, #CBD5E1);
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 8pt;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+}
+.client-bar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .client-bar-item .c-label {
   color: var(--dmc-muted, #64748B);
-  margin-right: 4px;
+  font-weight: 600;
+}
+.client-bar-item strong {
+  color: var(--dmc-primary, #0F2C59);
 }
 
 .dmc-custom-fields-bar {

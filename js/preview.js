@@ -113,24 +113,17 @@ const Preview = (() => {
           </div>
         </div>
 
-        <div class="dmc-banner-box">
-          <div class="dmc-banner-content">
-            <h1 class="dmc-main-title">${escapeHTML(docTypeLabel)}</h1>
-            <div class="dmc-duration-tag">${escapeHTML(pkg.duration || 'Bespoke Journey')}</div>
-            <div class="dmc-destinations">${escapeHTML(pkg.destinations || 'Global Destination')}</div>
-            <div class="dmc-travellers-line">
-              <span class="pax-badge">${escapeHTML(pkg.travellers || '2 Adults')}</span>
-              <span class="pax-sep">•</span>
-              <span class="pax-desc">Package for ${pkg.paxCount || 2} pax</span>
-            </div>
-          </div>
+        <div class="dmc-hero-banner">
+          <div class="hero-label-badge">${escapeHTML(docTypeLabel)}</div>
+          <h1 class="hero-duration-title">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</h1>
+          <div class="hero-destination-subtitle">${escapeHTML(pkg.destinations || 'Krabi + Phuket + Koh Yao Yai, Thailand')}</div>
         </div>
 
         ${(pkg.clientName || pkg.clientContact || pkg.pickupFrom) ? `
         <div class="dmc-client-bar">
           ${pkg.clientName ? `<div class="client-bar-item"><span class="c-label">Prepared For:</span> <strong>${escapeHTML(pkg.clientName)}</strong></div>` : ''}
-          ${pkg.clientContact ? `<div class="client-bar-item"><span class="c-label">Contact:</span> ${escapeHTML(pkg.clientContact)}</div>` : ''}
-          ${pkg.pickupFrom ? `<div class="client-bar-item"><span class="c-label">Pickup Hub:</span> ${escapeHTML(pkg.pickupFrom)}</div>` : ''}
+          ${pkg.clientContact ? `<div class="client-bar-item"><span class="c-label">Contact:</span> <strong>${escapeHTML(pkg.clientContact)}</strong></div>` : ''}
+          ${pkg.pickupFrom ? `<div class="client-bar-item"><span class="c-label">Pickup Hub:</span> <strong>${escapeHTML(pkg.pickupFrom)}</strong></div>` : ''}
         </div>` : ''}
       </header>
     `;
@@ -151,11 +144,23 @@ const Preview = (() => {
       <div class="dmc-quotation-doc doc-itinerary-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
         ${renderBrandHeader(pkg, 'PACKAGE ITINERARY', pkg.quoteRef)}
 
-        <!-- Trip Highlights Bar -->
-        <div class="itinerary-highlights-bar">
-          <div class="hl-item"><span class="hl-icon">🗓️</span> <strong>Duration:</strong> ${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</div>
-          <div class="hl-item"><span class="hl-icon">📍</span> <strong>Route:</strong> ${escapeHTML(pkg.destinations || 'Thailand')}</div>
-          <div class="hl-item"><span class="hl-icon">👥</span> <strong>Travellers:</strong> ${escapeHTML(pkg.travellers || '2 Adults')}</div>
+        <!-- 3 Stat Cards Matching Reference PDF -->
+        <div class="dmc-stats-grid">
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">DURATION</span>
+            <div class="stat-card-main">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : 'Day 1 to Day 12 (2 Jan to 13 Jan)')}</div>
+          </div>
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">DESTINATIONS</span>
+            <div class="stat-card-main">${escapeHTML(pkg.destinations || 'Krabi · Phuket + Koh Yao Yai')}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.country || 'Thailand')}</div>
+          </div>
+          <div class="dmc-stat-card">
+            <span class="stat-card-title">TRAVELLERS</span>
+            <div class="stat-card-main">${escapeHTML(pkg.travellers || '2 Adults')}</div>
+            <div class="stat-card-sub">Package for ${pkg.paxCount || 2} pax</div>
+          </div>
         </div>
 
         <!-- Day-by-Day Experience Timeline -->
