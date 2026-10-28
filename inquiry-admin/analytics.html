@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Analytics — Let's Explore DMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="admin-nav">
+        <a href="dashboard.html" class="brand-section">
+            <div class="brand-badge"><i class="fa-solid fa-headset"></i></div>
+            <div class="brand-info">
+                <h2>Let's Explore DMC</h2>
+                <span>Lead &amp; Inquiry Manager</span>
+            </div>
+        </a>
+
+        <nav class="nav-links-row">
+            <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="inquiries.html" class="nav-item"><i class="fa-solid fa-inbox"></i> All Inquiries</a>
+            <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="analytics.html" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        </nav>
+
+        <div class="nav-actions-group">
+            <a href="../admin/index.html" class="btn-pill-action subtle" title="Switch to PDF Management Portal">
+                <i class="fa-solid fa-file-pdf"></i> PDF Portal
+            </a>
+            <a href="../index.html" class="btn-pill-action subtle" title="Open AI Travel Quotation & Invoice Studio">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
+            </a>
+            <button class="btn-pill-action subtle" id="logoutBtn" style="color:#f87171;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <div class="page-header-row">
+            <div class="page-title-wrap">
+                <h1>Lead Analytics &amp; Conversion Insights</h1>
+                <p>Track marketing channel effectiveness and sales pipeline performance</p>
+            </div>
+        </div>
+
+        <section class="stats-cards-grid">
+            <div class="stat-box">
+                <div class="stat-icon green"><i class="fa-solid fa-trophy"></i></div>
+                <div class="stat-numbers">
+                    <h3 id="statConversionRate">0%</h3>
+                    <span>Lead Conversion Rate</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon blue"><i class="fa-solid fa-paper-plane"></i></div>
+                <div class="stat-numbers">
+                    <h3 id="statTotalLeads">0</h3>
+                    <span>Total Inquiries Logged</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon orange"><i class="fa-solid fa-phone-volume"></i></div>
+                <div class="stat-numbers">
+                    <h3 id="statInPipeline">0</h3>
+                    <span>Active In Pipeline</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon gold"><i class="fa-solid fa-passport"></i></div>
+                <div class="stat-numbers">
+                    <h3 id="statConvertedBookings">0</h3>
+                    <span>Successful Bookings</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two Columns Breakdown -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:24px; margin-bottom:30px;">
+            
+            <!-- Source Breakdown -->
+            <div class="table-card" style="padding: 24px;">
+                <h3 style="font-size: 16px; margin-bottom: 18px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-bullhorn" style="color:var(--gold);"></i> Leads by Acquisition Channel
+                </h3>
+                <div id="sourcesBarsContainer" style="display:flex; flex-direction:column; gap:16px;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Top Destinations Inquired -->
+            <div class="table-card" style="padding: 24px;">
+                <h3 style="font-size: 16px; margin-bottom: 18px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-map-location-dot" style="color:var(--accent);"></i> Top Destinations Inquired
+                </h3>
+                <div id="destinationsContainer" style="display:flex; flex-direction:column; gap:14px;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAnalytics();
+            document.getElementById('logoutBtn').addEventListener('click', () => window.location.href = 'index.html');
+        });
+
+        async function loadAnalytics() {
+            try {
+                const res = await fetch('api/get_analytics.php');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('statConversionRate').textContent = `${data.conversion_rate || 0}%`;
+                    document.getElementById('statTotalLeads').textContent = data.total || 0;
+                    document.getElementById('statInPipeline').textContent = (data.new_leads || 0) + (data.in_followup || 0);
+                    document.getElementById('statConvertedBookings').textContent = data.converted || 0;
+
+                    // Render Channel Bars
+                    const srcBox = document.getElementById('sourcesBarsContainer');
+                    srcBox.innerHTML = '';
+                    const total = data.total || 1;
+                    (data.by_source || []).forEach(s => {
+                        const pct = Math.round((s.count / total) * 100);
+                        const row = document.createElement('div');
+                        row.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;">
+                                <strong style="color:#ffffff;"><i class="fa-solid fa-hashtag" style="font-size:11px; color:var(--gold);"></i> ${s.source}</strong>
+                                <span style="color:var(--text-sub);">${s.count} leads (${pct}%)</span>
+                            </div>
+                            <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:99px; overflow:hidden;">
+                                <div style="width:${pct}%; height:100%; background:linear-gradient(90deg, var(--gold), var(--accent)); border-radius:99px;"></div>
+                            </div>
+                        `;
+                        srcBox.appendChild(row);
+                    });
+
+                    // Render Destinations
+                    const destBox = document.getElementById('destinationsContainer');
+                    destBox.innerHTML = '';
+                    (data.top_destinations || []).forEach((d, idx) => {
+                        const item = document.createElement('div');
+                        item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.06);';
+                        item.innerHTML = `
+                            <div>
+                                <span style="font-size:12px; color:var(--gold); font-weight:700; margin-right:8px;">#${idx+1}</span>
+                                <strong style="color:#ffffff; font-size:14px;">${d.destination}</strong>
+                            </div>
+                            <span class="status-tag New">${d.count} Inquiries</span>
+                        `;
+                        destBox.appendChild(item);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

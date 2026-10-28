@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquiry Admin Login — Let's Explore DMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body.login-body {
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 10% 20%, #0d1b2a 0%, #070d1e 100%);
+            padding: 20px;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(13, 23, 46, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-box">
+        <div style="text-align: center; margin-bottom: 28px;">
+            <div class="brand-badge" style="width: 54px; height: 54px; font-size: 24px; margin: 0 auto 14px;">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+            <h2 style="font-size: 22px; margin-bottom: 4px;">Let's Explore DMC</h2>
+            <p style="font-size: 13px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Inquiry & Lead Management</p>
+        </div>
+
+        <div id="loginAlert" style="display:none; padding:12px; border-radius:10px; font-size:13px; margin-bottom:18px;"></div>
+
+        <form id="loginForm">
+            <div class="form-row">
+                <label>Username or Email</label>
+                <input type="text" id="username" placeholder="admin" required autofocus>
+            </div>
+            <div class="form-row" style="margin-bottom: 24px;">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••••••" required>
+            </div>
+            <button type="submit" class="btn-pill-action gold" id="submitBtn" style="width:100%; justify-content:center; height:46px; font-size:14px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard
+            </button>
+        </form>
+
+        <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:24px;">
+            <i class="fa-solid fa-shield-halved"></i> Authorized Staff Access Only
+        </p>
+    </div>
+
+    <script>
+        // Check session
+        fetch('api/login.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.user) {
+                    window.location.href = 'dashboard.html';
+                }
+            }).catch(() => {});
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('loginAlert');
+            const submitBtn = document.getElementById('submitBtn');
+            alertBox.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            try {
+                const res = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                    alertBox.style.color = '#86efac';
+                    alertBox.innerHTML = '<i class="fa-solid fa-check"></i> Welcome back! Redirecting...';
+                    setTimeout(() => window.location.href = 'dashboard.html', 500);
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                    alertBox.style.color = '#fca5a5';
+                    alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (data.error || 'Login failed');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+                }
+            } catch (err) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                alertBox.style.color = '#fca5a5';
+                alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Could not connect to API server.';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

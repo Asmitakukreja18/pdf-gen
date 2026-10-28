@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory — Let's Explore DMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="admin-nav">
+        <a href="dashboard.html" class="brand-section">
+            <div class="brand-badge"><i class="fa-solid fa-headset"></i></div>
+            <div class="brand-info">
+                <h2>Let's Explore DMC</h2>
+                <span>Lead &amp; Inquiry Manager</span>
+            </div>
+        </a>
+
+        <nav class="nav-links-row">
+            <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="inquiries.html" class="nav-item"><i class="fa-solid fa-inbox"></i> All Inquiries</a>
+            <a href="customers.html" class="nav-item active"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        </nav>
+
+        <div class="nav-actions-group">
+            <a href="../admin/index.html" class="btn-pill-action subtle" title="Switch to PDF Management Portal">
+                <i class="fa-solid fa-file-pdf"></i> PDF Portal
+            </a>
+            <a href="../index.html" class="btn-pill-action subtle" title="Open AI Travel Quotation & Invoice Studio">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
+            </a>
+            <button class="btn-pill-action subtle" id="logoutBtn" style="color:#f87171;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <div class="page-header-row">
+            <div class="page-title-wrap">
+                <h1>Customer Profiles &amp; Contacts</h1>
+                <p>Consolidated directory of all clients who have inquired with Let's Explore DMC</p>
+            </div>
+        </div>
+
+        <div class="filter-toolbar">
+            <div class="search-input-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="customerSearch" placeholder="Search customer by name, phone or destination...">
+            </div>
+            <div style="font-size: 13.5px; color: var(--gold); font-weight: 600;">
+                <span id="customerCountDisplay">Loading customers...</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Phone Contact</th>
+                            <th>Email Address</th>
+                            <th>Total Inquiries</th>
+                            <th>Converted Trips</th>
+                            <th>Destinations Explored</th>
+                            <th>Channels Used</th>
+                            <th>Last Active</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let allCustomers = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCustomers();
+            document.getElementById('customerSearch').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const filtered = allCustomers.filter(c => 
+                    (c.name || '').toLowerCase().includes(term) ||
+                    (c.phone || '').toLowerCase().includes(term) ||
+                    (c.destinations_interested || '').toLowerCase().includes(term)
+                );
+                renderCustomers(filtered);
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        });
+
+        async function loadCustomers() {
+            try {
+                const res = await fetch('api/get_customers.php');
+                const data = await res.json();
+                if (data.success) {
+                    allCustomers = data.customers || [];
+                    renderCustomers(allCustomers);
+                }
+            } catch (e) {
+                document.getElementById('customersTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#f87171;">Failed to load customers from cPanel API.</td></tr>';
+            }
+        }
+
+        function renderCustomers(list) {
+            const tbody = document.getElementById('customersTableBody');
+            document.getElementById('customerCountDisplay').textContent = `${list.length} Unique Customers Found`;
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">No customer profiles found.</td></tr>';
+                return;
+            }
+
+            list.forEach(c => {
+                const tr = document.createElement('tr');
+                const lastDate = c.last_inquiry_at ? new Date(c.last_inquiry_at).toLocaleDateString() : '-';
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(c.name)}</strong></td>
+                    <td><a href="tel:${escapeHtml(c.phone)}" style="color:#38bdf8; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:11px;"></i> ${escapeHtml(c.phone)}</a></td>
+                    <td>${escapeHtml(c.email || '-')}</td>
+                    <td><span class="status-tag New">${c.total_inquiries} Inquiries</span></td>
+                    <td><span class="status-tag Converted">${c.total_converted || 0} Booked</span></td>
+                    <td style="max-width:240px; color:var(--text-white); font-size:13px;">${escapeHtml(c.destinations_interested || 'General Tour')}</td>
+                    <td style="font-size:12px; color:var(--gold);">${escapeHtml(c.sources_used || 'Website')}</td>
+                    <td style="font-size:12px; color:var(--text-muted);">${lastDate}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t));
+        }
+    </script>
+</body>
+</html>

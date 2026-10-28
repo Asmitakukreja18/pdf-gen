@@ -77,6 +77,28 @@ CREATE TABLE IF NOT EXISTS `comments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
+-- Table structure for table `inquiries`
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `inquiries` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `phone` VARCHAR(30) NOT NULL,
+  `email` VARCHAR(120) DEFAULT NULL,
+  `source` ENUM('Website', 'WhatsApp', 'Instagram', 'Facebook', 'Walk-in', 'Referral', 'Other') NOT NULL DEFAULT 'Website',
+  `destination` VARCHAR(150) DEFAULT NULL,
+  `message` TEXT DEFAULT NULL,
+  `status` ENUM('New', 'Contacted', 'Follow-up', 'Converted', 'Lost') NOT NULL DEFAULT 'New',
+  `assigned_to` VARCHAR(100) DEFAULT 'Admin',
+  `notes` TEXT DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_status` (`status`),
+  INDEX `idx_source` (`source`),
+  INDEX `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
 -- Seed Data: Initial Categories
 -- --------------------------------------------------------
 INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
@@ -95,3 +117,12 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
 -- --------------------------------------------------------
 INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password_hash`, `role`) VALUES
 (1, 'admin', 'admin@letsexploredmc.com', '$2y$10$7R3vG6uK7Z2d7.aR18zJt.1LzQpBvhQomlV3x3h9oYj0jM4K6nJtO', 'admin');
+
+-- --------------------------------------------------------
+-- Seed Data: Sample Inquiries
+-- --------------------------------------------------------
+INSERT IGNORE INTO `inquiries` (`id`, `name`, `phone`, `email`, `source`, `destination`, `message`, `status`, `assigned_to`, `notes`) VALUES
+(1, 'Rahul Mehta', '+91 98201 44521', 'rahul.mehta@gmail.com', 'Instagram', 'Dubai Luxury (5D/4N)', 'Looking for 5-star hotel package with desert safari for 2 adults.', 'New', 'Admin', 'Came from Instagram Reel ad'),
+(2, 'Priya Sharma', '+91 97110 88234', 'priya.sharma@outlook.com', 'WhatsApp', 'Thailand Escape (7D/6N)', 'Need quotation for Phuket & Krabi island hopping for family of 4.', 'Follow-up', 'Admin', 'Sent initial itinerary, waiting for dates confirmation'),
+(3, 'Amit Verma', '+91 98102 33490', 'amit.verma@techcorp.in', 'Website', 'Switzerland & Paris (10D)', 'Corporate incentive tour proposal required for 15 members in June.', 'Contacted', 'Admin', 'Shared master DMC proposal deck'),
+(4, 'Neha Patel', '+91 94260 12890', 'neha.patel@yahoo.com', 'Website', 'Kashmir Paradise (6D/5N)', 'Houseboat stay in Dal Lake and Gulmarg Gondola tickets needed.', 'Converted', 'Admin', 'Advance token received, quotation generated');

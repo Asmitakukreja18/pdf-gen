@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Inquiries — Let's Explore DMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="admin-nav">
+        <a href="dashboard.html" class="brand-section">
+            <div class="brand-badge"><i class="fa-solid fa-headset"></i></div>
+            <div class="brand-info">
+                <h2>Let's Explore DMC</h2>
+                <span>Lead &amp; Inquiry Manager</span>
+            </div>
+        </a>
+
+        <nav class="nav-links-row">
+            <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="inquiries.html" class="nav-item active"><i class="fa-solid fa-inbox"></i> All Inquiries</a>
+            <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        </nav>
+
+        <div class="nav-actions-group">
+            <a href="../admin/index.html" class="btn-pill-action subtle" title="Switch to PDF Management Portal">
+                <i class="fa-solid fa-file-pdf"></i> PDF Portal
+            </a>
+            <a href="../index.html" class="btn-pill-action subtle" title="Open AI Travel Quotation & Invoice Studio">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
+            </a>
+            <button class="btn-pill-action subtle" id="logoutBtn" style="color:#f87171;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- App Container -->
+    <main class="app-container">
+        
+        <div class="page-header-row">
+            <div class="page-title-wrap">
+                <h1>All Customer Inquiries</h1>
+                <p>Filter, follow up, update statuses and generate travel quotes</p>
+            </div>
+            <button class="btn-pill-action gold" id="openAddLeadBtn">
+                <i class="fa-solid fa-plus"></i> New Inquiry
+            </button>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="filter-toolbar">
+            <div class="search-input-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search customer, phone, destination, message...">
+            </div>
+
+            <div class="filter-selects-row">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">All Statuses</option>
+                    <option value="New">Status: New</option>
+                    <option value="Contacted">Status: Contacted</option>
+                    <option value="Follow-up">Status: Follow-up</option>
+                    <option value="Converted">Status: Converted</option>
+                    <option value="Lost">Status: Lost</option>
+                </select>
+
+                <select id="sourceFilter" class="filter-select">
+                    <option value="all">All Sources</option>
+                    <option value="Website">Channel: Website</option>
+                    <option value="WhatsApp">Channel: WhatsApp</option>
+                    <option value="Instagram">Channel: Instagram</option>
+                    <option value="Facebook">Channel: Facebook</option>
+                    <option value="Walk-in">Channel: Walk-in</option>
+                    <option value="Referral">Channel: Referral</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Inquiries Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Customer Name</th>
+                            <th>Phone &amp; Email</th>
+                            <th>Channel</th>
+                            <th>Destination</th>
+                            <th>Status &amp; Update</th>
+                            <th>Notes / Remarks</th>
+                            <th>Received At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inquiriesTableBody">
+                        <!-- Rows injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Add Inquiry Modal -->
+    <div class="modal-overlay" id="addLeadModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-plus-circle"></i> Add New Customer Inquiry</h3>
+                <button class="modal-close" id="closeAddLeadBtn">&times;</button>
+            </div>
+            <form id="addLeadForm">
+                <div class="form-row">
+                    <label>Customer Full Name *</label>
+                    <input type="text" id="leadName" placeholder="e.g. Ramesh Gupta" required>
+                </div>
+                <div class="form-row">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="leadPhone" placeholder="e.g. +91 98123 45678" required>
+                </div>
+                <div class="form-row">
+                    <label>Email Address</label>
+                    <input type="email" id="leadEmail" placeholder="e.g. ramesh@example.com">
+                </div>
+                <div class="form-row">
+                    <label>Inquiry Channel / Source</label>
+                    <select id="leadSource">
+                        <option value="Website">Website Form</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Instagram">Instagram DM / Ad</option>
+                        <option value="Facebook">Facebook Lead</option>
+                        <option value="Walk-in">Walk-in Client</option>
+                        <option value="Referral">Referral</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Target Destination / Tour</label>
+                    <input type="text" id="leadDestination" placeholder="e.g. Switzerland (7D/6N) or Dubai">
+                </div>
+                <div class="form-row">
+                    <label>Requirements / Message</label>
+                    <textarea id="leadMessage" rows="3" placeholder="Hotel preferences, passenger count, travel dates..."></textarea>
+                </div>
+                <button type="submit" class="btn-pill-action gold" id="saveLeadBtn" style="width:100%; justify-content:center; height:44px; margin-top:8px;">
+                    <i class="fa-solid fa-check"></i> Save Inquiry to Database
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Notes Modal -->
+    <div class="modal-overlay" id="notesModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-note-sticky"></i> Internal Notes for Lead</h3>
+                <button class="modal-close" id="closeNotesModalBtn">&times;</button>
+            </div>
+            <form id="notesForm">
+                <input type="hidden" id="notesLeadId" value="">
+                <div class="form-row">
+                    <label id="notesCustomerName">Customer</label>
+                    <textarea id="notesContent" rows="5" placeholder="Enter follow-up details, quotes given, customer requests..."></textarea>
+                </div>
+                <button type="submit" class="btn-pill-action gold" style="width:100%; justify-content:center; height:44px;">
+                    <i class="fa-solid fa-check"></i> Save Notes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Wrap -->
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <script src="js/inquiries.js"></script>
+</body>
+</html>
