@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Explore DMC — Private Admin Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        body.login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 10% 20%, #0d1b2a 0%, #0a1128 50%, #050811 100%);
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .login-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(255, 122, 0, 0.05) 50%, transparent 70%);
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -30%);
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 440px;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 24px;
+            padding: 44px 36px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.08);
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 122, 0, 0.2));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #d4af37;
+            font-size: 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+        }
+
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            font-weight: 500;
+            color: #8fa3bf;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #d1dced;
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c7f99;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px 0 46px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        .form-control:focus + .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: #d4af37;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c7f99;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .password-toggle:hover {
+            color: #ffffff;
+        }
+
+        .btn-login {
+            width: 100%;
+            height: 48px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            border: none;
+            border-radius: 12px;
+            color: #0a1128;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #e5c158 0%, #c9971c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(212, 175, 55, 0.35);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .login-alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .login-alert.success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .private-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .private-badge i {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-glow"></div>
+
+    <div class="login-card">
+        <div class="brand-header">
+            <div class="brand-logo-badge">
+                <i class="fa-solid fa-file-shield"></i>
+            </div>
+            <h1 class="brand-title">Let's Explore DMC</h1>
+            <p class="brand-subtitle">Private PDF System & Admin Portal</p>
+        </div>
+
+        <div id="loginAlert" class="login-alert"></div>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="form-group">
+                <label class="form-label" for="username">Username or Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" id="username" class="form-control" placeholder="admin or your email" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••••••" required>
+                    <button type="button" class="password-toggle" id="togglePassword">
+                        <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="loginSubmitBtn">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span>Sign In to Dashboard</span>
+            </button>
+        </form>
+
+        <div class="private-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Authorized Management Access Only</span>
+        </div>
+    </div>
+
+    <script>
+        // Check if already authenticated
+        fetch('../api/login.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.user) {
+                    window.location.href = 'index.html';
+                }
+            })
+            .catch(() => {});
+
+        // Toggle Password Visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+
+        // Form Submit
+        const form = document.getElementById('loginForm');
+        const alertBox = document.getElementById('loginAlert');
+        const submitBtn = document.getElementById('loginSubmitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBox.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            try {
+                const response = await fetch('../api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'login-alert success';
+                    alertBox.style.display = 'flex';
+                    alertBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + (data.message || 'Access granted. Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'index.html';
+                    }, 600);
+                } else {
+                    alertBox.className = 'login-alert error';
+                    alertBox.style.display = 'flex';
+                    alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (data.error || 'Authentication failed.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+                }
+            } catch (err) {
+                alertBox.className = 'login-alert error';
+                alertBox.style.display = 'flex';
+                alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unable to reach backend server. Please verify cPanel connection.';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

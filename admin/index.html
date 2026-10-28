@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Document Management Portal — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <!-- Admin Navbar -->
+    <header class="admin-navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="nav-logo-icon">
+                <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="nav-title-group">
+                <h2>Let's Explore DMC</h2>
+                <span>PDF Document Management & Admin Portal</span>
+            </div>
+        </a>
+
+        <div class="nav-actions">
+            <!-- Seamless link to the AI Quotation & Invoice Studio -->
+            <a href="../index.html" class="studio-pill-btn" title="Open AI Travel Quotation & Invoice Generator">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Open AI Studio</span>
+            </a>
+
+            <div class="admin-user-badge">
+                <div class="user-avatar-circle" id="userInitial">A</div>
+                <span class="user-name-text" id="adminUsername">Admin</span>
+            </div>
+
+            <button class="btn-logout" id="logoutBtn" title="Sign out of Admin Portal">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="admin-container">
+        
+        <!-- Metrics Row -->
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-icon-wrap pdf">
+                    <i class="fa-solid fa-file-pdf"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 id="statTotalDocs">0</h3>
+                    <span>Cataloged PDFs</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-wrap cat">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 id="statTotalCategories">0</h3>
+                    <span>Document Categories</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-wrap size">
+                    <i class="fa-solid fa-hard-drive"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 id="statTotalStorage">0 KB</h3>
+                    <span>Storage Utilized</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-wrap chat">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 id="statTotalComments">0</h3>
+                    <span>Internal Notes & Remarks</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Toolbar -->
+        <section class="toolbar-section">
+            <div class="search-box-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by title, description or filename...">
+            </div>
+
+            <div class="toolbar-buttons">
+                <button class="btn-secondary" id="manageCategoriesBtn">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>Manage Topics</span>
+                </button>
+
+                <button class="btn-primary" id="openUploadModalBtn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload New PDF</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Category Filter Pills Bar -->
+        <div class="category-filter-bar" id="categoryFilterBar">
+            <button class="cat-pill active" data-category-id="">All Documents</button>
+            <!-- Dynamic Category Pills Injected Here -->
+        </div>
+
+        <!-- Documents Grid -->
+        <div class="documents-grid" id="documentsGrid">
+            <!-- Dynamic Document Cards Injected Here -->
+        </div>
+
+    </main>
+
+    <!-- Upload PDF Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="uploadModalTitle">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload PDF to cPanel Storage</span>
+                </h3>
+                <button class="btn-close-modal" id="closeUploadModalBtn">&times;</button>
+            </div>
+
+            <form id="uploadForm">
+                <input type="hidden" id="replaceDocId" value="">
+                
+                <div class="dropzone" id="dropzone">
+                    <i class="fa-solid fa-file-pdf dropzone-icon"></i>
+                    <p class="dropzone-text">Click or drag & drop a PDF file here</p>
+                    <p class="dropzone-subtext">PDF format only &bull; Up to 25 MB</p>
+                    <input type="file" id="pdfFileInput" accept="application/pdf" style="display: none;">
+                </div>
+
+                <div class="file-selected-pill" id="fileSelectedPill">
+                    <span id="selectedFileName">file.pdf</span>
+                    <button type="button" id="removeFileBtn" style="background:none; border:none; color:#f87171; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Document Title</label>
+                    <input type="text" id="uploadTitle" class="form-control" placeholder="e.g., Swiss Tour Voucher - Mr. Sharma" style="height:44px; padding-left:14px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Category / Topic</label>
+                    <select id="uploadCategory" class="form-control" style="height:44px; padding-left:14px; background:#0d172e; color:#ffffff;">
+                        <option value="">Select a category...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <label class="form-label">Description / Remarks</label>
+                    <textarea id="uploadDescription" class="form-control" rows="3" placeholder="Optional notes about this document..." style="height:auto; padding:10px 14px;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitUploadBtn" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-check"></i>
+                    <span id="uploadBtnText">Upload & Save to Database</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
+    <div class="modal-overlay" id="viewerModal">
+        <div class="modal-content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewerTitle">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>PDF Preview</span>
+                </h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a id="viewerDownloadBtn" href="#" download class="btn-view-pill">
+                        <i class="fa-solid fa-download"></i> Download
+                    </a>
+                    <button class="btn-close-modal" id="closeViewerModalBtn">&times;</button>
+                </div>
+            </div>
+            <iframe id="pdfViewerFrame" src="" style="width: 100%; flex: 1; border: none; border-radius: 12px; background: #ffffff;"></iframe>
+        </div>
+    </div>
+
+    <!-- Comments & Notes Modal -->
+    <div class="modal-overlay" id="commentsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fa-solid fa-comments"></i>
+                    <span id="commentsModalDocTitle">Document Comments</span>
+                </h3>
+                <button class="btn-close-modal" id="closeCommentsModalBtn">&times;</button>
+            </div>
+
+            <div class="comments-thread" id="commentsThread">
+                <!-- Comments injected dynamically -->
+            </div>
+
+            <form id="addCommentForm">
+                <input type="hidden" id="commentDocId" value="">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <textarea id="newCommentInput" class="form-control" rows="3" placeholder="Add an internal note or update about this document..." required style="height:auto; padding:10px 14px;"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="saveCommentBtn" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Post Comment</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Manager Modal -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>Manage Document Categories</span>
+                </h3>
+                <button class="btn-close-modal" id="closeCategoryModalBtn">&times;</button>
+            </div>
+
+            <form id="newCategoryForm" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" id="newCatName" class="form-control" placeholder="e.g. Visa Documents" required style="height:42px; padding-left:14px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="newCatDesc" class="form-control" placeholder="Brief note about category..." style="height:42px; padding-left:14px;">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Category</span>
+                </button>
+            </form>
+
+            <h4 style="font-size:14px; margin-bottom:12px; color:var(--text-secondary);">Existing Categories</h4>
+            <div id="categoryManagerList" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
+                <!-- Category items loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

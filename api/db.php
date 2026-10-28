@@ -1,27 +1,44 @@
 <?php
 /**
- * api/db.php — Database Connection Handler with Graceful Fallback
+ * api/db.php — Secure Database Connection & JSON Response Helpers
  */
 
 require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+/**
+ * Return JSON response and exit
+ */
+function jsonResponse($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    echo json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-function getDatabaseConnection() {
-    static $pdo = null;
-    if ($pdo !== null) return $pdo;
+/**
+ * Send JSON error response
+ */
+function jsonError($message, $statusCode = 400, $extra = []) {
+    $payload = array_merge(['success' => false, 'error' => $message], $extra);
+    jsonResponse($payload, $statusCode);
+}
 
-    // Check if placeholder password hasn't been changed yet
-    if (DB_PASS === 'YourStrongPasswordHere' || DB_NAME === 'letsexplore_quotes') {
-        return null; // Will trigger fallback mode
+/**
+ * Send JSON success response
+ */
+function jsonSuccess($data = [], $message = 'Success') {
+    $payload = array_merge(['success' => true, 'message' => $message], $data);
+    jsonResponse($payload, 200);
+}
+
+/**
+ * Get PDO database instance
+ */
+function getDb() {
+    static $pdo = null;
+    if ($pdo !== null) {
+        return $pdo;
     }
 
     try {
@@ -34,8 +51,7 @@ function getDatabaseConnection() {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         return $pdo;
     } catch (\PDOException $e) {
-        // Return null to let the API fallback to JSON store instead of crashing
-        error_log("Database connection error: " . $e->getMessage());
+        error_log("Database connection failure: " . $e->getMessage());
         return null;
     }
 }
