@@ -565,113 +565,243 @@ const Preview = (() => {
   // ═══════════════════════════════════════════════════════════════════════════════
   // 5. FORMAT: TRAVEL CONFIRMATION VOUCHER (BOOKING-FOCUSED)
   // ═══════════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // 5. FORMAT: HOTEL BOOKING VOUCHER (REFERENCE AANAY TOURS / HILTON FORMAT)
+  // ═══════════════════════════════════════════════════════════════════════════════
   function renderTravelConfirmationDocument(data, isForPrint) {
     const pkg = data.package || {};
     const conf = data.confirmation || {};
-    const hotels = data.hotels || [];
-    const days = data.days || [];
-    const footer = data.footerSettings || {};
-    const offices = data.offices || [];
+    const sec = conf.sections || {};
     const themeStyles = getThemeStyles(data.themeSettings);
 
+    const roomsList = (conf.rooms && conf.rooms.length > 0) ? conf.rooms : [
+      {
+        roomType: 'Deluxe double room',
+        roomOccupancy: 'double sharing + extra bed',
+        mealPlan: 'Breakfast',
+        noOfRooms: 2,
+        extraBed: 0,
+        noOfAdult: 4,
+        noOfChild: 2,
+        noOfInfant: 1,
+        extraMattress: 1
+      }
+    ];
+
+    const adultsList = (conf.adults && conf.adults.length > 0) ? conf.adults : [
+      {
+        name: conf.leadPassenger || 'pratik sangani',
+        email: conf.agencyEmail || 'Infoattdmc@gmail.com',
+        mobile: conf.contact || '7709123187'
+      }
+    ];
+
+    const starCount = Math.max(1, Math.min(5, parseInt(conf.starRating || 5, 10)));
+    const starsHtml = '★'.repeat(starCount);
+
     return `
-      <div class="dmc-quotation-doc doc-confirmation-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        <!-- Official Voucher Header -->
-        <header class="dmc-header voucher-header">
-          <div class="dmc-header-top">
-            <div class="dmc-brand-box">
-              <img src="images/logo.png" alt="Let's Explore DMC" class="dmc-brand-logo" onerror="this.style.display='none'" />
-              <div class="dmc-brand-info">
-                <span class="dmc-brand-name">LET'S EXPLORE DMC</span>
-                <span class="dmc-brand-tagline">Official Destination Management Voucher</span>
+      <div class="dmc-quotation-doc doc-confirmation-mode hotel-voucher-doc ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
+        
+        <!-- 1. Agency Header (Right-Aligned) -->
+        ${sec.agencyHeader !== false ? `
+          <header class="hv-agency-header">
+            <div class="hv-agency-brand">
+              <h1 class="hv-agency-name">${escapeHTML(conf.agencyName || 'Aanay tours')}</h1>
+              <div class="hv-agency-meta">
+                <div>Contact Person : <span>${escapeHTML(conf.contactPerson || 'Viraj Gaglani')}</span></div>
+                <div>Mobile No : <span>${escapeHTML(conf.agencyMobile || '7709123187')}</span></div>
+                <div>Email : <span>${escapeHTML(conf.agencyEmail || 'Infoattdmc@gmail.com')}</span></div>
               </div>
             </div>
-            <div class="voucher-status-badge">
-              <span class="v-confirmed-text">BOOKING CONFIRMED</span>
-              <span class="v-ref">Voucher #${escapeHTML(conf.bookingRef || 'CONF-LE-8891')}</span>
+          </header>
+        ` : ''}
+
+        <!-- 2. Hotel Summary Highlight Box -->
+        ${sec.summaryCard !== false ? `
+          <div class="hv-summary-card">
+            <div class="hv-grid-2">
+              <div class="hv-cell-left">
+                <div class="hv-hotel-name-row">
+                  <span class="hv-hotel-name">${escapeHTML(conf.hotelName || 'hilton abu dhabi yas island')}</span>
+                  <span class="hv-stars">${starsHtml}</span>
+                </div>
+                <div class="hv-meta-line">Ref No. : <strong>${escapeHTML(conf.refNo || 'TG/31130')}</strong></div>
+                <div class="hv-meta-line">Confirmation No. : <strong>${escapeHTML(conf.confirmationNo || 'NH27002524635670')}</strong></div>
+              </div>
+              <div class="hv-cell-right">
+                <div class="hv-meta-line">Email Id : <strong>${escapeHTML(conf.hotelEmail || 'reservations_yasisland@hilton.com')}</strong></div>
+                <div class="hv-meta-line">Mobile No : <strong>${escapeHTML(conf.hotelMobile || '97122086888')}</strong></div>
+                <div class="hv-meta-line">City Name : <strong>${escapeHTML(conf.cityName || 'dubai')}</strong></div>
+              </div>
+            </div>
+
+            <div class="hv-divider-h"></div>
+
+            <div class="hv-grid-2">
+              <div class="hv-cell-left">
+                <div class="hv-meta-line">Guest Name : <strong>${escapeHTML(conf.guestName || conf.agencyName || 'Aanay tours')}</strong></div>
+                <div class="hv-meta-line">Guest Email Id : <strong>${escapeHTML(conf.guestEmail || conf.agencyEmail || 'Infoattdmc@gmail.com')}</strong></div>
+              </div>
+              <div class="hv-cell-right">
+                <div class="hv-meta-line">Hotel Type : <strong>${escapeHTML(conf.hotelType || 'luxury')}</strong></div>
+                <div class="hv-meta-line">Guest Mobile No. : <strong>${escapeHTML(conf.guestMobile || conf.agencyMobile || '7709123187')}</strong></div>
+              </div>
             </div>
           </div>
+        ` : ''}
 
-          <div class="voucher-title-banner">
-            <h2>OFFICIAL TRAVEL CONFIRMATION VOUCHER</h2>
-            <p>Please present this voucher along with valid government photo identification upon arrival.</p>
+        <!-- 3. How to Get Here & Hotel Photo Banner -->
+        ${sec.mapPhoto !== false ? `
+          <div class="hv-map-photo-row">
+            <div class="hv-map-box">
+              <div class="hv-map-header">📍 How to get here</div>
+              <div class="hv-map-body">
+                <div class="hv-map-loc-label">Location :</div>
+                <div class="hv-map-loc-val">${escapeHTML(conf.location || 'abu dhabi')}</div>
+                <a href="${escapeHTML(conf.mapsUrl || ('https://maps.google.com/?q=' + encodeURIComponent(conf.hotelName || 'Hilton Abu Dhabi Yas Island')))}" 
+                   target="_blank" class="hv-maps-btn">Open in Google Maps</a>
+              </div>
+            </div>
+            <div class="hv-photo-box">
+              <img src="${escapeHTML(conf.hotelPhoto || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80')}" 
+                   alt="${escapeHTML(conf.hotelName || 'Hotel')}" 
+                   class="hv-hotel-photo" 
+                   onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'" />
+            </div>
           </div>
-        </header>
+        ` : ''}
 
-        <!-- Guest & Booking Summary -->
-        <section class="dmc-section voucher-guest-section">
-          <div class="dmc-section-header"><span>Guest & Reservation Details</span></div>
-          <div class="voucher-details-grid">
-            <div class="v-cell"><span class="v-lbl">Lead Traveller:</span> <strong>${escapeHTML(conf.leadPassenger || pkg.clientName || 'Package for 2 pax')}</strong></div>
-            <div class="v-cell"><span class="v-lbl">Total Passengers:</span> <strong>${escapeHTML(pkg.travellers || '2 Adults')}</strong></div>
-            <div class="v-cell"><span class="v-lbl">Destination:</span> <strong>${escapeHTML(pkg.destinations || 'Thailand')}</strong></div>
-            <div class="v-cell"><span class="v-lbl">Travel Dates:</span> <strong>${escapeHTML(pkg.preparedDate || '2 Jan to 13 Jan')}</strong></div>
-            <div class="v-cell"><span class="v-lbl">Primary Contact:</span> <strong>${escapeHTML(conf.contact || pkg.clientContact || '+91 80075 86881')}</strong></div>
-            <div class="v-cell"><span class="v-lbl">24/7 Hotline:</span> <strong>${escapeHTML(conf.emergencyContact || '+66 818311204')}</strong></div>
-          </div>
-        </section>
+        <!-- 4. Hotel Details & Room Occupancy Table -->
+        ${sec.hotelDetails !== false ? `
+          <div class="hv-section">
+            <div class="hv-banner">Hotel Details</div>
+            
+            <div class="hv-date-strip">
+              <span class="hv-date-lbl">Check in and Check out date</span>
+              <span class="hv-date-val">From: <strong>${escapeHTML(conf.checkInDateTime || '16-Nov-2026 - 11:52 PM')}</strong> &nbsp;&nbsp; To: <strong>${escapeHTML(conf.checkOutDateTime || '18-Nov-2026 - 11:52 PM')}</strong></span>
+            </div>
 
-        <!-- Confirmed Hotel Accommodations -->
-        <section class="dmc-section voucher-hotel-section">
-          <div class="dmc-section-header"><span>Confirmed Hotel Stays</span></div>
-          <table class="voucher-table">
-            <thead>
-              <tr>
-                <th>HOTEL / RESORT</th>
-                <th>CITY / LOCATION</th>
-                <th>CHECK-IN</th>
-                <th>CHECK-OUT</th>
-                <th>ROOM & MEAL PLAN</th>
-                <th>STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${hotels.map(h => `
+            <table class="hv-table">
+              <thead>
                 <tr>
-                  <td><strong>${escapeHTML(h.name)}</strong></td>
-                  <td>${escapeHTML(h.city || 'Thailand')}</td>
-                  <td>${escapeHTML(h.checkIn || '—')}</td>
-                  <td>${escapeHTML(h.checkOut || '—')}</td>
-                  <td>${escapeHTML(h.roomType || 'Deluxe')} · ${escapeHTML(h.mealPlan || 'CP')}</td>
-                  <td><span class="badge-v-confirmed">CONFIRMED</span></td>
+                  <th>Room Type</th>
+                  <th>Room Occupancy</th>
+                  <th>Meal Plan</th>
+                  <th>No. Of Rooms</th>
+                  <th>Extra Bed</th>
+                  <th>No. Of Adult</th>
+                  <th>No. Of Child</th>
+                  <th>No. Of Infant</th>
+                  <th>Extra Mattress</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </section>
-
-        <!-- Confirmed Tours & Inter-Island Transfers -->
-        <section class="dmc-section voucher-services-section">
-          <div class="dmc-section-header"><span>Confirmed Excursions & Transfer Schedule</span></div>
-          <div class="voucher-services-list">
-            ${days.map(d => `
-              <div class="v-day-row">
-                <div class="v-day-meta">
-                  <strong>DAY ${d.dayNumber}</strong>
-                  <span>${escapeHTML(d.date || '')}</span>
-                </div>
-                <div class="v-day-desc">
-                  <strong>${escapeHTML(d.title)}</strong>
-                  <div class="v-day-items">
-                    ${(d.items || []).map(it => `<span>• ${escapeHTML(it.title)}</span>`).join(' ')}
-                  </div>
-                </div>
-              </div>
-            `).join('')}
+              </thead>
+              <tbody>
+                ${roomsList.map(r => `
+                  <tr>
+                    <td><strong>${escapeHTML(r.roomType || 'Deluxe double room')}</strong></td>
+                    <td>${escapeHTML(r.roomOccupancy || 'double sharing + extra bed')}</td>
+                    <td>${escapeHTML(r.mealPlan || 'Breakfast')}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.noOfRooms ?? 1))}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.extraBed ?? 0))}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.noOfAdult ?? 2))}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.noOfChild ?? 0))}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.noOfInfant ?? 0))}</td>
+                    <td style="text-align:center;">${escapeHTML(String(r.extraMattress ?? 0))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
-        </section>
+        ` : ''}
 
-        <!-- Important Instructions & Checklist -->
-        <section class="dmc-section voucher-instructions-section">
-          <div class="dmc-section-header"><span>Essential Travel Guidelines & On-Ground Protocol</span></div>
-          <ul class="dmc-bullet-list">
-            ${(conf.instructions || []).map(ins => `<li>${escapeHTML(ins)}</li>`).join('')}
-          </ul>
-        </section>
+        <!-- 5. Adult Details Table -->
+        ${sec.adultDetails !== false ? `
+          <div class="hv-section">
+            <div class="hv-banner">Adult Details</div>
+            <table class="hv-table">
+              <thead>
+                <tr>
+                  <th style="width:33%;">Name</th>
+                  <th style="width:34%;">Email</th>
+                  <th style="width:33%;">Mobile</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${adultsList.map(a => `
+                  <tr>
+                    <td><strong>${escapeHTML(a.name || 'pratik sangani')}</strong></td>
+                    <td>${escapeHTML(a.email || 'Infoattdmc@gmail.com')}</td>
+                    <td>${escapeHTML(a.mobile || '7709123187')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
 
-        ${renderOfficesSection(offices)}
+        <!-- 6. Important Information & Policies -->
+        ${sec.importantInfo !== false ? `
+          <div class="hv-section">
+            <div class="hv-banner">IMPORTANT INFORMATION</div>
+            <div class="hv-info-box">
+              ${conf.perksInfo ? `<p class="hv-info-p">${escapeHTML(conf.perksInfo)}</p>` : ''}
+              ${conf.passportNotice ? `<p class="hv-info-p"><strong>${escapeHTML(conf.passportNotice)}</strong></p>` : ''}
+              
+              ${conf.idProofPolicy ? `
+                <div class="hv-info-subheading">ID Proof Related</div>
+                <p class="hv-info-p">${escapeHTML(conf.idProofPolicy)}</p>
+              ` : ''}
 
-        ${renderContinuousFooter(footer)}
+              ${conf.mustRead ? `
+                <div class="hv-info-subheading">Must read</div>
+                <p class="hv-info-p">${escapeHTML(conf.mustRead)}</p>
+              ` : ''}
+
+              ${conf.optionalFees ? `<p class="hv-info-p">${escapeHTML(conf.optionalFees)}</p>` : ''}
+              
+              ${conf.stayPolicies ? `<p class="hv-info-p">${escapeHTML(conf.stayPolicies).replace(/\n/g, '<br>')}</p>` : ''}
+
+              ${conf.petPolicy ? `
+                <div class="hv-info-subheading">Pet(s) Related</div>
+                <p class="hv-info-p">${escapeHTML(conf.petPolicy).replace(/\n/g, '<br>')}</p>
+              ` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- 7. Hotel Amenities -->
+        ${sec.amenities !== false && conf.amenities ? `
+          <div class="hv-section">
+            <div class="hv-banner">HOTEL AMENITIES</div>
+            <div class="hv-amenities-box">
+              ${conf.amenities.transfers ? `
+                <div class="hv-amenities-group">
+                  <div class="hv-amenities-title">Transfers and Connectivity</div>
+                  <div class="hv-amenities-text">${escapeHTML(conf.amenities.transfers)}</div>
+                </div>
+              ` : ''}
+              ${conf.amenities.entertainment ? `
+                <div class="hv-amenities-group">
+                  <div class="hv-amenities-title">Entertainment</div>
+                  <div class="hv-amenities-text">${escapeHTML(conf.amenities.entertainment)}</div>
+                </div>
+              ` : ''}
+              ${conf.amenities.foodDrinks ? `
+                <div class="hv-amenities-group">
+                  <div class="hv-amenities-title">Food and Drinks</div>
+                  <div class="hv-amenities-text">${escapeHTML(conf.amenities.foodDrinks)}</div>
+                </div>
+              ` : ''}
+              ${conf.amenities.roomAmenities ? `
+                <div class="hv-amenities-group">
+                  <div class="hv-amenities-title">Room Amenities</div>
+                  <div class="hv-amenities-text">${escapeHTML(conf.amenities.roomAmenities)}</div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        ` : ''}
+
       </div>
     `;
   }
@@ -682,131 +812,177 @@ const Preview = (() => {
   function renderInvoiceDocument(data, isForPrint) {
     const pkg = data.package || {};
     const inv = data.invoice || {};
-    const summary = data.summary || { totalINR: 285980, totalUSD: 2262.24 };
-    const footer = data.footerSettings || {};
     const themeStyles = getThemeStyles(data.themeSettings);
 
-    const subtotal = summary.totalINR || 285980;
-    const taxRate = inv.taxRate || 5;
-    const taxAmount = Math.round((subtotal * taxRate) / 100);
-    const grandTotal = subtotal + taxAmount;
+    const fmtNum = (val) => {
+      const n = parseFloat(val);
+      if (isNaN(n)) return '0.00';
+      return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const items = (inv.items && inv.items.length > 0) ? inv.items : [
+      {
+        sn: 1,
+        service: 'passport bill',
+        description: '1 Adult',
+        hsn: '',
+        quantity: 1,
+        perPaxPrice: 2850,
+        netAmount: 2850,
+        amount: 2850
+      }
+    ];
+
+    let calcSubtotal = 0;
+    items.forEach(it => {
+      const amt = parseFloat(it.amount || it.netAmount || 0);
+      calcSubtotal += isNaN(amt) ? 0 : amt;
+    });
+
+    const subTotal = inv.subTotal !== undefined ? inv.subTotal : calcSubtotal;
+    const totalAmount = inv.totalAmount !== undefined ? inv.totalAmount : subTotal;
 
     return `
       <div class="dmc-quotation-doc doc-invoice-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        <!-- Corporate Tax Invoice Header -->
-        <header class="invoice-header">
-          <div class="inv-header-top">
-            <div class="inv-brand-box">
-              <img src="images/logo.png" alt="Let's Explore DMC" class="dmc-brand-logo" onerror="this.style.display='none'" />
-              <div class="dmc-brand-info">
-                <span class="dmc-brand-name">LET'S EXPLORE DMC PVT LTD</span>
-                <span class="dmc-brand-tagline">Destination Management Company · Global Desks</span>
-                <span class="inv-tax-no">GSTIN / Reg No: 27AABCL8891Q1Z8</span>
-              </div>
-            </div>
-            <div class="inv-title-box">
-              <h1 class="inv-word">TAX INVOICE</h1>
-              <div class="inv-meta-grid">
-                <div><span class="im-lbl">Invoice #:</span> <strong>${escapeHTML(inv.invoiceNumber || 'LE-INV-2027-112')}</strong></div>
-                <div><span class="im-lbl">Invoice Date:</span> <strong>${escapeHTML(inv.invoiceDate || '2 Jan 2027')}</strong></div>
-                <div><span class="im-lbl">Due Date:</span> <strong>${escapeHTML(inv.dueDate || '13 Jan 2027')}</strong></div>
-              </div>
-            </div>
+        <!-- Top Header: Logo on left, Word "Invoice" on right -->
+        <div class="inv-orange-header">
+          <div class="inv-logo-box">
+            <img src="images/logo.png" alt="Let's Explore DMC" class="inv-logo-img" onerror="this.style.display='none'" />
           </div>
-
-          <!-- Bill To Strip -->
-          <div class="inv-bill-to-strip">
-            <div class="bill-to-box">
-              <span class="bt-title">BILLED TO:</span>
-              <div class="bt-content">
-                <strong>${escapeHTML(pkg.clientName || 'Package for 2 pax')}</strong><br>
-                <span>${escapeHTML(pkg.clientContact || '+91 80075 86881')}</span><br>
-                <span>${escapeHTML(pkg.clientEmail || 'info@letsexploredmc.com')}</span>
-              </div>
-            </div>
-            <div class="trip-ref-box">
-              <span class="bt-title">PACKAGE PARTICULARS:</span>
-              <div class="bt-content">
-                <strong>${escapeHTML(pkg.destinations || 'Krabi + Phuket + Koh Yao Yai, Thailand')}</strong><br>
-                <span>Duration: ${escapeHTML(pkg.duration || '12 Days / 11 Nights')} · Travellers: ${escapeHTML(pkg.travellers || '2 Adults')}</span><br>
-                <span>Travel Dates: ${escapeHTML(pkg.preparedDate || '2 Jan to 13 Jan')}</span>
-              </div>
-            </div>
+          <div class="inv-top-right">
+            <h1 class="inv-word-title">Invoice</h1>
+            <div class="inv-no-line">Invoice No: <strong>${escapeHTML(inv.invoiceNumber || '090587')}</strong></div>
           </div>
-        </header>
+        </div>
 
-        <!-- Itemized Tax Invoice Table -->
-        <section class="invoice-table-section">
-          <table class="inv-items-table">
+        <!-- Orange Horizontal Divider Strip with bold text INVOICE -->
+        <div class="inv-orange-bar-wrap">
+          <div class="inv-orange-bar-left"></div>
+          <div class="inv-orange-bar-text">INVOICE</div>
+          <div class="inv-orange-bar-right"></div>
+        </div>
+
+        <!-- Invoice From and Invoice To Grid -->
+        <div class="inv-parties-grid">
+          <div class="inv-party-col">
+            <h4>Invoice From:</h4>
+            <div><strong>Company:</strong> ${escapeHTML(inv.fromCompany || "LET'S EXPLORE DMC")}</div>
+            <div><strong>Email:</strong> ${escapeHTML(inv.fromEmail || "letsexploredmc@gmail.com")}</div>
+            <div><strong>Mobile No:</strong> ${escapeHTML(inv.fromMobile || "8007586871")}</div>
+            <div><strong>Address:</strong> ${escapeHTML(inv.fromAddress || "Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603").replace(/\n/g, '<br>')}</div>
+            <div><strong>GST:</strong> ${escapeHTML(inv.fromGst || "27BVYPT1131M1ZT")}</div>
+          </div>
+          <div class="inv-party-col inv-party-to">
+            <h4>Invoice To:</h4>
+            <div><strong>Customer Name:</strong> ${escapeHTML(inv.toCustomerName || pkg.clientName || 'akash dewani')}</div>
+            <div>${escapeHTML(inv.toCustomerAddress || 'Amravati, Maharashtra, India, 444603').replace(/\n/g, '<br>')}</div>
+            ${inv.toCustomerMobile ? `<div><strong>Mobile No:</strong> ${escapeHTML(inv.toCustomerMobile)}</div>` : ''}
+            ${inv.toCustomerEmail ? `<div><strong>Email:</strong> ${escapeHTML(inv.toCustomerEmail)}</div>` : ''}
+          </div>
+        </div>
+
+        <!-- Invoice Detail Table -->
+        <div class="inv-section-box">
+          <div class="inv-sec-title">Invoice Detail</div>
+          <table class="inv-table">
             <thead>
               <tr>
-                <th style="width:40px;">S.NO</th>
-                <th>DESCRIPTION OF SERVICE</th>
-                <th style="width:70px; text-align:center;">PAX</th>
-                <th style="width:140px; text-align:right;">RATE</th>
-                <th style="width:140px; text-align:right;">AMOUNT (INR)</th>
+                <th style="width:36px; text-align:center;">S/N</th>
+                <th>Service</th>
+                <th>Description</th>
+                <th style="width:85px; text-align:center;">HSN No.</th>
+                <th style="width:65px; text-align:center;">Quantity</th>
+                <th style="width:110px; text-align:right;">Per Pax Price</th>
+                <th style="width:110px; text-align:right;">Net Amount</th>
+                <th style="width:115px; text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((it, idx) => `
+                <tr>
+                  <td style="text-align:center;">${escapeHTML(String(it.sn || (idx + 1)))}</td>
+                  <td><strong>${escapeHTML(it.service || 'Service Item')}</strong></td>
+                  <td>${escapeHTML(it.description || '')}</td>
+                  <td style="text-align:center;">${escapeHTML(it.hsn || '')}</td>
+                  <td style="text-align:center;">${escapeHTML(String(it.quantity || 1))}</td>
+                  <td style="text-align:right;">INR ${fmtNum(it.perPaxPrice)}</td>
+                  <td style="text-align:right;">INR ${fmtNum(it.netAmount)}</td>
+                  <td style="text-align:right; font-weight:700;">INR ${fmtNum(it.amount)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals & Authorized Signature Block -->
+        <div class="inv-totals-sig-grid">
+          <div class="inv-sig-box">
+            <div class="inv-sig-label">${escapeHTML(inv.authorizedSignatory || 'Authorized Signature')}</div>
+            <div class="inv-sig-dots"></div>
+          </div>
+          <div class="inv-totals-box">
+            <div class="inv-subtotal-row">
+              <span>Sub Total</span>
+              <strong>INR ${fmtNum(subTotal)}</strong>
+            </div>
+            <div class="inv-total-row">
+              <span>Total Amount</span>
+              <strong>INR ${fmtNum(totalAmount)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="inv-section-box">
+          <div class="inv-sec-title">Important Notes</div>
+          <div style="padding:10px 12px; font-size:7.8pt; line-height:1.45; color:#334155; min-height:36px;">
+            ${inv.importantNotes ? escapeHTML(inv.importantNotes).replace(/\n/g, '<br>') : ''}
+          </div>
+        </div>
+
+        <!-- Bank Details -->
+        <div class="inv-section-box">
+          <div class="inv-sec-title">Bank Details</div>
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th style="width:65px;">Qr Code</th>
+                <th>Account Holder Name</th>
+                <th>Bank Name</th>
+                <th>Account No.</th>
+                <th>IFSC Code</th>
+                <th>Swift Code</th>
+                <th>IBAN</th>
+                <th>Branch</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="text-align:center;">1</td>
-                <td>
-                  <strong>Hotel Costing & Luxury Accommodations</strong><br>
-                  <small>11 Nights across Krabi Resort, Phi Phi Island, Panwaburi Queen, Sunset Beach Resort & Esmeralda View</small>
-                </td>
-                <td style="text-align:center;">2</td>
-                <td style="text-align:right;">₹ 1,42,990 / pax</td>
-                <td style="text-align:right; font-weight:bold;">₹ 2,85,980</td>
-              </tr>
-              <tr>
-                <td style="text-align:center;">2</td>
-                <td>
-                  <strong>On-ground Land Package, Speedboats & Excursions</strong><br>
-                  <small>Private airport minivans, 4 Islands longtail, ATV ride, Phi Phi speedboat, James Bond tour & Candle Light Dinner</small>
-                </td>
-                <td style="text-align:center;">2</td>
-                <td style="text-align:right;">$ 1,131.12 / pax</td>
-                <td style="text-align:right; font-weight:bold;">$ 2,262.24</td>
+                <td style="text-align:center; color:#94A3B8;">—</td>
+                <td><strong>${escapeHTML(inv.bankAccountHolder || "LETS EXPLORE DMC")}</strong></td>
+                <td>${escapeHTML(inv.bankName || "YES BANK LIMITED")}</td>
+                <td><strong>${escapeHTML(inv.bankAccountNo || "108163400004886")}</strong></td>
+                <td>${escapeHTML(inv.bankIfsc || "YESB0001081")}</td>
+                <td>${escapeHTML(inv.bankSwift || "")}</td>
+                <td>${escapeHTML(inv.bankIban || "")}</td>
+                <td>${escapeHTML(inv.bankBranch || "AMRAVATI")}</td>
               </tr>
             </tbody>
           </table>
-
-          <!-- Financial Calculation Matrix -->
-          <div class="inv-calc-container">
-            <div class="inv-bank-box">
-              <h4>BANK REMITTANCE & PAYMENT DETAILS</h4>
-              <div class="bank-details-grid">
-                <div><span>Beneficiary Name:</span> <strong>${escapeHTML(inv.accountName || "Let's Explore DMC Pvt Ltd")}</strong></div>
-                <div><span>Bank Name:</span> <strong>${escapeHTML(inv.bankName || 'HDFC Bank Ltd')}</strong></div>
-                <div><span>Account Number:</span> <strong>${escapeHTML(inv.accountNumber || '50200088991122')}</strong></div>
-                <div><span>IFSC Code:</span> <strong>${escapeHTML(inv.ifsc || 'HDFC0001234')}</strong></div>
-                <div><span>UPI ID:</span> <strong>${escapeHTML(inv.upi || 'letsexplore@hdfcbank')}</strong></div>
-              </div>
-            </div>
-
-            <div class="inv-totals-box">
-              <div class="inv-tot-row"><span>Subtotal (INR):</span> <strong>${formatCurrencyINR(subtotal)}</strong></div>
-              <div class="inv-tot-row"><span>GST / Taxes (${taxRate}%):</span> <strong>${formatCurrencyINR(taxAmount)}</strong></div>
-              <div class="inv-tot-row grand-total-row"><span>TOTAL PAYABLE:</span> <strong>${formatCurrencyINR(grandTotal)}</strong></div>
-              <div class="inv-in-words">Amount in words: Indian Rupees Three Lakh Twenty-Seven Only</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Terms & Signatory Authorization -->
-        <div class="inv-bottom-section">
-          <div class="inv-terms">
-            <h5>TERMS & CONDITIONS:</h5>
-            <p>${escapeHTML(inv.terms || 'Full payment is due prior to travel departure. Cheques/Drafts subject to realization.')}</p>
-          </div>
-          <div class="inv-sign-box">
-            <div class="sign-line"></div>
-            <strong>${escapeHTML(inv.authorizedSignatory || 'Authorized Signatory')}</strong>
-            <span>Let's Explore DMC Pvt Ltd</span>
-          </div>
         </div>
 
-        ${renderContinuousFooter(footer)}
+        <!-- Orange Footer Divider -->
+        <div class="inv-orange-divider"></div>
+
+        <!-- Company Address Line -->
+        <div class="inv-footer-line">
+          ${escapeHTML(inv.footerLine || "LET'S EXPLORE DMC| Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati Amravati, Maharashtra, India, 444603 | letsexploredmc@gmail.com| 8007586871")}
+        </div>
+
+        <!-- System Generated Disclaimer -->
+        <div class="inv-disclaimer">
+          ${escapeHTML(inv.disclaimer || "This Is a System-Generated Invoice; No Stamp Is Required.")}
+        </div>
       </div>
     `;
   }

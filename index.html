@@ -34,7 +34,7 @@
         </div>
 
         <nav class="header-nav" id="headerNav">
-          <a href="#" class="nav-link active" data-section="generator" id="navGenerator">
+          <a href="#" class="nav-link" data-section="generator" id="navGenerator">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <path d="M3 9h18M9 21V9" />
@@ -48,7 +48,7 @@
             </svg>
             <span>Full-Page Preview</span>
           </a>
-          <a href="#" class="nav-link" data-section="chat" id="navChat">
+          <a href="#" class="nav-link active" data-section="chat" id="navChat">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
@@ -73,8 +73,8 @@
             </div>
           </div>
 
-          <button class="btn btn-sm btn-accent" id="btnOpenApiKeyModal" title="Setup 100% Free Google Gemini 2.0 AI">
-            <span>🔑</span> <span id="btnApiKeyLabel">Free AI Setup</span>
+          <button class="btn btn-sm btn-accent" id="btnOpenApiKeyModal" title="AI Settings">
+            <span>⚡</span> <span id="btnApiKeyLabel">AI Settings</span>
           </button>
 
           <div class="status-pill" id="aiStatusPill">
@@ -91,7 +91,7 @@
       <!-- ==========================================
            SECTION 1: DMC QUOTATION STUDIO & LIVE PREVIEW
            ========================================== -->
-      <section class="section-generator" id="sectionGenerator">
+      <section class="section-generator" id="sectionGenerator" style="display:none">
 
         <!-- ─── TOP: MULTI-DOCUMENT FORMAT SUITE SWITCHER ─── -->
         <div class="doc-format-suite-bar">
@@ -118,9 +118,9 @@
               <span class="pill-label">4. Package Summary</span>
             </button>
             <button class="doc-pill" data-doctype="confirmation"
-              title="Official booking voucher with confirmed hotels & tours">
-              <span class="pill-icon">🎟️</span>
-              <span class="pill-label">5. Confirmation Voucher</span>
+              title="Official luxury hotel booking voucher with hotel details, rooms & guest list">
+              <span class="pill-icon">🏨</span>
+              <span class="pill-label">5. Hotel Booking Voucher</span>
             </button>
             <button class="doc-pill" data-doctype="invoice" title="Corporate Tax Invoice with GST & Bank Details">
               <span class="pill-icon">🧾</span>
@@ -327,101 +327,339 @@
               <!-- TAB: TAX INVOICE & BILLING -->
               <div class="tab-pane" id="tabInvoice">
                 <div class="builder-section-intro">
-                  <h4>Corporate Tax Invoice & Billing Details</h4>
-                  <p>Configure invoice numbering, GST tax rate, banking details, and authorized signatory.</p>
-                </div>
-
-                <div class="form-grid-3" style="margin-bottom: 12px;">
-                  <div class="form-group">
-                    <label>Invoice Number</label>
-                    <input type="text" id="bInvNumber" class="form-input" placeholder="LE-INV-2027-112" />
-                  </div>
-                  <div class="form-group">
-                    <label>Invoice Date</label>
-                    <input type="text" id="bInvDate" class="form-input" placeholder="02 Jan 2027" />
-                  </div>
-                  <div class="form-group">
-                    <label>Payment Due Date</label>
-                    <input type="text" id="bInvDueDate" class="form-input" placeholder="13 Jan 2027" />
-                  </div>
+                  <h4>🧾 Corporate Invoice & Billing Details</h4>
+                  <p>Matches the official Let's Explore DMC Orange themed invoice format. All fields are dynamic and editable.</p>
                 </div>
 
                 <div class="form-grid-2" style="margin-bottom: 12px;">
                   <div class="form-group">
-                    <label>Billed To (Client / Agency Details)</label>
-                    <textarea id="bInvBillTo" class="form-input" rows="2"
-                      placeholder="Company Name / Client Name..."></textarea>
+                    <label>Invoice Number</label>
+                    <input type="text" id="bInvNumber" class="form-input" placeholder="090587" />
                   </div>
                   <div class="form-group">
-                    <label>Tax / GST Rate (%)</label>
-                    <input type="number" id="bInvTaxRate" class="form-input" value="5" min="0" max="28" />
+                    <label>Invoice Date</label>
+                    <input type="text" id="bInvDate" class="form-input" placeholder="28 Oct 2026" />
                   </div>
                 </div>
 
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank
-                    Remittance Details</span>
+                <!-- Invoice From Details -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice From (Company Details)</span>
                   <div class="form-grid-3" style="margin-top:6px;">
                     <div class="form-group">
+                      <label style="font-size:10px;">Company Name</label>
+                      <input type="text" id="bInvFromCompany" class="form-input form-input-sm" placeholder="LET'S EXPLORE DMC" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Email</label>
+                      <input type="text" id="bInvFromEmail" class="form-input form-input-sm" placeholder="letsexploredmc@gmail.com" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Mobile No</label>
+                      <input type="text" id="bInvFromMobile" class="form-input form-input-sm" placeholder="8007586871" />
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label style="font-size:10px;">Address</label>
+                      <input type="text" id="bInvFromAddress" class="form-input form-input-sm" placeholder="Sahakar Nagar Opp New Cotton Market..." />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">GST Number</label>
+                      <input type="text" id="bInvFromGst" class="form-input form-input-sm" placeholder="27BVYPT1131M1ZT" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Invoice To Details -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice To (Billed Customer Details)</span>
+                  <div class="form-grid-2" style="margin-top:6px;">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Customer Name</label>
+                      <input type="text" id="bInvToName" class="form-input form-input-sm" placeholder="akash dewani" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Customer Mobile / Contact</label>
+                      <input type="text" id="bInvToMobile" class="form-input form-input-sm" placeholder="Optional phone" />
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label style="font-size:10px;">Customer Address</label>
+                      <input type="text" id="bInvToAddress" class="form-input form-input-sm" placeholder="Amravati, Maharashtra, India, 444603" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Invoice Detail / Itemized Service Rows -->
+                <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice Services & Line Items</span>
+                    <button type="button" class="btn btn-xs btn-primary" id="btnAddInvItem">+ Add Service Item</button>
+                  </div>
+                  <div id="bInvItemsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label>Important Notes</label>
+                  <textarea id="bInvNotes" class="form-input" rows="2" placeholder="Full payment due as per invoice terms..."></textarea>
+                </div>
+
+                <!-- Bank Remittance Details -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank Remittance Details</span>
+                  <div class="form-grid-3" style="margin-top:6px;">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Account Holder Name</label>
+                      <input type="text" id="bInvBankAccHolder" class="form-input form-input-sm" placeholder="LETS EXPLORE DMC" />
+                    </div>
+                    <div class="form-group">
                       <label style="font-size:10px;">Bank Name</label>
-                      <input type="text" id="bInvBankName" class="form-input form-input-sm"
-                        placeholder="HDFC Bank Ltd" />
+                      <input type="text" id="bInvBankName" class="form-input form-input-sm" placeholder="YES BANK LIMITED" />
                     </div>
                     <div class="form-group">
                       <label style="font-size:10px;">Account Number</label>
-                      <input type="text" id="bInvAccNo" class="form-input form-input-sm" placeholder="50200088991122" />
+                      <input type="text" id="bInvAccNo" class="form-input form-input-sm" placeholder="108163400004886" />
                     </div>
                     <div class="form-group">
                       <label style="font-size:10px;">IFSC Code</label>
-                      <input type="text" id="bInvIfsc" class="form-input form-input-sm" placeholder="HDFC0001234" />
+                      <input type="text" id="bInvIfsc" class="form-input form-input-sm" placeholder="YESB0001081" />
                     </div>
                     <div class="form-group">
-                      <label style="font-size:10px;">UPI ID</label>
-                      <input type="text" id="bInvUpi" class="form-input form-input-sm"
-                        placeholder="letsexplore@hdfcbank" />
+                      <label style="font-size:10px;">Branch</label>
+                      <input type="text" id="bInvBankBranch" class="form-input form-input-sm" placeholder="AMRAVATI" />
                     </div>
-                    <div class="form-group" style="grid-column: span 2;">
+                    <div class="form-group">
                       <label style="font-size:10px;">Authorized Signatory Label</label>
-                      <input type="text" id="bInvSignatory" class="form-input form-input-sm"
-                        placeholder="Let's Explore DMC Authorized Signatory" />
+                      <input type="text" id="bInvSignatory" class="form-input form-input-sm" placeholder="Authorized Signature" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- TAB: TRAVEL CONFIRMATION VOUCHER -->
+              <!-- TAB: HOTEL BOOKING VOUCHER -->
               <div class="tab-pane" id="tabConfirmation">
                 <div class="builder-section-intro">
-                  <h4>Travel Confirmation Voucher Details</h4>
-                  <p>Configure voucher booking reference, emergency on-ground contacts, and guest instructions.</p>
+                  <h4>🏨 Hotel Booking Voucher & Stay Details</h4>
+                  <p>Matches the luxury official hotel confirmation format (Aanay Tours / Hilton reference). Dynamic, modular, and fully editable.</p>
                 </div>
 
-                <div class="form-grid-2" style="margin-bottom: 12px;">
-                  <div class="form-group">
-                    <label>Voucher / Booking Ref</label>
-                    <input type="text" id="bConfBookingRef" class="form-input" placeholder="CONF-LE-THAI-8891" />
-                  </div>
-                  <div class="form-group">
-                    <label>Lead Passenger Name</label>
-                    <input type="text" id="bConfLeadPax" class="form-input" placeholder="Package for 2 pax" />
-                  </div>
-                  <div class="form-group">
-                    <label>Guest Contact Phone</label>
-                    <input type="text" id="bConfContact" class="form-input" placeholder="+91 80075 86881" />
-                  </div>
-                  <div class="form-group">
-                    <label>24/7 Emergency On-Ground Hotline</label>
-                    <input type="text" id="bConfEmergency" class="form-input"
-                      placeholder="+66 818311204 (Mr. Jumphol Vongchun)" />
+                <!-- Section Visibility Toggles -->
+                <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:10px 12px; margin-bottom:14px;">
+                  <span style="font-size:11px; font-weight:700; color:#1D4ED8; text-transform:uppercase; display:block; margin-bottom:6px;">
+                    👁️ Modular Section Visibility (Show / Hide on Demand)
+                  </span>
+                  <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:11px;">
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecAgencyHeader" checked /> Agency Header
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecSummaryCard" checked /> Hotel Summary Box
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecMapPhoto" checked /> Map & Photo
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecHotelDetails" checked /> Hotel & Room Table
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecAdultDetails" checked /> Adult Details Table
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecImportantInfo" checked /> Important Information
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                      <input type="checkbox" id="bConfSecAmenities" checked /> Hotel Amenities
+                    </label>
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label>Important Check-in & Journey Instructions (One per line)</label>
-                  <textarea id="bConfInstructions" class="form-input" rows="4"
-                    placeholder="Please present this voucher upon hotel check-in...&#10;Check-in time is 14:00 hrs..."></textarea>
+                <!-- Agency Header Details -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Agency Header (Top Right)</span>
+                  <div class="form-grid-2" style="margin-top:6px;">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Agency / Company Name</label>
+                      <input type="text" id="bConfAgencyName" class="form-input form-input-sm" placeholder="Aanay tours" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Contact Person</label>
+                      <input type="text" id="bConfContactPerson" class="form-input form-input-sm" placeholder="Viraj Gaglani" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Mobile No</label>
+                      <input type="text" id="bConfAgencyMobile" class="form-input form-input-sm" placeholder="7709123187" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Email ID</label>
+                      <input type="text" id="bConfAgencyEmail" class="form-input form-input-sm" placeholder="Infoattdmc@gmail.com" />
+                    </div>
+                  </div>
                 </div>
+
+                <!-- Hotel Highlight Box Details -->
+                <div style="background:#F0F7FF; border:1px solid #90CDF4; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Hotel Summary Card (Bordered Blue Box)</span>
+                  <div class="form-grid-3" style="margin-top:6px;">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Hotel Name</label>
+                      <input type="text" id="bConfHotelName" class="form-input form-input-sm" placeholder="hilton abu dhabi yas island" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Star Rating</label>
+                      <select id="bConfStarRating" class="form-input form-input-sm">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                        <option value="3">⭐⭐⭐ (3 Stars)</option>
+                        <option value="2">⭐⭐ (2 Stars)</option>
+                        <option value="1">⭐ (1 Star)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Hotel Type</label>
+                      <input type="text" id="bConfHotelType" class="form-input form-input-sm" placeholder="luxury" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Ref No.</label>
+                      <input type="text" id="bConfRefNo" class="form-input form-input-sm" placeholder="TG/31130" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Confirmation No.</label>
+                      <input type="text" id="bConfConfirmationNo" class="form-input form-input-sm" placeholder="NH27002524635670" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">City Name</label>
+                      <input type="text" id="bConfCityName" class="form-input form-input-sm" placeholder="dubai / abu dhabi" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Hotel Email Id</label>
+                      <input type="text" id="bConfHotelEmail" class="form-input form-input-sm" placeholder="reservations_yasisland@hilton.com" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Hotel Mobile No.</label>
+                      <input type="text" id="bConfHotelMobile" class="form-input form-input-sm" placeholder="97122086888" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Guest / Agency Name</label>
+                      <input type="text" id="bConfGuestName" class="form-input form-input-sm" placeholder="Aanay tours" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Guest Email Id</label>
+                      <input type="text" id="bConfGuestEmail" class="form-input form-input-sm" placeholder="Infoattdmc@gmail.com" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Guest Mobile No.</label>
+                      <input type="text" id="bConfGuestMobile" class="form-input form-input-sm" placeholder="7709123187" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Map & Hotel Photo Row -->
+                <div class="form-grid-3" style="margin-bottom:12px;">
+                  <div class="form-group">
+                    <label>Map Location Label</label>
+                    <input type="text" id="bConfLocation" class="form-input form-input-sm" placeholder="abu dhabi" />
+                  </div>
+                  <div class="form-group">
+                    <label>Google Maps Link</label>
+                    <input type="text" id="bConfMapsUrl" class="form-input form-input-sm" placeholder="https://maps.google.com/?q=..." />
+                  </div>
+                  <div class="form-group">
+                    <label>Hotel Photo URL / Image</label>
+                    <input type="text" id="bConfHotelPhoto" class="form-input form-input-sm" placeholder="images/hotel.jpg or https://..." />
+                  </div>
+                </div>
+
+                <!-- Stay Dates -->
+                <div class="form-grid-2" style="margin-bottom:12px;">
+                  <div class="form-group">
+                    <label>Check In Date & Time</label>
+                    <input type="text" id="bConfCheckIn" class="form-input form-input-sm" placeholder="16-Nov-2026 - 11:52 PM" />
+                  </div>
+                  <div class="form-group">
+                    <label>Check Out Date & Time</label>
+                    <input type="text" id="bConfCheckOut" class="form-input form-input-sm" placeholder="18-Nov-2026 - 11:52 PM" />
+                  </div>
+                </div>
+
+                <!-- Room Occupancy Table Editor -->
+                <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Room Occupancy Rows</span>
+                    <button type="button" class="btn btn-xs btn-primary" id="btnAddConfRoom">+ Add Room</button>
+                  </div>
+                  <div id="bConfRoomsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
+                <!-- Adult Details (Guests) Table Editor -->
+                <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Adult Details / Guest List</span>
+                    <button type="button" class="btn btn-xs btn-primary" id="btnAddConfAdult">+ Add Guest</button>
+                  </div>
+                  <div id="bConfAdultsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
+                <!-- Important Information & Policies -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase; display:block; margin-bottom:8px;">
+                    Important Information & Property Policies
+                  </span>
+                  <div class="form-grid-2">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Perks / Complimentary Perks Notice</label>
+                      <textarea id="bConfPerks" class="form-input form-input-sm" rows="2" placeholder="Complimentary access to theme parks..."></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Passport / ID Proof Requirement</label>
+                      <textarea id="bConfPassport" class="form-input form-input-sm" rows="2" placeholder="Only passport is considered as valid ID proof..."></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">ID Proof Policy</label>
+                      <textarea id="bConfIdProof" class="form-input form-input-sm" rows="2" placeholder="Passport is accepted as ID proof(s) | Local ids are allowed"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Optional Fees (Breakfast, Extra Bed etc.)</label>
+                      <textarea id="bConfOptionalFees" class="form-input form-input-sm" rows="2" placeholder="Optional : Fee for buffet breakfast..."></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label style="font-size:10px;">Must Read / Terms & Incidental Notice</label>
+                      <textarea id="bConfMustRead" class="form-input form-input-sm" rows="3" placeholder="Extra-person charges may apply..."></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Stay Policies (Unmarried couples, Male groups)</label>
+                      <textarea id="bConfStayPolicies" class="form-input form-input-sm" rows="2" placeholder="Unmarried couples allowed&#10;Groups with only male guests allowed"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Pet Policies</label>
+                      <textarea id="bConfPetPolicy" class="form-input form-input-sm" rows="2" placeholder="Pet(s) Related: pets are not allowed&#10;there are no pets living on hotel"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hotel Amenities -->
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase; display:block; margin-bottom:8px;">
+                    Hotel Amenities
+                  </span>
+                  <div class="form-grid-2">
+                    <div class="form-group">
+                      <label style="font-size:10px;">Transfers and Connectivity</label>
+                      <input type="text" id="bConfAmenTransfers" class="form-input form-input-sm" placeholder="Shuttle Service, Airport Transfers" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Entertainment</label>
+                      <input type="text" id="bConfAmenEntertainment" class="form-input form-input-sm" placeholder="Beach club" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Food and Drinks</label>
+                      <input type="text" id="bConfAmenFoodDrinks" class="form-input form-input-sm" placeholder="Indian Chef, Breakfast" />
+                    </div>
+                    <div class="form-group">
+                      <label style="font-size:10px;">Room Amenities</label>
+                      <input type="text" id="bConfAmenRoomAmenities" class="form-input form-input-sm" placeholder="Bathtub, Balcony, Minibar, Air Conditioning..." />
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               <!-- TAB: CUSTOM DOCUMENT BUILDER -->
@@ -603,7 +841,7 @@
 
                 <div class="ai-key-banner" id="aiKeyBanner">
                   <span class="ai-key-status-text">⚡ AI Engine: <strong id="aiEngineLabel">Offline Heuristic Engine</strong></span>
-                  <button type="button" class="btn btn-xs btn-outline" id="btnQuickKeySetup">🔑 Free AI Setup</button>
+                  <button type="button" class="btn btn-xs btn-outline" id="btnQuickKeySetup">⚡ AI Settings</button>
                 </div>
 
                 <div class="quick-sample-chips" style="margin-bottom: 8px;">
@@ -760,7 +998,7 @@
       <!-- ==========================================
            SECTION 3: CONVERSATIONAL ASSISTANT
            ========================================== -->
-      <section class="section-chat" id="sectionChat" style="display:none">
+      <section class="section-chat" id="sectionChat" style="display:flex">
         <div class="chat-layout">
           <div class="chat-panel" id="chatPanel">
             <div class="chat-panel-header">
@@ -864,23 +1102,23 @@
     </div>
   </div>
 
-  <!-- ========== FREE AI CONFIGURATION MODAL ========== -->
+  <!-- ========== AI CONFIGURATION MODAL ========== -->
   <div class="db-modal-overlay" id="apiKeyModal" style="display:none">
     <div class="db-modal-box" style="max-width: 620px;">
       <div class="db-modal-header">
         <div class="db-modal-title">
-          <h3>🔑 Free Google Gemini 2.0 AI Setup</h3>
-          <p>100% Free · No Credit Card Required · Real Travel Quotation Intelligence</p>
+          <h3>⚡ AI Assistant Configuration</h3>
+          <p>Configure intelligent travel quotation & invoice generation</p>
         </div>
         <button class="btn-icon btn-close-modal" id="btnCloseApiKeyModal" title="Close">✕</button>
       </div>
       <div class="db-modal-body" style="padding: 22px;">
         <div class="api-key-guide-box">
-          <h4><span>✨</span> Free Gemini API Key Kaise Le (Sirf 30 Seconds):</h4>
+          <h4><span>✨</span> Gemini API Key Setup:</h4>
           <ol class="api-key-steps">
             <li>Google AI Studio kholein: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"><strong>aistudio.google.com/app/apikey ↗</strong></a></li>
-            <li>Apne personal Google/Gmail account se sign in karein (Ye 100% Free hai, koi card nahi lagta).</li>
-            <li><strong>"+ Create API key"</strong> button dabayein aur key copy karein.</li>
+            <li>Apne Google account se sign in karein.</li>
+            <li><strong>"+ Create API key"</strong> button par click karke key copy karein.</li>
             <li>Niche input box me paste karke <strong>"⚡ Test Connection"</strong> aur <strong>"💾 Save & Activate"</strong> dabayein.</li>
           </ol>
         </div>

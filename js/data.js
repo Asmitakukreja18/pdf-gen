@@ -44,10 +44,10 @@ const DOCUMENT_TYPES = {
   },
   'confirmation': {
     id: 'confirmation',
-    name: 'Travel Confirmation Voucher',
-    badge: 'Booking Focused',
-    icon: '🎟️',
-    description: 'Official booking confirmation with voucher ref, confirmed hotels, sightseeing, transfers, and emergency contacts.'
+    name: 'Hotel Booking Voucher',
+    badge: 'Hotel Voucher',
+    icon: '🏨',
+    description: 'Official luxury hotel booking voucher with stay details, room occupancy, guest list, location map & hotel policies.'
   },
   'invoice': {
     id: 'invoice',
@@ -165,11 +165,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         },
         {
           title: 'Transfer Phuket to Krabi',
-          subtitle: 'Transfer Phuket to Krabi · Adult · 101.00 × 2',
+          subtitle: 'Transfer Phuket to Krabi · Adult · 121.00 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 101.00,
-          amountUSD: 202.00,
+          unitPrice: 121.00,
+          amountUSD: 242.00,
           amountINR: 0,
           tag: ''
         }
@@ -178,7 +178,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Ramada By Wyndham',
         dates: '2 Jan to 5 Jan',
         pax: 2,
-        amountINR: 39146,
+        amountINR: 43061,
         amountUSD: 0,
         notes: ''
       },
@@ -191,11 +191,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       items: [
         {
           title: '4 Island Tour by Long Boat',
-          subtitle: '4 Island Tour · Adult · 64.40 × 2',
+          subtitle: '4 Island Tour · Adult · 84.40 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 64.40,
-          amountUSD: 128.80,
+          unitPrice: 84.40,
+          amountUSD: 168.80,
           amountINR: 0,
           tag: ''
         }
@@ -222,11 +222,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Private Transfer', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'City Tour Krabi',
-          subtitle: 'City Tour Krabi · 6 hrs · Adult · 80.50 × 2',
+          subtitle: 'City Tour Krabi · 6 hrs · Adult · 100.50 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 80.50,
-          amountUSD: 161.00,
+          unitPrice: 100.50,
+          amountUSD: 201.00,
           amountINR: 0,
           tag: ''
         }
@@ -250,11 +250,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Driver + Pillion Driver', subtitle: '', category: 'Activity', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'ATV Ride',
-          subtitle: 'ATV Ride · Adult · 80.50 × 2',
+          subtitle: 'ATV Ride · Adult · 100.50 × 2',
           category: 'Activity',
           pax: 2,
-          unitPrice: 80.50,
-          amountUSD: 161.00,
+          unitPrice: 100.50,
+          amountUSD: 201.00,
           amountINR: 0,
           tag: ''
         }
@@ -263,7 +263,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Phi Phi Mountain Beach Resort',
         dates: '5 Jan to 7 Jan',
         pax: 2,
-        amountINR: 27204,
+        amountINR: 29924,
         amountUSD: 0,
         notes: ''
       },
@@ -286,11 +286,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         },
         {
           title: 'Phi-Phi Island + NPF',
-          subtitle: 'Phi-Phi Island + NPF · Adult · 124.53 × 2',
+          subtitle: 'Phi-Phi Island + NPF · Adult · 144.53 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 124.53,
-          amountUSD: 249.06,
+          unitPrice: 144.53,
+          amountUSD: 289.06,
           amountINR: 0,
           tag: ''
         }
@@ -314,11 +314,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Day @ Leisure', subtitle: '', category: 'Leisure', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'Day @ Leisure' },
         {
           title: 'Transfer to Phuket',
-          subtitle: 'Transfer to Phuket · Adult · 100.75 × 2',
+          subtitle: 'Transfer to Phuket · Adult · 120.75 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 100.75,
-          amountUSD: 201.50,
+          unitPrice: 120.75,
+          amountUSD: 241.50,
           amountINR: 0,
           tag: ''
         }
@@ -327,7 +327,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Hotel Andakira Phuket',
         dates: '7 Jan to 9 Jan',
         pax: 2,
-        amountINR: 34095,
+        amountINR: 37505,
         amountUSD: 0,
         notes: ''
       },
@@ -345,11 +345,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Private Transfer by Car', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'City Tour',
-          subtitle: 'City Tour · Adult · 80.50 × 2',
+          subtitle: 'City Tour · Adult · 100.50 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 80.50,
-          amountUSD: 161.00,
+          unitPrice: 100.50,
+          amountUSD: 201.00,
           amountINR: 0,
           tag: ''
         }
@@ -374,21 +374,21 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Candle Light Dinner at Beach @ Thavorn Beach Village Resort & Spa Phuket', subtitle: '', category: 'Meals', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'meals not included' },
         {
           title: 'Oasis Spa & Massage',
-          subtitle: 'Oasis Spa & Massage · Adult · 95.12 × 2',
+          subtitle: 'Oasis Spa & Massage · Adult · 115.12 × 2',
           category: 'Activity',
           pax: 2,
-          unitPrice: 95.12,
-          amountUSD: 190.24,
+          unitPrice: 115.12,
+          amountUSD: 230.24,
           amountINR: 0,
           tag: ''
         },
         {
           title: 'Candle Light Dinner',
-          subtitle: 'Candle Light Dinner · Adult · 147.00 × 2',
+          subtitle: 'Candle Light Dinner · Adult · 167.00 × 2',
           category: 'Meals',
           pax: 2,
-          unitPrice: 147.00,
-          amountUSD: 294.00,
+          unitPrice: 167.00,
+          amountUSD: 334.00,
           amountINR: 0,
           tag: ''
         }
@@ -397,7 +397,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Panwaburi Beachfront',
         dates: '9 Jan to 10 Jan',
         pax: 2,
-        amountINR: 36318,
+        amountINR: 39950,
         amountUSD: 0,
         notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort'
       },
@@ -412,11 +412,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'National Park Fee Included', subtitle: '', category: 'Sightseeing', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: 'National Park Fee Included' },
         {
           title: 'James Bond Island',
-          subtitle: 'James Bond Island · Adult · 102.35 × 2',
+          subtitle: 'James Bond Island · Adult · 122.35 × 2',
           category: 'Sightseeing',
           pax: 2,
-          unitPrice: 102.35,
-          amountUSD: 204.70,
+          unitPrice: 122.35,
+          amountUSD: 244.70,
           amountINR: 0,
           tag: ''
         }
@@ -425,7 +425,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
         name: 'Esmeralda View',
         dates: '10 Jan to 13 Jan',
         pax: 2,
-        amountINR: 32380,
+        amountINR: 35618,
         amountUSD: 0,
         notes: ''
       },
@@ -439,11 +439,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Phuket to Koh Yao Yai by Big Boat', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'Phuket to Koh Yao Yai',
-          subtitle: 'Phuket to Koh Yao Yai · Adult · 45.34 × 2',
+          subtitle: 'Phuket to Koh Yao Yai · Adult · 65.34 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 45.34,
-          amountUSD: 90.68,
+          unitPrice: 65.34,
+          amountUSD: 130.68,
           amountINR: 0,
           tag: ''
         }
@@ -483,11 +483,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
         { title: 'Koh Yao Yai to Phuket by Big Boat to Phuket Airport', subtitle: '', category: 'Transfer', pax: '', unitPrice: 0, amountUSD: 0, amountINR: 0, tag: '' },
         {
           title: 'Airport Transfer',
-          subtitle: 'Airport Transfer · Adult · 69.13 × 2',
+          subtitle: 'Airport Transfer · Adult · 89.13 × 2',
           category: 'Transfer',
           pax: 2,
-          unitPrice: 69.13,
-          amountUSD: 138.26,
+          unitPrice: 89.13,
+          amountUSD: 178.26,
           amountINR: 0,
           tag: ''
         }
@@ -498,12 +498,12 @@ const DEMO_REFERENCE_THAILAND_12D = {
   ],
   summary: {
     items: [
-      { name: 'Hotel Costing\nfor 2 adults', amountINR: 169143, amountUSD: 0 },
-      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1808.00 }
+      { name: 'Hotel Costing\nfor 2 adults', amountINR: 186058, amountUSD: 0 },
+      { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 2248.00 }
     ],
     autoCalculate: false,
-    totalINR: 169143,
-    totalUSD: 1808.00
+    totalINR: 186058,
+    totalUSD: 2248.00
   },
   offices: [
     {
@@ -594,7 +594,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
     { key: 'Travel Insurance', value: 'Available upon request at nominal surcharge' },
     { key: 'Vehicle Type', value: 'Private Air-Conditioned Minivan (Toyota Commuter)' }
   ],
-  activeDocType: 'itinerary',
+  activeDocType: 'quotation',
   hotels: [
     {
       id: 'h_1',
@@ -606,11 +606,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       roomType: 'Deluxe Room',
       rooms: 1,
       mealPlan: 'Bed & Breakfast (CP)',
-      amountINR: 39146,
-      amountUSD: 447.38,
-      opt1FreeCancel: 39146,
-      opt2NonRefund: 35231,
-      opt3PartialRefund: 37188,
+      amountINR: 43061,
+      amountUSD: 492.13,
+      opt1FreeCancel: 43061,
+      opt2NonRefund: 38755,
+      opt3PartialRefund: 40908,
       cancellation: 'Free cancellation until 20 Dec 2026',
       refundability: 'Refundable',
       status: 'Confirmed',
@@ -626,11 +626,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       roomType: 'Superior Ocean View Bungalow',
       rooms: 1,
       mealPlan: 'Daily Buffet Breakfast',
-      amountINR: 27204,
-      amountUSD: 310.90,
-      opt1FreeCancel: 27204,
-      opt2NonRefund: 24483,
-      opt3PartialRefund: 25843,
+      amountINR: 29924,
+      amountUSD: 342.00,
+      opt1FreeCancel: 29924,
+      opt2NonRefund: 26932,
+      opt3PartialRefund: 28428,
       cancellation: 'Free cancellation until 24 Dec 2026',
       refundability: 'Refundable',
       status: 'Confirmed',
@@ -646,11 +646,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       roomType: 'Deluxe Premier Room',
       rooms: 1,
       mealPlan: 'Buffet Breakfast Included',
-      amountINR: 34095,
-      amountUSD: 389.66,
-      opt1FreeCancel: 34095,
-      opt2NonRefund: 30685,
-      opt3PartialRefund: 32390,
+      amountINR: 37505,
+      amountUSD: 428.63,
+      opt1FreeCancel: 37505,
+      opt2NonRefund: 33755,
+      opt3PartialRefund: 35630,
       cancellation: 'Free cancellation until 30 Dec 2026',
       refundability: 'Refundable',
       status: 'Confirmed',
@@ -666,11 +666,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       roomType: 'Deluxe Pool Access Suite',
       rooms: 1,
       mealPlan: 'American Breakfast',
-      amountINR: 36318,
-      amountUSD: 415.06,
-      opt1FreeCancel: 36318,
-      opt2NonRefund: 32686,
-      opt3PartialRefund: 34502,
+      amountINR: 39950,
+      amountUSD: 456.57,
+      opt1FreeCancel: 39950,
+      opt2NonRefund: 35955,
+      opt3PartialRefund: 37953,
       cancellation: 'Non-refundable tariff after confirmation',
       refundability: 'Non-Refundable',
       status: 'Confirmed',
@@ -686,11 +686,11 @@ const DEMO_REFERENCE_THAILAND_12D = {
       roomType: 'Ocean Panorama Cliff Villa',
       rooms: 1,
       mealPlan: 'Daily Island Breakfast',
-      amountINR: 32380,
-      amountUSD: 370.06,
-      opt1FreeCancel: 32380,
-      opt2NonRefund: 29142,
-      opt3PartialRefund: 30761,
+      amountINR: 35618,
+      amountUSD: 407.06,
+      opt1FreeCancel: 35618,
+      opt2NonRefund: 32056,
+      opt3PartialRefund: 33837,
       cancellation: 'Free cancellation until 1 Jan 2027',
       refundability: 'Refundable',
       status: 'Confirmed',
@@ -698,33 +698,151 @@ const DEMO_REFERENCE_THAILAND_12D = {
     }
   ],
   invoice: {
-    invoiceNumber: 'LE-INV-2027-112',
-    invoiceDate: '2 Jan 2027',
-    dueDate: '13 Jan 2027',
-    billTo: 'Package for 2 pax\nContact: +91 80075 86881\ninfo@letsexploredmc.com',
-    taxRate: 5,
-    taxAmount: 14299,
-    discountAmount: 0,
-    bankName: 'HDFC Bank Ltd',
-    accountName: "Let's Explore DMC Pvt Ltd",
-    accountNumber: '50200088991122',
-    ifsc: 'HDFC0001234',
-    swift: 'HDFCINBBXXX',
-    upi: 'letsexplore@hdfcbank',
-    terms: 'Full payment due prior to departure. All reservations subject to Let\'s Explore DMC standard terms & individual airline/hotel cancellation schedules.',
-    authorizedSignatory: 'Let\'s Explore DMC Authorized Signatory'
+    invoiceNumber: '090587',
+    invoiceDate: '28 Oct 2026',
+    dueDate: '',
+
+    // Invoice From
+    fromCompany: "LET'S EXPLORE DMC",
+    fromEmail: 'letsexploredmc@gmail.com',
+    fromMobile: '8007586871',
+    fromAddress: 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603',
+    fromGst: '27BVYPT1131M1ZT',
+
+    // Invoice To
+    toCustomerName: 'akash dewani',
+    toCustomerAddress: 'Amravati, Maharashtra, India, 444603',
+    toCustomerMobile: '',
+    toCustomerEmail: '',
+
+    // Itemized Services
+    items: [
+      {
+        sn: 1,
+        service: 'passport bill',
+        description: '1 Adult',
+        hsn: '',
+        quantity: 1,
+        perPaxPrice: 2850,
+        netAmount: 2850,
+        amount: 2850
+      }
+    ],
+
+    subTotal: 2850,
+    totalAmount: 2850,
+
+    // Notes
+    importantNotes: '',
+
+    // Bank Details
+    bankAccountHolder: 'LETS EXPLORE DMC',
+    bankName: 'YES BANK LIMITED',
+    bankAccountNo: '108163400004886',
+    bankIfsc: 'YESB0001081',
+    bankSwift: '',
+    bankIban: '',
+    bankBranch: 'AMRAVATI',
+    bankQrCode: '',
+
+    // Authorized Signatory
+    authorizedSignatory: 'Authorized Signature',
+
+    // Footer & Disclaimer
+    footerLine: "LET'S EXPLORE DMC| Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati Amravati, Maharashtra, India, 444603 | letsexploredmc@gmail.com| 8007586871",
+    disclaimer: 'This Is a System-Generated Invoice; No Stamp Is Required.'
   },
   confirmation: {
-    bookingRef: 'CONF-LE-THAI-8891',
-    leadPassenger: 'Package for 2 pax',
-    contact: '+91 80075 86881',
-    emergencyContact: '+66 818311204 (Mr. Jumphol Vongchun - Thailand Director) | +91 80075 86881',
+    // Agency Header
+    agencyName: 'Aanay tours',
+    contactPerson: 'Viraj Gaglani',
+    agencyMobile: '7709123187',
+    agencyEmail: 'Infoattdmc@gmail.com',
+
+    // Hotel Top Highlight Box
+    hotelName: 'hilton abu dhabi yas island',
+    starRating: 5,
+    refNo: 'TG/31130',
+    confirmationNo: 'NH27002524635670',
+    hotelEmail: 'reservations_yasisland@hilton.com',
+    hotelMobile: '97122086888',
+    cityName: 'dubai',
+    guestName: 'Aanay tours',
+    hotelType: 'luxury',
+    guestEmail: 'Infoattdmc@gmail.com',
+    guestMobile: '7709123187',
+
+    // Map & Photo
+    location: 'abu dhabi',
+    mapsUrl: 'https://maps.google.com/?q=Hilton+Abu+Dhabi+Yas+Island',
+    hotelPhoto: 'images/hotel-hilton.jpg',
+
+    // Stay Dates & Times
+    checkInDateTime: '16-Nov-2026 - 11:52 PM',
+    checkOutDateTime: '18-Nov-2026 - 11:52 PM',
+
+    // Room Occupancy Table
+    rooms: [
+      {
+        roomType: 'Deluxe double room',
+        roomOccupancy: 'double sharing + extra bed',
+        mealPlan: 'Breakfast',
+        noOfRooms: 2,
+        extraBed: 0,
+        noOfAdult: 4,
+        noOfChild: 2,
+        noOfInfant: 1,
+        extraMattress: 1
+      }
+    ],
+
+    // Adult Details (Guests)
+    adults: [
+      {
+        name: 'pratik sangani',
+        email: 'Infoattdmc@gmail.com',
+        mobile: '7709123187'
+      }
+    ],
+
+    // Important Information & Policies
+    perksInfo: 'Complimentary access to any 1 out of 4 Yas Island Theme Parks- Ferrari World, Warner Bros World, Yas Waterworld or Sea World - per day for every person included in the booking.',
+    passportNotice: 'Only passport is considered as valid ID proof that each guest must carry.',
+    idProofPolicy: 'Passport is accepted as ID proof(s) | Local ids are allowed',
+    mustRead: 'Extra-person charges may apply and vary depending on property policy | Government-issued photo identification and a credit card, debit card, or cash deposit may be required at check-in for incidental charges | Special requests are subject to availability upon check-in and may incur additional charges; special requests cannot be guaranteed | The name on the credit card used at check-in to pay for incidentals must be the primary name on the guestroom reservation | This property accepts credit cards, debit cards, and cash | Safety features at this property include a fire extinguisher and a smoke detector | This property has outdoor spaces, such as balconies, patios, terraces which may not be suitable for children; if you have concerns, we recommend contacting the property prior to your arrival to confirm they can accommodate you in a suitable room Guest Profile Pets are not allowed There are no pets living on the property Hotel Amenities',
+    optionalFees: 'Optional : Fee for buffet breakfast: approximately AED 120 for adults and AED 60 for children | Rollaway bed fee: AED 150.0 per night',
+    stayPolicies: 'Unmarried couples allowed | Groups with only male guests are also allowed at the property',
+    petPolicy: 'Pet(s) Related: pets are not allowed | there are no pets living on the hotel',
+
+    // Amenities Categories
+    amenities: {
+      transfers: 'Shuttle Service, Airport Transfers',
+      entertainment: 'Beach club',
+      foodDrinks: 'Indian Chef, Breakfast',
+      roomAmenities: 'Bathtub, Balcony, Heater, Mineral Water, Jacuzzi, Sofa, Living Area, Minibar, Hairdryer, Air Conditioning, Dental Kit, Iron/Ironing Board, Mini Fridge, Geyser /Water Heater, Toiletries, Dining Area, Work Desk, Interconnected Room, Coffee Machine'
+    },
+
+    // Modular Section Toggles
+    sections: {
+      agencyHeader: true,
+      summaryCard: true,
+      mapPhoto: true,
+      hotelDetails: true,
+      adultDetails: true,
+      importantInfo: true,
+      amenities: true
+    },
+
+    // Legacy fields for backward compatibility
+    bookingRef: 'TG/31130',
+    leadPassenger: 'pratik sangani',
+    contact: '7709123187',
+    emergencyContact: 'reservations_yasisland@hilton.com | 97122086888',
     instructions: [
-      'Please present a printed or digital copy of this official DMC travel confirmation voucher upon hotel check-in and at excursion departure piers.',
-      'Hotel standard check-in is 14:00 hrs; early check-in is subject to room availability upon arrival unless explicitly reserved in advance.',
-      'Candle Light Dinner venue on 9 Jan is set at beachside Thavorn Beach Village Resort & Spa Phuket; accommodation stay is Sunset Beach Resort.',
-      'Speedboat sea transfers between Phuket, Koh Yao Yai and Krabi operate subject to maritime weather safety clearances.',
-      'Our dedicated 24/7 on-ground Thailand DMC supervisor hotline is available at +66 818311204 throughout your journey.'
+      'Please present a printed or digital copy of this official hotel booking confirmation voucher upon hotel check-in.',
+      'Check-in: 16-Nov-2026 - 11:52 PM | Check-out: 18-Nov-2026 - 11:52 PM.',
+      'Complimentary access to any 1 out of 4 Yas Island Theme Parks per day included.',
+      'Valid original passport must be presented for all arriving guests.'
     ]
   },
   customDocument: {

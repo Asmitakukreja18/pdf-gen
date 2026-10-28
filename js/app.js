@@ -14,7 +14,7 @@
 
 const App = (() => {
 
-  let currentSection = 'generator';
+  let currentSection = 'chat';
   let previewZoomScale = 1.0;
 
   /**
@@ -43,10 +43,13 @@ const App = (() => {
       rawBox.value = SAMPLE_PROMPTS.thailand;
     }
 
-    // Initialize Chatbot if user visits chat
+    // Initialize Chatbot on open
     if (typeof Chatbot !== 'undefined') {
       Chatbot.init();
     }
+
+    // Open AI Chat by default on launch
+    showSection('chat');
   }
 
   /**
@@ -345,7 +348,12 @@ const App = (() => {
     safe('btnAddCustomSecBtn', addNewCustomSection);
 
     // Invoice input listeners
-    const invIds = ['bInvNumber', 'bInvDate', 'bInvDueDate', 'bInvBillTo', 'bInvTaxRate', 'bInvBankName', 'bInvAccNo', 'bInvIfsc', 'bInvUpi', 'bInvSignatory'];
+    const invIds = [
+      'bInvNumber', 'bInvDate', 'bInvFromCompany', 'bInvFromEmail', 'bInvFromMobile',
+      'bInvFromAddress', 'bInvFromGst', 'bInvToName', 'bInvToMobile', 'bInvToAddress',
+      'bInvNotes', 'bInvBankAccHolder', 'bInvBankName', 'bInvAccNo', 'bInvIfsc',
+      'bInvBankBranch', 'bInvSignatory'
+    ];
     invIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) {
@@ -356,8 +364,35 @@ const App = (() => {
       }
     });
 
-    // Confirmation input listeners
-    const confIds = ['bConfBookingRef', 'bConfLeadPax', 'bConfContact', 'bConfEmergency', 'bConfInstructions'];
+    safe('btnAddInvItem', () => {
+      if (!QuotationData.invoice.items) QuotationData.invoice.items = [];
+      QuotationData.invoice.items.push({
+        sn: QuotationData.invoice.items.length + 1,
+        service: 'Tour Package / Service',
+        description: '1 Adult',
+        hsn: '',
+        quantity: 1,
+        perPaxPrice: 2850,
+        netAmount: 2850,
+        amount: 2850
+      });
+      syncInvoiceData();
+      renderInvItems();
+      updateLivePreviews();
+      showToast('Added invoice service line item.', 'info');
+    });
+
+    // Confirmation / Hotel Booking Voucher input listeners
+    const confIds = [
+      'bConfAgencyName', 'bConfContactPerson', 'bConfAgencyMobile', 'bConfAgencyEmail',
+      'bConfHotelName', 'bConfStarRating', 'bConfHotelType', 'bConfRefNo', 'bConfConfirmationNo',
+      'bConfCityName', 'bConfHotelEmail', 'bConfHotelMobile', 'bConfGuestName', 'bConfGuestEmail', 'bConfGuestMobile',
+      'bConfLocation', 'bConfMapsUrl', 'bConfHotelPhoto',
+      'bConfCheckIn', 'bConfCheckOut',
+      'bConfPerks', 'bConfPassport', 'bConfIdProof', 'bConfOptionalFees', 'bConfMustRead', 'bConfStayPolicies', 'bConfPetPolicy',
+      'bConfAmenTransfers', 'bConfAmenEntertainment', 'bConfAmenFoodDrinks', 'bConfAmenRoomAmenities',
+      'bConfBookingRef', 'bConfLeadPax', 'bConfContact', 'bConfEmergency', 'bConfInstructions'
+    ];
     confIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) {
@@ -365,7 +400,65 @@ const App = (() => {
           syncConfirmationData();
           updateLivePreviews();
         });
+        if (el.tagName === 'SELECT') {
+          el.addEventListener('change', () => {
+            syncConfirmationData();
+            updateLivePreviews();
+          });
+        }
       }
+    });
+
+    // Section Visibility Checkbox listeners
+    const confSecMap = [
+      { id: 'bConfSecAgencyHeader', key: 'agencyHeader' },
+      { id: 'bConfSecSummaryCard', key: 'summaryCard' },
+      { id: 'bConfSecMapPhoto', key: 'mapPhoto' },
+      { id: 'bConfSecHotelDetails', key: 'hotelDetails' },
+      { id: 'bConfSecAdultDetails', key: 'adultDetails' },
+      { id: 'bConfSecImportantInfo', key: 'importantInfo' },
+      { id: 'bConfSecAmenities', key: 'amenities' }
+    ];
+    confSecMap.forEach(item => {
+      const el = document.getElementById(item.id);
+      if (el) {
+        el.addEventListener('change', () => {
+          if (!QuotationData.confirmation.sections) QuotationData.confirmation.sections = {};
+          QuotationData.confirmation.sections[item.key] = el.checked;
+          updateLivePreviews();
+        });
+      }
+    });
+
+    // Add room / adult buttons
+    safe('btnAddConfRoom', () => {
+      if (!QuotationData.confirmation.rooms) QuotationData.confirmation.rooms = [];
+      QuotationData.confirmation.rooms.push({
+        roomType: 'Deluxe Room',
+        roomOccupancy: 'Double Sharing',
+        mealPlan: 'Breakfast',
+        noOfRooms: 1,
+        extraBed: 0,
+        noOfAdult: 2,
+        noOfChild: 0,
+        noOfInfant: 0,
+        extraMattress: 0
+      });
+      renderConfRooms();
+      updateLivePreviews();
+      showToast('Added room type row.', 'info');
+    });
+
+    safe('btnAddConfAdult', () => {
+      if (!QuotationData.confirmation.adults) QuotationData.confirmation.adults = [];
+      QuotationData.confirmation.adults.push({
+        name: 'Guest Passenger',
+        email: 'info@guest.com',
+        mobile: ''
+      });
+      renderConfAdults();
+      updateLivePreviews();
+      showToast('Added adult guest row.', 'info');
     });
 
     // Custom Document Title listener
@@ -457,50 +550,456 @@ const App = (() => {
 
   function populateInvoiceFields() {
     const inv = QuotationData.invoice || {};
-    val('bInvNumber', inv.number || 'LE-INV-2027-112');
-    val('bInvDate', inv.date || '02 Jan 2027');
-    val('bInvDueDate', inv.dueDate || '13 Jan 2027');
-    val('bInvBillTo', inv.billTo || QuotationData.package.clientName || 'Package for 2 pax');
-    val('bInvTaxRate', inv.taxRate !== undefined ? inv.taxRate : 5);
-    val('bInvBankName', inv.bankName || 'HDFC Bank Ltd');
-    val('bInvAccNo', inv.accountNumber || '50200088991122');
-    val('bInvIfsc', inv.ifsc || 'HDFC0001234');
-    val('bInvUpi', inv.upi || 'letsexplore@hdfcbank');
-    val('bInvSignatory', inv.signatory || "Let's Explore DMC Authorized Signatory");
+    val('bInvNumber', inv.invoiceNumber || inv.number || '090587');
+    val('bInvDate', inv.invoiceDate || inv.date || '28 Oct 2026');
+    val('bInvFromCompany', inv.fromCompany || "LET'S EXPLORE DMC");
+    val('bInvFromEmail', inv.fromEmail || 'letsexploredmc@gmail.com');
+    val('bInvFromMobile', inv.fromMobile || '8007586871');
+    val('bInvFromAddress', inv.fromAddress || 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603');
+    val('bInvFromGst', inv.fromGst || '27BVYPT1131M1ZT');
+    val('bInvToName', inv.toCustomerName || inv.billTo || QuotationData.package.clientName || 'akash dewani');
+    val('bInvToMobile', inv.toCustomerMobile || QuotationData.package.clientContact || '');
+    val('bInvToAddress', inv.toCustomerAddress || 'Amravati, Maharashtra, India, 444603');
+    val('bInvNotes', inv.notes || 'Full payment is due prior to departure. All remittances should reference the invoice number above.');
+    val('bInvBankAccHolder', inv.bankAccountHolder || "LETS EXPLORE DMC");
+    val('bInvBankName', inv.bankName || 'YES BANK LIMITED');
+    val('bInvAccNo', inv.bankAccountNo || inv.accountNumber || '108163400004886');
+    val('bInvIfsc', inv.bankIfsc || inv.ifsc || 'YESB0001081');
+    val('bInvBankBranch', inv.bankBranch || 'AMRAVATI');
+    val('bInvSignatory', inv.signatory || 'Authorized Signature');
+
+    renderInvItems();
   }
 
   function syncInvoiceData() {
     if (!QuotationData.invoice) QuotationData.invoice = {};
     const inv = QuotationData.invoice;
-    inv.number = get('bInvNumber');
-    inv.date = get('bInvDate');
-    inv.dueDate = get('bInvDueDate');
-    inv.billTo = get('bInvBillTo');
-    inv.taxRate = parseFloat(get('bInvTaxRate')) || 0;
+    inv.invoiceNumber = get('bInvNumber');
+    inv.number = inv.invoiceNumber;
+    inv.invoiceDate = get('bInvDate');
+    inv.date = inv.invoiceDate;
+    inv.fromCompany = get('bInvFromCompany');
+    inv.fromEmail = get('bInvFromEmail');
+    inv.fromMobile = get('bInvFromMobile');
+    inv.fromAddress = get('bInvFromAddress');
+    inv.fromGst = get('bInvFromGst');
+    inv.toCustomerName = get('bInvToName');
+    inv.billTo = inv.toCustomerName;
+    inv.toCustomerMobile = get('bInvToMobile');
+    inv.toCustomerAddress = get('bInvToAddress');
+    inv.notes = get('bInvNotes');
+    inv.bankAccountHolder = get('bInvBankAccHolder');
     inv.bankName = get('bInvBankName');
-    inv.accountNumber = get('bInvAccNo');
-    inv.ifsc = get('bInvIfsc');
-    inv.upi = get('bInvUpi');
+    inv.bankAccountNo = get('bInvAccNo');
+    inv.accountNumber = inv.bankAccountNo;
+    inv.bankIfsc = get('bInvIfsc');
+    inv.ifsc = inv.bankIfsc;
+    inv.bankBranch = get('bInvBankBranch');
     inv.signatory = get('bInvSignatory');
+
+    // Recompute totals from items
+    if (Array.isArray(inv.items)) {
+      let total = 0;
+      inv.items.forEach(it => {
+        const qty = parseFloat(it.quantity) || 1;
+        const rate = parseFloat(it.perPaxPrice) || 0;
+        it.netAmount = qty * rate;
+        it.amount = it.netAmount;
+        total += it.amount;
+      });
+      inv.subTotal = total;
+      inv.totalAmount = total;
+    }
+  }
+
+  function renderInvItems() {
+    const container = document.getElementById('bInvItemsContainer');
+    if (!container) return;
+    const items = (QuotationData.invoice && QuotationData.invoice.items) || [];
+    if (items.length === 0) {
+      container.innerHTML = '<div style="font-size:12px; color:#94A3B8; text-align:center; padding:10px;">No service items added yet. Click "+ Add Service Item" to add rows.</div>';
+      return;
+    }
+
+    container.innerHTML = items.map((it, idx) => `
+      <div class="inv-item-row" data-idx="${idx}" style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:8px 10px; display:grid; grid-template-columns: 2fr 2fr 1fr 1fr 1.2fr auto; gap:6px; align-items:center;">
+        <div>
+          <label style="font-size:9px; color:#64748B; font-weight:600; display:block;">Service</label>
+          <input type="text" class="form-input form-input-sm inv-item-service" value="${escapeVal(it.service || '')}" placeholder="passport bill" />
+        </div>
+        <div>
+          <label style="font-size:9px; color:#64748B; font-weight:600; display:block;">Description</label>
+          <input type="text" class="form-input form-input-sm inv-item-desc" value="${escapeVal(it.description || '')}" placeholder="1 Adult" />
+        </div>
+        <div>
+          <label style="font-size:9px; color:#64748B; font-weight:600; display:block;">HSN No.</label>
+          <input type="text" class="form-input form-input-sm inv-item-hsn" value="${escapeVal(it.hsn || '')}" placeholder="HSN" />
+        </div>
+        <div>
+          <label style="font-size:9px; color:#64748B; font-weight:600; display:block;">Qty</label>
+          <input type="number" class="form-input form-input-sm inv-item-qty" value="${it.quantity || 1}" min="1" />
+        </div>
+        <div>
+          <label style="font-size:9px; color:#64748B; font-weight:600; display:block;">Price (INR)</label>
+          <input type="number" class="form-input form-input-sm inv-item-rate" value="${it.perPaxPrice || 0}" />
+        </div>
+        <div style="padding-top:14px;">
+          <button type="button" class="btn btn-xs btn-outline btn-del-inv-item" data-idx="${idx}" style="color:#DC2626; border-color:#FECACA;" title="Delete Item">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Bind item row events
+    container.querySelectorAll('.inv-item-row').forEach(row => {
+      const idx = parseInt(row.dataset.idx, 10);
+      const it = QuotationData.invoice.items[idx];
+      if (!it) return;
+
+      row.querySelector('.inv-item-service')?.addEventListener('input', (e) => {
+        it.service = e.target.value;
+        updateLivePreviews();
+      });
+      row.querySelector('.inv-item-desc')?.addEventListener('input', (e) => {
+        it.description = e.target.value;
+        updateLivePreviews();
+      });
+      row.querySelector('.inv-item-hsn')?.addEventListener('input', (e) => {
+        it.hsn = e.target.value;
+        updateLivePreviews();
+      });
+      row.querySelector('.inv-item-qty')?.addEventListener('input', (e) => {
+        it.quantity = parseFloat(e.target.value) || 1;
+        syncInvoiceData();
+        updateLivePreviews();
+      });
+      row.querySelector('.inv-item-rate')?.addEventListener('input', (e) => {
+        it.perPaxPrice = parseFloat(e.target.value) || 0;
+        syncInvoiceData();
+        updateLivePreviews();
+      });
+      row.querySelector('.btn-del-inv-item')?.addEventListener('click', () => {
+        QuotationData.invoice.items.splice(idx, 1);
+        QuotationData.invoice.items.forEach((item, i) => item.sn = i + 1);
+        syncInvoiceData();
+        renderInvItems();
+        updateLivePreviews();
+      });
+    });
   }
 
   function populateConfirmationFields() {
     const conf = QuotationData.confirmation || {};
-    val('bConfBookingRef', conf.bookingRef || 'CONF-LE-THAI-8891');
-    val('bConfLeadPax', conf.leadPax || QuotationData.package.clientName || 'Package for 2 pax');
-    val('bConfContact', conf.contactPhone || QuotationData.package.clientContact || '+91 80075 86881');
-    val('bConfEmergency', conf.emergencyContact || '+66 818311204 (Mr. Jumphol Vongchun)');
+    const sec = conf.sections || {};
+
+    // Section checkboxes
+    const setChk = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = (val !== false);
+    };
+    setChk('bConfSecAgencyHeader', sec.agencyHeader);
+    setChk('bConfSecSummaryCard', sec.summaryCard);
+    setChk('bConfSecMapPhoto', sec.mapPhoto);
+    setChk('bConfSecHotelDetails', sec.hotelDetails);
+    setChk('bConfSecAdultDetails', sec.adultDetails);
+    setChk('bConfSecImportantInfo', sec.importantInfo);
+    setChk('bConfSecAmenities', sec.amenities);
+
+    // Agency Header
+    val('bConfAgencyName', conf.agencyName || 'Aanay tours');
+    val('bConfContactPerson', conf.contactPerson || 'Viraj Gaglani');
+    val('bConfAgencyMobile', conf.agencyMobile || '7709123187');
+    val('bConfAgencyEmail', conf.agencyEmail || 'Infoattdmc@gmail.com');
+
+    // Hotel Highlight Box
+    val('bConfHotelName', conf.hotelName || 'hilton abu dhabi yas island');
+    val('bConfStarRating', conf.starRating || 5);
+    val('bConfHotelType', conf.hotelType || 'luxury');
+    val('bConfRefNo', conf.refNo || conf.bookingRef || 'TG/31130');
+    val('bConfConfirmationNo', conf.confirmationNo || 'NH27002524635670');
+    val('bConfCityName', conf.cityName || 'dubai');
+    val('bConfHotelEmail', conf.hotelEmail || 'reservations_yasisland@hilton.com');
+    val('bConfHotelMobile', conf.hotelMobile || '97122086888');
+    val('bConfGuestName', conf.guestName || conf.agencyName || 'Aanay tours');
+    val('bConfGuestEmail', conf.guestEmail || conf.agencyEmail || 'Infoattdmc@gmail.com');
+    val('bConfGuestMobile', conf.guestMobile || conf.agencyMobile || '7709123187');
+
+    // Map & Photo
+    val('bConfLocation', conf.location || 'abu dhabi');
+    val('bConfMapsUrl', conf.mapsUrl || ('https://maps.google.com/?q=' + encodeURIComponent(conf.hotelName || 'Hilton Abu Dhabi Yas Island')));
+    val('bConfHotelPhoto', conf.hotelPhoto || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');
+
+    // Stay Dates
+    val('bConfCheckIn', conf.checkInDateTime || '16-Nov-2026 - 11:52 PM');
+    val('bConfCheckOut', conf.checkOutDateTime || '18-Nov-2026 - 11:52 PM');
+
+    // Important Info & Policies
+    val('bConfPerks', conf.perksInfo || '');
+    val('bConfPassport', conf.passportNotice || '');
+    val('bConfIdProof', conf.idProofPolicy || '');
+    val('bConfOptionalFees', conf.optionalFees || '');
+    val('bConfMustRead', conf.mustRead || '');
+    val('bConfStayPolicies', conf.stayPolicies || '');
+    val('bConfPetPolicy', conf.petPolicy || '');
+
+    // Amenities
+    const amen = conf.amenities || {};
+    val('bConfAmenTransfers', amen.transfers || '');
+    val('bConfAmenEntertainment', amen.entertainment || '');
+    val('bConfAmenFoodDrinks', amen.foodDrinks || '');
+    val('bConfAmenRoomAmenities', amen.roomAmenities || '');
+
+    // Legacy fields
+    val('bConfBookingRef', conf.bookingRef || conf.refNo || 'TG/31130');
+    val('bConfLeadPax', conf.leadPassenger || conf.guestName || 'pratik sangani');
+    val('bConfContact', conf.contact || conf.agencyMobile || '7709123187');
+    val('bConfEmergency', conf.emergencyContact || 'reservations_yasisland@hilton.com | 97122086888');
     val('bConfInstructions', (conf.instructions || []).join('\n'));
+
+    // Dynamic lists
+    renderConfRooms();
+    renderConfAdults();
   }
 
   function syncConfirmationData() {
     if (!QuotationData.confirmation) QuotationData.confirmation = {};
     const conf = QuotationData.confirmation;
-    conf.bookingRef = get('bConfBookingRef');
-    conf.leadPax = get('bConfLeadPax');
-    conf.contactPhone = get('bConfContact');
-    conf.emergencyContact = get('bConfEmergency');
+
+    // Agency Header
+    conf.agencyName = get('bConfAgencyName');
+    conf.contactPerson = get('bConfContactPerson');
+    conf.agencyMobile = get('bConfAgencyMobile');
+    conf.agencyEmail = get('bConfAgencyEmail');
+
+    // Hotel Box
+    conf.hotelName = get('bConfHotelName');
+    conf.starRating = parseInt(get('bConfStarRating'), 10) || 5;
+    conf.hotelType = get('bConfHotelType');
+    conf.refNo = get('bConfRefNo');
+    conf.confirmationNo = get('bConfConfirmationNo');
+    conf.cityName = get('bConfCityName');
+    conf.hotelEmail = get('bConfHotelEmail');
+    conf.hotelMobile = get('bConfHotelMobile');
+    conf.guestName = get('bConfGuestName');
+    conf.guestEmail = get('bConfGuestEmail');
+    conf.guestMobile = get('bConfGuestMobile');
+
+    // Map & Photo
+    conf.location = get('bConfLocation');
+    conf.mapsUrl = get('bConfMapsUrl');
+    conf.hotelPhoto = get('bConfHotelPhoto');
+
+    // Stay Dates
+    conf.checkInDateTime = get('bConfCheckIn');
+    conf.checkOutDateTime = get('bConfCheckOut');
+
+    // Important Info
+    conf.perksInfo = get('bConfPerks');
+    conf.passportNotice = get('bConfPassport');
+    conf.idProofPolicy = get('bConfIdProof');
+    conf.optionalFees = get('bConfOptionalFees');
+    conf.mustRead = get('bConfMustRead');
+    conf.stayPolicies = get('bConfStayPolicies');
+    conf.petPolicy = get('bConfPetPolicy');
+
+    // Amenities
+    if (!conf.amenities) conf.amenities = {};
+    conf.amenities.transfers = get('bConfAmenTransfers');
+    conf.amenities.entertainment = get('bConfAmenEntertainment');
+    conf.amenities.foodDrinks = get('bConfAmenFoodDrinks');
+    conf.amenities.roomAmenities = get('bConfAmenRoomAmenities');
+
+    // Section checkboxes
+    if (!conf.sections) conf.sections = {};
+    const getChk = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.checked : true;
+    };
+    conf.sections.agencyHeader = getChk('bConfSecAgencyHeader');
+    conf.sections.summaryCard = getChk('bConfSecSummaryCard');
+    conf.sections.mapPhoto = getChk('bConfSecMapPhoto');
+    conf.sections.hotelDetails = getChk('bConfSecHotelDetails');
+    conf.sections.adultDetails = getChk('bConfSecAdultDetails');
+    conf.sections.importantInfo = getChk('bConfSecImportantInfo');
+    conf.sections.amenities = getChk('bConfSecAmenities');
+
+    // Legacy fields
+    conf.bookingRef = get('bConfRefNo') || get('bConfBookingRef');
+    conf.leadPassenger = get('bConfGuestName') || get('bConfLeadPax');
+    conf.contact = get('bConfGuestMobile') || get('bConfContact');
+    conf.emergencyContact = get('bConfHotelMobile') || get('bConfEmergency');
     conf.instructions = parseLines('bConfInstructions');
+  }
+
+  function renderConfRooms() {
+    const container = document.getElementById('bConfRoomsContainer');
+    if (!container) return;
+    if (!QuotationData.confirmation.rooms) {
+      QuotationData.confirmation.rooms = [
+        {
+          roomType: 'Deluxe double room',
+          roomOccupancy: 'double sharing + extra bed',
+          mealPlan: 'Breakfast',
+          noOfRooms: 2,
+          extraBed: 0,
+          noOfAdult: 4,
+          noOfChild: 2,
+          noOfInfant: 1,
+          extraMattress: 1
+        }
+      ];
+    }
+    const rooms = QuotationData.confirmation.rooms;
+    container.innerHTML = '';
+
+    rooms.forEach((r, idx) => {
+      const row = document.createElement('div');
+      row.className = 'conf-room-row';
+      row.style.cssText = 'border:1px solid #CBD5E1; border-radius:6px; padding:10px; background:#F8FAFC;';
+      row.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:11px; color:#0F2C59;">Room Category #${idx + 1}</strong>
+          ${rooms.length > 1 ? `<button type="button" class="btn btn-xs btn-del-conf-room" data-index="${idx}" style="color:#DC2626; border:1px solid #FECACA; background:#FEF2F2; border-radius:3px; padding:1px 6px;">✕ Delete</button>` : ''}
+        </div>
+        <div class="form-grid-3" style="margin-bottom:6px;">
+          <div class="form-group">
+            <label style="font-size:9.5px;">Room Type</label>
+            <input type="text" class="form-input form-input-sm conf-r-type" data-index="${idx}" value="${escapeVal(r.roomType || '')}" placeholder="Deluxe double room" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9.5px;">Room Occupancy</label>
+            <input type="text" class="form-input form-input-sm conf-r-occ" data-index="${idx}" value="${escapeVal(r.roomOccupancy || '')}" placeholder="double sharing + extra bed" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9.5px;">Meal Plan</label>
+            <input type="text" class="form-input form-input-sm conf-r-meal" data-index="${idx}" value="${escapeVal(r.mealPlan || '')}" placeholder="Breakfast" />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px;">
+          <div class="form-group">
+            <label style="font-size:9px;">No. Rooms</label>
+            <input type="number" class="form-input form-input-sm conf-r-nrooms" data-index="${idx}" value="${r.noOfRooms ?? 1}" min="1" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9px;">Extra Bed</label>
+            <input type="number" class="form-input form-input-sm conf-r-xbed" data-index="${idx}" value="${r.extraBed ?? 0}" min="0" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9px;">Adults</label>
+            <input type="number" class="form-input form-input-sm conf-r-adult" data-index="${idx}" value="${r.noOfAdult ?? 2}" min="1" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9px;">Child</label>
+            <input type="number" class="form-input form-input-sm conf-r-child" data-index="${idx}" value="${r.noOfChild ?? 0}" min="0" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9px;">Infant</label>
+            <input type="number" class="form-input form-input-sm conf-r-infant" data-index="${idx}" value="${r.noOfInfant ?? 0}" min="0" />
+          </div>
+          <div class="form-group">
+            <label style="font-size:9px;">Extra Mat.</label>
+            <input type="number" class="form-input form-input-sm conf-r-xmat" data-index="${idx}" value="${r.extraMattress ?? 0}" min="0" />
+          </div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+
+    container.querySelectorAll('.conf-r-type').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].roomType = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-occ').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].roomOccupancy = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-meal').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].mealPlan = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-nrooms').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].noOfRooms = parseInt(e.target.value, 10) || 1;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-xbed').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].extraBed = parseInt(e.target.value, 10) || 0;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-adult').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].noOfAdult = parseInt(e.target.value, 10) || 1;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-child').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].noOfChild = parseInt(e.target.value, 10) || 0;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-infant').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].noOfInfant = parseInt(e.target.value, 10) || 0;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-r-xmat').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.rooms[e.target.dataset.index].extraMattress = parseInt(e.target.value, 10) || 0;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.btn-del-conf-room').forEach(el => el.addEventListener('click', e => {
+      const idx = parseInt(e.target.dataset.index, 10);
+      QuotationData.confirmation.rooms.splice(idx, 1);
+      renderConfRooms();
+      updateLivePreviews();
+    }));
+  }
+
+  function renderConfAdults() {
+    const container = document.getElementById('bConfAdultsContainer');
+    if (!container) return;
+    if (!QuotationData.confirmation.adults) {
+      QuotationData.confirmation.adults = [
+        {
+          name: 'pratik sangani',
+          email: 'Infoattdmc@gmail.com',
+          mobile: '7709123187'
+        }
+      ];
+    }
+    const adults = QuotationData.confirmation.adults;
+    container.innerHTML = '';
+
+    adults.forEach((a, idx) => {
+      const row = document.createElement('div');
+      row.className = 'conf-adult-row';
+      row.style.cssText = 'display:flex; gap:8px; align-items:center; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:5px; padding:6px 8px;';
+      row.innerHTML = `
+        <div style="flex:1;">
+          <input type="text" class="form-input form-input-sm conf-a-name" data-index="${idx}" value="${escapeVal(a.name || '')}" placeholder="Guest Full Name" />
+        </div>
+        <div style="flex:1;">
+          <input type="email" class="form-input form-input-sm conf-a-email" data-index="${idx}" value="${escapeVal(a.email || '')}" placeholder="Email Address" />
+        </div>
+        <div style="flex:1;">
+          <input type="text" class="form-input form-input-sm conf-a-mobile" data-index="${idx}" value="${escapeVal(a.mobile || '')}" placeholder="Mobile No" />
+        </div>
+        ${adults.length > 1 ? `<button type="button" class="btn btn-xs btn-del-conf-adult" data-index="${idx}" style="color:#DC2626; border:none; background:transparent; font-size:12px; cursor:pointer;" title="Delete Guest">✕</button>` : ''}
+      `;
+      container.appendChild(row);
+    });
+
+    container.querySelectorAll('.conf-a-name').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.adults[e.target.dataset.index].name = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-a-email').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.adults[e.target.dataset.index].email = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.conf-a-mobile').forEach(el => el.addEventListener('input', e => {
+      QuotationData.confirmation.adults[e.target.dataset.index].mobile = e.target.value;
+      updateLivePreviews();
+    }));
+    container.querySelectorAll('.btn-del-conf-adult').forEach(el => el.addEventListener('click', e => {
+      const idx = parseInt(e.target.dataset.index, 10);
+      QuotationData.confirmation.adults.splice(idx, 1);
+      renderConfAdults();
+      updateLivePreviews();
+    }));
   }
 
   function populateCustomDocFields() {
@@ -1676,7 +2175,7 @@ const App = (() => {
           statusDisplay.className = 'key-status-indicator';
         }
         if (engineLabel) engineLabel.textContent = 'Offline Heuristic Parser';
-        if (btnLabel) btnLabel.textContent = 'Free AI Setup';
+        if (btnLabel) btnLabel.textContent = 'AI Settings';
         if (aiKeyBanner) aiKeyBanner.className = 'ai-key-banner';
         if (statusPill) {
           statusPill.innerHTML = `<span class="status-dot"></span><span class="status-text">Studio Engine Ready</span>`;
@@ -1812,6 +2311,9 @@ const App = (() => {
     init,
     showSection,
     switchDocType,
+    populateStudioFromData,
+    populateInvoiceFields,
+    renderInvItems,
     renderDaysEditor,
     renderHotelsEditor,
     renderSummaryEditor,

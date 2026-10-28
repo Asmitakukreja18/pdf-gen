@@ -40,29 +40,25 @@ const Chatbot = (() => {
   function renderWelcome() {
     const isAiConnected = !!(CONFIG.GEMINI_API_KEY && CONFIG.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE');
     const aiBadge = isAiConnected
-      ? `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1D4ED8; font-size:11px; font-weight:700; border:1px solid #BFDBFE;">⚡ Gemini 2.0 Flash Active</span>`
-      : `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:700; border:1px solid #FDE68A;">⚠️ Offline Heuristic Mode (Free Key Not Added)</span>`;
+      ? `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1D4ED8; font-size:11px; font-weight:700; border:1px solid #BFDBFE;">⚡ AI Assistant Active</span>`
+      : `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#F1F5F9; color:#475569; font-size:11px; font-weight:700; border:1px solid #CBD5E1;">⚡ DMC Studio Ready</span>`;
 
     appendAI(
-      `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC AI Document Agent</strong> ${aiBadge}<br><br>` +
-      (isAiConnected ? `Google Gemini 2.0 AI connected hai! Aap kisi bhi trip ki notes ya modifications likh sakte hain:` : `💡 <em>Google Gemini 2.0 Flash AI 100% Free hai (no card needed). Aap top me <strong>"🔑 Free AI Setup"</strong> se connect kar sakte hain.</em><br><br>`) +
-      `Aap mujhse natural language mein baat kar sakte hain jaise: <br>` +
-      `• <em>"Hotel change karke ye hotels add karo"</em><br>` +
-      `• <em>"Quotation format banao"</em> ya <em>"Invoice banao"</em><br>` +
-      `• <em>"PDF generate karo"</em> ya <em>"DOCX bhejo"</em><br>` +
-      `• Aap <strong>📎 button</strong> se reference PDF, document, ya image bhi attach kar sakte hain!`
+      `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC Document Assistant</strong> ${aiBadge}<br><br>` +
+      `Aap yahan kisi bhi document (Invoice, Quotation, Hotel Voucher) ki details likhein, AI use generate kar dega:<br>` +
+      `• <em>"Invoice banao akash dewani ke liye passport bill 2850"</em><br>` +
+      `• <em>"Quotation format banao Thailand 12 days"</em><br>` +
+      `• <em>"Hotel booking voucher banao"</em><br>` +
+      `• <em>"PDF generate karo"</em> ya <em>"DOCX download karo"</em><br><br>` +
+      `Chat mein confirm hone par aap direct <strong>Studio Builder</strong> mein saare pages edit kar sakte hain!`
     );
 
     const defaultReplies = [
-      { label: '🌴 Apply v5 Thailand Hotels (₹ 1,69,143)', val: '__APPLY_V5_HOTELS__', primary: true },
-      { label: '💰 Switch to Quotation Format', val: '__SWITCH_QUOTATION__' },
-      { label: '🏨 Hotel Costing Comparison', val: '__SWITCH_HOTEL_COSTING__' },
-      { label: '🧾 Tax Invoice Format', val: '__SWITCH_INVOICE__' }
+      { label: '🧾 Generate Orange DMC Invoice', val: '__SWITCH_INVOICE__', primary: true },
+      { label: '💰 Master Quotation Format', val: '__SWITCH_QUOTATION__' },
+      { label: '🏨 Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
+      { label: '🌴 Thailand Reference Package (12D)', val: '__APPLY_V5_HOTELS__' }
     ];
-
-    if (!isAiConnected) {
-      defaultReplies.unshift({ label: '🔑 Connect Free Gemini AI', val: '__OPEN_KEY_MODAL__', primary: true });
-    }
 
     showReplies(defaultReplies);
   }
@@ -171,23 +167,30 @@ const Chatbot = (() => {
   async function processMessage(text, attachment = null) {
     const t = text.trim();
 
-    // 0. Free AI Setup intent
-    if (/free\s*ai|ai\s*kaise|api\s*key|key\s*setup|kaise\s*hona|kuch\s*bnake\s*nhi\s*der/i.test(t) || t === '__OPEN_KEY_MODAL__') {
+    // 0. AI Settings intent
+    if (/ai\s*settings|api\s*key|key\s*setup|settings/i.test(t) || t === '__OPEN_KEY_MODAL__') {
       const modal = document.getElementById('apiKeyModal');
       if (modal) modal.style.display = 'flex';
       appendAI(
-        `🔑 <strong>Google Gemini 2.0 Flash AI bilkul 100% FREE hai!</strong><br><br>` +
-        `Iske liye koi credit card nahi chahiye. Sirf apne Google account se 30 second me free key mil jati hai:<br>` +
-        `1. <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#2563EB; font-weight:bold;">Google AI Studio (aistudio.google.com/app/apikey) ↗</a> kholein.<br>` +
-        `2. <strong>Create API key</strong> par click karein aur key copy karein.<br>` +
-        `3. Maine screen par <strong>Free AI Setup modal</strong> open kar diya hai — wahan paste karke <strong>Save &amp; Activate</strong> kar dein!<br><br>` +
-        `Key save hote hi AI aapke kisi bhi WhatsApp notes, rough messages, aur natural Hindi/English commands ko direct official DMC quotation me badal dega!`
+        `⚡ <strong>AI Configuration Settings</strong><br><br>` +
+        `Maine screen par AI Settings modal open kar diya hai. Aap wahan apni API key configure kar sakte hain.`
       );
       showReplies([
-        { label: '🔑 Open AI Setup Box', val: '__OPEN_KEY_MODAL__', primary: true },
-        { label: '🌴 Apply v5 Thailand Hotels', val: '__APPLY_V5_HOTELS__' },
+        { label: '🧾 Generate Orange DMC Invoice', val: '__SWITCH_INVOICE__', primary: true },
+        { label: '💰 Master Quotation Format', val: '__SWITCH_QUOTATION__' },
         { label: '👁️ View Live Preview', val: '__PREVIEW__' }
       ]);
+      return;
+    }
+
+    // Direct Builder / Edit intent
+    if (t === '__GOTO_BUILDER__' || /^(edit|builder|studio|edit\s*karo|studio\s*kholo|open\s*builder)$/i.test(t)) {
+      if (typeof App !== 'undefined') {
+        App.showSection('generator');
+        if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+        if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
+      }
+      appendAI('Opening Studio Builder! All details are populated and ready for your manual edits.');
       return;
     }
 
@@ -223,29 +226,50 @@ const Chatbot = (() => {
     setTyping(true);
 
     try {
-      // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View)
+      // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View + Markup)
       if (t === '__APPLY_V5_HOTELS__' ||
-          /hotel.*change|change.*hotel|naya\s*hotel|naya\s*rate|ramada|andakira|mountain\s*beach|169143|1,69,143|panwaburi.*36|esmeralda.*32|v5/i.test(text)) {
+          /hotel.*change|change.*hotel|naya\s*hotel|naya\s*rate|ramada|andakira|mountain\s*beach|169143|1,69,143|panwaburi.*36|esmeralda.*32|v5|markup|10\s*(?:percent|%|prcnt)|20\s*(?:usd|\$)/i.test(text)) {
         
-        applyNewThailandHotelsAndRates();
+        const wantsMarkup = /markup|10\s*(?:percent|%|prcnt)|20\s*(?:usd|\$)|increase/i.test(text);
+        applyNewThailandHotelsAndRates(wantsMarkup);
         setTyping(false);
 
-        appendAI(
-          `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 ready hai!</strong><br><br>` +
-          `Itinerary, design aur USD land rates same rakhe hain, sirf hotels aur hotel rates badle hain:<br><br>` +
-          `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
-          `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Purana Hotel</th><th style="padding:6px 8px; text-align:left;">Naya Hotel</th><th style="padding:6px 8px; text-align:right;">Rate (INR)</th></tr>` +
-          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px; color:#64748B;">Krabi Resort (1,04,025)</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 39,146</td></tr>` +
-          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px; color:#64748B;">Phi Phi Island Cabana (43,262)</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 27,204</td></tr>` +
-          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px; color:#64748B;">Sunset Beach Resort (27,944)</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 34,095</td></tr>` +
-          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px; color:#64748B;">Panwaburi Beachfront</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 36,318</td></tr>` +
-          `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px; color:#64748B;">Esmeralda View</td><td style="padding:5px 8px;"><strong>Esmeralda View (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 32,380</td></tr>` +
-          `</table>` +
-          `• <strong>Price Summary</strong>: Hotel Costing ab <strong>₹ 1,69,143</strong> hai (pehle 2,43,929 thi), jo in paanchon rates ka sum hai.<br>` +
-          `• <strong>Land Part</strong>: <strong>$ 1,808.00 USD</strong> hi hai.<br>` +
-          `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
-          `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
-        );
+        if (wantsMarkup) {
+          appendAI(
+            `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 (with 10% Hotel Markup + 20 USD Activity Increase) ready hai!</strong><br><br>` +
+            `Itinerary, design aur reference branding colors (Deep Navy #0F2C59) strictly same rakhe hain:<br><br>` +
+            `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
+            `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Hotel</th><th style="padding:6px 8px; text-align:right;">Base Rate</th><th style="padding:6px 8px; text-align:right;">+10% Markup (INR)</th></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 39,146</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 43,061</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 27,204</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 29,924</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 34,095</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 37,505</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 36,318</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 39,950</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px;"><strong>Esmeralda View</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 32,380</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 35,618</td></tr>` +
+            `</table>` +
+            `• <strong>Hotel Costing Summary</strong>: <strong>₹ 1,86,058</strong> (exact 10% increase applied across all 5 properties)<br>` +
+            `• <strong>Land Part / Activities</strong>: <strong>$ 2,248.00 USD</strong> (+20 USD increase on each activity/transfer unit rate)<br>` +
+            `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
+            `• <strong>Colors & Theme</strong>: Master Reference Official Palette (#0F2C59 Deep Navy, #1E3A8A Blue, #CBD5E1 Borders) strictly locked.<br>` +
+            `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
+          );
+        } else {
+          appendAI(
+            `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 ready hai!</strong><br><br>` +
+            `Itinerary, design aur USD land rates same rakhe hain, sirf hotels aur hotel rates badle hain:<br><br>` +
+            `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
+            `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Purana Hotel</th><th style="padding:6px 8px; text-align:left;">Naya Hotel</th><th style="padding:6px 8px; text-align:right;">Rate (INR)</th></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px; color:#64748B;">Krabi Resort (1,04,025)</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 39,146</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px; color:#64748B;">Phi Phi Island Cabana (43,262)</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 27,204</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px; color:#64748B;">Sunset Beach Resort (27,944)</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 34,095</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px; color:#64748B;">Panwaburi Beachfront</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 36,318</td></tr>` +
+            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px; color:#64748B;">Esmeralda View</td><td style="padding:5px 8px;"><strong>Esmeralda View (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 32,380</td></tr>` +
+            `</table>` +
+            `• <strong>Price Summary</strong>: Hotel Costing ab <strong>₹ 1,69,143</strong> hai (pehle 2,43,929 thi), jo in paanchon rates ka sum hai.<br>` +
+            `• <strong>Land Part</strong>: <strong>$ 1,808.00 USD</strong> hi hai.<br>` +
+            `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
+            `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
+          );
+        }
 
         showReplies([
           { label: '🖨️ Generate PDF (v5)', val: '__PDF__', primary: true },
@@ -260,61 +284,117 @@ const Chatbot = (() => {
       }
 
       // 6. Check Document Format Switch Requests
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:invoice|bill)|(?:invoice|bill).*(?:format|layout|banao|me)/i.test(text)) {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('invoice');
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:invoice|bill|billing)|(?:invoice|bill|billing).*(?:format|layout|banao|me|karo|chahiye)|^invoice$/i.test(text) || text === '__SWITCH_INVOICE__') {
+        if (!QuotationData.invoice) QuotationData.invoice = {};
+        const inv = QuotationData.invoice;
+
+        // Extract customer name if mentioned
+        const nameMatch = text.match(/(?:for|name|ke\s*liye|customer|client)[:\s]+([a-zA-Z\s]{2,30})/i);
+        if (nameMatch) {
+          inv.toCustomerName = nameMatch[1].trim();
         }
+
+        // Extract service item if mentioned
+        const serviceMatch = text.match(/(?:service|item|for\s*service)[:\s]+([a-zA-Z\s]{2,40})/i);
+        if (serviceMatch) {
+          if (!inv.items) inv.items = [];
+          if (inv.items.length === 0) {
+            inv.items.push({ sn: 1, service: serviceMatch[1].trim(), description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: 2850, netAmount: 2850, amount: 2850 });
+          } else {
+            inv.items[0].service = serviceMatch[1].trim();
+          }
+        }
+
+        // Extract amount if mentioned
+        const amountMatch = text.match(/(?:rs\.?|inr|₹|amount|price)\s*[:=]?\s*(\d[\d,]*)/i) || text.match(/\b(\d{3,7})\s*(?:rs|inr|rupaye)?\b/i);
+        if (amountMatch) {
+          const val = parseFloat(amountMatch[1].replace(/,/g, ''));
+          if (val && !isNaN(val)) {
+            if (!inv.items || inv.items.length === 0) {
+              inv.items = [{ sn: 1, service: 'passport bill', description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: val, netAmount: val, amount: val }];
+            } else {
+              inv.items[0].perPaxPrice = val;
+              inv.items[0].netAmount = (inv.items[0].quantity || 1) * val;
+              inv.items[0].amount = inv.items[0].netAmount;
+            }
+            inv.subTotal = val;
+            inv.totalAmount = val;
+          }
+        }
+
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('invoice');
+          if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+        }
+
         setTyping(false);
-        appendAI('✅ <strong>Switched to Corporate Tax Invoice Format!</strong><br>Billed-to details, GST calculations, bank remittance, and signature block are now active in the live preview.');
+        const custName = inv.toCustomerName || QuotationData.package.clientName || 'akash dewani';
+        const tot = Number(inv.totalAmount || 2850).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        const itemDesc = (inv.items && inv.items[0]) ? `${inv.items[0].service} (${inv.items[0].description})` : 'passport bill (1 Adult)';
+
+        appendAI(
+          `✅ <strong>Official Orange Themed Invoice Confirm Ho Gaya Hai!</strong><br><br>` +
+          `• <strong>Invoice No</strong>: ${inv.invoiceNumber || '090587'}<br>` +
+          `• <strong>Billed To</strong>: ${custName}<br>` +
+          `• <strong>Service Detail</strong>: ${itemDesc}<br>` +
+          `• <strong>Total Amount</strong>: <strong>INR ${tot}</strong><br>` +
+          `• <strong>Bank Remittance</strong>: YES BANK LIMITED (A/C: ${inv.bankAccountNo || '108163400004886'})<br><br>` +
+          `Ab aap niche <strong>"Edit in Studio Builder"</strong> par click karke saare fields aur lines live edit kar sakte hain:`
+        );
         showReplies([
-          { label: '🖨️ Print / Save PDF Invoice', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Preview', val: '__PREVIEW__' }
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
+          { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+          { label: '🖨️ Print / Save PDF Invoice', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' }
         ]);
         scrollBottom();
         return;
       }
 
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:quotation|quote)|(?:quotation|quote).*(?:format|layout|banao|me)/i.test(text)) {
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:quotation|quote)|(?:quotation|quote).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_QUOTATION__') {
         if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
           App.switchDocType('quotation');
         }
         setTyping(false);
         appendAI('✅ <strong>Switched to Commercial Quotation Format!</strong><br>Day-by-day Pax, INR, USD columns, pricing summary, and commercial total are active in the live preview.');
         showReplies([
-          { label: '🖨️ Print / Save PDF Quotation', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Preview', val: '__PREVIEW__' }
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
+          { label: '👁️ View Preview', val: '__PREVIEW__' },
+          { label: '🖨️ Print / Save PDF Quotation', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' }
         ]);
         scrollBottom();
         return;
       }
 
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text)) {
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_HOTEL_COSTING__') {
         if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
           App.switchDocType('hotel_costing');
         }
         setTyping(false);
-        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options (Free cancellation, Non-refundable, Partial refund) for all 5 hotels are active.');
+        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options for all 5 hotels are active.');
         showReplies([
-          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Preview', val: '__PREVIEW__' }
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
+          { label: '👁️ View Preview', val: '__PREVIEW__' },
+          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' }
         ]);
         scrollBottom();
         return;
       }
 
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text)) {
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
         if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
           App.switchDocType('confirmation');
         }
         setTyping(false);
-        appendAI('✅ <strong>Switched to Travel Confirmation Voucher Format!</strong><br>Booking reference, lead pax, confirmed hotel schedule, and 24/7 emergency hotline are active.');
+        appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');
         showReplies([
-          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Preview', val: '__PREVIEW__' }
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
+          { label: '👁️ View Preview', val: '__PREVIEW__' },
+          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' }
         ]);
         scrollBottom();
         return;
@@ -327,12 +407,84 @@ const Chatbot = (() => {
         setTyping(false);
         appendAI('✅ <strong>Switched to Travel Experience Itinerary Format!</strong><br>Day-by-day travel timeline, sightseeing, activities, and hotel stays are active.');
         showReplies([
-          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Preview', val: '__PREVIEW__' }
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
+          { label: '👁️ View Preview', val: '__PREVIEW__' },
+          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' }
         ]);
-        scrollBottom();
-        return;
+      }
+
+      // 6. Section Removal / Addition in Natural Language ("adult details hata do", "amenities hata do", etc.)
+      const isRemove = /(?:hata|remove|delete|hide|nikal|band\s*karo)/i.test(text);
+      const isShow = /(?:dikhao|show|wapas|add|enable|unhide|chahiye)/i.test(text) && !isRemove;
+
+      if (isRemove || isShow) {
+        if (!QuotationData.confirmation.sections) {
+          QuotationData.confirmation.sections = {
+            agencyHeader: true,
+            summaryCard: true,
+            mapPhoto: true,
+            hotelDetails: true,
+            adultDetails: true,
+            importantInfo: true,
+            amenities: true
+          };
+        }
+        const sec = QuotationData.confirmation.sections;
+        let modified = false;
+        let msg = '';
+
+        if (/adult|guest|yatri|passenger/i.test(text)) {
+          sec.adultDetails = !isRemove;
+          modified = true;
+          msg = isRemove ? '👥 <strong>Adult Details / Guest List Table</strong> ko document se hata diya gaya hai!' : '👥 <strong>Adult Details / Guest List Table</strong> ko document me wapas add kar diya gaya hai!';
+        } else if (/map|photo|location|tasveer|image/i.test(text)) {
+          sec.mapPhoto = !isRemove;
+          modified = true;
+          msg = isRemove ? '📍 <strong>Map Location & Hotel Photo</strong> section hata diya gaya hai!' : '📍 <strong>Map Location & Hotel Photo</strong> section add kar diya gaya hai!';
+        } else if (/amenities|suvidha|facility/i.test(text)) {
+          sec.amenities = !isRemove;
+          modified = true;
+          msg = isRemove ? '✨ <strong>Hotel Amenities</strong> section hata diya gaya hai!' : '✨ <strong>Hotel Amenities</strong> section add kar diya gaya hai!';
+        } else if (/important|policy|policies|rules|shart|instruction/i.test(text)) {
+          sec.importantInfo = !isRemove;
+          modified = true;
+          msg = isRemove ? 'ℹ️ <strong>Important Information & Property Policies</strong> section hata diya gaya hai!' : 'ℹ️ <strong>Important Information & Property Policies</strong> section wapas add kar diya gaya hai!';
+        } else if (/hotel\s*details|room\s*table|occupancy/i.test(text)) {
+          sec.hotelDetails = !isRemove;
+          modified = true;
+          msg = isRemove ? '🏨 <strong>Hotel Stay & Room Occupancy Table</strong> hata diya gaya hai!' : '🏨 <strong>Hotel Stay & Room Occupancy Table</strong> add kar diya gaya hai!';
+        } else if (/agency|header/i.test(text)) {
+          sec.agencyHeader = !isRemove;
+          modified = true;
+          msg = isRemove ? '🏢 <strong>Agency Header</strong> hata diya gaya hai!' : '🏢 <strong>Agency Header</strong> add kar diya gaya hai!';
+        } else if (/day\s*(\d+)/i.test(text) && isRemove) {
+          const match = text.match(/day\s*(\d+)/i);
+          const dayNum = parseInt(match[1], 10);
+          const initialLen = QuotationData.days.length;
+          QuotationData.days = QuotationData.days.filter(d => d.dayNumber !== dayNum);
+          if (QuotationData.days.length < initialLen) {
+            QuotationData.days.forEach((d, i) => { d.dayNumber = i + 1; });
+            modified = true;
+            msg = `📅 <strong>Day ${dayNum}</strong> ko itinerary se hata diya gaya hai! Baki days auto re-sequence ho gaye hain.`;
+          }
+        }
+
+        if (modified) {
+          if (typeof App !== 'undefined') {
+            if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+            if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+          }
+          setTyping(false);
+          appendAI(`✅ ${msg}<br>Live document preview turant update ho gayi hai!`);
+          showReplies([
+            { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+            { label: '🖨️ PDF Generate Karo', val: '__PDF__' },
+            { label: '✏️ Studio Builder Kholo', val: '__MODAL_EDIT__' }
+          ]);
+          scrollBottom();
+          return;
+        }
       }
 
       // 7. General extraction via AIParser (Context aware)
@@ -393,12 +545,22 @@ const Chatbot = (() => {
 
   /**
    * Helper: Apply v5 Thailand Hotels & Rates (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View)
+   * Supports optional 10% Hotel Markup + 20 USD activity increase
    */
-  function applyNewThailandHotelsAndRates() {
+  function applyNewThailandHotelsAndRates(withMarkup = false) {
     loadSampleDataset('reference');
 
-    // 1. Update Day 1-12 hotels
     const d = QuotationData;
+    d.activeDocType = 'quotation';
+
+    const hRamada = withMarkup ? 43061 : 39146;
+    const hPhiPhi = withMarkup ? 29924 : 27204;
+    const hAndakira = withMarkup ? 37505 : 34095;
+    const hPanwaburi = withMarkup ? 39950 : 36318;
+    const hEsmeralda = withMarkup ? 35618 : 32380;
+    const totalHotelsINR = hRamada + hPhiPhi + hAndakira + hPanwaburi + hEsmeralda; // 186058 or 169143
+
+    // 1. Update Day 1-12 hotels
     if (d.days && d.days.length >= 12) {
       // Days 1-3: Ramada
       [0, 1, 2].forEach(idx => {
@@ -406,7 +568,7 @@ const Chatbot = (() => {
           name: 'Ramada By Wyndham',
           dates: '2 Jan to 5 Jan',
           pax: idx === 0 ? 2 : '',
-          amountINR: idx === 0 ? 39146 : 0,
+          amountINR: idx === 0 ? hRamada : 0,
           amountUSD: 0,
           notes: ''
         };
@@ -418,7 +580,7 @@ const Chatbot = (() => {
           name: 'Phi Phi Mountain Beach Resort',
           dates: '5 Jan to 7 Jan',
           pax: idx === 3 ? 2 : '',
-          amountINR: idx === 3 ? 27204 : 0,
+          amountINR: idx === 3 ? hPhiPhi : 0,
           amountUSD: 0,
           notes: ''
         };
@@ -430,7 +592,7 @@ const Chatbot = (() => {
           name: 'Hotel Andakira Phuket',
           dates: '7 Jan to 9 Jan',
           pax: idx === 5 ? 2 : '',
-          amountINR: idx === 5 ? 34095 : 0,
+          amountINR: idx === 5 ? hAndakira : 0,
           amountUSD: 0,
           notes: ''
         };
@@ -441,7 +603,7 @@ const Chatbot = (() => {
         name: 'Panwaburi Beachfront',
         dates: '9 Jan to 10 Jan',
         pax: 2,
-        amountINR: 36318,
+        amountINR: hPanwaburi,
         amountUSD: 0,
         notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort'
       };
@@ -452,7 +614,7 @@ const Chatbot = (() => {
           name: 'Esmeralda View',
           dates: '10 Jan to 13 Jan',
           pax: idx === 8 ? 2 : '',
-          amountINR: idx === 8 ? 32380 : 0,
+          amountINR: idx === 8 ? hEsmeralda : 0,
           amountUSD: 0,
           notes: ''
         };
@@ -460,6 +622,33 @@ const Chatbot = (() => {
 
       // Day 12: Departure
       d.days[11].hotel = null;
+
+      // If withMarkup is true, apply +20 USD on each activity
+      if (withMarkup) {
+        const actAdjustments = [
+          { dayIdx: 0, itemIdx: 1, uPrice: 121.00, desc: 'Transfer Phuket to Krabi' },
+          { dayIdx: 1, itemIdx: 0, uPrice: 84.40, desc: '4 Island Tour' },
+          { dayIdx: 2, itemIdx: 5, uPrice: 100.50, desc: 'City Tour Krabi' },
+          { dayIdx: 3, itemIdx: 2, uPrice: 100.50, desc: 'ATV Ride' },
+          { dayIdx: 4, itemIdx: 1, uPrice: 144.53, desc: 'Phi-Phi Island + NPF' },
+          { dayIdx: 5, itemIdx: 2, uPrice: 120.75, desc: 'Transfer to Phuket' },
+          { dayIdx: 6, itemIdx: 5, uPrice: 100.50, desc: 'City Tour' },
+          { dayIdx: 7, itemIdx: 3, uPrice: 115.12, desc: 'Oasis Spa & Massage' },
+          { dayIdx: 7, itemIdx: 4, uPrice: 167.00, desc: 'Candle Light Dinner' },
+          { dayIdx: 8, itemIdx: 2, uPrice: 122.35, desc: 'James Bond Island' },
+          { dayIdx: 9, itemIdx: 1, uPrice: 65.34, desc: 'Phuket to Koh Yao Yai' },
+          { dayIdx: 11, itemIdx: 1, uPrice: 89.13, desc: 'Airport Transfer' }
+        ];
+
+        actAdjustments.forEach(adj => {
+          const item = d.days[adj.dayIdx]?.items?.[adj.itemIdx];
+          if (item) {
+            item.unitPrice = adj.uPrice;
+            item.amountUSD = Math.round(adj.uPrice * 2 * 100) / 100;
+            item.subtitle = `${adj.desc} · Adult · ${adj.uPrice.toFixed(2)} × 2`;
+          }
+        });
+      }
     }
 
     // 2. Update Hotel Properties Comparison List
@@ -474,11 +663,11 @@ const Chatbot = (() => {
         roomType: 'Deluxe Room',
         rooms: 1,
         mealPlan: 'Bed & Breakfast (CP)',
-        amountINR: 39146,
-        amountUSD: 447.38,
-        opt1FreeCancel: 39146,
-        opt2NonRefund: 35231,
-        opt3PartialRefund: 37188,
+        amountINR: hRamada,
+        amountUSD: Math.round(hRamada / 87.5 * 100) / 100,
+        opt1FreeCancel: hRamada,
+        opt2NonRefund: Math.round(hRamada * 0.9),
+        opt3PartialRefund: Math.round(hRamada * 0.95),
         cancellation: 'Free cancellation until 20 Dec 2026',
         refundability: 'Refundable',
         status: 'Confirmed',
@@ -494,11 +683,11 @@ const Chatbot = (() => {
         roomType: 'Superior Ocean View Bungalow',
         rooms: 1,
         mealPlan: 'Daily Buffet Breakfast',
-        amountINR: 27204,
-        amountUSD: 310.90,
-        opt1FreeCancel: 27204,
-        opt2NonRefund: 24483,
-        opt3PartialRefund: 25843,
+        amountINR: hPhiPhi,
+        amountUSD: Math.round(hPhiPhi / 87.5 * 100) / 100,
+        opt1FreeCancel: hPhiPhi,
+        opt2NonRefund: Math.round(hPhiPhi * 0.9),
+        opt3PartialRefund: Math.round(hPhiPhi * 0.95),
         cancellation: 'Free cancellation until 24 Dec 2026',
         refundability: 'Refundable',
         status: 'Confirmed',
@@ -514,11 +703,11 @@ const Chatbot = (() => {
         roomType: 'Deluxe Premier Room',
         rooms: 1,
         mealPlan: 'Buffet Breakfast Included',
-        amountINR: 34095,
-        amountUSD: 389.66,
-        opt1FreeCancel: 34095,
-        opt2NonRefund: 30685,
-        opt3PartialRefund: 32390,
+        amountINR: hAndakira,
+        amountUSD: Math.round(hAndakira / 87.5 * 100) / 100,
+        opt1FreeCancel: hAndakira,
+        opt2NonRefund: Math.round(hAndakira * 0.9),
+        opt3PartialRefund: Math.round(hAndakira * 0.95),
         cancellation: 'Free cancellation until 30 Dec 2026',
         refundability: 'Refundable',
         status: 'Confirmed',
@@ -534,11 +723,11 @@ const Chatbot = (() => {
         roomType: 'Deluxe Pool Access Suite',
         rooms: 1,
         mealPlan: 'American Breakfast',
-        amountINR: 36318,
-        amountUSD: 415.06,
-        opt1FreeCancel: 36318,
-        opt2NonRefund: 32686,
-        opt3PartialRefund: 34502,
+        amountINR: hPanwaburi,
+        amountUSD: Math.round(hPanwaburi / 87.5 * 100) / 100,
+        opt1FreeCancel: hPanwaburi,
+        opt2NonRefund: Math.round(hPanwaburi * 0.9),
+        opt3PartialRefund: Math.round(hPanwaburi * 0.95),
         cancellation: 'Non-refundable tariff after confirmation',
         refundability: 'Non-Refundable',
         status: 'Confirmed',
@@ -554,11 +743,11 @@ const Chatbot = (() => {
         roomType: 'Ocean Panorama Cliff Villa',
         rooms: 1,
         mealPlan: 'Daily Island Breakfast',
-        amountINR: 32380,
-        amountUSD: 370.06,
-        opt1FreeCancel: 32380,
-        opt2NonRefund: 29142,
-        opt3PartialRefund: 30761,
+        amountINR: hEsmeralda,
+        amountUSD: Math.round(hEsmeralda / 87.5 * 100) / 100,
+        opt1FreeCancel: hEsmeralda,
+        opt2NonRefund: Math.round(hEsmeralda * 0.9),
+        opt3PartialRefund: Math.round(hEsmeralda * 0.95),
         cancellation: 'Free cancellation until 1 Jan 2027',
         refundability: 'Refundable',
         status: 'Confirmed',
@@ -567,14 +756,15 @@ const Chatbot = (() => {
     ];
 
     // 3. Update Summary
+    const landUSD = withMarkup ? 2248.00 : 1808.00;
     d.summary = {
       items: [
-        { name: 'Hotel Costing\nfor 2 adults', amountINR: 169143, amountUSD: 0 },
-        { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: 1808.00 }
+        { name: 'Hotel Costing\nfor 2 adults', amountINR: totalHotelsINR, amountUSD: 0 },
+        { name: 'Land Part\nfor 2 adults', amountINR: 0, amountUSD: landUSD }
       ],
       autoCalculate: false,
-      totalINR: 169143,
-      totalUSD: 1808.00
+      totalINR: totalHotelsINR,
+      totalUSD: landUSD
     };
 
     // 4. Synchronize Studio & Live Preview
@@ -585,7 +775,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof showToast === 'function') {
-      showToast('Loaded updated v5 hotels & rates: ₹ 1,69,143', 'success');
+      showToast(`Updated hotels (₹ ${totalHotelsINR.toLocaleString('en-IN')}) & Land Part ($ ${landUSD.toFixed(2)})`, 'success');
     }
   }
 
@@ -681,8 +871,12 @@ const Chatbot = (() => {
       if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
       return;
     }
-    if (opt.val === '__MODAL_EDIT__') {
-      if (typeof App !== 'undefined') App.showSection('generator');
+    if (opt.val === '__MODAL_EDIT__' || opt.val === '__GOTO_BUILDER__') {
+      if (typeof App !== 'undefined') {
+        App.showSection('generator');
+        if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+        if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
+      }
       return;
     }
 
