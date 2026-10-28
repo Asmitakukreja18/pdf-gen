@@ -167,21 +167,7 @@ const Chatbot = (() => {
   async function processMessage(text, attachment = null) {
     const t = text.trim();
 
-    // 0. AI Settings intent
-    if (/ai\s*settings|api\s*key|key\s*setup|settings/i.test(t) || t === '__OPEN_KEY_MODAL__') {
-      const modal = document.getElementById('apiKeyModal');
-      if (modal) modal.style.display = 'flex';
-      appendAI(
-        `⚡ <strong>AI Configuration Settings</strong><br><br>` +
-        `Maine screen par AI Settings modal open kar diya hai. Aap wahan apni API key configure kar sakte hain.`
-      );
-      showReplies([
-        { label: '🧾 Generate Orange DMC Invoice', val: '__SWITCH_INVOICE__', primary: true },
-        { label: '💰 Master Quotation Format', val: '__SWITCH_QUOTATION__' },
-        { label: '👁️ View Live Preview', val: '__PREVIEW__' }
-      ]);
-      return;
-    }
+
 
     // Direct Builder / Edit intent
     if (t === '__GOTO_BUILDER__' || /^(edit|builder|studio|edit\s*karo|studio\s*kholo|open\s*builder)$/i.test(t)) {

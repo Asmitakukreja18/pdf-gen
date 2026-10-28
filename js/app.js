@@ -2145,6 +2145,7 @@ const App = (() => {
    */
   function setupApiKeyModal() {
     const modal = document.getElementById('apiKeyModal');
+    if (!modal) return;
     const inputKey = document.getElementById('inputGeminiApiKey');
     const statusText = document.getElementById('keyStatusText');
     const statusDisplay = document.getElementById('keyStatusDisplay');
