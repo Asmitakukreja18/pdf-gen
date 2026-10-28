@@ -73,6 +73,10 @@
             </div>
           </div>
 
+          <button class="btn btn-sm btn-accent" id="btnOpenApiKeyModal" title="Setup 100% Free Google Gemini 2.0 AI">
+            <span>🔑</span> <span id="btnApiKeyLabel">Free AI Setup</span>
+          </button>
+
           <div class="status-pill" id="aiStatusPill">
             <span class="status-dot"></span>
             <span class="status-text">Studio Engine Ready</span>
@@ -597,6 +601,11 @@
                   <p>Paste any client enquiry or rough WhatsApp message in English, Hindi, or Hinglish.</p>
                 </div>
 
+                <div class="ai-key-banner" id="aiKeyBanner">
+                  <span class="ai-key-status-text">⚡ AI Engine: <strong id="aiEngineLabel">Offline Heuristic Engine</strong></span>
+                  <button type="button" class="btn btn-xs btn-outline" id="btnQuickKeySetup">🔑 Free AI Setup</button>
+                </div>
+
                 <div class="quick-sample-chips" style="margin-bottom: 8px;">
                   <span class="chips-label">Quick Prompts:</span>
                   <button class="btn-chip" data-prompt="thailand">🌴 12D Thailand</button>
@@ -850,6 +859,53 @@
               <!-- Rendered by DBManager -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FREE AI CONFIGURATION MODAL ========== -->
+  <div class="db-modal-overlay" id="apiKeyModal" style="display:none">
+    <div class="db-modal-box" style="max-width: 620px;">
+      <div class="db-modal-header">
+        <div class="db-modal-title">
+          <h3>🔑 Free Google Gemini 2.0 AI Setup</h3>
+          <p>100% Free · No Credit Card Required · Real Travel Quotation Intelligence</p>
+        </div>
+        <button class="btn-icon btn-close-modal" id="btnCloseApiKeyModal" title="Close">✕</button>
+      </div>
+      <div class="db-modal-body" style="padding: 22px;">
+        <div class="api-key-guide-box">
+          <h4><span>✨</span> Free Gemini API Key Kaise Le (Sirf 30 Seconds):</h4>
+          <ol class="api-key-steps">
+            <li>Google AI Studio kholein: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"><strong>aistudio.google.com/app/apikey ↗</strong></a></li>
+            <li>Apne personal Google/Gmail account se sign in karein (Ye 100% Free hai, koi card nahi lagta).</li>
+            <li><strong>"+ Create API key"</strong> button dabayein aur key copy karein.</li>
+            <li>Niche input box me paste karke <strong>"⚡ Test Connection"</strong> aur <strong>"💾 Save & Activate"</strong> dabayein.</li>
+          </ol>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="inputGeminiApiKey" style="font-weight: 600; font-size: 13px; color: #1E293B;">Google Gemini API Key:</label>
+          <div class="key-input-row">
+            <div class="key-input-wrapper">
+              <input type="password" id="inputGeminiApiKey" class="form-input" placeholder="Paste your AIzaSy... key here" autocomplete="off" />
+              <button type="button" class="btn-toggle-key-visibility" id="btnToggleKeyVis" title="Show/Hide Key">👁️</button>
+            </div>
+            <button type="button" class="btn btn-primary" id="btnTestApiKey" style="white-space: nowrap;">⚡ Test Connection</button>
+          </div>
+          <p class="form-hint" style="font-size: 11.5px; color: #64748B; margin: 4px 0 0 0;">
+            🔒 Key aapke browser ke <code>localStorage</code> me safe rehti hai. Kisi bhi third-party server par upload nahi hoti.
+          </p>
+        </div>
+
+        <div class="key-status-indicator" id="keyStatusDisplay">
+          <span>AI Connection Status:</span> <strong id="keyStatusText" style="color: #64748B;">Offline Heuristic Parser (API Key Not Configured)</strong>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; border-top: 1px solid #E2E8F0; padding-top: 14px;">
+          <button type="button" class="btn btn-outline btn-sm" id="btnClearApiKey" style="color: #DC2626;">🗑️ Disconnect</button>
+          <button type="button" class="btn btn-success btn-sm" id="btnSaveApiKey">💾 Save &amp; Activate AI</button>
         </div>
       </div>
     </div>

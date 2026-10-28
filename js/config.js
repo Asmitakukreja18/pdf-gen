@@ -5,8 +5,17 @@
  */
 
 const CONFIG = {
-  // Gemini API Configuration
-  GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY_HERE',
+  // Gemini API Configuration (Supports localStorage persistence for instant free activation)
+  get GEMINI_API_KEY() {
+    return localStorage.getItem('dmc_gemini_api_key') || this._GEMINI_API_KEY || '';
+  },
+  set GEMINI_API_KEY(val) {
+    this._GEMINI_API_KEY = val;
+    if (val && val !== 'YOUR_GEMINI_API_KEY_HERE') {
+      localStorage.setItem('dmc_gemini_api_key', val.trim());
+    }
+  },
+  _GEMINI_API_KEY: '',
   GEMINI_MODEL: 'gemini-2.0-flash',
   GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/',
 

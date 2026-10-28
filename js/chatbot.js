@@ -38,22 +38,33 @@ const Chatbot = (() => {
   }
 
   function renderWelcome() {
+    const isAiConnected = !!(CONFIG.GEMINI_API_KEY && CONFIG.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE');
+    const aiBadge = isAiConnected
+      ? `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1D4ED8; font-size:11px; font-weight:700; border:1px solid #BFDBFE;">⚡ Gemini 2.0 Flash Active</span>`
+      : `<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:700; border:1px solid #FDE68A;">⚠️ Offline Heuristic Mode (Free Key Not Added)</span>`;
+
     appendAI(
-      `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC AI Document Agent</strong>.<br>` +
+      `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC AI Document Agent</strong> ${aiBadge}<br><br>` +
+      (isAiConnected ? `Google Gemini 2.0 AI connected hai! Aap kisi bhi trip ki notes ya modifications likh sakte hain:` : `💡 <em>Google Gemini 2.0 Flash AI 100% Free hai (no card needed). Aap top me <strong>"🔑 Free AI Setup"</strong> se connect kar sakte hain.</em><br><br>`) +
       `Aap mujhse natural language mein baat kar sakte hain jaise: <br>` +
       `• <em>"Hotel change karke ye hotels add karo"</em><br>` +
       `• <em>"Quotation format banao"</em> ya <em>"Invoice banao"</em><br>` +
       `• <em>"PDF generate karo"</em> ya <em>"DOCX bhejo"</em><br>` +
       `• Aap <strong>📎 button</strong> se reference PDF, document, ya image bhi attach kar sakte hain!`
     );
-    showReplies([
+
+    const defaultReplies = [
       { label: '🌴 Apply v5 Thailand Hotels (₹ 1,69,143)', val: '__APPLY_V5_HOTELS__', primary: true },
       { label: '💰 Switch to Quotation Format', val: '__SWITCH_QUOTATION__' },
       { label: '🏨 Hotel Costing Comparison', val: '__SWITCH_HOTEL_COSTING__' },
-      { label: '🧾 Tax Invoice Format', val: '__SWITCH_INVOICE__' },
-      { label: '🎟️ Confirmation Voucher', val: '__SWITCH_CONFIRMATION__' },
-      { label: '🖨️ Generate PDF', val: '__PDF__' }
-    ]);
+      { label: '🧾 Tax Invoice Format', val: '__SWITCH_INVOICE__' }
+    ];
+
+    if (!isAiConnected) {
+      defaultReplies.unshift({ label: '🔑 Connect Free Gemini AI', val: '__OPEN_KEY_MODAL__', primary: true });
+    }
+
+    showReplies(defaultReplies);
   }
 
   /**
@@ -159,6 +170,26 @@ const Chatbot = (() => {
    */
   async function processMessage(text, attachment = null) {
     const t = text.trim();
+
+    // 0. Free AI Setup intent
+    if (/free\s*ai|ai\s*kaise|api\s*key|key\s*setup|kaise\s*hona|kuch\s*bnake\s*nhi\s*der/i.test(t) || t === '__OPEN_KEY_MODAL__') {
+      const modal = document.getElementById('apiKeyModal');
+      if (modal) modal.style.display = 'flex';
+      appendAI(
+        `🔑 <strong>Google Gemini 2.0 Flash AI bilkul 100% FREE hai!</strong><br><br>` +
+        `Iske liye koi credit card nahi chahiye. Sirf apne Google account se 30 second me free key mil jati hai:<br>` +
+        `1. <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#2563EB; font-weight:bold;">Google AI Studio (aistudio.google.com/app/apikey) ↗</a> kholein.<br>` +
+        `2. <strong>Create API key</strong> par click karein aur key copy karein.<br>` +
+        `3. Maine screen par <strong>Free AI Setup modal</strong> open kar diya hai — wahan paste karke <strong>Save &amp; Activate</strong> kar dein!<br><br>` +
+        `Key save hote hi AI aapke kisi bhi WhatsApp notes, rough messages, aur natural Hindi/English commands ko direct official DMC quotation me badal dega!`
+      );
+      showReplies([
+        { label: '🔑 Open AI Setup Box', val: '__OPEN_KEY_MODAL__', primary: true },
+        { label: '🌴 Apply v5 Thailand Hotels', val: '__APPLY_V5_HOTELS__' },
+        { label: '👁️ View Live Preview', val: '__PREVIEW__' }
+      ]);
+      return;
+    }
 
     // 1. Direct PDF trigger
     if (/^(pdf|download\s*pdf|generate\s*pdf|pdf\s*bhejo|pdf\s*banao)$/i.test(t)) {
@@ -304,16 +335,19 @@ const Chatbot = (() => {
         return;
       }
 
-      // 7. General extraction via AIParser
-      const extracted = await AIParser.parseText(text);
+      // 7. General extraction via AIParser (Context aware)
+      const extracted = await AIParser.parseText(text, QuotationData);
 
-      if (extracted.package && (extracted._hasExplicitDestination || !QuotationData.package.destinations)) {
+      if (extracted.package) {
         Object.assign(QuotationData.package, extracted.package);
       }
-      if (extracted.days && extracted.days.length > 0 && (extracted._hasExplicitItinerary || !QuotationData.days || QuotationData.days.length === 0)) {
+      if (extracted.days && extracted.days.length > 0) {
         QuotationData.days = extracted.days;
       }
-      if (extracted.summary && extracted._hasExplicitItinerary) {
+      if (extracted.hotels && extracted.hotels.length > 0) {
+        QuotationData.hotels = extracted.hotels;
+      }
+      if (extracted.summary && extracted.summary.items) {
         QuotationData.summary = extracted.summary;
       }
 

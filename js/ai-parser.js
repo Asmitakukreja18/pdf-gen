@@ -11,20 +11,24 @@
 const AIParser = (() => {
 
   /**
-   * Main entry point to parse raw user text
+   * Main entry point to parse raw user text or natural modification instructions
    * @param {string} text Raw text input from user
+   * @param {Object|null} currentQuotation Optional current quotation state for modifications
    * @returns {Promise<Object>} Extracted structured data
    */
-  async function parseText(text) {
+  async function parseText(text, currentQuotation = null) {
     if (!text || !text.trim()) {
       throw new Error('Please enter quotation details to extract.');
     }
 
-    // If Gemini API is configured and key is not placeholder, try Gemini first
-    if (CONFIG.GEMINI_API_KEY && CONFIG.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE') {
+    // If Gemini API is configured and key is not placeholder, use Gemini 2.0 Flash
+    const activeKey = CONFIG.GEMINI_API_KEY;
+    if (activeKey && activeKey !== 'YOUR_GEMINI_API_KEY_HERE') {
       try {
-        const geminiResult = await callGeminiExtract(text);
+        const geminiResult = await callGeminiExtract(text, currentQuotation);
         if (geminiResult) {
+          geminiResult._hasExplicitDestination = true;
+          geminiResult._hasExplicitItinerary = true;
           return sanitizeAndVerify(geminiResult);
         }
       } catch (err) {
@@ -38,55 +42,154 @@ const AIParser = (() => {
   }
 
   /**
-   * Gemini 2.0 Flash API structured JSON extraction
+   * Test an API Key with a lightweight ping to Gemini 2.0 Flash
    */
-  async function callGeminiExtract(rawText) {
-    const endpoint = `${CONFIG.GEMINI_API_URL}${CONFIG.GEMINI_MODEL}:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
+  async function testApiKey(rawKey) {
+    const key = (rawKey || '').trim();
+    if (!key) throw new Error('API key cannot be empty.');
 
-    const systemPrompt = `You are an expert DMC Travel Document Data Extraction Assistant for Let's Explore DMC.
-Extract travel quotation information from the user's input into the exact JSON schema provided below.
+    const endpoint = `${CONFIG.GEMINI_API_URL}${CONFIG.GEMINI_MODEL}:generateContent?key=${key}`;
+    const payload = {
+      contents: [{
+        parts: [{ text: 'Respond with the single word "READY".' }]
+      }],
+      generationConfig: {
+        maxOutputTokens: 5,
+        temperature: 0.0
+      }
+    };
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      const msg = errJson?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
+      throw new Error(msg);
+    }
+
+    const data = await res.json();
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!reply) throw new Error('No response from Gemini API.');
+    return true;
+  }
+
+  /**
+   * Gemini 2.0 Flash API structured JSON extraction & contextual modification
+   */
+  async function callGeminiExtract(rawText, currentQuotation = null) {
+    const apiKey = CONFIG.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('Gemini API Key is not configured.');
+
+    const endpoint = `${CONFIG.GEMINI_API_URL}${CONFIG.GEMINI_MODEL}:generateContent?key=${apiKey}`;
+
+    let contextText = '';
+    if (currentQuotation && currentQuotation.package) {
+      const compactState = {
+        package: currentQuotation.package,
+        days: (currentQuotation.days || []).map(d => ({
+          dayNumber: d.dayNumber,
+          date: d.date,
+          title: d.title,
+          items: d.items,
+          hotel: d.hotel
+        })),
+        hotels: currentQuotation.hotels || [],
+        summary: currentQuotation.summary || {}
+      };
+      contextText = `\nCURRENT ACTIVE QUOTATION (Apply user updates to this state):\n${JSON.stringify(compactState, null, 2)}\n`;
+    }
+
+    const systemPrompt = `You are the Master Travel Quotation AI Engine for Let's Explore DMC (Destination Management Company).
+Your mission is to extract travel packages, rough WhatsApp notes, or apply user modifications (e.g. markup 10%, change hotels, increase activities by 20 USD, add day excursions) directly into the Let's Explore DMC Master Quotation JSON format.
+
 CRITICAL RULES:
-1. NEVER invent flight numbers, dates, hotel names, prices, or itinerary items.
-2. If any piece of information is NOT present in the input, set its value to "" (empty string) or mark as "Not provided".
-3. For pricing, extract numeric numbers only (e.g. 110971 not "₹1,10,971").
-4. Mathematically calculate total = flights + landPackage + otherCharges.
-5. Extract day-wise itinerary array cleanly: [{ "day": "Day 1", "activity": "..." }].
-6. Respond ONLY with valid JSON. Do not include markdown codeblocks or extra text.
+1. Always return valid JSON only. Do not wrap in markdown or backticks.
+2. If given natural instructions like "hotel me 10% markup lagao" or "activities me 20 usd increase karo", calculate and update existing prices accurately.
+3. Keep day items detailed: category (Transfer, Sightseeing, Meals, Activity), pax count, unitPrice, amountUSD, amountINR.
+4. Auto-calculate summary totals for Hotel Accommodation, Land Part, and Activities.
+5. If user provides Hindi / Hinglish ("bhai 2 log ka Thailand quote bana do 12 din ka", "Ramada hotel add karo"), understand and execute seamlessly.
 
 JSON SCHEMA:
 {
-  "client": { "name": "", "contact": "", "pickupFrom": "", "details": "" },
-  "trip": { "destination": "", "country": "", "travelDate": "", "duration": "", "travellers": "" },
-  "flights": {
-    "origin": "",
-    "destination": "",
-    "cabinClass": "Economy",
-    "routeSummary": "",
-    "onward": { "airline": "", "flightNumber": "", "route": "", "departure": "", "arrival": "", "duration": "", "baggage": "" },
-    "return": { "airline": "", "flightNumber": "", "route": "", "departure": "", "arrival": "", "duration": "", "baggage": "" }
+  "package": {
+    "title": "PACKAGE TOUR",
+    "duration": "12 Days / 11 Nights",
+    "destinations": "Krabi + Phuket + Koh Yao Yai, Thailand",
+    "travellers": "2 Adults",
+    "paxCount": 2,
+    "clientName": "Client Name",
+    "clientContact": "+91 ...",
+    "pickupFrom": "Airport",
+    "quoteRef": "LE-DMC-THAI-2027-112",
+    "preparedDate": "2 Jan to 13 Jan",
+    "usdToInrRate": 87.5,
+    "currency": "BOTH"
   },
-  "landArrangement": {
-    "hotel": "",
-    "nights": "",
-    "sharing": "",
-    "dates": "",
-    "itinerary": [ { "day": "Day 1", "activity": "" } ],
-    "inclusions": [],
-    "note": "Accommodation based on leading category / lowest category."
-  },
-  "pricing": { "flights": 0, "landPackage": 0, "otherCharges": 0, "total": 0 },
-  "contact": { "person": "", "phone": "", "email": "", "website": "" }
+  "days": [
+    {
+      "dayNumber": 1,
+      "date": "2 Jan",
+      "title": "Arrival in Krabi",
+      "items": [
+        {
+          "title": "Arrival & Transfer",
+          "subtitle": "Transfer Phuket to Krabi · Adult · 101.00 × 2",
+          "category": "Transfer",
+          "pax": 2,
+          "unitPrice": 101,
+          "amountUSD": 202,
+          "amountINR": 0,
+          "tag": ""
+        }
+      ],
+      "hotel": {
+        "name": "Ramada By Wyndham",
+        "dates": "2 Jan to 5 Jan",
+        "pax": 2,
+        "amountINR": 39146,
+        "amountUSD": 0,
+        "notes": ""
+      },
+      "dayNotes": ""
+    }
+  ],
+  "hotels": [
+    {
+      "name": "Ramada By Wyndham",
+      "city": "Krabi",
+      "checkIn": "2 Jan",
+      "checkOut": "5 Jan",
+      "nights": 3,
+      "roomType": "Deluxe Room",
+      "mealPlan": "Bed & Breakfast",
+      "amountINR": 39146,
+      "amountUSD": 447.38
+    }
+  ],
+  "summary": {
+    "items": [
+      { "name": "Hotel & Resort Accommodation", "amountUSD": 0, "amountINR": 169143 },
+      { "name": "Land Part (Private Transfers & Ferries)", "amountUSD": 1808, "amountINR": 0 }
+    ],
+    "autoCalculate": true,
+    "totalUSD": 1808,
+    "totalINR": 169143
+  }
 }`;
 
     const payload = {
       contents: [{
         parts: [
           { text: systemPrompt },
-          { text: `User Travel Input:\n${rawText}` }
+          { text: `${contextText}\nUser Instructions / Travel Notes:\n${rawText}` }
         ]
       }],
       generationConfig: {
-        temperature: 0.1,
+        temperature: 0.15,
         responseMimeType: 'application/json'
       }
     };
@@ -98,7 +201,8 @@ JSON SCHEMA:
     });
 
     if (!res.ok) {
-      throw new Error(`Gemini API error: ${res.statusText}`);
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.error?.message || `Gemini API error: ${res.statusText}`);
     }
 
     const json = await res.json();
@@ -596,6 +700,7 @@ JSON SCHEMA:
 
   return {
     parseText,
+    testApiKey,
     sanitizeAndVerify
   };
 
