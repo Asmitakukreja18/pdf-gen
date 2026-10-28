@@ -270,17 +270,33 @@ const Chatbot = (() => {
       }
 
       // 6. Check Document Format Switch Requests
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:invoice|bill|billing)|(?:invoice|bill|billing).*(?:format|layout|banao|me|karo|chahiye)|^invoice$/i.test(text) || text === '__SWITCH_INVOICE__') {
+      const isInvoiceReq = /invo?i?c?e|inoice|invoce|invoic|invioce|bill|billing|receipt|challan/i.test(text) || text === '__SWITCH_INVOICE__';
+      if (isInvoiceReq) {
         if (!QuotationData.invoice) QuotationData.invoice = {};
         const inv = QuotationData.invoice;
 
-        // Extract customer name if mentioned
+        // 1. Extract customer name from attached file if present (e.g. "[Attached File: akash Dewani.pdf]")
+        const fileMatch = text.match(/\[Attached File:\s*([^\]\n]+)\]/i);
+        if (fileMatch) {
+          let cleanFileName = fileMatch[1].replace(/\.(pdf|docx?|png|jpe?g|txt)$/i, '').trim();
+          cleanFileName = cleanFileName.replace(/invoice|bill|billing|doc|file/gi, '').trim();
+          if (cleanFileName && cleanFileName.length >= 2) {
+            inv.toCustomerName = cleanFileName;
+          }
+        }
+
+        // 2. Extract customer name if mentioned in text
         const nameMatch = text.match(/(?:for|name|ke\s*liye|customer|client)[:\s]+([a-zA-Z\s]{2,30})/i);
         if (nameMatch) {
           inv.toCustomerName = nameMatch[1].trim();
         }
 
-        // Extract service item if mentioned
+        // If no customer name found yet, keep default
+        if (!inv.toCustomerName) {
+          inv.toCustomerName = QuotationData.package.clientName || 'akash dewani';
+        }
+
+        // 3. Extract service item if mentioned
         const serviceMatch = text.match(/(?:service|item|for\s*service)[:\s]+([a-zA-Z\s]{2,40})/i);
         if (serviceMatch) {
           if (!inv.items) inv.items = [];
@@ -291,7 +307,7 @@ const Chatbot = (() => {
           }
         }
 
-        // Extract amount if mentioned
+        // 4. Extract amount if mentioned
         const amountMatch = text.match(/(?:rs\.?|inr|₹|amount|price)\s*[:=]?\s*(\d[\d,]*)/i) || text.match(/\b(\d{3,7})\s*(?:rs|inr|rupaye)?\b/i);
         if (amountMatch) {
           const val = parseFloat(amountMatch[1].replace(/,/g, ''));
@@ -308,6 +324,13 @@ const Chatbot = (() => {
           }
         }
 
+        // Ensure default items if none
+        if (!inv.items || inv.items.length === 0) {
+          inv.items = [{ sn: 1, service: 'passport bill', description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: 2850, netAmount: 2850, amount: 2850 }];
+          inv.subTotal = 2850;
+          inv.totalAmount = 2850;
+        }
+
         if (typeof App !== 'undefined') {
           if (typeof App.switchDocType === 'function') App.switchDocType('invoice');
           if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
@@ -315,14 +338,14 @@ const Chatbot = (() => {
         }
 
         setTyping(false);
-        const custName = inv.toCustomerName || QuotationData.package.clientName || 'akash dewani';
+        const custName = inv.toCustomerName || 'akash dewani';
         const tot = Number(inv.totalAmount || 2850).toLocaleString('en-IN', { minimumFractionDigits: 2 });
         const itemDesc = (inv.items && inv.items[0]) ? `${inv.items[0].service} (${inv.items[0].description})` : 'passport bill (1 Adult)';
 
         appendAI(
           `✅ <strong>Official Orange Themed Invoice Confirm Ho Gaya Hai!</strong><br><br>` +
           `• <strong>Invoice No</strong>: ${inv.invoiceNumber || '090587'}<br>` +
-          `• <strong>Billed To</strong>: ${custName}<br>` +
+          `• <strong>Billed To</strong>: <strong>${custName}</strong><br>` +
           `• <strong>Service Detail</strong>: ${itemDesc}<br>` +
           `• <strong>Total Amount</strong>: <strong>INR ${tot}</strong><br>` +
           `• <strong>Bank Remittance</strong>: YES BANK LIMITED (A/C: ${inv.bankAccountNo || '108163400004886'})<br><br>` +
