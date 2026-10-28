@@ -76,32 +76,57 @@ const Chatbot = (() => {
     if (attachBtn && fileInput) {
       attachBtn.addEventListener('click', () => fileInput.click());
 
-      fileInput.addEventListener('change', (e) => {
+      fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         activeAttachment = {
           name: file.name,
           size: file.size,
-          type: file.type
+          type: file.type,
+          extractedText: ''
         };
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          activeAttachment.content = event.target.result;
-          if (badge && badgeText) {
-            badgeText.textContent = `📎 Attached: ${file.name} (${Math.round(file.size / 1024)} KB)`;
-            badge.style.display = 'flex';
-          }
-          if (typeof showToast === 'function') {
-            showToast(`Attached ${file.name} for AI analysis`, 'info');
-          }
-        };
+        if (badge && badgeText) {
+          badgeText.textContent = `⏳ Reading & parsing ${file.name}...`;
+          badge.style.display = 'flex';
+        }
 
-        if (file.type.includes('image') || file.type.includes('pdf')) {
-          reader.readAsDataURL(file);
-        } else {
-          reader.readAsText(file);
+        // 1. If PDF file, extract text via PDF.js
+        if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
+          try {
+            const arrayBuffer = await file.arrayBuffer();
+            if (typeof pdfjsLib !== 'undefined') {
+              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+              const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+              const pdf = await loadingTask.promise;
+              let fullText = '';
+              for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += `[Page ${i}]\n` + pageText + '\n';
+              }
+              activeAttachment.extractedText = fullText.trim();
+            }
+          } catch (pdfErr) {
+            console.warn('PDF.js parsing note:', pdfErr);
+          }
+        } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().endsWith('.doc')) {
+          try {
+            activeAttachment.extractedText = await file.text();
+          } catch (err) {
+            console.warn('Text reading note:', err);
+          }
+        }
+
+        if (badge && badgeText) {
+          const charLen = activeAttachment.extractedText ? ` · ${activeAttachment.extractedText.length} chars` : '';
+          badgeText.textContent = `📎 Attached: ${file.name} (${Math.round(file.size / 1024)} KB${charLen})`;
+          badge.style.display = 'flex';
+        }
+        if (typeof showToast === 'function') {
+          showToast(`Attached & parsed ${file.name}`, 'success');
         }
       });
     }
@@ -142,13 +167,19 @@ const Chatbot = (() => {
     if (isTyping) return;
 
     let fullPrompt = text;
+    let userBubble = text;
     if (activeAttachment) {
-      fullPrompt = `[Attached File: ${activeAttachment.name}]\n` + (text || 'Please inspect this reference file and update document.');
+      let fileSnippet = '';
+      if (activeAttachment.extractedText) {
+        fileSnippet = `\n[Extracted Document Text]:\n${activeAttachment.extractedText}\n[End Document Text]\n`;
+      }
+      fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}` + (text || 'Please process this attached document.');
+      userBubble = `[Attached File: ${activeAttachment.name}]\n` + (text || 'Please process this attached document.');
     }
 
     clearInput();
     clearReplies();
-    appendUser(fullPrompt);
+    appendUser(userBubble);
 
     // Reset attachment badge after sending
     const badge = $('chatAttachmentBadge');
@@ -275,7 +306,13 @@ const Chatbot = (() => {
         if (!QuotationData.invoice) QuotationData.invoice = {};
         const inv = QuotationData.invoice;
 
-        // 1. Extract customer name from attached file if present (e.g. "[Attached File: akash Dewani.pdf]")
+        // 1. Extract Invoice Number if present in PDF text or message
+        const invNumMatch = text.match(/Invoice\s*(?:No\.?|Number|#)?[:\s]*([0-9A-Za-z\-_]+)/i);
+        if (invNumMatch && invNumMatch[1] && !/detail|from|to|for|bill/i.test(invNumMatch[1])) {
+          inv.invoiceNumber = invNumMatch[1].trim();
+        }
+
+        // 2. Extract customer name from attached file if present (e.g. "[Attached File: akash Dewani.pdf]")
         const fileMatch = text.match(/\[Attached File:\s*([^\]\n]+)\]/i);
         if (fileMatch) {
           let cleanFileName = fileMatch[1].replace(/\.(pdf|docx?|png|jpe?g|txt)$/i, '').trim();
@@ -285,50 +322,71 @@ const Chatbot = (() => {
           }
         }
 
-        // 2. Extract customer name if mentioned in text
-        const nameMatch = text.match(/(?:for|name|ke\s*liye|customer|client)[:\s]+([a-zA-Z\s]{2,30})/i);
-        if (nameMatch) {
-          inv.toCustomerName = nameMatch[1].trim();
+        // 3. Extract customer name from document text or prompt
+        const custNameMatch = text.match(/(?:Customer\s*Name|Billed\s*To|Invoice\s*To|Client\s*Name)[:\s]+([^\n\r,]+)/i) ||
+                              text.match(/(?:for|name|ke\s*liye|customer|client)[:\s]+([a-zA-Z\s]{2,30})/i);
+        if (custNameMatch && custNameMatch[1]) {
+          inv.toCustomerName = custNameMatch[1].trim();
         }
 
-        // If no customer name found yet, keep default
+        // Default to akash dewani if empty
         if (!inv.toCustomerName) {
           inv.toCustomerName = QuotationData.package.clientName || 'akash dewani';
         }
 
-        // 3. Extract service item if mentioned
-        const serviceMatch = text.match(/(?:service|item|for\s*service)[:\s]+([a-zA-Z\s]{2,40})/i);
-        if (serviceMatch) {
-          if (!inv.items) inv.items = [];
-          if (inv.items.length === 0) {
-            inv.items.push({ sn: 1, service: serviceMatch[1].trim(), description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: 2850, netAmount: 2850, amount: 2850 });
-          } else {
-            inv.items[0].service = serviceMatch[1].trim();
-          }
+        // 4. Extract customer address if present
+        const addrMatch = text.match(/(?:Amravati[^\n]*|Customer\s*Address[:\s]+[^\n]+)/i);
+        if (addrMatch) {
+          inv.toCustomerAddress = addrMatch[0].trim();
         }
 
-        // 4. Extract amount if mentioned
-        const amountMatch = text.match(/(?:rs\.?|inr|₹|amount|price)\s*[:=]?\s*(\d[\d,]*)/i) || text.match(/\b(\d{3,7})\s*(?:rs|inr|rupaye)?\b/i);
+        // 5. Extract service items & amount
+        const serviceMatch = text.match(/(?:passport\s*bill|tour\s*package|flight\s*booking|visa\s*service|[a-zA-Z\s]{3,30}\s*bill)/i) ||
+                             text.match(/Service[:\s]+([^\n\r]+)/i);
+        const itemService = serviceMatch ? (serviceMatch[1] || serviceMatch[0]).trim() : 'passport bill';
+
+        const descMatch = text.match(/(\d+\s*Adult[^\n]*|\d+\s*Pax[^\n]*)/i);
+        const itemDesc = descMatch ? descMatch[1].trim() : '1 Adult';
+
+        const amountMatch = text.match(/(?:Total\s*Amount|Net\s*Amount|Sub\s*Total|Total|Amount|Price|INR|₹|Rs\.?)[:\s]*([0-9,]+(?:\.\d{2})?)/i) ||
+                            text.match(/\b([1-9][0-9]{2,6}(?:\.\d{2})?)\b/);
+        let parsedPrice = 2850;
         if (amountMatch) {
-          const val = parseFloat(amountMatch[1].replace(/,/g, ''));
-          if (val && !isNaN(val)) {
-            if (!inv.items || inv.items.length === 0) {
-              inv.items = [{ sn: 1, service: 'passport bill', description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: val, netAmount: val, amount: val }];
-            } else {
-              inv.items[0].perPaxPrice = val;
-              inv.items[0].netAmount = (inv.items[0].quantity || 1) * val;
-              inv.items[0].amount = inv.items[0].netAmount;
-            }
-            inv.subTotal = val;
-            inv.totalAmount = val;
+          const rawNum = parseFloat(amountMatch[1].replace(/,/g, ''));
+          if (rawNum && !isNaN(rawNum) && rawNum > 10) {
+            parsedPrice = rawNum;
           }
         }
 
-        // Ensure default items if none
-        if (!inv.items || inv.items.length === 0) {
-          inv.items = [{ sn: 1, service: 'passport bill', description: '1 Adult', hsn: '', quantity: 1, perPaxPrice: 2850, netAmount: 2850, amount: 2850 }];
-          inv.subTotal = 2850;
-          inv.totalAmount = 2850;
+        inv.items = [{
+          sn: 1,
+          service: itemService,
+          description: itemDesc,
+          hsn: '',
+          quantity: 1,
+          perPaxPrice: parsedPrice,
+          netAmount: parsedPrice,
+          amount: parsedPrice
+        }];
+        inv.subTotal = parsedPrice;
+        inv.totalAmount = parsedPrice;
+
+        // 6. Extract Bank Details if mentioned in document text
+        const bankMatch = text.match(/(YES\s*BANK\s*LIMITED|HDFC\s*BANK|ICICI\s*BANK|STATE\s*BANK[^\n]*)/i);
+        if (bankMatch) inv.bankName = bankMatch[1].trim();
+
+        const accMatch = text.match(/(?:Account\s*No\.?|A\/C\s*No\.?|Acc\s*No\.?)[:\s]*([0-9]{9,18})/i);
+        if (accMatch) inv.bankAccountNo = accMatch[1].trim();
+
+        const ifscMatch = text.match(/([A-Z]{4}0[A-Z0-9]{6})/i);
+        if (ifscMatch) inv.bankIfsc = ifscMatch[1].trim();
+
+        const branchMatch = text.match(/Branch[:\s]+([A-Za-z\s]+)/i);
+        if (branchMatch) inv.bankBranch = branchMatch[1].trim();
+
+        // 7. Company Details if mentioned
+        if (/LET'?S\s*EXPLORE/i.test(text)) {
+          inv.fromCompany = "LET'S EXPLORE DMC";
         }
 
         if (typeof App !== 'undefined') {
@@ -340,13 +398,13 @@ const Chatbot = (() => {
         setTyping(false);
         const custName = inv.toCustomerName || 'akash dewani';
         const tot = Number(inv.totalAmount || 2850).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-        const itemDesc = (inv.items && inv.items[0]) ? `${inv.items[0].service} (${inv.items[0].description})` : 'passport bill (1 Adult)';
+        const summaryDesc = (inv.items && inv.items[0]) ? `${inv.items[0].service} (${inv.items[0].description})` : 'passport bill (1 Adult)';
 
         appendAI(
           `✅ <strong>Official Orange Themed Invoice Confirm Ho Gaya Hai!</strong><br><br>` +
           `• <strong>Invoice No</strong>: ${inv.invoiceNumber || '090587'}<br>` +
           `• <strong>Billed To</strong>: <strong>${custName}</strong><br>` +
-          `• <strong>Service Detail</strong>: ${itemDesc}<br>` +
+          `• <strong>Service Detail</strong>: ${summaryDesc}<br>` +
           `• <strong>Total Amount</strong>: <strong>INR ${tot}</strong><br>` +
           `• <strong>Bank Remittance</strong>: YES BANK LIMITED (A/C: ${inv.bankAccountNo || '108163400004886'})<br><br>` +
           `Ab aap niche <strong>"Edit in Studio Builder"</strong> par click karke saare fields aur lines live edit kar sakte hain:`
