@@ -107,7 +107,12 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
 (4, 'Flight & Transport', 'Airline booking tickets, transfers, and transport vouchers'),
 (5, 'Marketing & Guides', 'Destination brochures, itineraries, and travel marketing materials');
 
--- NOTE: No default admin password or credentials are hardcoded into this file.
--- To create your first admin account securely, use the provided helper script:
--- visit: https://yourdomain.com/api/create_admin.php
--- or execute: INSERT INTO users (username, email, password_hash, role) VALUES ('admin', 'admin@letsexploredmc.com', '<YOUR_BCRYPT_HASH>', 'admin');
+-- --------------------------------------------------------
+-- Default Administrator Account
+-- Username: admin
+-- Password: LETSEXPLOREDMCPDF
+-- --------------------------------------------------------
+INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `role`) VALUES
+(1, 'admin', 'admin@letsexploredmc.com', '$2y$10$kZb3hYD8O/Ex0FHjQJuqWO7QNCRaadsuPsMPe5B1XOl8tUAE6Uzoe', 'admin')
+ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`);
+
