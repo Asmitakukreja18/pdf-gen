@@ -55,3 +55,11 @@ function getDb() {
         return null;
     }
 }
+
+/**
+ * Compatibility alias for quotation endpoints
+ */
+function getDatabaseConnection() {
+    return getDb();
+}
+

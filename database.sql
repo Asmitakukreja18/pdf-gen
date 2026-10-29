@@ -98,6 +98,37 @@ CREATE TABLE IF NOT EXISTS `inquiries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
+-- Table: quotations (Generated DMC Quotations & Itineraries)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `quotations` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `quote_ref` VARCHAR(50) NOT NULL UNIQUE,
+  `client_name` VARCHAR(150) NOT NULL,
+  `client_phone` VARCHAR(50) DEFAULT NULL,
+  `client_email` VARCHAR(150) DEFAULT NULL,
+  `destination` VARCHAR(150) DEFAULT NULL,
+  `travel_date` VARCHAR(100) DEFAULT NULL,
+  `duration` VARCHAR(100) DEFAULT NULL,
+  `pax_count` VARCHAR(50) DEFAULT NULL,
+  `hotel_name` VARCHAR(255) DEFAULT NULL,
+  `hotel_nights` VARCHAR(50) DEFAULT NULL,
+  `flight_airline` VARCHAR(150) DEFAULT NULL,
+  `flight_sector` VARCHAR(150) DEFAULT NULL,
+  `flights_total` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `land_total` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `grand_total` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'Confirmed',
+  `full_data_json` LONGTEXT DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_quote_ref` (`quote_ref`),
+  INDEX `idx_client_name` (`client_name`),
+  INDEX `idx_destination` (`destination`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
 -- Initial Default Categories for Let's Explore DMC
 -- --------------------------------------------------------
 INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
