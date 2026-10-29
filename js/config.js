@@ -5,22 +5,13 @@
  */
 
 const CONFIG = {
-  // Gemini API Configuration (Connected & Verified)
+  // Gemini API Configuration
   get GEMINI_API_KEY() {
-    if (!this._GEMINI_API_KEY) {
-      try {
-        this._GEMINI_API_KEY = (typeof atob === 'function')
-          ? atob('QVEuQWI4Uk42TGlPcjI1ZXQtSVlfZG0xWE9kVlh1OE1YNWN3VWtCRlFqUGg4SFd1ZXh2X1E=')
-          : Buffer.from('QVEuQWI4Uk42TGlPcjI1ZXQtSVlfZG0xWE9kVlh1OE1YNWN3VWtCRlFqUGg4SFd1ZXh2X1E=', 'base64').toString('utf8');
-      } catch (e) {
-        this._GEMINI_API_KEY = '';
-      }
-    }
-    return this._GEMINI_API_KEY || localStorage.getItem('dmc_gemini_api_key') || '';
+    return this._GEMINI_API_KEY || (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_gemini_api_key') || '' : '');
   },
   set GEMINI_API_KEY(val) {
     this._GEMINI_API_KEY = val;
-    if (val && val !== 'YOUR_GEMINI_API_KEY_HERE') {
+    if (val && val !== 'YOUR_GEMINI_API_KEY_HERE' && typeof localStorage !== 'undefined') {
       localStorage.setItem('dmc_gemini_api_key', val.trim());
     }
   },

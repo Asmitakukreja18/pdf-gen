@@ -9,9 +9,9 @@ if (file_exists($rootConfig)) {
     require_once $rootConfig;
 } else {
     defined('DB_HOST') or define('DB_HOST', 'localhost');
-    defined('DB_NAME') or define('DB_NAME', 'letsexplore_pdf');
-    defined('DB_USER') or define('DB_USER', 'letsexplore_admin');
-    defined('DB_PASS') or define('DB_PASS', 'AdminPass_2026!');
+    defined('DB_NAME') or define('DB_NAME', 'ihpyruhe_pdf_generator');
+    defined('DB_USER') or define('DB_USER', 'ihpyruhe_pdf_admin');
+    defined('DB_PASS') or define('DB_PASS', 'YOUR_CPANEL_DATABASE_PASSWORD_HERE');
     defined('DB_CHARSET') or define('DB_CHARSET', 'utf8mb4');
 }
 

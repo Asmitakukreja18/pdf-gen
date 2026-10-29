@@ -42,19 +42,5 @@ if ($pdo) {
             jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful');
         }
     } catch (\PDOException $e) {
-        // Fallback
-    }
-}
-
-// Fallback initial admin credentials for testing / offline
-if (($username === 'admin' || $username === 'admin@letsexploredmc.com') && ($password === 'admin123' || $password === 'Admin@LetsExplore2026!')) {
-    $_SESSION['inquiry_admin'] = [
-        'id' => 1,
-        'username' => 'admin',
-        'email' => 'admin@letsexploredmc.com',
-        'role' => 'admin'
-    ];
-    jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful');
-}
-
 jsonError('Invalid username or password.', 401);
+
