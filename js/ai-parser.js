@@ -14,9 +14,10 @@ const AIParser = (() => {
    * Main entry point to parse raw user text or natural modification instructions
    * @param {string} text Raw text input from user
    * @param {Object|null} currentQuotation Optional current quotation state for modifications
+   * @param {Object|null} imageAttachment Optional image attachment with base64 for Multimodal Vision
    * @returns {Promise<Object>} Extracted structured data
    */
-  async function parseText(text, currentQuotation = null) {
+  async function parseText(text, currentQuotation = null, imageAttachment = null) {
     if (!text || !text.trim()) {
       throw new Error('Please enter quotation details to extract.');
     }
@@ -25,7 +26,7 @@ const AIParser = (() => {
     const activeKey = CONFIG.GEMINI_API_KEY;
     if (activeKey && activeKey !== 'YOUR_GEMINI_API_KEY_HERE') {
       try {
-        const geminiResult = await callGeminiExtract(text, currentQuotation);
+        const geminiResult = await callGeminiExtract(text, currentQuotation, imageAttachment);
         if (geminiResult) {
           geminiResult._hasExplicitDestination = true;
           geminiResult._hasExplicitItinerary = true;
@@ -80,7 +81,7 @@ const AIParser = (() => {
   /**
    * Gemini 2.0 Flash API structured JSON extraction & contextual modification
    */
-  async function callGeminiExtract(rawText, currentQuotation = null) {
+  async function callGeminiExtract(rawText, currentQuotation = null, imageAttachment = null) {
     const apiKey = CONFIG.GEMINI_API_KEY;
     if (!apiKey) throw new Error('Gemini API Key is not configured.');
 
@@ -181,13 +182,22 @@ JSON SCHEMA:
   }
 }`;
 
+    const parts = [
+      { text: systemPrompt },
+      { text: `${contextText}\nUser Instructions / Travel Notes:\n${rawText}` }
+    ];
+
+    if (imageAttachment && imageAttachment.base64) {
+      parts.push({
+        inlineData: {
+          mimeType: imageAttachment.mimeType || 'image/jpeg',
+          data: imageAttachment.base64
+        }
+      });
+    }
+
     const payload = {
-      contents: [{
-        parts: [
-          { text: systemPrompt },
-          { text: `${contextText}\nUser Instructions / Travel Notes:\n${rawText}` }
-        ]
-      }],
+      contents: [{ parts }],
       generationConfig: {
         temperature: 0.15,
         responseMimeType: 'application/json'

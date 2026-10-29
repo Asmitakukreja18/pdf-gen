@@ -112,6 +112,25 @@ const Chatbot = (() => {
           } catch (pdfErr) {
             console.warn('PDF.js parsing note:', pdfErr);
           }
+        } else if (file.type.startsWith('image/')) {
+          try {
+            const base64Data = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                const res = reader.result || '';
+                const base64 = res.split(',')[1] || '';
+                resolve(base64);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+            activeAttachment.base64 = base64Data;
+            activeAttachment.isImage = true;
+            activeAttachment.mimeType = file.type || 'image/jpeg';
+            activeAttachment.extractedText = `[Image Reference: ${file.name}]`;
+          } catch (err) {
+            console.warn('Image reading error:', err);
+          }
         } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().endsWith('.doc')) {
           try {
             activeAttachment.extractedText = await file.text();
@@ -554,8 +573,8 @@ const Chatbot = (() => {
         }
       }
 
-      // 7. General extraction via AIParser (Context aware)
-      const extracted = await AIParser.parseText(text, QuotationData);
+      // 7. General extraction via AIParser (Context aware with multimodal image support)
+      const extracted = await AIParser.parseText(text, QuotationData, activeAttachment);
 
       if (extracted.package) {
         Object.assign(QuotationData.package, extracted.package);
