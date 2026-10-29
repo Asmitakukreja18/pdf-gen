@@ -304,7 +304,7 @@
                     alertBox.style.display = 'flex';
                     alertBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + (data.message || 'Access granted. Redirecting...');
                     setTimeout(() => {
-                        window.location.href = data.redirect || 'index.html';
+                        window.location.href = data.redirect || '../index.html';
                     }, 500);
                 } else {
                     alertBox.className = 'login-alert error';

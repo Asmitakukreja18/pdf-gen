@@ -60,7 +60,7 @@ try {
 
     jsonSuccess([
         'user' => $_SESSION['admin_user'],
-        'redirect' => 'index.html'
+        'redirect' => '../index.html'
     ], 'Login successful.');
 
 } catch (\PDOException $e) {
