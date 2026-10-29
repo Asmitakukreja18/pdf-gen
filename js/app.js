@@ -50,6 +50,18 @@ const App = (() => {
 
     // Open AI Chat by default on launch
     showSection('chat');
+
+    // Check if URL has a quotation to load (?load=LEDMC-...)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const quoteToLoad = urlParams.get('load');
+      if (quoteToLoad && typeof DBManager !== 'undefined') {
+        setTimeout(() => {
+          DBManager.loadQuotation(quoteToLoad);
+          showSection('generator');
+        }, 300);
+      }
+    } catch (e) {}
   }
 
   /**

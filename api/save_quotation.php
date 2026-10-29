@@ -125,6 +125,37 @@ if ($pdo) {
             ':full_data_json'=> $fullDataJson
         ]);
 
+        // Also sync into documents table so it immediately reflects in the Admin Portal!
+        try {
+            $docCategory = 2; // Default to Quotations
+            $docType = !empty($payload['activeDocType']) ? strtolower($payload['activeDocType']) : '';
+            if (strpos($docType, 'invoice') !== false) {
+                $docCategory = 1; // Invoices
+            } elseif (strpos($docType, 'voucher') !== false || strpos($docType, 'confirmation') !== false) {
+                $docCategory = 3; // Hotel Vouchers
+            }
+
+            $docTitle = $clientName . ' — ' . $destination . ' (' . $quoteRef . ')';
+            $docDesc = ($duration ?: 'Custom Tour') . ' | ' . ($paxCount ?: '2 Pax') . ' | Total: ₹ ' . number_format($grandTotal, 2);
+            $docFileName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $clientName . '_' . $quoteRef) . '.pdf';
+            $docFilePath = '../index.html?load=' . urlencode($quoteRef);
+
+            // Check if document entry already exists for this quoteRef
+            $checkDoc = $pdo->prepare("SELECT id FROM `documents` WHERE `title` LIKE ? LIMIT 1");
+            $checkDoc->execute(['%' . $quoteRef . '%']);
+            $existingDoc = $checkDoc->fetch();
+
+            if ($existingDoc) {
+                $upDoc = $pdo->prepare("UPDATE `documents` SET `title` = ?, `description` = ?, `category_id` = ?, `updated_at` = CURRENT_TIMESTAMP WHERE `id` = ?");
+                $upDoc->execute([$docTitle, $docDesc, $docCategory, $existingDoc['id']]);
+            } else {
+                $insDoc = $pdo->prepare("INSERT INTO `documents` (`title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `uploaded_by`) VALUES (?, ?, ?, ?, ?, 102400, 'application/pdf', 1)");
+                $insDoc->execute([$docTitle, $docDesc, $docCategory, $docFileName, $docFilePath]);
+            }
+        } catch (\PDOException $docErr) {
+            error_log("Failed to sync document table: " . $docErr->getMessage());
+        }
+
         echo json_encode([
             'success'   => true,
             'source'    => 'MySQL (cPanel Database)',

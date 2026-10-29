@@ -286,7 +286,7 @@ function renderDocumentsGrid(docs) {
     docs.forEach(doc => {
         const card = document.createElement('div');
         card.className = 'doc-card';
-        const fileUrl = '../' + doc.file_path;
+        const fileUrl = doc.file_path.startsWith('../') || doc.file_path.startsWith('http') ? doc.file_path : ('../' + doc.file_path);
         const uploadDate = new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
         card.innerHTML = `

@@ -62,6 +62,30 @@ if ($method === 'GET') {
         $params[] = $searchTerm;
     }
 
+    // Auto-sync any quotations from quotations table into documents table
+    try {
+        $unsyncedStmt = $pdo->query("
+            SELECT q.* FROM `quotations` q
+            WHERE NOT EXISTS (
+                SELECT 1 FROM `documents` d WHERE d.title LIKE CONCAT('%', q.quote_ref, '%')
+            )
+        ");
+        if ($unsyncedStmt) {
+            $unsynced = $unsyncedStmt->fetchAll();
+            foreach ($unsynced as $uq) {
+                $cId = (stripos($uq['quote_ref'], 'INV') !== false) ? 1 : 2;
+                $t = ($uq['client_name'] ?: 'Guest') . ' — ' . ($uq['destination'] ?: 'Holiday') . ' (' . $uq['quote_ref'] . ')';
+                $d = ($uq['duration'] ?: 'Custom Tour') . ' | ' . ($uq['pax_count'] ?: '2 Pax') . ' | Total: ₹ ' . number_format($uq['grand_total'], 2);
+                $fn = preg_replace('/[^A-Za-z0-9_\-]/', '_', ($uq['client_name'] ?: 'Quotation') . '_' . $uq['quote_ref']) . '.pdf';
+                $fp = '../index.html?load=' . urlencode($uq['quote_ref']);
+                $ins = $pdo->prepare("INSERT INTO `documents` (`title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `uploaded_by`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?, 102400, 'application/pdf', 1, ?, ?)");
+                $ins->execute([$t, $d, $cId, $fn, $fp, $uq['created_at'], $uq['updated_at']]);
+            }
+        }
+    } catch (\PDOException $syncErr) {
+        // Safe to ignore if quotations table does not exist yet
+    }
+
     $query .= " ORDER BY d.id DESC";
 
     try {
