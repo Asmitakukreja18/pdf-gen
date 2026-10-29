@@ -322,6 +322,9 @@ function renderDocumentsGrid(docs) {
                         <i class="fa-solid fa-eye"></i> View PDF
                     </button>
                     <div class="action-btn-group">
+                        <a href="../index.html?load=${encodeURIComponent((doc.title.match(/(LEDMC-[A-Za-z0-9\-_]+)/) || ['',''])[1])}" class="btn-icon-action edit" title="Edit this in Studio Builder">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
                         <a href="${fileUrl.replace('index.html?load=', 'view.html?ref=') + (fileUrl.includes('?') ? '&' : '?') + 'print=1'}" target="_blank" class="btn-icon-action download" title="Save as PDF / Print">
                             <i class="fa-solid fa-download"></i>
                         </a>
