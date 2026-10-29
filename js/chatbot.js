@@ -45,19 +45,24 @@ const Chatbot = (() => {
 
     appendAI(
       `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC Document Assistant</strong> ${aiBadge}<br><br>` +
-      `Aap yahan kisi bhi document (Invoice, Quotation, Hotel Voucher) ki details likhein, AI use generate kar dega:<br>` +
-      `• <em>"Invoice banao akash dewani ke liye passport bill 2850"</em><br>` +
-      `• <em>"Quotation format banao Thailand 12 days"</em><br>` +
-      `• <em>"Hotel booking voucher banao"</em><br>` +
-      `• <em>"PDF generate karo"</em> ya <em>"DOCX download karo"</em><br><br>` +
-      `Chat mein confirm hone par aap direct <strong>Studio Builder</strong> mein saare pages edit kar sakte hain!`
+      `Hamare platform mein total <strong>7 Professional Document Formats</strong> available hain:<br>` +
+      `• 📄 <strong>1. Master Quotation (DMC Ref)</strong>: Complete 12-section commercial quotation with flights, hotels, INR & USD pricing.<br>` +
+      `• 🗺️ <strong>2. Travel Itinerary</strong>: Guest-facing day-by-day travel timeline & experiences.<br>` +
+      `• 🏨 <strong>3. Hotel Costing</strong>: Hotel comparison, room types & multi-tier tariffs.<br>` +
+      `• 📋 <strong>4. Package Summary</strong>: Executive overview & pricing breakdown.<br>` +
+      `• 🏨 <strong>5. Hotel Booking Voucher</strong>: Luxury confirmation voucher with guest list, occupancy & policies.<br>` +
+      `• 🧾 <strong>6. Tax Invoice</strong>: Corporate GST billing with bank payment remittance.<br>` +
+      `• 🛠️ <strong>7. Custom Builder</strong>: Custom modular drag & drop sections.<br><br>` +
+      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`
     );
 
     const defaultReplies = [
-      { label: '🧾 Generate Orange DMC Invoice', val: '__SWITCH_INVOICE__', primary: true },
-      { label: '💰 Master Quotation Format', val: '__SWITCH_QUOTATION__' },
-      { label: '🏨 Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
-      { label: '🌴 Thailand Reference Package (12D)', val: '__APPLY_V5_HOTELS__' }
+      { label: '📄 1. Master Quotation (DMC Ref)', val: '__SWITCH_QUOTATION__', primary: true },
+      { label: '🗺️ 2. Travel Itinerary', val: '__SWITCH_ITINERARY__' },
+      { label: '🏨 3. Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
+      { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
+      { label: '🧾 6. Tax Invoice / Bill', val: '__SWITCH_INVOICE__' },
+      { label: '🌴 Thailand 12D Package', val: '__APPLY_V5_HOTELS__' }
     ];
 
     showReplies(defaultReplies);
@@ -334,8 +339,53 @@ const Chatbot = (() => {
         return;
       }
 
+      // 5.5 Check if user is asking why it only makes invoices or inquiring about other formats
+      const isFormatQuery = /(?:sirf|only).*invoice.*(?:kyu|kyun|why)|(?:kyu|kyun|why).*sirf.*invoice|invoice.*hi\s*kyu|baki.*format|all.*format|kitne.*format|aur.*format|other.*format/i.test(text) ||
+                            /(?:formats?|document.*types?|templates?)\s*(?:hai|bhi|kaise|options)/i.test(text);
+
+      if (isFormatQuery) {
+        // Automatically switch back to official Master Quotation
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('quotation');
+        } else {
+          QuotationData.activeDocType = 'quotation';
+        }
+
+        setTyping(false);
+        appendAI(
+          `Aap bilkul sahi keh rahe hain! 🌟 <strong>Let's Explore DMC</strong> suite mein sirf invoice hi nahi, balki poore <strong>7 professional document formats</strong> available hain:<br><br>` +
+          `1. 📄 <strong>Master Quotation (Official Reference)</strong>: Day-wise detailed activities, transfers, hotels, Pax breakdown, INR & USD pricing total.<br>` +
+          `2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day travel timeline, highlights, sightseeing & inclusions.<br>` +
+          `3. 🏨 <strong>Hotel Costing & Comparison</strong>: 5 hotels ka 3-tier room category comparison, meal plans, dates & tariffs.<br>` +
+          `4. 📋 <strong>Package Summary</strong>: Executive 1-page summary, cost highlights & pricing breakdown.<br>` +
+          `5. 🏨 <strong>Hotel Booking Voucher</strong>: Luxury confirmation voucher, guest occupancy, QR code, property policies & location map.<br>` +
+          `6. 🧾 <strong>Corporate Tax Invoice</strong>: Bill to, GST, HSN, bank payment transfer details & authorized signatory.<br>` +
+          `7. 🛠️ <strong>Custom Modular Builder</strong>: Custom sections with drag-and-drop flexibility.<br><br>` +
+          `⚡ <em>Pehle aapne invoice generate kiya tha isliye system Invoice mode par set tha. Ab maine ise wapas <strong>Master Quotation</strong> par switch kar diya hai!</em><br><br>` +
+          `Aap top bar se ya neeche diye buttons par click karke kisi bhi format me switch kar sakte hain:`
+        );
+        showReplies([
+          { label: '📄 1. Master Quotation', val: '__SWITCH_QUOTATION__', primary: true },
+          { label: '🗺️ 2. Travel Itinerary', val: '__SWITCH_ITINERARY__' },
+          { label: '🏨 3. Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
+          { label: '📋 4. Package Summary', val: '__SWITCH_SUMMARY__' },
+          { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
+          { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
       // 6. Check Document Format Switch Requests
-      const isInvoiceReq = /invo?i?c?e|inoice|invoce|invoic|invioce|bill|billing|receipt|challan/i.test(text) || text === '__SWITCH_INVOICE__';
+      const isInvoiceReq = (
+        text === '__SWITCH_INVOICE__' ||
+        (
+          /(?:banao|make|create|generate|switch|dikhao|convert|chahiye|tayyar|print).*(?:invoice|inoice|invoce|invoic|tax\s*invoice|bill|receipt|challan)/i.test(text) ||
+          /(?:invoice|inoice|invoce|invoic|tax\s*invoice|receipt|challan).*(?:banao|bana|generate|create|karo|me|format|sheet)/i.test(text) ||
+          (activeAttachment && /invoice|bill|receipt/i.test(activeAttachment.name))
+        ) && !/(?:kyu|kyun|why|sirf|only|baki|other|nahi|mat)/i.test(text)
+      );
+
       if (isInvoiceReq) {
         if (!QuotationData.invoice) QuotationData.invoice = {};
         const inv = QuotationData.invoice;
@@ -453,66 +503,117 @@ const Chatbot = (() => {
         return;
       }
 
+      // Format Switcher: Master Quotation
       if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:quotation|quote)|(?:quotation|quote).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_QUOTATION__') {
         if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
           App.switchDocType('quotation');
+        } else {
+          QuotationData.activeDocType = 'quotation';
         }
         setTyping(false);
-        appendAI('✅ <strong>Switched to Commercial Quotation Format!</strong><br>Day-by-day Pax, INR, USD columns, pricing summary, and commercial total are active in the live preview.');
+        appendAI('✅ <strong>Switched to Master Commercial Quotation Format!</strong><br>Day-by-day Pax, INR, USD columns, pricing summary, and commercial total are active in the live preview.');
         showReplies([
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
-          { label: '👁️ View Preview', val: '__PREVIEW__' },
+          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
           { label: '🖨️ Print / Save PDF Quotation', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' }
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
         ]);
         scrollBottom();
         return;
       }
 
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_HOTEL_COSTING__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('hotel_costing');
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options for all 5 hotels are active.');
-        showReplies([
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
-          { label: '👁️ View Preview', val: '__PREVIEW__' },
-          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('confirmation');
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');
-        showReplies([
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
-          { label: '👁️ View Preview', val: '__PREVIEW__' },
-          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:itinerary|daywise|day-wise)|(?:itinerary).*(?:format|layout|banao|me)/i.test(text)) {
+      // Format Switcher: Travel Itinerary
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:itinerary|daywise|day-wise)|(?:itinerary).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_ITINERARY__') {
         if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
           App.switchDocType('itinerary');
+        } else {
+          QuotationData.activeDocType = 'itinerary';
         }
         setTyping(false);
         appendAI('✅ <strong>Switched to Travel Experience Itinerary Format!</strong><br>Day-by-day travel timeline, sightseeing, activities, and hotel stays are active.');
         showReplies([
+          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // Format Switcher: Hotel Costing Sheet
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_HOTEL_COSTING__') {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('hotel_costing');
+        } else {
+          QuotationData.activeDocType = 'hotel_costing';
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options for all 5 hotels are active.');
+        showReplies([
+          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // Format Switcher: Hotel Booking Voucher / Confirmation
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('confirmation');
+        } else {
+          QuotationData.activeDocType = 'confirmation';
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');
+        showReplies([
+          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // Format Switcher: Package Summary
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:summary|package.*summary|brief)|(?:summary).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_SUMMARY__') {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('summary');
+        } else {
+          QuotationData.activeDocType = 'summary';
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Package Summary Format!</strong><br>Compact executive trip overview and cost breakdown are active.');
+        showReplies([
+          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ Print / Save PDF Summary', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // Format Switcher: Custom Modular Builder
+      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:custom|modular)|(?:custom).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CUSTOM__') {
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('custom');
+        } else {
+          QuotationData.activeDocType = 'custom';
+        }
+        setTyping(false);
+        appendAI('✅ <strong>Switched to Custom Modular Builder Format!</strong><br>Customizable modular sections are active.');
+        showReplies([
           { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
           { label: '👁️ View Preview', val: '__PREVIEW__' },
-          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' }
+          { label: '🖨️ Print / Save PDF', val: '__PDF__' }
         ]);
+        scrollBottom();
+        return;
       }
 
       // 6. Section Removal / Addition in Natural Language ("adult details hata do", "amenities hata do", etc.)
@@ -605,6 +706,15 @@ const Chatbot = (() => {
       }
 
       recalculateQuotationPricing();
+
+      // If activeDocType was invoice, automatically switch back to quotation for travel packages
+      if (QuotationData.activeDocType === 'invoice') {
+        QuotationData.activeDocType = 'quotation';
+        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+          App.switchDocType('quotation');
+        }
+      }
+
       if (typeof App !== 'undefined') {
         if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
         if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();

@@ -78,6 +78,41 @@
       background: #E2E8F0;
     }
 
+    /* Format Switcher Pills in Viewer Bar */
+    .viewer-formats {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px 8px;
+    }
+    .btn-fmt-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #DCE4EF;
+      background: #F8FAFC;
+      color: #334155;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-fmt-pill:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+      border-color: #CBD5E1;
+    }
+    .btn-fmt-pill.active {
+      background: #17365D;
+      color: #FFFFFF;
+      border-color: #17365D;
+      box-shadow: 0 2px 6px rgba(23, 54, 93, 0.2);
+    }
+
     /* Print Preview Canvas */
     .document-viewport {
       max-width: 900px;
@@ -125,6 +160,29 @@
       <strong>Let's Explore DMC</strong>
       <span class="viewer-badge" id="refBadge">Loading...</span>
     </div>
+
+    <!-- Quick Format Switcher in Viewer -->
+    <div class="viewer-formats" id="viewerFormats">
+      <button class="btn-fmt-pill active" data-doctype="quotation" onclick="switchViewerFormat('quotation')" title="Master 12-Section Commercial Quotation">
+        📄 Quotation
+      </button>
+      <button class="btn-fmt-pill" data-doctype="itinerary" onclick="switchViewerFormat('itinerary')" title="Day-by-day Travel Itinerary">
+        🗺️ Itinerary
+      </button>
+      <button class="btn-fmt-pill" data-doctype="hotel_costing" onclick="switchViewerFormat('hotel_costing')" title="3-Tier Hotel Costing Sheet">
+        🏨 Hotel Costing
+      </button>
+      <button class="btn-fmt-pill" data-doctype="summary" onclick="switchViewerFormat('summary')" title="Package Summary">
+        📋 Summary
+      </button>
+      <button class="btn-fmt-pill" data-doctype="confirmation" onclick="switchViewerFormat('confirmation')" title="Official Luxury Hotel Booking Voucher">
+        🏨 Hotel Voucher
+      </button>
+      <button class="btn-fmt-pill" data-doctype="invoice" onclick="switchViewerFormat('invoice')" title="Corporate Tax Invoice">
+        🧾 Tax Invoice
+      </button>
+    </div>
+
     <div class="viewer-actions">
       <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as PDF via Browser">
         🖨️ Save as PDF / Print
@@ -211,7 +269,14 @@
       // Render the official printable document
       try {
         const fullData = quotation.full_data || quotation;
+        window.currentQuotationData = fullData;
         window.QuotationData = fullData;
+
+        // Sync active format button
+        const activeDocType = fullData.activeDocType || 'quotation';
+        document.querySelectorAll('.btn-fmt-pill').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.doctype === activeDocType);
+        });
 
         // Render clean printable HTML
         const html = Preview.buildQuotationHTML(fullData, true);
@@ -230,6 +295,25 @@
         `;
       }
     });
+
+    /**
+     * Switch format directly from viewer bar
+     */
+    function switchViewerFormat(docType) {
+      if (!window.currentQuotationData) return;
+      window.currentQuotationData.activeDocType = docType;
+      window.QuotationData = window.currentQuotationData;
+
+      document.querySelectorAll('.btn-fmt-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.doctype === docType);
+      });
+
+      const html = Preview.buildQuotationHTML(window.currentQuotationData, true);
+      const contentDiv = document.getElementById('documentContent');
+      if (contentDiv) {
+        contentDiv.innerHTML = html;
+      }
+    }
   </script>
 </body>
 </html>
