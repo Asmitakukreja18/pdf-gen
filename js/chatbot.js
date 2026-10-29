@@ -131,7 +131,22 @@ const Chatbot = (() => {
           } catch (err) {
             console.warn('Image reading error:', err);
           }
-        } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().endsWith('.doc')) {
+        } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('wordprocessingml') || file.type.includes('msword')) {
+          // Native Microsoft Word DOCX Extraction
+          try {
+            const arrayBuffer = await file.arrayBuffer();
+            if (typeof mammoth !== 'undefined') {
+              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+              activeAttachment.extractedText = result.value ? result.value.trim() : '';
+            } else {
+              // Fallback text extraction
+              const text = await file.text();
+              activeAttachment.extractedText = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ').trim();
+            }
+          } catch (docxErr) {
+            console.warn('DOCX parsing note:', docxErr);
+          }
+        } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt')) {
           try {
             activeAttachment.extractedText = await file.text();
           } catch (err) {
