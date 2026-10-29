@@ -6,7 +6,7 @@
     <title>Let's Explore DMC — Private Admin Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
     <style>
@@ -15,23 +15,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at 10% 20%, #0d1b2a 0%, #0a1128 50%, #050811 100%);
-            padding: 20px;
-            overflow: hidden;
+            background: #F4F7FB;
+            padding: 24px;
             position: relative;
-        }
-
-        .login-glow {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(255, 122, 0, 0.05) 50%, transparent 70%);
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -30%);
-            filter: blur(60px);
-            pointer-events: none;
-            z-index: 1;
         }
 
         .login-card {
@@ -39,69 +25,64 @@
             z-index: 2;
             width: 100%;
             max-width: 440px;
-            background: rgba(13, 27, 42, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 24px;
+            background: #FFFFFF;
+            border: 1px solid #DCE4EF;
+            border-radius: 20px;
             padding: 44px 36px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.08);
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(23, 54, 93, 0.08), 0 2px 6px rgba(23, 54, 93, 0.04);
+            animation: fadeIn 0.4s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .brand-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
         }
 
         .brand-logo-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 122, 0, 0.2));
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: #d4af37;
-            font-size: 28px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: #DCEBFA;
+            border: 1px solid rgba(57, 119, 184, 0.25);
+            color: #3977B8;
+            font-size: 26px;
+            margin-bottom: 14px;
         }
 
         .brand-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 26px;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 22px;
+            font-weight: 800;
+            color: #17365D;
             letter-spacing: -0.02em;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .brand-subtitle {
-            font-size: 13px;
-            font-weight: 500;
-            color: #8fa3bf;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
             text-transform: uppercase;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.08em;
         }
 
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         .form-label {
             display: block;
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #d1dced;
+            font-size: 13px;
+            font-weight: 700;
+            color: #17365D;
             margin-bottom: 8px;
-            letter-spacing: 0.03em;
         }
 
         .input-wrapper {
@@ -113,34 +94,34 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c7f99;
+            color: #94A3B8;
             font-size: 15px;
             transition: color 0.2s;
         }
 
         .form-control {
             width: 100%;
-            height: 48px;
+            height: 46px;
             padding: 0 16px 0 46px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            color: #ffffff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #F8FAFC;
+            border: 1px solid #DCE4EF;
+            border-radius: 10px;
+            color: #334155;
+            font-family: inherit;
             font-size: 14px;
             transition: all 0.2s ease;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #d4af37;
-            background: rgba(255, 255, 255, 0.07);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+            border-color: #3977B8;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(57, 119, 184, 0.12);
         }
 
         .form-control:focus + .input-icon,
         .input-wrapper:focus-within .input-icon {
-            color: #d4af37;
+            color: #3977B8;
         }
 
         .password-toggle {
@@ -150,41 +131,40 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #6c7f99;
+            color: #94A3B8;
             cursor: pointer;
             padding: 4px;
             font-size: 14px;
         }
 
         .password-toggle:hover {
-            color: #ffffff;
+            color: #17365D;
         }
 
         .btn-login {
             width: 100%;
-            height: 48px;
+            height: 46px;
             margin-top: 10px;
-            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            background: linear-gradient(135deg, #3977B8 0%, #2D6298 100%);
             border: none;
-            border-radius: 12px;
-            color: #0a1128;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 15px;
+            border-radius: 10px;
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 14.5px;
             font-weight: 700;
-            letter-spacing: 0.02em;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+            box-shadow: 0 6px 20px rgba(57, 119, 184, 0.25);
         }
 
         .btn-login:hover {
-            background: linear-gradient(135deg, #e5c158 0%, #c9971c 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(212, 175, 55, 0.35);
+            background: linear-gradient(135deg, #4383c7 0%, #346ea8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(57, 119, 184, 0.32);
         }
 
         .btn-login:active {
@@ -192,25 +172,26 @@
         }
 
         .login-alert {
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 12px 14px;
+            border-radius: 8px;
             font-size: 13px;
+            font-weight: 600;
             margin-bottom: 20px;
             display: none;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .login-alert.error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+            background: #FEE2E2;
+            border: 1px solid #FECACA;
+            color: #DC2626;
         }
 
         .login-alert.success {
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #86efac;
+            background: #E6F8F0;
+            border: 1px solid #A7F3D0;
+            color: #059669;
         }
 
         .private-badge {
@@ -220,17 +201,16 @@
             gap: 6px;
             margin-top: 24px;
             font-size: 12px;
-            color: #64748b;
+            color: #64748B;
+            font-weight: 500;
         }
 
         .private-badge i {
-            color: #d4af37;
+            color: #3977B8;
         }
     </style>
 </head>
 <body class="login-page">
-    <div class="login-glow"></div>
-
     <div class="login-card">
         <div class="brand-header">
             <div class="brand-logo-badge">
@@ -325,7 +305,7 @@
                     alertBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + (data.message || 'Access granted. Redirecting...');
                     setTimeout(() => {
                         window.location.href = data.redirect || 'index.html';
-                    }, 600);
+                    }, 500);
                 } else {
                     alertBox.className = 'login-alert error';
                     alertBox.style.display = 'flex';
@@ -336,7 +316,7 @@
             } catch (err) {
                 alertBox.className = 'login-alert error';
                 alertBox.style.display = 'flex';
-                alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unable to reach backend server. Please verify cPanel connection.';
+                alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unable to reach backend server.';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
             }

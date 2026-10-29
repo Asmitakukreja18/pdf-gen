@@ -244,7 +244,7 @@ function populateCategorySelect() {
  */
 async function loadDocuments(searchTerm = '') {
     const grid = document.getElementById('documentsGrid');
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px;"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:28px; color:var(--gold);"></i></div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px;"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:28px; color:var(--primary-blue);"></i></div>';
 
     let url = '../api/documents.php?';
     if (activeCategoryId) url += `category_id=${encodeURIComponent(activeCategoryId)}&`;
@@ -458,7 +458,7 @@ function openPdfViewer(url, title) {
 async function openCommentsModal(docId, title) {
     document.getElementById('commentDocId').value = docId;
     document.getElementById('commentsModalDocTitle').textContent = `Remarks & Notes: ${title}`;
-    document.getElementById('commentsThread').innerHTML = '<div style="text-align:center; padding:20px;"><i class="fa-solid fa-circle-notch fa-spin" style="color:var(--gold);"></i></div>';
+    document.getElementById('commentsThread').innerHTML = '<div style="text-align:center; padding:20px;"><i class="fa-solid fa-circle-notch fa-spin" style="color:var(--primary-blue);"></i></div>';
     document.getElementById('commentsModal').classList.add('active');
 
     try {
@@ -554,10 +554,10 @@ function renderCategoryManagerList() {
     list.innerHTML = '';
     categoriesList.forEach(cat => {
         const item = document.createElement('div');
-        item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.04); border-radius:8px;';
+        item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#F8FAFC; border:1px solid #DCE4EF; border-radius:8px;';
         item.innerHTML = `
             <div>
-                <strong style="color:#ffffff; font-size:13.5px;">${escapeHtml(cat.name)}</strong>
+                <strong style="color:var(--primary-navy); font-size:13.5px;">${escapeHtml(cat.name)}</strong>
                 <span style="color:var(--text-muted); font-size:12px; margin-left:6px;">(${cat.document_count || 0} PDFs)</span>
             </div>
             <button class="btn-icon-action delete" style="width:28px; height:28px; font-size:11px;" title="Delete Category" data-cat-id="${cat.id}">

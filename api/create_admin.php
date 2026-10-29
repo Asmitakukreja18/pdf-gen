@@ -60,48 +60,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #080e1e;
-            color: #ffffff;
+            background: #F4F7FB;
+            color: #334155;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 24px;
         }
         .card {
-            background: rgba(14, 25, 52, 0.85);
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: #FFFFFF;
+            border: 1px solid #DCE4EF;
             border-radius: 20px;
             padding: 36px;
             max-width: 440px;
             width: 100%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(23, 54, 93, 0.08);
         }
-        h2 { margin-top: 0; color: #d4af37; font-size: 22px; }
-        p { font-size: 13.5px; color: #94a3b8; line-height: 1.5; }
-        .alert { padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; }
-        .alert.error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
-        .alert.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #86efac; }
+        h2 { margin-top: 0; color: #17365D; font-size: 22px; font-weight: 800; }
+        p { font-size: 13.5px; color: #64748B; line-height: 1.5; }
+        .alert { padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+        .alert.error { background: #FEE2E2; border: 1px solid #FECACA; color: #DC2626; }
+        .alert.success { background: #E6F8F0; border: 1px solid #A7F3D0; color: #059669; }
         .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 12.5px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        label { display: block; font-size: 12.5px; font-weight: 700; color: #17365D; margin-bottom: 6px; }
         input {
             width: 100%; height: 44px; padding: 0 14px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #ffffff; font-size: 14px; box-sizing: border-box;
+            background: #F8FAFC;
+            border: 1px solid #DCE4EF;
+            border-radius: 10px; color: #334155; font-size: 14px; box-sizing: border-box;
         }
-        input:focus { outline: none; border-color: #d4af37; }
+        input:focus { outline: none; border-color: #3977B8; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(57, 119, 184, 0.12); }
         button {
-            width: 100%; height: 46px; background: linear-gradient(135deg, #d4af37, #aa820a);
-            border: none; border-radius: 10px; color: #080e1e; font-weight: 700; font-size: 14px;
-            cursor: pointer; margin-top: 10px;
+            width: 100%; height: 46px; background: linear-gradient(135deg, #3977B8, #2D6298);
+            border: none; border-radius: 10px; color: #FFFFFF; font-weight: 700; font-size: 14px;
+            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(57, 119, 184, 0.25);
         }
-        button:hover { background: #e5c158; }
+        button:hover { background: linear-gradient(135deg, #4383c7, #346ea8); }
         .btn-portal {
             display: block; text-align: center; text-decoration: none; padding: 12px;
-            background: rgba(212, 175, 55, 0.2); border: 1px solid #d4af37; border-radius: 10px;
-            color: #d4af37; font-weight: 600; font-size: 14px; margin-top: 16px;
+            background: #DCEBFA; border: 1px solid rgba(57, 119, 184, 0.3); border-radius: 10px;
+            color: #3977B8; font-weight: 700; font-size: 14px; margin-top: 16px;
         }
     </style>
 </head>
