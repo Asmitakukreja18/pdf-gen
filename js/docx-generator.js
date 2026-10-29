@@ -27,6 +27,11 @@ const DOCXGenerator = (() => {
         recalculateQuotationPricing();
       }
 
+      // Auto-save quotation into MySQL database whenever DOCX is generated
+      if (typeof DBManager !== 'undefined') {
+        try { DBManager.saveQuotation(); } catch (err) { console.warn('Auto DB save notice:', err); }
+      }
+
       const docType = QuotationData.activeDocType || 'itinerary';
       const pkg = QuotationData.package || {};
       const destSanitized = (pkg.destinations || 'Holiday').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 25);

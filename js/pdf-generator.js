@@ -19,6 +19,15 @@ const PDFGenerator = (() => {
     // Mathematically verify totals
     recalculateQuotationPricing();
 
+    // Auto-save quotation into MySQL database whenever PDF is generated
+    if (typeof DBManager !== 'undefined') {
+      try {
+        DBManager.saveQuotation();
+      } catch (err) {
+        console.warn('Auto DB save notice:', err);
+      }
+    }
+
     // Validate data
     const validation = validateQuotationData();
     if (!validation.isValid) {
