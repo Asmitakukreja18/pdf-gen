@@ -340,37 +340,41 @@ const Chatbot = (() => {
       }
 
       // 5.5 Check if user is asking why it only makes invoices or inquiring about other formats
-      const isFormatQuery = /(?:sirf|only).*invoice.*(?:kyu|kyun|why)|(?:kyu|kyun|why).*sirf.*invoice|invoice.*hi\s*kyu|baki.*format|all.*format|kitne.*format|aur.*format|other.*format/i.test(text) ||
-                            /(?:formats?|document.*types?|templates?)\s*(?:hai|bhi|kaise|options)/i.test(text);
+      const isFormatQuery = /(?:sirf|only).*invoice/i.test(text) ||
+                            /(?:invoice|bill).*(?:hi|kyu|kyun|why|sirf|only|ban\s*raha|banta|aaraha)/i.test(text) ||
+                            /(?:baki|aur|other|all|saare|sabhi).*(?:format|template|document)/i.test(text) ||
+                            /(?:formats?|document.*types?|templates?)\s*(?:hai|bhi|kaise|options|dikhao|kya)/i.test(text);
 
       if (isFormatQuery) {
         // Automatically switch back to official Master Quotation
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('quotation');
-        } else {
-          QuotationData.activeDocType = 'quotation';
+        QuotationData.activeDocType = 'quotation';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('quotation');
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
         }
 
         setTyping(false);
         appendAI(
-          `Aap bilkul sahi keh rahe hain! 🌟 <strong>Let's Explore DMC</strong> suite mein sirf invoice hi nahi, balki poore <strong>7 professional document formats</strong> available hain:<br><br>` +
-          `1. 📄 <strong>Master Quotation (Official Reference)</strong>: Day-wise detailed activities, transfers, hotels, Pax breakdown, INR & USD pricing total.<br>` +
-          `2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day travel timeline, highlights, sightseeing & inclusions.<br>` +
-          `3. 🏨 <strong>Hotel Costing & Comparison</strong>: 5 hotels ka 3-tier room category comparison, meal plans, dates & tariffs.<br>` +
-          `4. 📋 <strong>Package Summary</strong>: Executive 1-page summary, cost highlights & pricing breakdown.<br>` +
-          `5. 🏨 <strong>Hotel Booking Voucher</strong>: Luxury confirmation voucher, guest occupancy, QR code, property policies & location map.<br>` +
-          `6. 🧾 <strong>Corporate Tax Invoice</strong>: Bill to, GST, HSN, bank payment transfer details & authorized signatory.<br>` +
-          `7. 🛠️ <strong>Custom Modular Builder</strong>: Custom sections with drag-and-drop flexibility.<br><br>` +
-          `⚡ <em>Pehle aapne invoice generate kiya tha isliye system Invoice mode par set tha. Ab maine ise wapas <strong>Master Quotation</strong> par switch kar diya hai!</em><br><br>` +
-          `Aap top bar se ya neeche diye buttons par click karke kisi bhi format me switch kar sakte hain:`
+          `✅ <strong>Document Format ko Master Commercial Quotation par switch kar diya gaya hai!</strong><br><br>` +
+          `Pehle Invoice mode active tha isliye PDF invoice generate ho raha tha. Ab default <strong>1. Master Quotation (Official Reference)</strong> active ho gaya hai jisme Pax columns, INR, USD aur hotel itinerary ki complete details hain.<br><br>` +
+          `Hamare platform mein total <strong>7 Professional Document Formats</strong> available hain:<br>` +
+          `1. 📄 <strong>Master Quotation (Official Reference)</strong>: Day-wise activities, hotels, transfers, dual-currency pricing.<br>` +
+          `2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day travel timeline.<br>` +
+          `3. 🏨 <strong>Hotel Costing & Comparison</strong>: 5 hotels ka 3-tier room category comparison.<br>` +
+          `4. 📋 <strong>Package Summary</strong>: Executive 1-page summary & cost highlights.<br>` +
+          `5. 🏨 <strong>Hotel Booking Voucher</strong>: Luxury confirmation voucher with room occupancy table.<br>` +
+          `6. 🧾 <strong>Corporate Tax Invoice</strong>: Bill to, GST, bank payment transfer details.<br>` +
+          `7. 🛠️ <strong>Custom Modular Builder</strong>: Custom sections builder.<br><br>` +
+          `Aap upar top bar se ya neeche diye buttons par click karke kisi bhi format me switch kar sakte hain:`
         );
         showReplies([
-          { label: '📄 1. Master Quotation', val: '__SWITCH_QUOTATION__', primary: true },
+          { label: '📄 1. Master Quotation (Active)', val: '__SWITCH_QUOTATION__', primary: true },
           { label: '🗺️ 2. Travel Itinerary', val: '__SWITCH_ITINERARY__' },
           { label: '🏨 3. Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
-          { label: '📋 4. Package Summary', val: '__SWITCH_SUMMARY__' },
           { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
-          { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' }
+          { label: '📋 4. Package Summary', val: '__SWITCH_SUMMARY__' },
+          { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' },
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__' }
         ]);
         scrollBottom();
         return;
