@@ -1,0 +1,7 @@
+# Protect sensitive configuration files from direct web browser access
+<FilesMatch "^(config\.php|config\.sample\.php|\.env.*)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+Options -Indexes

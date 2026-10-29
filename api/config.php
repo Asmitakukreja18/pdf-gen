@@ -1,39 +1,36 @@
 <?php
 /**
- * api/config.php — Configuration for Let's Explore DMC Private PDF System
+ * api/config.php — Database & Server Configuration for cPanel
  * 
- * cPanel Setup:
- * 1. cPanel -> MySQL Databases -> Create database: letsexplore_pdf
- * 2. Create MySQL user: letsexplore_admin (with strong password)
- * 3. Add user to database with ALL PRIVILEGES
- * 4. Update DB_USER, DB_PASS, DB_NAME below
+ * Configured for cPanel database: ihpyruhe_pdf_generator
+ * Database user: ihpyruhe_pdf_admin
  */
 
-// Database Host
+// Database Host (usually 'localhost' in cPanel)
 defined('DB_HOST') or define('DB_HOST', 'localhost');
 
-// Database Name
-defined('DB_NAME') or define('DB_NAME', 'letsexplore_pdf');
+// Database Name created in cPanel
+defined('DB_NAME') or define('DB_NAME', 'ihpyruhe_pdf_generator');
 
-// Database Username
-defined('DB_USER') or define('DB_USER', 'letsexplore_admin');
+// Database Username created in cPanel
+defined('DB_USER') or define('DB_USER', 'ihpyruhe_pdf_admin');
 
-// Database Password
-defined('DB_PASS') or define('DB_PASS', 'AdminPass_2026!');
+// Database Password (configure your actual password here in cPanel File Manager)
+defined('DB_PASS') or define('DB_PASS', 'YOUR_CPANEL_DATABASE_PASSWORD_HERE');
 
 // Character Set
 defined('DB_CHARSET') or define('DB_CHARSET', 'utf8mb4');
 
-// Upload Directory (Physical file storage on cPanel server)
+// Physical server upload directory for PDF documents
 defined('UPLOAD_DIR') or define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 
-// Upload URL path (Relative to web root for download/view)
+// Web-accessible URL path for previewing/downloading PDFs
 defined('UPLOAD_URL') or define('UPLOAD_URL', '../uploads/');
 
-// Maximum upload file size in bytes (25MB)
+// Maximum upload file size (25 MB)
 defined('MAX_FILE_SIZE') or define('MAX_FILE_SIZE', 25 * 1024 * 1024);
 
-// Allowed MIME types
+// Allowed MIME types for uploaded files
 defined('ALLOWED_MIMES') or define('ALLOWED_MIMES', serialize([
     'application/pdf',
     'application/x-pdf',
