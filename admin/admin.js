@@ -322,7 +322,7 @@ function renderDocumentsGrid(docs) {
                         <i class="fa-solid fa-eye"></i> View PDF
                     </button>
                     <div class="action-btn-group">
-                        <a href="${fileUrl}" download="${escapeHtml(doc.file_name)}" class="btn-icon-action download" title="Download PDF File">
+                        <a href="${fileUrl.replace('index.html?load=', 'view.html?ref=') + (fileUrl.includes('?') ? '&' : '?') + 'print=1'}" target="_blank" class="btn-icon-action download" title="Save as PDF / Print">
                             <i class="fa-solid fa-download"></i>
                         </a>
                         <button class="btn-icon-action replace-btn" title="Replace PDF File" data-id="${doc.id}" data-title="${escapeHtml(doc.title)}" data-cat="${doc.category_id || ''}" data-desc="${escapeHtml(doc.description || '')}">
@@ -445,10 +445,17 @@ function openReplaceModal(id, title, catId, desc) {
  * 9. PDF Viewer Modal
  */
 function openPdfViewer(url, title) {
+    let viewerUrl = url.replace('index.html?load=', 'view.html?ref=');
     document.getElementById('viewerTitle').innerHTML = `<i class="fa-solid fa-file-pdf"></i> <span>${escapeHtml(title)}</span>`;
-    document.getElementById('viewerDownloadBtn').href = url;
-    document.getElementById('viewerDownloadBtn').download = title.replace(/\s+/g, '_') + '.pdf';
-    document.getElementById('pdfViewerFrame').src = url;
+    
+    const printUrl = viewerUrl + (viewerUrl.includes('?') ? '&' : '?') + 'print=1';
+    const downloadBtn = document.getElementById('viewerDownloadBtn');
+    downloadBtn.href = printUrl;
+    downloadBtn.target = '_blank';
+    downloadBtn.removeAttribute('download');
+    downloadBtn.innerHTML = '<i class="fa-solid fa-print"></i> Save as PDF';
+
+    document.getElementById('pdfViewerFrame').src = viewerUrl;
     document.getElementById('viewerModal').classList.add('active');
 }
 

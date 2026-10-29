@@ -138,7 +138,7 @@ if ($pdo) {
             $docTitle = $clientName . ' — ' . $destination . ' (' . $quoteRef . ')';
             $docDesc = ($duration ?: 'Custom Tour') . ' | ' . ($paxCount ?: '2 Pax') . ' | Total: ₹ ' . number_format($grandTotal, 2);
             $docFileName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $clientName . '_' . $quoteRef) . '.pdf';
-            $docFilePath = '../index.html?load=' . urlencode($quoteRef);
+            $docFilePath = '../view.html?ref=' . urlencode($quoteRef);
 
             // Check if document entry already exists for this quoteRef
             $checkDoc = $pdo->prepare("SELECT id FROM `documents` WHERE `title` LIKE ? LIMIT 1");

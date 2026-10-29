@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Viewer — Let's Explore DMC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Floating Control Bar for Viewer */
+    .viewer-bar {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: #FFFFFF;
+      border-bottom: 1px solid #DCE4EF;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(23, 54, 93, 0.08);
+    }
+    .viewer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Inter', sans-serif;
+    }
+    .viewer-brand strong {
+      color: #17365D;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .viewer-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: #DCEBFA;
+      color: #3977B8;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: monospace;
+    }
+    .viewer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-viewer-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-print {
+      background: #3977B8;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(57, 119, 184, 0.25);
+    }
+    .btn-print:hover {
+      background: #2D6298;
+    }
+    .btn-edit {
+      background: #F4F7FB;
+      border: 1px solid #DCE4EF;
+      color: #17365D;
+    }
+    .btn-edit:hover {
+      background: #E2E8F0;
+    }
+
+    /* Print Preview Canvas */
+    .document-viewport {
+      max-width: 900px;
+      margin: 24px auto 60px;
+      padding: 0 16px;
+    }
+    .printable-sheet {
+      background: #FFFFFF;
+      box-shadow: 0 10px 30px rgba(23, 54, 93, 0.1);
+      border: 1px solid #DCE4EF;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Loading and Error states */
+    .viewer-loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: #64748B;
+      font-size: 15px;
+    }
+
+    @media print {
+      .viewer-bar {
+        display: none !important;
+      }
+      .document-viewport {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .printable-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body style="background: #F4F7FB; margin: 0; padding: 0;">
+
+  <!-- Floating Control Bar -->
+  <div class="viewer-bar" id="viewerBar">
+    <div class="viewer-brand">
+      <strong>Let's Explore DMC</strong>
+      <span class="viewer-badge" id="refBadge">Loading...</span>
+    </div>
+    <div class="viewer-actions">
+      <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as PDF via Browser">
+        🖨️ Save as PDF / Print
+      </button>
+      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="index.html" title="Open this document in Studio Builder">
+        ✏️ Edit in Studio
+      </a>
+    </div>
+  </div>
+
+  <!-- Document Viewport -->
+  <div class="document-viewport">
+    <div class="printable-sheet" id="sheetContainer">
+      <div class="viewer-loading" id="loadingState">
+        ⏳ Loading official document details from database...
+      </div>
+      <div id="documentContent" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Required Scripts for Dynamic Document Rendering -->
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/docx-generator.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const quoteRef = urlParams.get('ref') || urlParams.get('load');
+      const autoPrint = urlParams.get('print') === '1';
+
+      if (!quoteRef) {
+        document.getElementById('loadingState').innerHTML = `
+          <div style="color: #DC2626; font-weight: 700;">No Document Reference Specified</div>
+          <p style="font-size: 13px; color: #64748B;">Please provide a valid document reference.</p>
+        `;
+        return;
+      }
+
+      document.getElementById('refBadge').textContent = quoteRef;
+      document.getElementById('btnEditStudio').href = `index.html?load=${encodeURIComponent(quoteRef)}`;
+
+      let quotation = null;
+
+      // 1. Try fetching from cPanel MySQL API
+      try {
+        const res = await fetch(`api/get_quotations.php`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.quotations) {
+            quotation = json.quotations.find(q => q.quote_ref === quoteRef);
+          }
+        }
+      } catch (e) {
+        console.warn('Backend fetch notice:', e);
+      }
+
+      // 2. Fallback to localStorage
+      if (!quotation) {
+        try {
+          const localList = JSON.parse(localStorage.getItem('dmc_saved_quotations_v1') || '[]');
+          quotation = localList.find(q => q.quote_ref === quoteRef);
+        } catch (e) {}
+      }
+
+      // 3. Fallback demo
+      if (!quotation && quoteRef.includes('DXB')) {
+        quotation = { full_data: DEMO_DUBAI_DATA };
+      }
+
+      const loadingDiv = document.getElementById('loadingState');
+      const contentDiv = document.getElementById('documentContent');
+
+      if (!quotation) {
+        loadingDiv.innerHTML = `
+          <div style="color: #DC2626; font-weight: 700;">Document (${quoteRef}) Not Found</div>
+          <p style="font-size: 13px; color: #64748B;">The document may have been deleted or not yet saved.</p>
+        `;
+        return;
+      }
+
+      // Render the official printable document
+      try {
+        const fullData = quotation.full_data || quotation;
+        window.QuotationData = fullData;
+
+        // Render clean printable HTML
+        const html = Preview.buildQuotationHTML(fullData, true);
+        contentDiv.innerHTML = html;
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+
+        // Auto print if requested
+        if (autoPrint) {
+          setTimeout(() => window.print(), 600);
+        }
+      } catch (renderErr) {
+        loadingDiv.innerHTML = `
+          <div style="color: #DC2626; font-weight: 700;">Render Error</div>
+          <p style="font-size: 13px; color: #64748B;">${renderErr.message}</p>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
