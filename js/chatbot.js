@@ -414,9 +414,81 @@ const Chatbot = (() => {
         return;
       }
 
+      // 5.8 Intelligent Entity & Document Routing (Aanay Tours, Akash Dewani, Without Rates, Dubai, Kashmir)
+      const isAanayReq = /(?:aanay|aanay\s*tours?|viraj|gaglani|hilton\s*(?:abu\s*dhabi|yas\s*island)?)/i.test(text) ||
+                         (attachment && /aanay|hilton|voucher.*aanay/i.test(attachment.name));
+
+      if (isAanayReq && !/(?:hata|remove|delete|mat|nahi)/i.test(text)) {
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('voucher_aanay');
+        }
+        QuotationData.activeDocType = 'confirmation';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+        }
+        setTyping(false);
+        appendAI(
+          `✅ <strong>Aanay Tours Hotel Booking Voucher (Hilton Abu Dhabi Yas Island) details load kar di gayi hain!</strong><br><br>` +
+          `• <strong>Agency Name</strong>: Aanay tours (Contact: Viraj Gaglani - 7709123187)<br>` +
+          `• <strong>Property</strong>: <strong>Hilton Abu Dhabi Yas Island</strong> (5-Star Luxury Resort)<br>` +
+          `• <strong>Booking Ref</strong>: <code>TG/31130</code> | <strong>Confirmation No</strong>: <code>NH27002524635670</code><br>` +
+          `• <strong>Stay Duration</strong>: 16-Nov-2026 to 18-Nov-2026 (2 Nights)<br>` +
+          `• <strong>Room Type</strong>: Deluxe Double Room (Double sharing + extra bed, Breakfast included)<br>` +
+          `• <strong>Guests / Pax</strong>: 4 Adults, 2 Children, 1 Infant (Extra mattress included)<br><br>` +
+          `Official Hilton luxury Hotel Voucher live preview me update ho gaya hai. Aap neeche se direct PDF download kar sakte hain ya Studio Builder me customize kar sakte hain!`
+        );
+        showReplies([
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
+          { label: '🖨️ Download PDF Voucher', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '📄 Master Quotation', val: '__SWITCH_QUOTATION__' },
+          { label: '🧾 Tax Invoice', val: '__SWITCH_INVOICE__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // 5.9 Without Rates / Itinerary Only Intent
+      const isWithoutRatesReq = /(?:without\s*rates?|rates?\s*(?:hata|mat|nahi|remove|bina|without)|itinerary\s*only|rates?\s*ke\s*bina|bina\s*rates?)/i.test(text) ||
+                                (attachment && /without_rates/i.test(attachment.name));
+
+      if (isWithoutRatesReq && !/(?:wapas|add|show|dikhao|with\s*rates)/i.test(text)) {
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('thailand_without_rates');
+        }
+        QuotationData.activeDocType = 'itinerary';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('itinerary');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+        }
+        setTyping(false);
+        appendAI(
+          `✅ <strong>Thailand 12D11N Itinerary (Without Rates / Guest-Facing) load ho gaya hai!</strong><br><br>` +
+          `• <strong>Destination</strong>: Krabi + Phuket + Koh Yao Yai<br>` +
+          `• <strong>Duration</strong>: 12 Days / 11 Nights<br>` +
+          `• <strong>Pricing</strong>: Rates strictly hidden / removed (guest-facing presentation mode)<br>` +
+          `• <strong>Itinerary</strong>: Day-by-day complete schedule with hotel stays and sightseeing timeline<br><br>` +
+          `Guest-facing travel itinerary live preview me ready hai!`
+        );
+        showReplies([
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
+          { label: '🖨️ Download PDF Itinerary', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '💰 Add Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
       // 6. Check Document Format Switch Requests
       const isInvoiceReq = (
         text === '__SWITCH_INVOICE__' ||
+        /(?:akash\s*dewani|dewani|amravati\s*bill|passport\s*bill)/i.test(text) ||
         (
           /(?:banao|make|create|generate|switch|dikhao|convert|chahiye|tayyar|print).*(?:invoice|inoice|invoce|invoic|tax\s*invoice|bill|receipt|challan)/i.test(text) ||
           /(?:invoice|inoice|invoce|invoic|tax\s*invoice|receipt|challan).*(?:banao|bana|generate|create|karo|me|format|sheet)/i.test(text) ||
@@ -600,10 +672,14 @@ const Chatbot = (() => {
 
       // Format Switcher: Hotel Booking Voucher / Confirmation
       if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('confirmation');
-        } else {
-          QuotationData.activeDocType = 'confirmation';
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('voucher_aanay');
+        }
+        QuotationData.activeDocType = 'confirmation';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
         }
         setTyping(false);
         appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');

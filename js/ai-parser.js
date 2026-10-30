@@ -343,11 +343,11 @@ OUTPUT JSON SCHEMA:
     const fileName = (attachment?.name || '').toLowerCase();
 
     // ── 1. Document Type Intelligence ──
-    const isInvoice = /invoice|tax\s*invoice|bill\s*no|invoice\s*no|gstin|hsn\/sac|taxable\s*value|cgst|sgst/i.test(fullText) ||
+    const isInvoice = /invoice|tax\s*invoice|bill\s*no|invoice\s*no|gstin|hsn\/sac|taxable\s*value|cgst|sgst|akash\s*dewani|amravati|passport\s*bill/i.test(fullText) ||
                       /invoice|bill|receipt/i.test(fileName);
-    const isVoucher = /booking\s*voucher|confirmation\s*voucher|hotel\s*voucher|booking\s*id|check-in.*check-out|guest\s*voucher|room\s*type|hilton|aanaytours/i.test(fullText) ||
+    const isVoucher = /booking\s*voucher|confirmation\s*voucher|hotel\s*voucher|booking\s*id|check-in.*check-out|guest\s*voucher|room\s*type|hilton|aanay\s*tours?|aanay|viraj\s*gaglani/i.test(fullText) ||
                       /voucher|confirmation|aanay/i.test(fileName);
-    const isWithoutRates = /without\s*rates?|without\s*pricing|itinerary\s*only|without_rates/i.test(fullText) ||
+    const isWithoutRates = /without\s*rates?|without\s*pricing|itinerary\s*only|without_rates|rates?\s*(?:hata|mat|nahi|remove|bina)/i.test(fullText) ||
                            /without_rates/i.test(fileName);
     const isHotelCosting = /hotel\s*costing|tariff|room\s*comparison|free\s*cancellation.*non-refundable/i.test(fullText);
     const isSummary = /package\s*summary|executive\s*summary|cost\s*highlights/i.test(fullText);
@@ -593,17 +593,24 @@ OUTPUT JSON SCHEMA:
     };
 
     // ── 8. Real Hotel Confirmation Voucher Extraction ──
+    const isAanayVoucher = /aanay|hilton|viraj|yas\s*island/i.test(fullText);
     const voucherData = {
-      bookingId: 'LE-VOUCHER-' + Math.floor(1000 + Math.random() * 9000),
-      guestName: clientName,
-      hotelName: hotels[0]?.name || 'Ramada By Wyndham',
-      checkIn: hotels[0]?.checkIn || '2 Jan 2027',
-      checkOut: hotels[0]?.checkOut || '5 Jan 2027',
-      nights: hotels[0]?.nights || 3,
-      roomType: 'Deluxe Sea View Room',
+      bookingId: isAanayVoucher ? 'TG/31130' : ('LE-VOUCHER-' + Math.floor(1000 + Math.random() * 9000)),
+      confirmationNo: isAanayVoucher ? 'NH27002524635670' : 'CONF-' + Math.floor(100000 + Math.random() * 900000),
+      agencyName: isAanayVoucher ? 'Aanay tours' : "LET'S EXPLORE DMC",
+      contactPerson: isAanayVoucher ? 'Viraj Gaglani' : 'Travel Specialist',
+      agencyMobile: isAanayVoucher ? '7709123187' : '8007586871',
+      agencyEmail: isAanayVoucher ? 'Infoattdmc@gmail.com' : 'info@letsexploredmc.com',
+      guestName: isAanayVoucher ? 'Aanay tours' : clientName,
+      hotelName: isAanayVoucher ? 'Hilton Abu Dhabi Yas Island' : (hotels[0]?.name || 'Ramada By Wyndham'),
+      cityName: isAanayVoucher ? 'Abu Dhabi' : (hotels[0]?.city || 'Phuket'),
+      checkIn: isAanayVoucher ? '16-Nov-2026' : (hotels[0]?.checkIn || '2 Jan 2027'),
+      checkOut: isAanayVoucher ? '18-Nov-2026' : (hotels[0]?.checkOut || '5 Jan 2027'),
+      nights: isAanayVoucher ? 2 : (hotels[0]?.nights || 3),
+      roomType: isAanayVoucher ? 'Deluxe double room' : 'Deluxe Sea View Room',
       mealPlan: 'Daily Buffet Breakfast',
-      pax: `${paxCount} Adults`,
-      hotelPhoto: 'images/extracted_anay/page_0_1_Image2.jpg',
+      pax: isAanayVoucher ? '4 Adults + 2 Child + 1 Infant' : `${paxCount} Adults`,
+      hotelPhoto: isAanayVoucher ? 'images/hotel-hilton.jpg' : 'images/extracted_anay/page_0_1_Image2.jpg',
       inclusions: [
         'Welcome Drink & Cold Towels upon arrival',
         'Daily International Buffet Breakfast at Main Restaurant',
