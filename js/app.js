@@ -51,17 +51,46 @@ const App = (() => {
     // Open AI Chat by default on launch
     showSection('chat');
 
-    // Check if URL has a quotation to load (?load=LEDMC-...)
+    // Check if URL has a quotation or CRM lead to load (?load=... or ?client_name=...)
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const quoteToLoad = urlParams.get('load');
-      if (quoteToLoad && typeof DBManager !== 'undefined') {
+      const leadClient = urlParams.get('client_name') || urlParams.get('load_client') || urlParams.get('client');
+      const leadDest = urlParams.get('dest') || urlParams.get('destination');
+      const leadPhone = urlParams.get('client_phone') || urlParams.get('phone');
+      const leadEmail = urlParams.get('client_email') || urlParams.get('email');
+      const leadPax = urlParams.get('pax');
+      const leadNo = urlParams.get('lead_id') || urlParams.get('lead_no');
+
+      if (leadClient || leadDest || leadNo) {
+        if (typeof QuotationData !== 'undefined' && QuotationData.package) {
+          if (leadClient) QuotationData.package.clientName = leadClient;
+          if (leadDest) QuotationData.package.destination = leadDest;
+          if (leadPhone) QuotationData.package.clientPhone = leadPhone;
+          if (leadEmail) QuotationData.package.clientEmail = leadEmail;
+          if (leadPax) QuotationData.package.pax = `${leadPax} Adults`;
+          if (leadNo) QuotationData.package.quotationNo = leadNo;
+          populateStudioFromData();
+        }
+        setTimeout(() => {
+          showSection('chat');
+          if (typeof Chatbot !== 'undefined' && typeof Chatbot.addBotMessage === 'function') {
+            Chatbot.addBotMessage(
+              `✨ **Lead Linked from CRM**: **${leadClient || 'Valued Customer'}** (${leadNo || ''})<br/>` +
+              `📍 Destination: <strong>${leadDest || 'General'}</strong> &nbsp;|&nbsp; 👥 Travellers: <strong>${leadPax || 2} Adults</strong><br/>` +
+              `How would you like to prepare this quotation? You can upload any itinerary PDF, type requirements, or select a template above!`
+            );
+          }
+        }, 350);
+      } else if (quoteToLoad && typeof DBManager !== 'undefined') {
         setTimeout(() => {
           DBManager.loadQuotation(quoteToLoad);
           showSection('generator');
         }, 300);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('URL param parse error:', e);
+    }
   }
 
   /**
