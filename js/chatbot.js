@@ -53,7 +53,8 @@ const Chatbot = (() => {
       `• 🏨 <strong>5. Hotel Booking Voucher</strong>: Luxury confirmation voucher with guest list, occupancy & policies.<br>` +
       `• 🧾 <strong>6. Tax Invoice</strong>: Corporate GST billing with bank payment remittance.<br>` +
       `• 🛠️ <strong>7. Custom Builder</strong>: Custom modular drag & drop sections.<br><br>` +
-      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`
+      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`,
+      false
     );
 
     const defaultReplies = [
@@ -1098,12 +1099,32 @@ const Chatbot = (() => {
     scrollBottom();
   }
 
-  function appendAI(html) {
+  function buildActionToolbar() {
+    return `
+      <div class="ai-action-toolbar" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #CBD5E1;">
+        <button type="button" class="btn-chat-action btn-act-preview" onclick="App.showSection('preview')" title="Switch to official Live Preview" style="background:#0F2C59; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(15,44,89,0.2);">
+          <span>👁️</span> Live Preview
+        </button>
+        <button type="button" class="btn-chat-action btn-act-edit" onclick="App.showSection('generator'); if (typeof App.populateStudioFromData==='function') App.populateStudioFromData(); if (typeof App.populateInvoiceFields==='function') App.populateInvoiceFields();" title="Edit hotels, days, and pricing in Studio Builder" style="background:#FFFFFF; color:#0F2C59; border:1px solid #CBD5E1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <span>✏️</span> Edit in Studio
+        </button>
+        <button type="button" class="btn-chat-action btn-act-pdf" onclick="if (typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Generate &amp; Download Print-Ready A4 PDF" style="background:#16A34A; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(22,163,74,0.25);">
+          <span>🖨️</span> Download PDF
+        </button>
+        <button type="button" class="btn-chat-action btn-act-docx" onclick="if (typeof DOCXGenerator!=='undefined') DOCXGenerator.generate();" title="Download Editable Microsoft Word (.docx)" style="background:#2563EB; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(37,99,235,0.25);">
+          <span>📄</span> Download DOCX
+        </button>
+      </div>
+    `;
+  }
+
+  function appendAI(html, withActions = true) {
     const el = msgs();
     if (!el) return;
     const div = document.createElement('div');
     div.className = 'chat-msg ai';
-    div.innerHTML = html;
+    const content = withActions ? (html + buildActionToolbar()) : html;
+    div.innerHTML = content;
     el.appendChild(div);
     scrollBottom();
   }
@@ -1159,11 +1180,27 @@ const Chatbot = (() => {
     `;
   }
 
-  function showReplies(options) {
+  const CORE_ACTION_OPTIONS = [
+    { label: '👁️ Live Preview', val: '__PREVIEW__', primary: true },
+    { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' },
+    { label: '🖨️ Download PDF', val: '__PDF__' },
+    { label: '📄 Download DOCX (Word)', val: '__DOCX__' }
+  ];
+
+  function showReplies(options = []) {
     const el = replies();
     if (!el) return;
     el.innerHTML = '';
-    options.forEach(opt => {
+    
+    // Always include core actions: Preview, Edit, PDF, DOCX
+    const merged = [...CORE_ACTION_OPTIONS];
+    (options || []).forEach(opt => {
+      if (!merged.some(m => m.val === opt.val)) {
+        merged.push(opt);
+      }
+    });
+
+    merged.forEach(opt => {
       const btn = document.createElement('button');
       btn.className = `btn-reply ${opt.primary ? 'primary' : ''}`;
       btn.textContent = opt.label;
