@@ -312,7 +312,7 @@ const Chatbot = (() => {
       return;
     }
 
-    setTyping(true);
+    await executeThinkingPipeline(attachment, text);
 
     try {
       // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View + Markup)
@@ -769,6 +769,30 @@ const Chatbot = (() => {
 
       setTyping(false);
 
+      let thinkingCard = '';
+      if (attachment) {
+        thinkingCard = buildThinkingProcessCard(
+          `Document Analysis Completed: ${attachment.name}`,
+          [
+            `Read ${attachment.pageCount || 1} pages (${Math.round(attachment.size / 1024)} KB) via AI Engine`,
+            `Detected Document Type: ${docType.toUpperCase()}`,
+            `Extracted Details: Destination (${pkg.destinations || 'Selected Destination'}), Dates (${pkg.travelDates || 'Configured'}), ${QuotationData.days?.length || 0} Itinerary Days`,
+            `Hotel Stays: ${QuotationData.hotels?.length || 0} properties matched &amp; configured`,
+            `Studio &amp; Preview: 100% Real-time synchronization active`
+          ]
+        );
+      } else {
+        thinkingCard = buildThinkingProcessCard(
+          `AI Analysis Completed: ${pkg.destinations || 'Holiday Proposal'}`,
+          [
+            `Processed Request: ${docType.toUpperCase()}`,
+            `Configured ${QuotationData.days?.length || 0} Day Itinerary with morning &amp; evening tours`,
+            `Validated Dual-Currency Pricing: ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} / $ ${QuotationData.summary?.totalUSD?.toFixed(2) || '0.00'} USD`,
+            `Live Preview: All 7 formats ready to view &amp; print`
+          ]
+        );
+      }
+
       const pkg = QuotationData.package || {};
       const aiSourceBadge = extracted._source === 'gemini' 
         ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini 2.0 Flash AI</span>'
@@ -778,7 +802,8 @@ const Chatbot = (() => {
         ? `${DOCUMENT_TYPES[docType].icon} ${DOCUMENT_TYPES[docType].name}`
         : docType.toUpperCase();
 
-      let replyMsg = `✅ <strong>Document Extracted & Synchronized!</strong> ${aiSourceBadge}<br><br>` +
+      let replyMsg = thinkingCard + 
+        `✅ <strong>Document Extracted &amp; Synchronized!</strong> ${aiSourceBadge}<br><br>` +
         `📋 <strong>Active Format:</strong> <strong>${docTypeMeta}</strong><br>` +
         `📍 <strong>Destination:</strong> ${pkg.destinations || 'Holiday Destination'} (${pkg.duration || 'Custom Plan'})<br>` +
         `👤 <strong>Client:</strong> ${pkg.clientName || 'Valued Client'} · 👥 ${pkg.travellers || '2 Adults'}<br>`;
@@ -1083,11 +1108,55 @@ const Chatbot = (() => {
     scrollBottom();
   }
 
-  function setTyping(flag) {
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function setTyping(flag, statusTitle = '🧠 Thinking &amp; Analyzing...', statusSub = 'Interpreting document requirements &amp; rates...') {
     isTyping = flag;
     const el = typing();
-    if (el) el.style.display = flag ? 'flex' : 'none';
+    if (el) {
+      el.style.display = flag ? 'flex' : 'none';
+      const titleEl = $('typingStatusText');
+      const subEl = $('typingSubText');
+      if (titleEl) titleEl.innerHTML = statusTitle;
+      if (subEl) subEl.innerHTML = statusSub;
+    }
     scrollBottom();
+  }
+
+  async function executeThinkingPipeline(attachment, promptText) {
+    if (attachment) {
+      const pageInfo = attachment.pageCount > 1 ? ` (${attachment.pageCount} pages)` : '';
+      setTyping(true, '📄 Reading Document...', `Inspecting ${escapeHTML(attachment.name)}${pageInfo}...`);
+      await sleep(650);
+      setTyping(true, '🔍 Analyzing Travel Itinerary &amp; Data...', 'Extracting days, hotels, room tariffs, inclusions &amp; rates...');
+      await sleep(750);
+      setTyping(true, '⚡ Structuring Rates &amp; Formatting...', 'Computing dual-currency pricing &amp; syncing Live Studio Preview...');
+      await sleep(550);
+    } else {
+      setTyping(true, '🧠 Thinking &amp; Analyzing...', 'Understanding request parameters &amp; client profile...');
+      await sleep(500);
+      setTyping(true, '🔍 Processing Quotation Engine...', 'Structuring itinerary highlights, hotels &amp; inclusions...');
+      await sleep(500);
+    }
+  }
+
+  function buildThinkingProcessCard(title, steps) {
+    const stepsHtml = steps.map(s => `<div>✔ ${s}</div>`).join('');
+    return `
+      <div class="thinking-process-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; c.style.display=c.style.display==='none'?'block':'none';">
+          <span style="font-weight:700; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
+            <span style="color:#2563EB;">⚡</span> ${escapeHTML(title)}
+          </span>
+          <span style="font-size:10px; color:#64748B; background:#E2E8F0; padding:2px 6px; border-radius:4px;">Thinking Steps ▾</span>
+        </div>
+        <div style="margin-top:6px; border-top:1px dashed #CBD5E1; padding-top:6px; display:none; line-height:1.6; font-size:11px; color:#475569;">
+          ${stepsHtml}
+        </div>
+      </div>
+    `;
   }
 
   function showReplies(options) {

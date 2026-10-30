@@ -1034,6 +1034,25 @@
               </div>
             </div>
 
+            <!-- Dynamic Thinking & Document Analysis Indicator -->
+            <div id="typingIndicator" class="typing-indicator" style="display:none; padding:10px 18px; background:#F8FAFC; border-top:1px solid #E2E8F0; align-items:center; justify-content:space-between; gap:12px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="ai-sparkle-loader" style="width:28px; height:28px; border-radius:50%; background:#EFF6FF; border:1px solid #BFDBFE; display:flex; align-items:center; justify-content:center; color:#2563EB; font-size:13px;">
+                  <span style="display:inline-block; animation: spin 1.8s linear infinite;">✨</span>
+                </div>
+                <div style="display:flex; flex-direction:column;">
+                  <span id="typingStatusText" style="font-size:12.5px; font-weight:700; color:#1E3A8A;">🧠 Thinking &amp; Analyzing...</span>
+                  <span id="typingSubText" style="font-size:11px; color:#64748B;">Interpreting document requirements &amp; rates...</span>
+                </div>
+              </div>
+              <div class="typing-bubble">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <!-- Quick Action Replies -->
+            <div id="quickReplies" class="quick-replies" style="display:flex; flex-wrap:wrap; gap:6px; padding:8px 18px; background:#FAFBFD; border-top:1px solid #E2E8F0;"></div>
+
             <div class="chat-input-area">
               <div id="chatAttachmentBadge" style="display:none; padding:4px 10px; margin-bottom:8px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; font-size:12px; color:#1E3A8A; align-items:center; justify-content:space-between;">
                 <span id="chatAttachmentText">📄 Reference file attached</span>
