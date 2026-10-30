@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Leads &amp; Inquiries — Let's Explore DMC</title>
+    <title>Document &amp; Booking Proposals — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 <body style="background:#F8FAFC;">
 
     <!-- ============================================================
-         CRM TOP NAVIGATION BAR (Matching Reference DMC Portal)
+         PORTAL TOP NAVIGATION BAR
          ============================================================ -->
     <header class="admin-nav" style="padding: 10px 24px; background:#FFFFFF; border-bottom:1px solid #E2E8F0;">
         <div style="display:flex; align-items:center; gap:24px;">
@@ -21,15 +21,15 @@
                 <img src="../images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
                 <div class="brand-info">
                     <h2 style="font-size:16px; font-weight:800; color:#0F2C59; line-height:1.1;">Let's Explore DMC</h2>
-                    <span style="font-size:10px; color:#3977B8; font-weight:700; letter-spacing:0.06em;">Lead Management CRM</span>
+                    <span style="font-size:10px; color:#3977B8; font-weight:700; letter-spacing:0.06em;">Booking &amp; Quotation Portal</span>
                 </div>
             </a>
 
-            <!-- CRM Navigation Links -->
+            <!-- Portal Navigation Links -->
             <nav style="display:flex; align-items:center; gap:4px; margin-left:12px;">
                 <a href="#" class="nav-item" style="font-size:12.5px; padding:6px 12px;">CMS</a>
                 <a href="#" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Packages</a>
-                <a href="inquiries.html" class="nav-item active" style="font-size:12.5px; padding:6px 14px; background:#0F2C59; color:#FFF; font-weight:700;">Leads</a>
+                <a href="inquiries.html" class="nav-item active" style="font-size:12.5px; padding:6px 14px; background:#0F2C59; color:#FFF; font-weight:700;">Documents &amp; Proposals</a>
                 <a href="#" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Settings</a>
                 <a href="customers.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Customer</a>
                 <a href="../index.html?doctype=invoice" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Invoice</a>
@@ -42,17 +42,17 @@
 
         <!-- Top Right Actions -->
         <div style="display:flex; align-items:center; gap:12px;">
-            <!-- Color status indicators from screenshot -->
+            <!-- Color status indicators -->
             <div style="display:flex; gap:5px; align-items:center; margin-right:6px;">
                 <span style="width:12px; height:12px; border-radius:3px; background:#F59E0B; display:inline-block;" title="Followup"></span>
                 <span style="width:12px; height:12px; border-radius:3px; background:#EC4899; display:inline-block;" title="Fresh"></span>
                 <span style="width:12px; height:12px; border-radius:3px; background:#3B82F6; display:inline-block;" title="Opportunity"></span>
                 <span style="width:12px; height:12px; border-radius:3px; background:#10B981; display:inline-block;" title="Booking"></span>
-                <span style="width:12px; height:12px; border-radius:3px; background:#8B5CF6; display:inline-block;" title="Prospect"></span>
+                <span style="width:12px; height:12px; border-radius:3px; background:#8B5CF6; display:inline-block;" title="In Review"></span>
             </div>
 
             <button class="btn-pill-action subtle" style="padding:6px 14px; font-size:12px; border-radius:20px; border:1px solid #CBD5E1; color:#1E3A8A; font-weight:700;">
-                <i class="fa-solid fa-circle-info" style="color:#2563EB;"></i> Support Ticket
+                <i class="fa-solid fa-circle-info" style="color:#2563EB;"></i> Help &amp; Support
             </button>
 
             <!-- Notification Bell with badge -->
@@ -62,8 +62,8 @@
             </div>
 
             <!-- User Circle Avatar -->
-            <div style="width:34px; height:34px; border-radius:50%; background:#F43F5E; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; cursor:pointer;" title="Signed in as Sales Manager">
-                S
+            <div style="width:34px; height:34px; border-radius:50%; background:#F43F5E; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; cursor:pointer;" title="Administrator">
+                A
             </div>
 
             <a href="../index.html" class="btn-pill-action gold" style="padding:6px 14px; font-size:12px; border-radius:6px; background:#0F2C59; color:#FFF; margin-left:6px;" title="Open AI Travel Quotation & Invoice Studio">
@@ -73,36 +73,36 @@
     </header>
 
     <!-- ============================================================
-         CRM TWO-COLUMN WORKSPACE: SIDEBAR + MAIN LEADS TABLE
+         TWO-COLUMN WORKSPACE: SIDEBAR + MAIN TABLE
          ============================================================ -->
     <div class="crm-container">
 
-        <!-- ─── LEFT SIDEBAR (Matching Screenshot Navigation) ─── -->
+        <!-- ─── LEFT SIDEBAR NAVIGATION ─── -->
         <aside class="crm-sidebar">
             <div class="crm-sidebar-section">
                 <a href="dashboard.html" class="crm-sidebar-item">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-gauge-high" style="color:#2563EB;"></i>
-                        <span>Lead Dashboard</span>
+                        <span>Overview</span>
                     </div>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item" id="sidebarAddLeadBtn">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-circle-plus" style="color:#2563EB;"></i>
-                        <span>Add Lead</span>
+                        <span>+ New Entry</span>
                     </div>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item active" data-filter-status="all">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-bars-staggered" style="color:#2563EB;"></i>
-                        <span>All Leads</span>
+                        <span>All Records</span>
                     </div>
                     <span class="crm-badge-pill" id="badgeAllLeads">160</span>
                 </a>
             </div>
 
             <div class="crm-sidebar-section">
-                <div class="crm-sidebar-title">ACTIVE LEAD</div>
+                <div class="crm-sidebar-title">PENDING &amp; ACTIVE</div>
                 <a href="javascript:void(0)" class="crm-sidebar-item" data-filter-status="Fresh">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-regular fa-circle-question" style="color:#2563EB;"></i>
@@ -120,7 +120,7 @@
                 <a href="javascript:void(0)" class="crm-sidebar-item" data-filter-status="Prospect">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-thumbs-up" style="color:#2563EB;"></i>
-                        <span>Prospect</span>
+                        <span>In Review</span>
                     </div>
                     <span class="crm-badge-pill" id="badgeProspect">5</span>
                 </a>
@@ -134,60 +134,54 @@
             </div>
 
             <div class="crm-sidebar-section">
-                <div class="crm-sidebar-title">LEAD FINAL STATUS</div>
+                <div class="crm-sidebar-title">FINAL STATUS</div>
                 <a href="javascript:void(0)" class="crm-sidebar-item" data-filter-status="Booking">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-circle-check" style="color:#2563EB;"></i>
-                        <span>Booking</span>
+                        <span>Confirmed Booking</span>
                     </div>
                     <span class="crm-badge-pill" id="badgeBooking">29</span>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item" data-filter-status="Lost">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-circle-xmark" style="color:#DC2626;"></i>
-                        <span>Loss</span>
+                        <span>Closed / Loss</span>
                     </div>
                     <span class="crm-badge-pill" id="badgeLoss">45</span>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item" data-filter-status="Complete">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-shield-halved" style="color:#16A34A;"></i>
-                        <span>Complete</span>
+                        <span>Completed</span>
                     </div>
                     <span class="crm-badge-pill" id="badgeComplete">2</span>
-                </a>
-                <a href="javascript:void(0)" class="crm-sidebar-item">
-                    <div class="crm-sidebar-item-left">
-                        <i class="fa-regular fa-comment-dots" style="color:#94A3B8;"></i>
-                        <span>Loss Reason</span>
-                    </div>
                 </a>
             </div>
 
             <div class="crm-sidebar-section">
-                <div class="crm-sidebar-title">MORE LEAD SETTINGS</div>
+                <div class="crm-sidebar-title">SETTINGS</div>
                 <a href="javascript:void(0)" class="crm-sidebar-item">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-rotate-left" style="color:#94A3B8;"></i>
-                        <span>Reopen Lead Reason</span>
+                        <span>Status Reasons</span>
                     </div>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-bullhorn" style="color:#94A3B8;"></i>
-                        <span>Source</span>
+                        <span>Sources</span>
                     </div>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-list-check" style="color:#94A3B8;"></i>
-                        <span>Lead Status</span>
+                        <span>Document Types</span>
                     </div>
                 </a>
                 <a href="javascript:void(0)" class="crm-sidebar-item">
                     <div class="crm-sidebar-item-left">
                         <i class="fa-solid fa-code-branch" style="color:#94A3B8;"></i>
-                        <span>Branch</span>
+                        <span>Branches</span>
                     </div>
                 </a>
             </div>
@@ -196,7 +190,7 @@
         <!-- ─── MAIN CONTENT AREA (Table Cards Layout) ─── -->
         <main class="crm-main-area">
 
-            <!-- Top CRM Toolbar -->
+            <!-- Top Toolbar -->
             <div class="crm-top-toolbar">
                 <div class="crm-toolbar-left">
                     <label class="crm-select-all-wrap">
@@ -206,27 +200,27 @@
 
                     <div class="crm-search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="crmSearchInput" class="crm-search-input" placeholder="Search by name, lead #, phone, destination...">
+                        <input type="text" id="crmSearchInput" class="crm-search-input" placeholder="Search by name, reference #, phone, destination...">
                     </div>
                 </div>
 
                 <div class="crm-toolbar-right">
                     <span id="activeFilterBadge" style="font-size:12px; font-weight:700; color:#475569; background:#F1F5F9; padding:5px 12px; border-radius:6px;">
-                        Showing: <strong id="filterNameDisplay" style="color:#0F2C59;">All Leads</strong> (<span id="filterCountDisplay">160</span>)
+                        Showing: <strong id="filterNameDisplay" style="color:#0F2C59;">All Records</strong> (<span id="filterCountDisplay">160</span>)
                     </span>
                     <button class="btn btn-sm" id="btnRefreshLeads" style="padding:7px 14px; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; color:#334155; cursor:pointer;">
                         🔄 Refresh
                     </button>
                     <button class="btn btn-sm btn-primary" id="openAddLeadBtn" style="padding:7px 16px; background:#0F2C59; color:#FFF; border:none; border-radius:6px; font-weight:700; cursor:pointer;">
-                        <i class="fa-solid fa-plus"></i> Add Lead
+                        <i class="fa-solid fa-plus"></i> + Add Entry
                     </button>
                 </div>
             </div>
 
-            <!-- Leads List Container (Cards matching reference screenshot) -->
+            <!-- List Container (Table Cards) -->
             <div class="crm-leads-list" id="crmLeadsList">
                 <div style="text-align:center; padding:40px; color:#94A3B8;">
-                    ⏳ Loading leads from database...
+                    ⏳ Loading records...
                 </div>
             </div>
 

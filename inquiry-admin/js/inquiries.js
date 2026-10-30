@@ -495,19 +495,30 @@ function renderLeadsList() {
         </div>
 
         <!-- Col 6: Action Buttons -->
-        <div class="lead-col-actions">
-          <button type="button" class="btn-crm-view" onclick="viewLeadDetails(${lead.id})">
-            View
+        <div class="lead-col-actions" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+          <button type="button" class="btn-crm-view" onclick="openDocumentView(${lead.id})" title="Open official PDF page with 1-click Download button" style="background:#0F2C59; color:#FFFFFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; box-shadow:0 2px 4px rgba(15,44,89,0.2);">
+            <i class="fa-solid fa-file-pdf"></i> View &amp; Download PDF
           </button>
-          <button type="button" class="btn-crm-quote" onclick="sendQuotationFromStudio(${lead.id})">
-            Send Quotations
-          </button>
-          <input type="checkbox" class="lead-chk lead-chk-item" data-id="${lead.id}" style="margin-left:4px;">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button type="button" class="btn-crm-quote" onclick="sendQuotationFromStudio(${lead.id})" title="Open AI Studio with client details" style="padding:5px 12px; font-size:11.5px; border-radius:5px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Open Studio
+            </button>
+            <button type="button" class="btn-crm-view" onclick="viewLeadDetails(${lead.id})" title="Quick info modal" style="padding:5px 10px; font-size:11.5px; border-radius:5px; background:#F1F5F9; color:#334155; border:1px solid #CBD5E1;">
+              Info
+            </button>
+          </div>
         </div>
       </div>
     `;
   }).join('');
 }
+
+window.openDocumentView = function(id) {
+  const lead = allLeads.find(l => l.id === id);
+  if (!lead) return;
+  const viewUrl = `../view.html?ref=${encodeURIComponent(lead.ref || '#LEDMC' + lead.id)}&client=${encodeURIComponent(lead.name)}&dest=${encodeURIComponent(lead.destination)}&phone=${encodeURIComponent(lead.phone)}&email=${encodeURIComponent(lead.email)}&pax=${lead.travellers?.adults || 2}&date=${encodeURIComponent(lead.travelDate || '')}&return_date=${encodeURIComponent(lead.returnDate || '')}`;
+  window.open(viewUrl, '_blank');
+};
 
 window.changeLeadStatus = function(id, newStatus) {
   if (!newStatus) return;
@@ -554,13 +565,13 @@ window.viewLeadDetails = function(id) {
   const body = document.getElementById('viewLeadBody');
   const sendQuoteBtn = document.getElementById('btnViewSendQuote');
 
-  title.innerHTML = `📋 Lead Record: <strong>${escapeHTML(lead.ref)}</strong> (${escapeHTML(lead.name)})`;
+  title.innerHTML = `📄 Document Record: <strong>${escapeHTML(lead.ref)}</strong> — ${escapeHTML(lead.name)}`;
 
   body.innerHTML = `
     <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px; margin-bottom:14px;">
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div><span style="color:#64748B;">Customer Name:</span><br><strong>${escapeHTML(lead.name)}</strong> (${escapeHTML(lead.type || 'B2C')})</div>
-        <div><span style="color:#64748B;">Lead Status:</span><br><strong style="color:#E11D48;">${escapeHTML(lead.status)}</strong></div>
+        <div><span style="color:#64748B;">Client Name:</span><br><strong>${escapeHTML(lead.name)}</strong> (${escapeHTML(lead.type || 'B2C')})</div>
+        <div><span style="color:#64748B;">Record Status:</span><br><strong style="color:#E11D48;">${escapeHTML(lead.status)}</strong></div>
         <div><span style="color:#64748B;">Phone:</span><br><a href="tel:${escapeHTML(lead.phone)}" style="color:#2563EB; font-weight:bold;">${escapeHTML(lead.phone)}</a></div>
         <div><span style="color:#64748B;">Email:</span><br><a href="mailto:${escapeHTML(lead.email)}">${escapeHTML(lead.email)}</a></div>
         <div><span style="color:#64748B;">Destination:</span><br><strong>${escapeHTML(lead.destination)}</strong></div>
@@ -569,8 +580,10 @@ window.viewLeadDetails = function(id) {
         <div><span style="color:#64748B;">Assigned To:</span><br><strong>${escapeHTML(lead.assignedTo || 'Admin')}</strong></div>
       </div>
     </div>
-    <div style="font-size:12px; color:#64748B;">
-      Created on: <strong>${escapeHTML(lead.createdOn || '—')}</strong> · Lead Requirement: <strong>${escapeHTML(lead.requirement || 'Package Tour')}</strong>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button type="button" class="btn btn-sm" onclick="openDocumentView(${lead.id})" style="flex:1; background:#16A34A; color:#FFF; border:none; padding:10px; border-radius:6px; font-weight:700; cursor:pointer;">
+        <i class="fa-solid fa-file-pdf"></i> Open Official PDF Viewer &amp; Download
+      </button>
     </div>
   `;
 
