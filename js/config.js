@@ -16,7 +16,8 @@ const CONFIG = {
     }
   },
   _GEMINI_API_KEY: '',
-  GEMINI_MODEL: 'gemini-2.5-flash',
+  GEMINI_MODEL: 'gemini-2.0-flash',
+  GEMINI_FALLBACK_MODEL: 'gemini-1.5-flash',
   GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/',
 
   // Company Brand

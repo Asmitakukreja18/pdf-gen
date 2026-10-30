@@ -1660,10 +1660,71 @@ function loadSampleDataset(key) {
   let demo = DEMO_REFERENCE_THAILAND_12D;
   if (key === 'dubai') demo = DEMO_DUBAI_DATA;
   else if (key === 'kashmir') demo = DEMO_KASHMIR_DATA;
-  else if (key === 'thailand') demo = DEMO_REFERENCE_THAILAND_12D;
-  else if (key === 'reference') demo = DEMO_REFERENCE_THAILAND_12D;
+  else if (key === 'thailand' || key === 'reference') demo = DEMO_REFERENCE_THAILAND_12D;
 
   const clone = JSON.parse(JSON.stringify(demo));
+
+  if (key === 'thailand_without_rates') {
+    clone.activeDocType = 'itinerary';
+    clone.summary = { items: [], totalINR: 0, totalUSD: 0, autoCalculate: false };
+    (clone.days || []).forEach(d => {
+      (d.items || []).forEach(it => { it.unitPrice = 0; it.amountINR = 0; it.amountUSD = 0; });
+      if (d.hotel) { d.hotel.amountINR = 0; d.hotel.amountUSD = 0; }
+    });
+    (clone.hotels || []).forEach(h => { h.amountINR = 0; h.amountUSD = 0; });
+  } else if (key === 'invoice_akash') {
+    clone.activeDocType = 'invoice';
+    clone.invoice = {
+      invoiceNumber: '090587',
+      invoiceDate: '28 Oct 2026',
+      fromCompany: "LET'S EXPLORE DMC",
+      fromEmail: 'letsexploredmc@gmail.com',
+      fromMobile: '8007586871',
+      fromAddress: 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603',
+      fromGst: '27BVYPT1131M1ZT',
+      toCustomerName: 'akash dewani',
+      toCustomerMobile: '8007586871',
+      toCustomerAddress: 'Amravati, Maharashtra, India, 444603',
+      notes: 'Full payment is due prior to service commencement. All payments reference invoice #090587.',
+      bankAccountHolder: "LETS EXPLORE DMC",
+      bankName: 'YES BANK LIMITED',
+      bankAccountNo: '108163400004886',
+      bankIfsc: 'YESB0001081',
+      bankBranch: 'AMRAVATI',
+      signatory: 'Authorized Signature',
+      items: [
+        { sn: 1, service: 'Passport & Visa Processing Services', description: '1 Adult Applicant', hsn: '998555', qty: 1, rate: 2850, taxable: 2850, cgst: 71.25, sgst: 71.25, igst: 0, total: 2992.50 }
+      ],
+      subtotal: 2850,
+      totalTax: 142.50,
+      grandTotal: 2992.50
+    };
+  } else if (key === 'voucher_aanay') {
+    clone.activeDocType = 'confirmation';
+    clone.confirmation = {
+      bookingId: 'AANAY-VOUCH-7821',
+      guestName: 'akash dewani',
+      hotelName: 'Hilton Phuket Arcadia Resort & Spa',
+      checkIn: '7 Jan 2027',
+      checkOut: '9 Jan 2027',
+      nights: 2,
+      roomType: 'Deluxe Ocean View Room',
+      mealPlan: 'Daily Buffet Breakfast',
+      pax: '2 Adults',
+      hotelPhoto: 'images/extracted_anay/page_0_1_Image2.jpg',
+      inclusions: [
+        'Welcome Drink & Cold Towel on arrival',
+        'Daily International Buffet Breakfast for 2 Guests',
+        'Complimentary High-Speed Wi-Fi',
+        'Access to Swimming Pools, Fitness Center & Resort Beach'
+      ],
+      importantInfo: [
+        'Check-in: 15:00 hrs | Check-out: 12:00 hrs',
+        'Valid Passport / Government ID required at check-in',
+        'Incidental deposit payable at hotel reception'
+      ]
+    };
+  }
 
   QuotationData.activeDocType = clone.activeDocType || 'quotation';
   QuotationData.hotels = clone.hotels || [];

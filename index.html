@@ -61,15 +61,21 @@
             <span>📁</span> Saved Quotes
           </button>
 
+          <button class="btn btn-sm btn-subtle" id="btnOpenGeminiModal" title="Configure Google Gemini 2.0 Flash AI Key" style="display:inline-flex; align-items:center; gap:5px;">
+            <span>⚡</span> <span id="headerAiStatusLabel">Gemini AI</span>
+          </button>
+
           <div class="sample-picker-wrap" id="samplePickerWrap">
             <button class="btn btn-sm btn-subtle" id="btnHeaderSampleToggle" title="Load sample destination quotation">
-              <span>✨</span> Sample Quotes ▾
+              <span>✨</span> Sample Formats ▾
             </button>
             <div class="sample-dropdown" id="sampleDropdown" style="display:none">
-              <button class="sample-opt" data-sample="reference">🌴 12D Thailand (Master Reference)</button>
-              <button class="sample-opt" data-sample="dubai">🌟 Dubai Luxury (5D/4N)</button>
+              <button class="sample-opt" data-sample="reference">🌴 1. Master Quotation (Thailand 12D)</button>
+              <button class="sample-opt" data-sample="dubai">🌟 1. Master Quotation (Dubai 6D with Rates)</button>
+              <button class="sample-opt" data-sample="thailand_without_rates">🗺️ 2. Travel Itinerary (Thailand Without Rates)</button>
+              <button class="sample-opt" data-sample="invoice_akash">🧾 6. Tax Invoice (Akash Dewani Amravati)</button>
+              <button class="sample-opt" data-sample="voucher_aanay">🏨 5. Hotel Voucher (Aanay Tours / Hilton)</button>
               <button class="sample-opt" data-sample="kashmir">🏔️ Kashmir Valley (6D/5N)</button>
-              <button class="sample-opt" data-sample="thailand">🌴 Thailand Escape (12D)</button>
             </div>
           </div>
 
@@ -1102,7 +1108,36 @@
         </div>
       </div>
     </div>
+  <!-- ========== GEMINI API KEY SETUP MODAL ========== -->
+  <div class="db-modal-overlay" id="geminiModal" style="display:none">
+    <div class="db-modal-box" style="max-width:520px;">
+      <div class="db-modal-header">
+        <div class="db-modal-title">
+          <h3>⚡ Google Gemini 2.0 Flash AI Setup</h3>
+          <p>Real multimodal AI for PDF, Image, Word & Natural Language Extraction</p>
+        </div>
+        <button class="btn-icon btn-close-modal" id="btnCloseGeminiModal" title="Close">✕</button>
+      </div>
+      <div class="db-modal-body" style="padding:20px;">
+        <div style="margin-bottom:14px; font-size:13px; color:#475569; line-height:1.5;">
+          Apni Google Gemini API Key enter karein. Isse aapke kisi bhi format ke PDF, Scanned Images, aur Quotations ko real multimodal AI instantly process karega.
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#1E293B; margin-bottom:6px;">Gemini API Key</label>
+          <input type="password" id="inputGeminiApiKey" class="form-input" placeholder="AIzaSy..." style="width:100%; font-family:monospace;" />
+        </div>
+        <div id="geminiTestStatus" style="display:none; padding:10px 12px; border-radius:6px; font-size:12px; margin-bottom:14px;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:12px; color:#2563EB; text-decoration:none; font-weight:600;">🔗 Get Free Gemini API Key ↗</a>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-sm btn-subtle" id="btnTestGeminiKey">🧪 Test Connection</button>
+            <button class="btn btn-sm btn-primary" id="btnSaveGeminiKey">💾 Save Key</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
 
 
 
@@ -1112,15 +1147,15 @@
   <!-- ========== SCRIPTS ========== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <script src="js/config.js?v=6.2"></script>
-  <script src="js/data.js?v=6.2"></script>
-  <script src="js/ai-parser.js?v=6.2"></script>
-  <script src="js/preview.js?v=6.2"></script>
-  <script src="js/pdf-generator.js?v=6.2"></script>
-  <script src="js/docx-generator.js?v=6.2"></script>
-  <script src="js/db-manager.js?v=6.2"></script>
-  <script src="js/chatbot.js?v=6.2"></script>
-  <script src="js/app.js?v=6.2"></script>
+  <script src="js/config.js?v=7.0"></script>
+  <script src="js/data.js?v=7.0"></script>
+  <script src="js/ai-parser.js?v=7.0"></script>
+  <script src="js/preview.js?v=7.0"></script>
+  <script src="js/pdf-generator.js?v=7.0"></script>
+  <script src="js/docx-generator.js?v=7.0"></script>
+  <script src="js/db-manager.js?v=7.0"></script>
+  <script src="js/chatbot.js?v=7.0"></script>
+  <script src="js/app.js?v=7.0"></script>
 </body>
 
 </html>

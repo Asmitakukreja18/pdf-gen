@@ -2155,8 +2155,11 @@ const App = (() => {
   /**
    * Free Google Gemini 2.0 AI Setup Modal & Key Management
    */
+  /**
+   * Free Google Gemini 2.0 AI Setup Modal & Key Management
+   */
   function setupApiKeyModal() {
-    const modal = document.getElementById('apiKeyModal');
+    const modal = document.getElementById('geminiModal') || document.getElementById('apiKeyModal');
     if (!modal) return;
     const inputKey = document.getElementById('inputGeminiApiKey');
     const statusText = document.getElementById('keyStatusText');
@@ -2165,6 +2168,8 @@ const App = (() => {
     const btnLabel = document.getElementById('btnApiKeyLabel');
     const aiKeyBanner = document.getElementById('aiKeyBanner');
     const statusPill = document.getElementById('aiStatusPill');
+    const headerAiLabel = document.getElementById('headerAiStatusLabel');
+    const testStatusBox = document.getElementById('geminiTestStatus');
 
     function updateKeyUIState() {
       const activeKey = CONFIG.GEMINI_API_KEY;
@@ -2178,20 +2183,36 @@ const App = (() => {
         }
         if (engineLabel) engineLabel.textContent = 'Gemini 2.0 Flash (Connected)';
         if (btnLabel) btnLabel.textContent = 'AI Key: Active ✓';
+        if (headerAiLabel) headerAiLabel.innerHTML = 'Gemini 2.0 <strong style="color:#15803D;">● Connected</strong>';
         if (aiKeyBanner) aiKeyBanner.className = 'ai-key-banner active-gemini';
         if (statusPill) {
           statusPill.innerHTML = `<span class="status-dot" style="background:#16A34A;"></span><span class="status-text">Gemini 2.0 Connected</span>`;
         }
+        if (testStatusBox) {
+          testStatusBox.style.display = 'block';
+          testStatusBox.style.background = '#DCFCE7';
+          testStatusBox.style.border = '1px solid #86EFAC';
+          testStatusBox.style.color = '#15803D';
+          testStatusBox.innerHTML = '✅ <strong>Gemini 2.0 Flash is Connected & Active.</strong> Incoming PDFs, images & text are processed with real multimodal AI.';
+        }
       } else {
-        if (statusText) statusText.textContent = 'Offline Heuristic Parser (API Key Not Configured)';
+        if (statusText) statusText.textContent = 'Offline Intelligent NLP (API Key Not Configured)';
         if (statusDisplay) {
           statusDisplay.className = 'key-status-indicator';
         }
-        if (engineLabel) engineLabel.textContent = 'Offline Heuristic Parser';
+        if (engineLabel) engineLabel.textContent = 'Offline Intelligent Parser';
         if (btnLabel) btnLabel.textContent = 'AI Settings';
+        if (headerAiLabel) headerAiLabel.textContent = 'Gemini AI (Setup)';
         if (aiKeyBanner) aiKeyBanner.className = 'ai-key-banner';
         if (statusPill) {
           statusPill.innerHTML = `<span class="status-dot"></span><span class="status-text">Studio Engine Ready</span>`;
+        }
+        if (testStatusBox) {
+          testStatusBox.style.display = 'block';
+          testStatusBox.style.background = '#F8FAFC';
+          testStatusBox.style.border = '1px solid #CBD5E1';
+          testStatusBox.style.color = '#475569';
+          testStatusBox.innerHTML = 'ℹ️ Currently running in <strong>Intelligent Local Parser</strong> mode. Enter your API key above to unlock Gemini 2.0 Multimodal AI.';
         }
       }
     }
@@ -2207,8 +2228,10 @@ const App = (() => {
       if (modal) modal.style.display = 'none';
     };
 
+    safe('btnOpenGeminiModal', openModal);
     safe('btnOpenApiKeyModal', openModal);
     safe('btnQuickKeySetup', openModal);
+    safe('btnCloseGeminiModal', closeModal);
     safe('btnCloseApiKeyModal', closeModal);
 
     // Click outside to close
@@ -2216,59 +2239,59 @@ const App = (() => {
       if (e.target === modal) closeModal();
     });
 
-    // Eye toggle for password visibility
-    const toggleVisBtn = document.getElementById('btnToggleKeyVis');
-    if (toggleVisBtn && inputKey) {
-      toggleVisBtn.addEventListener('click', () => {
-        if (inputKey.type === 'password') {
-          inputKey.type = 'text';
-          toggleVisBtn.textContent = '🔒';
-        } else {
-          inputKey.type = 'password';
-          toggleVisBtn.textContent = '👁️';
-        }
-      });
-    }
-
-    // Test Key button
-    safe('btnTestApiKey', async () => {
+    // Test Key logic
+    const handleTestKey = async () => {
       const keyVal = inputKey ? inputKey.value.trim() : '';
       if (!keyVal) {
         showToast('Please enter an API Key to test.', 'warning');
         return;
       }
-      const testBtn = document.getElementById('btnTestApiKey');
-      const origText = testBtn.innerHTML;
-      testBtn.disabled = true;
-      testBtn.innerHTML = 'Testing...';
+      const testBtn = document.getElementById('btnTestGeminiKey') || document.getElementById('btnTestApiKey');
+      const origText = testBtn ? testBtn.innerHTML : 'Test';
+      if (testBtn) {
+        testBtn.disabled = true;
+        testBtn.innerHTML = '⏳ Testing...';
+      }
 
       try {
         if (typeof AIParser !== 'undefined' && typeof AIParser.testApiKey === 'function') {
-          await AIParser.testApiKey(keyVal);
-        } else {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${keyVal}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: 'OK' }] }] })
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const res = await AIParser.testApiKey(keyVal);
+          if (testStatusBox) {
+            testStatusBox.style.display = 'block';
+            testStatusBox.style.background = '#DCFCE7';
+            testStatusBox.style.border = '1px solid #86EFAC';
+            testStatusBox.style.color = '#15803D';
+            testStatusBox.innerHTML = `✅ <strong>Connection Verified!</strong> Successfully connected to <strong>${res?.model || 'Gemini 2.0 Flash'}</strong>. Click "Save Key" to apply.`;
+          }
         }
         if (statusText) statusText.textContent = 'Success! Gemini 2.0 Flash is responding.';
         if (statusDisplay) statusDisplay.className = 'key-status-indicator connected';
         showToast('Connection verified successfully! Click Save to apply.', 'success');
       } catch (err) {
         console.error(err);
+        if (testStatusBox) {
+          testStatusBox.style.display = 'block';
+          testStatusBox.style.background = '#FEE2E2';
+          testStatusBox.style.border = '1px solid #FCA5A5';
+          testStatusBox.style.color = '#B91C1C';
+          testStatusBox.innerHTML = `❌ <strong>Connection Failed:</strong> ${err.message || 'Invalid API Key'}`;
+        }
         if (statusText) statusText.textContent = 'Connection failed: ' + (err.message || 'Invalid Key');
         if (statusDisplay) statusDisplay.className = 'key-status-indicator error';
         showToast('Error: ' + (err.message || 'Invalid API Key'), 'error');
       } finally {
-        testBtn.disabled = false;
-        testBtn.innerHTML = origText;
+        if (testBtn) {
+          testBtn.disabled = false;
+          testBtn.innerHTML = origText;
+        }
       }
-    });
+    };
 
-    // Save Key button
-    safe('btnSaveApiKey', () => {
+    safe('btnTestGeminiKey', handleTestKey);
+    safe('btnTestApiKey', handleTestKey);
+
+    // Save Key logic
+    const handleSaveKey = () => {
       const keyVal = inputKey ? inputKey.value.trim() : '';
       if (!keyVal) {
         showToast('Please enter your Gemini API key.', 'warning');
@@ -2278,7 +2301,10 @@ const App = (() => {
       updateKeyUIState();
       closeModal();
       showToast('Gemini 2.0 Flash API activated successfully!', 'success');
-    });
+    };
+
+    safe('btnSaveGeminiKey', handleSaveKey);
+    safe('btnSaveApiKey', handleSaveKey);
 
     // Clear Key button
     safe('btnClearApiKey', () => {

@@ -71,102 +71,108 @@ const Chatbot = (() => {
   /**
    * Setup Attachment Handlers (Multimodal file support)
    */
+  /**
+   * Helper: Convert ArrayBuffer to Base64 safely
+   */
+  function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    const chunkSize = 8192;
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, len));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return window.btoa(binary);
+  }
+
+  /**
+   * Process incoming file from file picker or drag-and-drop
+   */
+  async function processIncomingFile(file) {
+    if (!file) return;
+    const badge = $('chatAttachmentBadge');
+    const badgeText = $('chatAttachmentText');
+
+    activeAttachment = {
+      name: file.name,
+      size: file.size,
+      type: file.type || 'application/octet-stream',
+      mimeType: file.type || '',
+      base64: '',
+      extractedText: '',
+      pageCount: 1,
+      isPdf: file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf'),
+      isImage: file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name)
+    };
+
+    if (badge && badgeText) {
+      badgeText.innerHTML = `⏳ Reading & analyzing <strong>${escapeHTML(file.name)}</strong>...`;
+      badge.style.display = 'flex';
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      activeAttachment.base64 = arrayBufferToBase64(arrayBuffer);
+
+      if (activeAttachment.isPdf) {
+        activeAttachment.mimeType = 'application/pdf';
+        if (typeof pdfjsLib !== 'undefined') {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+          const pdf = await loadingTask.promise;
+          activeAttachment.pageCount = pdf.numPages;
+          let fullText = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            fullText += `[Page ${i}]\n` + pageText + '\n';
+          }
+          activeAttachment.extractedText = fullText.trim();
+        }
+      } else if (activeAttachment.isImage) {
+        activeAttachment.mimeType = file.type || 'image/jpeg';
+        activeAttachment.extractedText = `[Image Document: ${file.name}]`;
+      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('wordprocessingml') || file.type.includes('msword')) {
+        activeAttachment.mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        if (typeof mammoth !== 'undefined') {
+          const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer.slice(0) });
+          activeAttachment.extractedText = result.value ? result.value.trim() : '';
+        }
+      } else {
+        activeAttachment.extractedText = await file.text();
+      }
+    } catch (err) {
+      console.warn('File processing notice:', err);
+    }
+
+    if (badge && badgeText) {
+      const charInfo = activeAttachment.extractedText ? ` · ${activeAttachment.extractedText.length} chars` : '';
+      const pageInfo = activeAttachment.pageCount > 1 ? ` · ${activeAttachment.pageCount} pages` : '';
+      badgeText.innerHTML = `📎 <strong>Attached:</strong> ${escapeHTML(file.name)} <span style="opacity:0.8; font-size:11px;">(${Math.round(file.size / 1024)} KB${pageInfo}${charInfo})</span>`;
+      badge.style.display = 'flex';
+    }
+
+    if (typeof showToast === 'function') {
+      showToast(`Attached & analyzed ${file.name}`, 'success');
+    }
+  }
+
+  /**
+   * Setup Attachment Handlers (Multimodal file support & Drag-and-Drop)
+   */
   function setupAttachmentHandlers() {
     const attachBtn = $('btnAttachFile');
     const fileInput = $('chatDocUpload');
     const badge = $('chatAttachmentBadge');
-    const badgeText = $('chatAttachmentText');
     const removeBtn = $('btnRemoveChatAttachment');
 
     if (attachBtn && fileInput) {
       attachBtn.addEventListener('click', () => fileInput.click());
-
       fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
-
-        activeAttachment = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          extractedText: ''
-        };
-
-        if (badge && badgeText) {
-          badgeText.textContent = `⏳ Reading & parsing ${file.name}...`;
-          badge.style.display = 'flex';
-        }
-
-        // 1. If PDF file, extract text via PDF.js
-        if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            if (typeof pdfjsLib !== 'undefined') {
-              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-              const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-              const pdf = await loadingTask.promise;
-              let fullText = '';
-              for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(' ');
-                fullText += `[Page ${i}]\n` + pageText + '\n';
-              }
-              activeAttachment.extractedText = fullText.trim();
-            }
-          } catch (pdfErr) {
-            console.warn('PDF.js parsing note:', pdfErr);
-          }
-        } else if (file.type.startsWith('image/')) {
-          try {
-            const base64Data = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => {
-                const res = reader.result || '';
-                const base64 = res.split(',')[1] || '';
-                resolve(base64);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
-            });
-            activeAttachment.base64 = base64Data;
-            activeAttachment.isImage = true;
-            activeAttachment.mimeType = file.type || 'image/jpeg';
-            activeAttachment.extractedText = `[Image Reference: ${file.name}]`;
-          } catch (err) {
-            console.warn('Image reading error:', err);
-          }
-        } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('wordprocessingml') || file.type.includes('msword')) {
-          // Native Microsoft Word DOCX Extraction
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            if (typeof mammoth !== 'undefined') {
-              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-              activeAttachment.extractedText = result.value ? result.value.trim() : '';
-            } else {
-              // Fallback text extraction
-              const text = await file.text();
-              activeAttachment.extractedText = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ').trim();
-            }
-          } catch (docxErr) {
-            console.warn('DOCX parsing note:', docxErr);
-          }
-        } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt')) {
-          try {
-            activeAttachment.extractedText = await file.text();
-          } catch (err) {
-            console.warn('Text reading note:', err);
-          }
-        }
-
-        if (badge && badgeText) {
-          const charLen = activeAttachment.extractedText ? ` · ${activeAttachment.extractedText.length} chars` : '';
-          badgeText.textContent = `📎 Attached: ${file.name} (${Math.round(file.size / 1024)} KB${charLen})`;
-          badge.style.display = 'flex';
-        }
-        if (typeof showToast === 'function') {
-          showToast(`Attached & parsed ${file.name}`, 'success');
-        }
+        if (file) await processIncomingFile(file);
       });
     }
 
@@ -175,6 +181,32 @@ const Chatbot = (() => {
         activeAttachment = null;
         if (badge) badge.style.display = 'none';
         if (fileInput) fileInput.value = '';
+      });
+    }
+
+    // Drag and Drop support on Chat Panel
+    const chatPanel = $('chatPanel') || document.querySelector('.chat-panel');
+    if (chatPanel) {
+      ['dragenter', 'dragover'].forEach(name => {
+        chatPanel.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatPanel.style.outline = '2px dashed #2563EB';
+          chatPanel.style.outlineOffset = '-4px';
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        chatPanel.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatPanel.style.outline = 'none';
+        });
+      });
+      chatPanel.addEventListener('drop', async (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+          await processIncomingFile(dt.files[0]);
+        }
       });
     }
   }
@@ -213,7 +245,8 @@ const Chatbot = (() => {
         fileSnippet = `\n[Extracted Document Text]:\n${activeAttachment.extractedText}\n[End Document Text]\n`;
       }
       fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}` + (text || 'Please process this attached document.');
-      userBubble = `[Attached File: ${activeAttachment.name}]\n` + (text || 'Please process this attached document.');
+      const pageInfo = activeAttachment.pageCount > 1 ? ` (${activeAttachment.pageCount} pages)` : '';
+      userBubble = `📎 <strong>Attached: ${escapeHTML(activeAttachment.name)}</strong>${pageInfo}<br>` + (text ? escapeHTML(text) : 'Please extract all details and update the document.');
     }
 
     clearInput();
@@ -386,7 +419,7 @@ const Chatbot = (() => {
         (
           /(?:banao|make|create|generate|switch|dikhao|convert|chahiye|tayyar|print).*(?:invoice|inoice|invoce|invoic|tax\s*invoice|bill|receipt|challan)/i.test(text) ||
           /(?:invoice|inoice|invoce|invoic|tax\s*invoice|receipt|challan).*(?:banao|bana|generate|create|karo|me|format|sheet)/i.test(text) ||
-          (activeAttachment && /invoice|bill|receipt/i.test(activeAttachment.name))
+          (attachment && /invoice|bill|receipt/i.test(attachment.name))
         ) && !/(?:kyu|kyun|why|sirf|only|baki|other|nahi|mat)/i.test(text)
       );
 
@@ -693,9 +726,25 @@ const Chatbot = (() => {
         }
       }
 
-      // 7. General extraction via AIParser (Context aware with multimodal image support)
-      const extracted = await AIParser.parseText(text, QuotationData, activeAttachment);
+      // 7. General extraction via AIParser (Real Gemini Multimodal + Intelligent Local NLP)
+      const extracted = await AIParser.parseText(text, QuotationData, attachment);
 
+      // Automatically switch to detected document format
+      const docType = extracted.detectedDocType || QuotationData.activeDocType || 'quotation';
+      QuotationData.activeDocType = docType;
+      if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+        App.switchDocType(docType);
+      }
+
+      if (extracted.invoice) {
+        QuotationData.invoice = Object.assign(QuotationData.invoice || {}, extracted.invoice);
+        if (typeof App !== 'undefined' && typeof App.populateInvoiceFields === 'function') {
+          App.populateInvoiceFields();
+        }
+      }
+      if (extracted.confirmation) {
+        QuotationData.confirmation = Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
+      }
       if (extracted.package) {
         Object.assign(QuotationData.package, extracted.package);
       }
@@ -711,14 +760,6 @@ const Chatbot = (() => {
 
       recalculateQuotationPricing();
 
-      // If activeDocType was invoice, automatically switch back to quotation for travel packages
-      if (QuotationData.activeDocType === 'invoice') {
-        QuotationData.activeDocType = 'quotation';
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('quotation');
-        }
-      }
-
       if (typeof App !== 'undefined') {
         if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
         if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
@@ -729,19 +770,44 @@ const Chatbot = (() => {
       setTyping(false);
 
       const pkg = QuotationData.package || {};
-      appendAI(
-        `✅ <strong>Quotation Updated Successfully!</strong><br><br>` +
-        `📍 <strong>${pkg.destinations || 'Holiday'}</strong> (${pkg.duration || '—'})<br>` +
-        `👥 <strong>${pkg.travellers || '2 Adults'}</strong> · 📅 Dates: <strong>${pkg.preparedDate || '—'}</strong><br>` +
-        `🗺️ <strong>${QuotationData.days.length} Days Itinerary & Costing Configured</strong><br><br>` +
-        `What would you like to do next?`
-      );
+      const aiSourceBadge = extracted._source === 'gemini' 
+        ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini 2.0 Flash AI</span>'
+        : '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1E40AF; font-size:11px; font-weight:700;">🤖 Intelligent DMC Document Engine</span>';
+
+      const docTypeMeta = (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[docType]) 
+        ? `${DOCUMENT_TYPES[docType].icon} ${DOCUMENT_TYPES[docType].name}`
+        : docType.toUpperCase();
+
+      let replyMsg = `✅ <strong>Document Extracted & Synchronized!</strong> ${aiSourceBadge}<br><br>` +
+        `📋 <strong>Active Format:</strong> <strong>${docTypeMeta}</strong><br>` +
+        `📍 <strong>Destination:</strong> ${pkg.destinations || 'Holiday Destination'} (${pkg.duration || 'Custom Plan'})<br>` +
+        `👤 <strong>Client:</strong> ${pkg.clientName || 'Valued Client'} · 👥 ${pkg.travellers || '2 Adults'}<br>`;
+
+      if (docType === 'invoice') {
+        const inv = QuotationData.invoice || {};
+        replyMsg += `🧾 <strong>Invoice No:</strong> ${inv.invoiceNumber || '—'} · Total: <strong>₹ ${inv.grandTotal?.toLocaleString('en-IN') || '—'}</strong><br>`;
+      } else if (docType === 'confirmation') {
+        const conf = QuotationData.confirmation || {};
+        replyMsg += `🏨 <strong>Hotel:</strong> ${conf.hotelName || '—'} · Stay: ${conf.checkIn || '—'} to ${conf.checkOut || '—'}<br>`;
+      } else {
+        replyMsg += `🗺️ <strong>Itinerary:</strong> ${QuotationData.days.length} Days Configured · 🏨 ${QuotationData.hotels.length} Hotel Stays<br>`;
+        if (docType === 'itinerary') {
+          replyMsg += `✨ <em>Rendered as Clean Guest Itinerary without pricing rates.</em><br>`;
+        } else {
+          replyMsg += `💰 <strong>Quotation Total:</strong> ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} ($ ${QuotationData.summary?.totalUSD?.toLocaleString('en-IN') || '0'} USD)<br>`;
+        }
+      }
+
+      replyMsg += `<br>Neeche diye format buttons se aap turant kisi bhi format me switch kar sakte hain:`;
+      appendAI(replyMsg);
 
       showReplies([
-        { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
-        { label: '🖨️ Generate PDF', val: '__PDF__' },
-        { label: '📄 Download DOCX', val: '__DOCX__' },
-        { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' }
+        { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+        { label: '📄 1. Master Quotation', val: '__SWITCH_QUOTATION__' },
+        { label: '🗺️ 2. Travel Itinerary (Without Rates)', val: '__SWITCH_ITINERARY__' },
+        { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' },
+        { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
+        { label: '🖨️ Generate PDF', val: '__PDF__' }
       ]);
 
     } catch (err) {
