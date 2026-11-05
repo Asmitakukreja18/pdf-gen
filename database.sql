@@ -374,7 +374,10 @@ CREATE TABLE IF NOT EXISTS `quotations` (
 -- Compatibility View: inquiries -> leads
 -- Seamlessly bridges all APIs querying inquiries with the leads table
 -- --------------------------------------------------------
-CREATE OR REPLACE VIEW `inquiries` AS 
+DROP VIEW IF EXISTS `inquiries`;
+DROP TABLE IF EXISTS `inquiries`;
+
+CREATE VIEW `inquiries` AS 
 SELECT 
   `id`,
   `lead_no`,
