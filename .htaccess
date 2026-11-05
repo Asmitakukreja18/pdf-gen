@@ -4,3 +4,4 @@ DirectoryIndex index.html index.php
 # Security & Directory Listing Protection
 Options -Indexes
 ServerSignature Off
+

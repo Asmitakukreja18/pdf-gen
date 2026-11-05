@@ -416,10 +416,10 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
 -- Staff Members (Admin + Sub-Users Chanchal, Ritesh, Ops)
 -- Default Password for all 4 accounts: Admin@123
 INSERT INTO `users` (`id`, `username`, `name`, `email`, `phone`, `password_hash`, `role`, `status`) VALUES
-(1, 'admin', 'Main Admin', 'admin@letsexploredmc.com', '+91 98765 43210', '$2y$10$HTkDyUiGS7/enC82ul5AwOOKM7QhojHt/IxDV5t6YJyyW1xVtjoIC', 'admin', 'active'),
-(2, 'chanchal', 'Chanchal (SU-1)', 'chanchal@letsexploredmc.com', '+91 98765 43211', '$2y$10$HTkDyUiGS7/enC82ul5AwOOKM7QhojHt/IxDV5t6YJyyW1xVtjoIC', 'executive', 'active'),
-(3, 'ritesh', 'Ritesh (SU-2)', 'ritesh@letsexploredmc.com', '+91 98765 43212', '$2y$10$HTkDyUiGS7/enC82ul5AwOOKM7QhojHt/IxDV5t6YJyyW1xVtjoIC', 'executive', 'active'),
-(4, 'operations', 'Ops Team (SU-3)', 'ops@letsexploredmc.com', '+91 98765 43213', '$2y$10$HTkDyUiGS7/enC82ul5AwOOKM7QhojHt/IxDV5t6YJyyW1xVtjoIC', 'agent', 'active')
+(1, 'admin', 'Main Admin', 'admin@letsexploredmc.com', '+91 98765 43210', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'admin', 'active'),
+(2, 'chanchal', 'Chanchal (SU-1)', 'chanchal@letsexploredmc.com', '+91 98765 43211', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'executive', 'active'),
+(3, 'ritesh', 'Ritesh (SU-2)', 'ritesh@letsexploredmc.com', '+91 98765 43212', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'executive', 'active'),
+(4, 'operations', 'Ops Team (SU-3)', 'ops@letsexploredmc.com', '+91 98765 43213', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'agent', 'active')
 ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`), `status` = 'active';
 
 -- Seed Customers
