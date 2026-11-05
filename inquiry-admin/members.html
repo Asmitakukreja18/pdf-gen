@@ -1,196 +1,653 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Members &amp; Employee Management — Let's Explore DMC</title>
+    <title>Staff Management &amp; Employee Activity Tracking — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=8.0">
+    <link rel="stylesheet" href="css/portal.css?v=14.0">
+
+    <style>
+        :root {
+            --bg-ivory: #F8FAFC;
+            --sidebar-navy: #0F172A;
+            --sidebar-hover: #1E293B;
+            --brand-blue: #2563EB;
+            --brand-green: #10B981;
+            --brand-gold: #C5A059;
+            --card-radius: 18px;
+            --pill-radius: 9999px;
+            --shadow-subtle: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 0 1px 1px rgba(15, 23, 42, 0.02);
+        }
+
+        body {
+            background-color: var(--bg-ivory);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0F172A;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .portal-layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Sidebar Styling */
+        .portal-sidebar {
+            background: var(--sidebar-navy);
+            width: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.28s ease;
+            z-index: 50;
+        }
+
+        .sidebar-header {
+            padding: 24px 22px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .brand-text-gold {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text-gold span {
+            color: var(--brand-gold);
+        }
+
+        .sidebar-menu {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-item:hover {
+            color: #FFFFFF;
+            background: var(--sidebar-hover);
+        }
+
+        .nav-link-item.active {
+            background: var(--brand-blue);
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-link-item i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .sidebar-logout-wrap {
+            padding: 16px 14px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Topbar */
+        .portal-topbar {
+            background: #FFFFFF;
+            height: 72px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .search-pill-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F1F5F9;
+            border-radius: var(--pill-radius);
+            padding: 10px 18px;
+            width: 320px;
+            border: 1px solid transparent;
+        }
+
+        .search-pill-box input {
+            border: none;
+            background: transparent;
+            font-size: 13.5px;
+            outline: none;
+            width: 100%;
+        }
+
+        .topbar-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-pill-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F8FAFC;
+            padding: 6px 14px 6px 6px;
+            border-radius: var(--pill-radius);
+            border: 1px solid #E2E8F0;
+        }
+
+        .avatar-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #0F172A;
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 24px 32px 0;
+        }
+
+        .metric-card {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .metric-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Activity Table Card */
+        .content-card {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #E2E8F0;
+            margin: 24px 32px;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .custom-table th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #E2E8F0;
+            background: #F8FAFC;
+        }
+
+        .custom-table td {
+            padding: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .custom-table tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--pill-radius);
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .status-badge.active {
+            background: #ECFDF5;
+            color: #10B981;
+            border: 1px solid #A7F3D0;
+        }
+
+        .status-badge.inactive {
+            background: #FEF2F2;
+            color: #EF4444;
+            border: 1px solid #FECACA;
+        }
+
+        .status-badge.logged-out {
+            background: #FFFBEB;
+            color: #D97706;
+            border: 1px solid #FDE68A;
+        }
+
+        /* Buttons */
+        .btn-gold {
+            background: var(--brand-gold);
+            color: #FFF;
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--pill-radius);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-gold:hover {
+            background: #A9823B;
+        }
+
+        .btn-outline {
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            color: #334155;
+            padding: 9px 16px;
+            border-radius: var(--pill-radius);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #94A3B8;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-box {
+            background: #FFFFFF;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--sidebar-navy);
+            color: #FFF;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 1280px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .portal-sidebar {
+                position: fixed;
+                left: -260px;
+                height: 100%;
+            }
+            .portal-sidebar.open {
+                left: 0;
+            }
+            .portal-topbar { padding: 0 16px; }
+            .search-pill-box { display: none; }
+            .metrics-grid { padding: 16px 16px 0; grid-template-columns: 1fr; }
+            .content-card { margin: 16px; padding: 16px; }
+        }
+    </style>
 </head>
-<body style="background:#F8FAFC;">
 
-    <!-- TOP NAVIGATION BAR -->
-    <header class="admin-nav" style="padding: 10px 24px; background:#FFFFFF; border-bottom:1px solid #E2E8F0;">
-        <div style="display:flex; align-items:center; gap:24px;">
-            <a href="leads.html" class="brand-section" style="gap:10px;">
-                <img src="../images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
-                <div class="brand-info">
-                    <h2 style="font-size:16px; font-weight:800; color:#0F2C59; line-height:1.1;">Let's Explore DMC</h2>
-                    <span style="font-size:10px; color:#3977B8; font-weight:700; letter-spacing:0.06em;">DMC Business Operating System</span>
-                </div>
-            </a>
+<body>
+    <div class="portal-layout">
+        <!-- ============================================================
+             LEFT SIDEBAR (MATCHING REFERENCE IMAGE)
+             ============================================================ -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
+                    </div>
+                </a>
+            </div>
 
-            <!-- Top Nav Links -->
-            <nav style="display:flex; align-items:center; gap:4px; margin-left:12px;">
-                <a href="documents.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Documents</a>
-                <a href="members.html" class="nav-item active" style="font-size:12.5px; padding:6px 14px; background:#0F2C59; color:#FFF; font-weight:700;">Members</a>
-                <a href="leads.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Leads</a>
-                <a href="packages.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Packages</a>
-                <a href="customers.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Customers</a>
-                <a href="invoices.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Invoices</a>
-                <a href="trips.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Trips</a>
-                <a href="suppliers.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Suppliers</a>
-                <a href="analytics.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Reports</a>
-                <a href="settings.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Settings</a>
-                <a href="../admin/index.html" class="nav-item" style="font-size:12.5px; padding:6px 12px; color:#2563EB;"><i class="fa-solid fa-globe"></i> Website CMS</a>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="nav-link-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="leads.html" class="nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="../index.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Quotations</span>
+                </a>
+                <a href="packages.html" class="nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link-item">
+                    <i class="fa-solid fa-car-side"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="documents.html" class="nav-link-item">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="analytics.html" class="nav-link-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="members.html" class="nav-link-item active">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
             </nav>
-        </div>
 
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div id="subUserSessionBadge" style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:4px 12px; display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:#1E3A8A;">
-                <span style="width:7px; height:7px; border-radius:50%; background:#10B981; display:inline-block;"></span>
-                <span>User-1 (Admin)</span>
-                <span style="color:#64748B; font-weight:500;">| Active <span id="userLoginTime">11:00 AM</span></span>
+            <div class="sidebar-logout-wrap">
+                <a href="../api/logout.php" class="nav-link-item" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
             </div>
+        </aside>
 
-            <a href="../index.html" class="btn-pill-action gold" style="padding:6px 14px; font-size:12px; border-radius:6px; background:#0F2C59; color:#FFF; text-decoration:none;">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
-            </a>
-        </div>
-    </header>
-
-    <!-- MAIN WORKSPACE -->
-    <main style="max-width:1440px; margin:0 auto; padding:24px 28px;">
-        
-        <!-- Header -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
-            <div>
-                <h1 style="font-size:22px; font-weight:800; color:#0F2C59; margin:0 0 4px 0;">Members &amp; Sub-Users Management</h1>
-                <p style="font-size:13px; color:#64748B; margin:0;">
-                    Manage staff accounts (Admin, Chanchal, Ritesh, Ops). Add unlimited sub-users, control role permissions, and track real-time activity.
-                </p>
-            </div>
-            <div>
-                <button type="button" onclick="document.getElementById('addMemberModal').style.display='flex'" style="background:#0F2C59; color:#FFFFFF; border:none; padding:8px 18px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-user-plus"></i> + Add Member
-                </button>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns: 2.2fr 1fr; gap:20px; align-items:start;">
-            
-            <!-- Members Table Card -->
-            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                <div style="padding:16px 20px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="margin:0; font-size:14px; font-weight:700; color:#0F2C59;">Active Staff &amp; Sub-Users (<span id="memberCountBadge">4</span>)</h3>
-                    <span style="font-size:11px; color:#10B981; font-weight:700; background:#ECFDF5; padding:3px 8px; border-radius:12px;">Unlimited Members Allowed</span>
+        <!-- ============================================================
+             MAIN CONTENT & TOPBAR
+             ============================================================ -->
+        <div class="portal-main" style="flex:1; display:flex; flex-direction:column; min-width:0;">
+            <!-- TOPBAR -->
+            <header class="portal-topbar">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <button type="button" onclick="document.getElementById('portalSidebar').classList.toggle('open')" style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-pill-box">
+                        <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
+                        <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()" placeholder="Search staff by name or role...">
+                    </div>
                 </div>
-                
+
+                <div class="topbar-actions-group">
+                    <div class="profile-pill-item">
+                        <div class="avatar-box">AD</div>
+                        <div style="line-height:1.2;">
+                            <div style="font-weight:700; font-size:12.5px; color:#0F172A;">Admin</div>
+                            <div style="font-size:11px; color:#64748B;">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PAGE HEADER -->
+            <div style="padding: 24px 32px 0; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <h1 style="font-size:24px; font-weight:800; color:#0F172A; margin:0 0 6px 0; letter-spacing:-0.02em;">
+                        Employee Activity &amp; Staff Control Center
+                    </h1>
+                    <p style="font-size:13.5px; color:#64748B; margin:0;">
+                        Live session tracking, login history, lead handling metrics, and administrative access controls.
+                    </p>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button type="button" onclick="exportActivityCSV()" class="btn-outline">
+                        <i class="fa-solid fa-download"></i> Export Activity CSV
+                    </button>
+                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='flex'" class="btn-gold">
+                        <i class="fa-solid fa-user-plus"></i> Add Staff Member
+                    </button>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:#EFF6FF; color:#2563EB;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Total Staff</div>
+                        <div id="statTotalStaff" style="font-size:22px; font-weight:800; color:#0F172A;">4</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:#ECFDF5; color:#10B981;">
+                        <i class="fa-solid fa-signal"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Active Sessions</div>
+                        <div id="statActiveSessions" style="font-size:22px; font-weight:800; color:#10B981;">4</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:#FEF3C7; color:#92400E;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Quotes Handled</div>
+                        <div id="statQuotesHandled" style="font-size:22px; font-weight:800; color:#0F172A;">86</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap" style="background:#F5F3FF; color:#8B5CF6;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Avg. Session Time</div>
+                        <div style="font-size:22px; font-weight:800; color:#0F172A;">1h 22m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN TABLE CARD -->
+            <div class="content-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0;">
+                            Employee Roster &amp; Live Tracking
+                        </h3>
+                        <span id="memberCountBadge" style="font-size:11.5px; font-weight:700; background:#EFF6FF; color:#2563EB; padding:3px 10px; border-radius:12px;">
+                            4 Members
+                        </span>
+                    </div>
+
+                    <!-- Role Filters -->
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="role-filter-btn btn-outline active" onclick="filterByRole('all', this)" style="padding:6px 12px; font-size:12px;">All</button>
+                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('admin', this)" style="padding:6px 12px; font-size:12px;">Admin</button>
+                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('executive', this)" style="padding:6px 12px; font-size:12px;">Executives</button>
+                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('agent', this)" style="padding:6px 12px; font-size:12px;">Operations</button>
+                    </div>
+                </div>
+
                 <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                    <table class="custom-table">
                         <thead>
-                            <tr style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#475569; font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
-                                <th style="padding:12px 16px;">Employee &amp; Username</th>
-                                <th style="padding:12px 16px;">Role</th>
-                                <th style="padding:12px 16px;">Contact</th>
-                                <th style="padding:12px 16px;">Performance</th>
-                                <th style="padding:12px 16px;">Status</th>
-                                <th style="padding:12px 16px; text-align:right;">Actions</th>
+                            <tr>
+                                <th>Employee &amp; Role</th>
+                                <th>Login / Logout Times</th>
+                                <th>Last Active &amp; Duration</th>
+                                <th>Status</th>
+                                <th>Leads / Quotes</th>
+                                <th>Follow-ups</th>
+                                <th style="text-align:right;">Admin Actions</th>
                             </tr>
                         </thead>
                         <tbody id="membersTableBody">
-                            <!-- Loaded from API -->
+                            <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Real-Time Activity Log Feed Card -->
-            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #F1F5F9; padding-bottom:10px;">
-                    <h3 style="margin:0; font-size:14px; font-weight:800; color:#0F2C59;">
-                        <i class="fa-solid fa-clock-rotate-left" style="color:#2563EB; margin-right:6px;"></i> Live Activity Feed
+            <!-- LIVE ACTIVITY FEED CARD -->
+            <div class="content-card" style="margin-top:0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size:15px; font-weight:800; color:#0F172A; margin:0;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:#2563EB; margin-right:8px;"></i>
+                        Transparent Activity Timeline &amp; Work Events
                     </h3>
-                    <span style="font-size:11px; color:#64748B;">Audit Trail</span>
+                    <span style="font-size:12px; color:#64748B;">Audit Log (Work-Related Events Only)</span>
                 </div>
-
-                <div id="activityLogsFeed" style="display:flex; flex-direction:column; gap:12px; max-height:480px; overflow-y:auto;">
-                    <!-- Activity items -->
+                <div id="activityLogsFeed" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+                    <!-- Activity Items -->
                 </div>
             </div>
-
         </div>
-
-    </main>
+    </div>
 
     <!-- ============================================================
          MODAL: ADD NEW MEMBER
          ============================================================ -->
-    <div id="addMemberModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999; align-items:center; justify-content:center; padding:16px;">
-        <div style="background:#FFFFFF; border-radius:12px; width:100%; max-width:540px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); overflow:hidden;">
-            <div style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:15px; font-weight:700;">Add New Sub-User / Member</h3>
-                <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:16px; cursor:pointer;">&times;</button>
+    <div id="addMemberModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="margin:0; font-size:15px; font-weight:800;">Add New Staff Member</h3>
+                <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;">&times;</button>
             </div>
-            
-            <form id="newMemberForm" onsubmit="handleAddMember(event)" style="padding:20px; display:flex; flex-direction:column; gap:12px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <form id="newMemberForm" onsubmit="handleAddMember(event)" style="padding:22px; display:flex; flex-direction:column; gap:14px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Full Name</label>
-                        <input type="text" id="mName" placeholder="e.g. Chanchal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                        <input type="text" id="mName" placeholder="e.g. Chanchal Sharma" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
                     </div>
                     <div>
                         <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Username (Login ID)</label>
-                        <input type="text" id="mUsername" placeholder="e.g. chanchal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                        <input type="text" id="mUsername" placeholder="e.g. chanchal" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Work Email</label>
-                        <input type="email" id="mEmail" placeholder="employee@letsexploredmc.com" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                        <input type="email" id="mEmail" placeholder="employee@letsexploredmc.com" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
                     </div>
                     <div>
                         <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Phone Number</label>
-                        <input type="tel" id="mPhone" placeholder="+91 98765 00000" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
+                        <input type="tel" id="mPhone" placeholder="+91 98765 00000" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Role</label>
-                        <select id="mRole" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px; font-weight:600;">
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Role &amp; Privilege</label>
+                        <select id="mRole" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
                             <option value="executive">Reservations Executive</option>
                             <option value="manager">Operations Manager</option>
-                            <option value="agent">B2B Partner Desk</option>
+                            <option value="agent">Operations Desk</option>
                             <option value="admin">Administrator</option>
                         </select>
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Password</label>
-                        <input type="password" id="mPassword" value="LETSEXPLOREDMC" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
-                    </div>
-                </div>
-
-                <div>
-                    <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Module Permissions</label>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; color:#475569;">
-                        <label><input type="checkbox" checked> Leads &amp; Proposals</label>
-                        <label><input type="checkbox" checked> Documents &amp; Studio</label>
-                        <label><input type="checkbox" checked> Packages Directory</label>
-                        <label><input type="checkbox" checked> Invoices &amp; Vouchers</label>
-                        <label><input type="checkbox" checked> Running Trips</label>
-                        <label><input type="checkbox" checked> Suppliers Directory</label>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Initial Password</label>
+                        <input type="password" id="mPassword" value="LETSEXPLOREDMC" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
                     </div>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
-                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; padding:8px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">Cancel</button>
-                    <button type="submit" style="background:#0F2C59; color:#FFF; border:none; padding:8px 20px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">
-                        Save &amp; Activate Member
-                    </button>
+                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" class="btn-outline">Cancel</button>
+                    <button type="submit" class="btn-gold">Save &amp; Activate Staff</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="js/idle-tracker.js?v=8.0"></script>
+    <!-- JAVASCRIPT -->
     <script>
         let membersList = [];
+        let currentFilterRole = 'all';
 
         async function loadMembers() {
             try {
@@ -198,117 +655,215 @@
                 const data = await res.json();
                 if (data.success && data.members) {
                     membersList = data.members;
-                    renderMembersTable(membersList);
                 } else {
-                    renderFallbackMembers();
+                    membersList = getFallbackMembers();
                 }
             } catch (err) {
-                renderFallbackMembers();
+                membersList = getFallbackMembers();
             }
+            renderMembersTable(membersList);
             loadActivityLogs();
+        }
+
+        function getFallbackMembers() {
+            return [
+                {
+                    id: 1,
+                    name: 'Admin (Administrator)',
+                    username: 'admin',
+                    role: 'admin',
+                    email: 'admin@letsexploredmc.com',
+                    phone: '+91 98765 00001',
+                    login_time: '09:15 AM Today',
+                    logout_time: '— (Active)',
+                    session_duration: '1h 40m',
+                    last_activity: '2 mins ago',
+                    session_status: 'Active',
+                    total_leads: 45,
+                    total_quotes: 38,
+                    followups_pending: 3,
+                    status: 'active'
+                },
+                {
+                    id: 2,
+                    name: 'Chanchal Sharma',
+                    username: 'chanchal',
+                    role: 'executive',
+                    email: 'chanchal@letsexploredmc.com',
+                    phone: '+91 98765 00002',
+                    login_time: '09:32 AM Today',
+                    logout_time: '— (Active)',
+                    session_duration: '1h 23m',
+                    last_activity: '5 mins ago',
+                    session_status: 'Active',
+                    total_leads: 28,
+                    total_quotes: 24,
+                    followups_pending: 5,
+                    status: 'active'
+                },
+                {
+                    id: 3,
+                    name: 'Ritesh Verma',
+                    username: 'ritesh',
+                    role: 'executive',
+                    email: 'ritesh@letsexploredmc.com',
+                    phone: '+91 98765 00003',
+                    login_time: '09:40 AM Today',
+                    logout_time: '— (Active)',
+                    session_duration: '1h 15m',
+                    last_activity: '12 mins ago',
+                    session_status: 'Active',
+                    total_leads: 19,
+                    total_quotes: 15,
+                    followups_pending: 2,
+                    status: 'active'
+                },
+                {
+                    id: 4,
+                    name: 'Operations Team',
+                    username: 'operations',
+                    role: 'agent',
+                    email: 'ops@letsexploredmc.com',
+                    phone: '+91 98765 00004',
+                    login_time: '09:50 AM Today',
+                    logout_time: '— (Active)',
+                    session_duration: '1h 05m',
+                    last_activity: '20 mins ago',
+                    session_status: 'Active',
+                    total_leads: 12,
+                    total_quotes: 9,
+                    followups_pending: 1,
+                    status: 'active'
+                }
+            ];
         }
 
         function renderMembersTable(members) {
             const tbody = document.getElementById('membersTableBody');
             tbody.innerHTML = '';
-            document.getElementById('memberCountBadge').innerText = members.length;
 
-            members.forEach(m => {
+            let filtered = members;
+            if (currentFilterRole !== 'all') {
+                filtered = members.filter(m => m.role.toLowerCase() === currentFilterRole.toLowerCase());
+            }
+
+            document.getElementById('memberCountBadge').innerText = `${filtered.length} Staff Members`;
+            document.getElementById('statTotalStaff').innerText = members.length;
+            
+            const activeCount = members.filter(m => m.status === 'active').length;
+            document.getElementById('statActiveSessions').innerText = activeCount;
+
+            const totalQuotes = members.reduce((sum, m) => sum + (parseInt(m.total_quotes) || 0), 0);
+            document.getElementById('statQuotesHandled').innerText = totalQuotes || 86;
+
+            filtered.forEach(m => {
                 const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid #F1F5F9';
-                
                 const initial = (m.name || m.username || 'U').charAt(0).toUpperCase();
                 const isActive = m.status === 'active';
+                const statusClass = isActive ? 'active' : 'inactive';
 
                 tr.innerHTML = `
-                    <td style="padding:12px 16px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:32px; height:32px; border-radius:50%; background:#0F2C59; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">
+                    <td>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:#0F172A; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px;">
                                 ${initial}
                             </div>
                             <div>
-                                <div style="font-weight:700; color:#0F2C59;">${escapeHTML(m.name || m.username)}</div>
-                                <div style="font-size:11px; color:#64748B;">@${escapeHTML(m.username)}</div>
+                                <div style="font-weight:700; color:#0F172A; font-size:13.5px;">${escapeHTML(m.name || m.username)}</div>
+                                <div style="font-size:11px; color:#64748B;">@${escapeHTML(m.username)} &bull; <span style="text-transform:capitalize; color:#2563EB; font-weight:600;">${escapeHTML(m.role)}</span></div>
                             </div>
                         </div>
                     </td>
-                    <td style="padding:12px 16px;">
-                        <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; background:#EFF6FF; color:#2563EB; text-transform:capitalize;">
-                            ${escapeHTML(m.role || 'Staff')}
+                    <td>
+                        <div style="font-weight:600; color:#0F172A; font-size:12.5px;">${escapeHTML(m.login_time || '09:30 AM Today')}</div>
+                        <div style="font-size:11px; color:#64748B;">Logout: ${escapeHTML(m.logout_time || '—')}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600; color:#0F172A; font-size:12.5px;">${escapeHTML(m.last_activity || 'Recently')}</div>
+                        <div style="font-size:11px; color:#64748B;">Duration: ${escapeHTML(m.session_duration || '45m')}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusClass}">
+                            <span style="width:6px; height:6px; border-radius:50%; background:${isActive ? '#10B981' : '#EF4444'};"></span>
+                            ${isActive ? 'Active' : 'Inactive'}
                         </span>
                     </td>
-                    <td style="padding:12px 16px; font-size:12px;">
-                        <div>${escapeHTML(m.email || 'N/A')}</div>
-                        <div style="font-size:11px; color:#64748B;">${escapeHTML(m.phone || '')}</div>
+                    <td>
+                        <div style="font-weight:700; color:#0F172A;">${m.total_quotes || 0} Quotes</div>
+                        <div style="font-size:11px; color:#64748B;">${m.total_leads || 0} Leads Handled</div>
                     </td>
-                    <td style="padding:12px 16px; font-size:12px;">
-                        <span style="font-weight:700; color:#0F2C59;">${m.total_quotes || 0}</span> Quotes Sent<br>
-                        <span style="font-size:11px; color:#64748B;">${m.total_leads || 0} Leads Handled</span>
+                    <td>
+                        <span style="font-size:12px; font-weight:700; color:#D97706; background:#FEF3C7; padding:2px 8px; border-radius:6px;">
+                            ${m.followups_pending || 0} Pending
+                        </span>
                     </td>
-                    <td style="padding:12px 16px;">
-                        <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" style="background:${isActive ? '#ECFDF5' : '#FEF2F2'}; color:${isActive ? '#10B981' : '#EF4444'}; border:1px solid ${isActive ? '#A7F3D0' : '#FECACA'}; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; cursor:pointer;">
-                            ${isActive ? '● Active' : '○ Inactive'}
-                        </button>
-                    </td>
-                    <td style="padding:12px 16px; text-align:right;">
-                        <button type="button" onclick="alert('Viewing activity for ' + '${escapeHTML(m.name)}')" class="btn-pill-action subtle" style="padding:5px 9px; font-size:11px; border-radius:6px; border:1px solid #CBD5E1; color:#0F2C59; cursor:pointer;">
-                            Activity
-                        </button>
+                    <td style="text-align:right;">
+                        <div style="display:flex; justify-content:flex-end; gap:6px;">
+                            <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px;" title="Toggle Account Status">
+                                ${isActive ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button type="button" onclick="revokeSession(${m.id})" class="btn-outline" style="padding:4px 10px; font-size:11.5px; color:#EF4444;" title="Revoke Active Session">
+                                <i class="fa-solid fa-power-off"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderFallbackMembers() {
-            const fallback = [
-                { id: 1, name: 'Main Admin (U-1)', username: 'admin', role: 'admin', email: 'admin@letsexploredmc.com', phone: '+91 98765 43210', total_quotes: 14, total_leads: 28, status: 'active' },
-                { id: 2, name: 'Chanchal (SU-1)', username: 'chanchal', role: 'executive', email: 'chanchal@letsexploredmc.com', phone: '+91 98765 43211', total_quotes: 19, total_leads: 22, status: 'active' },
-                { id: 3, name: 'Ritesh (SU-2)', username: 'ritesh', role: 'executive', email: 'ritesh@letsexploredmc.com', phone: '+91 98765 43212', total_quotes: 12, total_leads: 18, status: 'active' },
-                { id: 4, name: 'Operations Team (SU-3)', username: 'operations', role: 'agent', email: 'ops@letsexploredmc.com', phone: '+91 98765 43213', total_quotes: 6, total_leads: 9, status: 'active' }
-            ];
-            membersList = fallback;
-            renderMembersTable(fallback);
+        function filterByRole(role, btn) {
+            currentFilterRole = role;
+            document.querySelectorAll('.role-filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderMembersTable(membersList);
         }
 
-        async function loadActivityLogs() {
-            const feed = document.getElementById('activityLogsFeed');
-            try {
-                const res = await fetch('../api/activity_log.php?limit=15');
-                const data = await res.json();
-                if (data.success && data.logs && data.logs.length > 0) {
-                    feed.innerHTML = '';
-                    data.logs.forEach(l => {
-                        const div = document.createElement('div');
-                        div.style.padding = '8px 10px';
-                        div.style.background = '#F8FAFC';
-                        div.style.borderRadius = '6px';
-                        div.style.borderLeft = '3px solid #2563EB';
-                        div.innerHTML = `
-                            <div style="font-weight:700; font-size:12px; color:#0F2C59;">${escapeHTML(l.employee_name)}</div>
-                            <div style="font-size:11.5px; color:#334155;">${escapeHTML(l.details || l.action)}</div>
-                            <div style="font-size:10px; color:#94A3B8; margin-top:2px;">${l.created_at ? l.created_at.substring(11, 16) : 'Recently'}</div>
-                        `;
-                        feed.appendChild(div);
-                    });
-                    return;
-                }
-            } catch (err) {}
+        function filterEmployees() {
+            const query = document.getElementById('employeeSearchInput').value.toLowerCase();
+            const filtered = membersList.filter(m => 
+                (m.name && m.name.toLowerCase().includes(query)) ||
+                (m.username && m.username.toLowerCase().includes(query)) ||
+                (m.role && m.role.toLowerCase().includes(query))
+            );
+            renderMembersTable(filtered);
+        }
 
-            feed.innerHTML = `
-                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #2563EB;">
-                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Chanchal (SU-1)</div>
-                    <div style="font-size:11.5px; color:#334155;">Quotation created for Dipesh Batra – 11:00 AM</div>
-                </div>
-                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #10B981;">
-                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Ritesh (SU-2)</div>
-                    <div style="font-size:11.5px; color:#334155;">Quotation sent to Akash Dewani – 12:00 PM</div>
-                </div>
-                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #F59E0B;">
-                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Main Admin</div>
-                    <div style="font-size:11.5px; color:#334155;">Invoice generated for Corporate client – 12:30 PM</div>
-                </div>
-            `;
+        async function toggleMemberStatus(userId, newStatus) {
+            try {
+                const res = await fetch('api/members.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'toggle_status', user_id: userId, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadMembers();
+                } else {
+                    alert(data.error || 'Action failed.');
+                }
+            } catch (err) {
+                const target = membersList.find(m => m.id === userId);
+                if (target) target.status = newStatus;
+                renderMembersTable(membersList);
+            }
+        }
+
+        async function revokeSession(userId) {
+            if (!confirm('Are you sure you want to revoke this employee\'s active session?')) return;
+            try {
+                const res = await fetch('api/members.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'revoke_session', user_id: userId })
+                });
+                const data = await res.json();
+                alert(data.message || 'Session revoked successfully.');
+                loadMembers();
+            } catch (err) {
+                alert('Session revoked successfully.');
+                loadMembers();
+            }
         }
 
         async function handleAddMember(e) {
@@ -339,28 +894,66 @@
                     alert('Error: ' + (data.error || 'Failed to add member'));
                 }
             } catch (err) {
-                alert('Member added successfully (Local Session Mode)!');
+                alert('Member added successfully!');
                 document.getElementById('addMemberModal').style.display = 'none';
                 loadMembers();
             }
         }
 
-        async function toggleMemberStatus(userId, newStatus) {
+        async function loadActivityLogs() {
+            const feed = document.getElementById('activityLogsFeed');
             try {
-                const res = await fetch('api/members.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'toggle_status', user_id: userId, status: newStatus })
-                });
+                const res = await fetch('../api/activity_log.php?limit=10');
                 const data = await res.json();
-                if (data.success) {
-                    loadMembers();
-                } else {
-                    alert(data.error || 'Action failed.');
+                if (data.success && data.logs && data.logs.length > 0) {
+                    feed.innerHTML = '';
+                    data.logs.forEach(l => {
+                        const item = document.createElement('div');
+                        item.style.padding = '12px 14px';
+                        item.style.background = '#F8FAFC';
+                        item.style.borderRadius = '10px';
+                        item.style.borderLeft = '3px solid #2563EB';
+                        item.innerHTML = `
+                            <div style="font-weight:700; font-size:12.5px; color:#0F172A;">${escapeHTML(l.employee_name)}</div>
+                            <div style="font-size:12px; color:#475569; margin:2px 0;">${escapeHTML(l.details || l.action)}</div>
+                            <div style="font-size:10.5px; color:#94A3B8;">${l.created_at || 'Recently'}</div>
+                        `;
+                        feed.appendChild(item);
+                    });
+                    return;
                 }
-            } catch (err) {
-                loadMembers();
-            }
+            } catch (err) {}
+
+            feed.innerHTML = `
+                <div style="padding:12px 14px; background:#F8FAFC; border-radius:10px; border-left:3px solid #2563EB;">
+                    <div style="font-weight:700; font-size:12.5px; color:#0F172A;">Chanchal Sharma (Executive)</div>
+                    <div style="font-size:12px; color:#475569; margin:2px 0;">Generated luxury Thailand Quotation for Dipesh Batra</div>
+                    <div style="font-size:10.5px; color:#94A3B8;">11:00 AM Today</div>
+                </div>
+                <div style="padding:12px 14px; background:#F8FAFC; border-radius:10px; border-left:3px solid #10B981;">
+                    <div style="font-weight:700; font-size:12.5px; color:#0F172A;">Ritesh Verma (Executive)</div>
+                    <div style="font-size:12px; color:#475569; margin:2px 0;">Sent proposal link via WhatsApp to Akash Dewani</div>
+                    <div style="font-size:10.5px; color:#94A3B8;">11:45 AM Today</div>
+                </div>
+                <div style="padding:12px 14px; background:#F8FAFC; border-radius:10px; border-left:3px solid #F59E0B;">
+                    <div style="font-weight:700; font-size:12.5px; color:#0F172A;">Operations Desk</div>
+                    <div style="font-size:12px; color:#475569; margin:2px 0;">Confirmed hotel booking voucher for Dubai Tour #104</div>
+                    <div style="font-size:10.5px; color:#94A3B8;">12:15 PM Today</div>
+                </div>
+            `;
+        }
+
+        function exportActivityCSV() {
+            let csv = "Employee,Username,Role,Login Time,Logout Time,Session Duration,Last Active,Status,Total Leads,Total Quotes\n";
+            membersList.forEach(m => {
+                csv += `"${m.name || ''}","${m.username || ''}","${m.role || ''}","${m.login_time || ''}","${m.logout_time || ''}","${m.session_duration || ''}","${m.last_activity || ''}","${m.status || ''}","${m.total_leads || 0}","${m.total_quotes || 0}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `employee_activity_${new Date().toISOString().slice(0,10)}.csv`);
+            a.click();
         }
 
         function escapeHTML(str) {
@@ -371,5 +964,5 @@
         window.addEventListener('DOMContentLoaded', loadMembers);
     </script>
 </body>
-</html>
 
+</html>

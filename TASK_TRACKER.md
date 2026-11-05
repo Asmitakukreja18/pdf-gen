@@ -28,7 +28,7 @@
 | 🟠 **HIGH** | `TASK-14` | `inquiry-admin/css/portal.css:843` | Table container has `overflow: hidden;` instead of `overflow-x: auto;` | Action, status, and contact columns permanently clipped off on tablet/mobile screens | ✅ **FIXED & VERIFIED** |
 | 🟠 **HIGH** | `TASK-15` | `inquiry-admin/trips.html`<br>`inquiry-admin/invoices.html` | Modules are 100% hardcoded HTML stubs; lacking backend APIs | Trips & Invoices cannot be saved, viewed, or managed in MySQL | Ready for Fix |
 | 🟡 **MEDIUM** | `TASK-16` | `admin/admin.css:71` | Fixed 250px sidebar with zero mobile collapse rules | Content area crushed to 125px on mobile phones | Ready for Fix |
-| 🟡 **MEDIUM** | `TASK-17` | `inquiry-admin/members.html:11` | Uses deprecated topbar layout (`css/style.css?v=8.0`) | Architectural inconsistency; 11 horizontal links wrap awkwardly on small viewports | Ready for Fix |
+| 🟡 **MEDIUM** | `TASK-17` | `inquiry-admin/members.html:11` | Uses deprecated topbar layout (`css/style.css?v=8.0`) | Architectural inconsistency; 11 horizontal links wrap awkwardly on small viewports | ✅ **REBUILT (LUXURY NAVY SIDEBAR & ACTIVITY TRACKING)** |
 | 🟡 **MEDIUM** | `TASK-18` | `inquiry-admin/js/idle-tracker.js` | Frontend dummy OTP verification (accepts any 4 characters) | Screen unlock does not validate against server-side session hash | Ready for Fix |
 | 🟡 **MEDIUM** | `TASK-19` | `api/dashboard_stats.php:95` | Query references `total_amount` on `invoices` instead of `grand_total` | Revenue formula fails silently; dashboard always shows default `₹ 4,85,000` | ✅ **FIXED & VERIFIED** |
 | 🟡 **MEDIUM** | `TASK-20` | `inquiry-admin/api/get_customers.php` | Customer directory ignores dedicated `customers` table | Customers view crashes with 500 error | Ready for Fix |
