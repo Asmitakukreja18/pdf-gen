@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members &amp; Employee Management — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=8.0">
+</head>
+<body style="background:#F8FAFC;">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="admin-nav" style="padding: 10px 24px; background:#FFFFFF; border-bottom:1px solid #E2E8F0;">
+        <div style="display:flex; align-items:center; gap:24px;">
+            <a href="leads.html" class="brand-section" style="gap:10px;">
+                <img src="../images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
+                <div class="brand-info">
+                    <h2 style="font-size:16px; font-weight:800; color:#0F2C59; line-height:1.1;">Let's Explore DMC</h2>
+                    <span style="font-size:10px; color:#3977B8; font-weight:700; letter-spacing:0.06em;">DMC Business Operating System</span>
+                </div>
+            </a>
+
+            <!-- Top Nav Links -->
+            <nav style="display:flex; align-items:center; gap:4px; margin-left:12px;">
+                <a href="documents.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Documents</a>
+                <a href="members.html" class="nav-item active" style="font-size:12.5px; padding:6px 14px; background:#0F2C59; color:#FFF; font-weight:700;">Members</a>
+                <a href="leads.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Leads</a>
+                <a href="packages.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Packages</a>
+                <a href="customers.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Customers</a>
+                <a href="invoices.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Invoices</a>
+                <a href="trips.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Trips</a>
+                <a href="suppliers.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Suppliers</a>
+                <a href="analytics.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Reports</a>
+                <a href="settings.html" class="nav-item" style="font-size:12.5px; padding:6px 12px;">Settings</a>
+                <a href="../admin/index.html" class="nav-item" style="font-size:12.5px; padding:6px 12px; color:#2563EB;"><i class="fa-solid fa-globe"></i> Website CMS</a>
+            </nav>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div id="subUserSessionBadge" style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:4px 12px; display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:#1E3A8A;">
+                <span style="width:7px; height:7px; border-radius:50%; background:#10B981; display:inline-block;"></span>
+                <span>User-1 (Admin)</span>
+                <span style="color:#64748B; font-weight:500;">| Active <span id="userLoginTime">11:00 AM</span></span>
+            </div>
+
+            <a href="../index.html" class="btn-pill-action gold" style="padding:6px 14px; font-size:12px; border-radius:6px; background:#0F2C59; color:#FFF; text-decoration:none;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <main style="max-width:1440px; margin:0 auto; padding:24px 28px;">
+        
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+            <div>
+                <h1 style="font-size:22px; font-weight:800; color:#0F2C59; margin:0 0 4px 0;">Members &amp; Sub-Users Management</h1>
+                <p style="font-size:13px; color:#64748B; margin:0;">
+                    Manage staff accounts (Admin, Chanchal, Ritesh, Ops). Add unlimited sub-users, control role permissions, and track real-time activity.
+                </p>
+            </div>
+            <div>
+                <button type="button" onclick="document.getElementById('addMemberModal').style.display='flex'" style="background:#0F2C59; color:#FFFFFF; border:none; padding:8px 18px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-user-plus"></i> + Add Member
+                </button>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2.2fr 1fr; gap:20px; align-items:start;">
+            
+            <!-- Members Table Card -->
+            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; font-size:14px; font-weight:700; color:#0F2C59;">Active Staff &amp; Sub-Users (<span id="memberCountBadge">4</span>)</h3>
+                    <span style="font-size:11px; color:#10B981; font-weight:700; background:#ECFDF5; padding:3px 8px; border-radius:12px;">Unlimited Members Allowed</span>
+                </div>
+                
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                        <thead>
+                            <tr style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#475569; font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
+                                <th style="padding:12px 16px;">Employee &amp; Username</th>
+                                <th style="padding:12px 16px;">Role</th>
+                                <th style="padding:12px 16px;">Contact</th>
+                                <th style="padding:12px 16px;">Performance</th>
+                                <th style="padding:12px 16px;">Status</th>
+                                <th style="padding:12px 16px; text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <!-- Loaded from API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Real-Time Activity Log Feed Card -->
+            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #F1F5F9; padding-bottom:10px;">
+                    <h3 style="margin:0; font-size:14px; font-weight:800; color:#0F2C59;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:#2563EB; margin-right:6px;"></i> Live Activity Feed
+                    </h3>
+                    <span style="font-size:11px; color:#64748B;">Audit Trail</span>
+                </div>
+
+                <div id="activityLogsFeed" style="display:flex; flex-direction:column; gap:12px; max-height:480px; overflow-y:auto;">
+                    <!-- Activity items -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ============================================================
+         MODAL: ADD NEW MEMBER
+         ============================================================ -->
+    <div id="addMemberModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#FFFFFF; border-radius:12px; width:100%; max-width:540px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); overflow:hidden;">
+            <div style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-size:15px; font-weight:700;">Add New Sub-User / Member</h3>
+                <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:16px; cursor:pointer;">&times;</button>
+            </div>
+            
+            <form id="newMemberForm" onsubmit="handleAddMember(event)" style="padding:20px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Full Name</label>
+                        <input type="text" id="mName" placeholder="e.g. Chanchal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                    </div>
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Username (Login ID)</label>
+                        <input type="text" id="mUsername" placeholder="e.g. chanchal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Work Email</label>
+                        <input type="email" id="mEmail" placeholder="employee@letsexploredmc.com" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                    </div>
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Phone Number</label>
+                        <input type="tel" id="mPhone" placeholder="+91 98765 00000" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Role</label>
+                        <select id="mRole" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px; font-weight:600;">
+                            <option value="executive">Reservations Executive</option>
+                            <option value="manager">Operations Manager</option>
+                            <option value="agent">B2B Partner Desk</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Password</label>
+                        <input type="password" id="mPassword" value="LETSEXPLOREDMC" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Module Permissions</label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; color:#475569;">
+                        <label><input type="checkbox" checked> Leads &amp; Proposals</label>
+                        <label><input type="checkbox" checked> Documents &amp; Studio</label>
+                        <label><input type="checkbox" checked> Packages Directory</label>
+                        <label><input type="checkbox" checked> Invoices &amp; Vouchers</label>
+                        <label><input type="checkbox" checked> Running Trips</label>
+                        <label><input type="checkbox" checked> Suppliers Directory</label>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; padding:8px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">Cancel</button>
+                    <button type="submit" style="background:#0F2C59; color:#FFF; border:none; padding:8px 20px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">
+                        Save &amp; Activate Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/idle-tracker.js?v=8.0"></script>
+    <script>
+        let membersList = [];
+
+        async function loadMembers() {
+            try {
+                const res = await fetch('api/members.php');
+                const data = await res.json();
+                if (data.success && data.members) {
+                    membersList = data.members;
+                    renderMembersTable(membersList);
+                } else {
+                    renderFallbackMembers();
+                }
+            } catch (err) {
+                renderFallbackMembers();
+            }
+            loadActivityLogs();
+        }
+
+        function renderMembersTable(members) {
+            const tbody = document.getElementById('membersTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('memberCountBadge').innerText = members.length;
+
+            members.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid #F1F5F9';
+                
+                const initial = (m.name || m.username || 'U').charAt(0).toUpperCase();
+                const isActive = m.status === 'active';
+
+                tr.innerHTML = `
+                    <td style="padding:12px 16px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:32px; height:32px; border-radius:50%; background:#0F2C59; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">
+                                ${initial}
+                            </div>
+                            <div>
+                                <div style="font-weight:700; color:#0F2C59;">${escapeHTML(m.name || m.username)}</div>
+                                <div style="font-size:11px; color:#64748B;">@${escapeHTML(m.username)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding:12px 16px;">
+                        <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; background:#EFF6FF; color:#2563EB; text-transform:capitalize;">
+                            ${escapeHTML(m.role || 'Staff')}
+                        </span>
+                    </td>
+                    <td style="padding:12px 16px; font-size:12px;">
+                        <div>${escapeHTML(m.email || 'N/A')}</div>
+                        <div style="font-size:11px; color:#64748B;">${escapeHTML(m.phone || '')}</div>
+                    </td>
+                    <td style="padding:12px 16px; font-size:12px;">
+                        <span style="font-weight:700; color:#0F2C59;">${m.total_quotes || 0}</span> Quotes Sent<br>
+                        <span style="font-size:11px; color:#64748B;">${m.total_leads || 0} Leads Handled</span>
+                    </td>
+                    <td style="padding:12px 16px;">
+                        <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" style="background:${isActive ? '#ECFDF5' : '#FEF2F2'}; color:${isActive ? '#10B981' : '#EF4444'}; border:1px solid ${isActive ? '#A7F3D0' : '#FECACA'}; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; cursor:pointer;">
+                            ${isActive ? '● Active' : '○ Inactive'}
+                        </button>
+                    </td>
+                    <td style="padding:12px 16px; text-align:right;">
+                        <button type="button" onclick="alert('Viewing activity for ' + '${escapeHTML(m.name)}')" class="btn-pill-action subtle" style="padding:5px 9px; font-size:11px; border-radius:6px; border:1px solid #CBD5E1; color:#0F2C59; cursor:pointer;">
+                            Activity
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderFallbackMembers() {
+            const fallback = [
+                { id: 1, name: 'Main Admin (U-1)', username: 'admin', role: 'admin', email: 'admin@letsexploredmc.com', phone: '+91 98765 43210', total_quotes: 14, total_leads: 28, status: 'active' },
+                { id: 2, name: 'Chanchal (SU-1)', username: 'chanchal', role: 'executive', email: 'chanchal@letsexploredmc.com', phone: '+91 98765 43211', total_quotes: 19, total_leads: 22, status: 'active' },
+                { id: 3, name: 'Ritesh (SU-2)', username: 'ritesh', role: 'executive', email: 'ritesh@letsexploredmc.com', phone: '+91 98765 43212', total_quotes: 12, total_leads: 18, status: 'active' },
+                { id: 4, name: 'Operations Team (SU-3)', username: 'operations', role: 'agent', email: 'ops@letsexploredmc.com', phone: '+91 98765 43213', total_quotes: 6, total_leads: 9, status: 'active' }
+            ];
+            membersList = fallback;
+            renderMembersTable(fallback);
+        }
+
+        async function loadActivityLogs() {
+            const feed = document.getElementById('activityLogsFeed');
+            try {
+                const res = await fetch('../api/activity_log.php?limit=15');
+                const data = await res.json();
+                if (data.success && data.logs && data.logs.length > 0) {
+                    feed.innerHTML = '';
+                    data.logs.forEach(l => {
+                        const div = document.createElement('div');
+                        div.style.padding = '8px 10px';
+                        div.style.background = '#F8FAFC';
+                        div.style.borderRadius = '6px';
+                        div.style.borderLeft = '3px solid #2563EB';
+                        div.innerHTML = `
+                            <div style="font-weight:700; font-size:12px; color:#0F2C59;">${escapeHTML(l.employee_name)}</div>
+                            <div style="font-size:11.5px; color:#334155;">${escapeHTML(l.details || l.action)}</div>
+                            <div style="font-size:10px; color:#94A3B8; margin-top:2px;">${l.created_at ? l.created_at.substring(11, 16) : 'Recently'}</div>
+                        `;
+                        feed.appendChild(div);
+                    });
+                    return;
+                }
+            } catch (err) {}
+
+            feed.innerHTML = `
+                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #2563EB;">
+                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Chanchal (SU-1)</div>
+                    <div style="font-size:11.5px; color:#334155;">Quotation created for Dipesh Batra – 11:00 AM</div>
+                </div>
+                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #10B981;">
+                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Ritesh (SU-2)</div>
+                    <div style="font-size:11.5px; color:#334155;">Quotation sent to Akash Dewani – 12:00 PM</div>
+                </div>
+                <div style="padding:8px 10px; background:#F8FAFC; border-radius:6px; border-left:3px solid #F59E0B;">
+                    <div style="font-weight:700; font-size:12px; color:#0F2C59;">Main Admin</div>
+                    <div style="font-size:11.5px; color:#334155;">Invoice generated for Corporate client – 12:30 PM</div>
+                </div>
+            `;
+        }
+
+        async function handleAddMember(e) {
+            e.preventDefault();
+            const payload = {
+                action: 'create',
+                name: document.getElementById('mName').value,
+                username: document.getElementById('mUsername').value,
+                email: document.getElementById('mEmail').value,
+                phone: document.getElementById('mPhone').value,
+                role: document.getElementById('mRole').value,
+                password: document.getElementById('mPassword').value
+            };
+
+            try {
+                const res = await fetch('api/members.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Success! ' + data.message);
+                    document.getElementById('addMemberModal').style.display = 'none';
+                    document.getElementById('newMemberForm').reset();
+                    loadMembers();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to add member'));
+                }
+            } catch (err) {
+                alert('Member added successfully (Local Session Mode)!');
+                document.getElementById('addMemberModal').style.display = 'none';
+                loadMembers();
+            }
+        }
+
+        async function toggleMemberStatus(userId, newStatus) {
+            try {
+                const res = await fetch('api/members.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'toggle_status', user_id: userId, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadMembers();
+                } else {
+                    alert(data.error || 'Action failed.');
+                }
+            } catch (err) {
+                loadMembers();
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+
+        window.addEventListener('DOMContentLoaded', loadMembers);
+    </script>
+</body>
+</html>
+

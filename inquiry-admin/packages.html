@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packages &amp; Itineraries — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/portal.css?v=12.0">
+</head>
+<body>
+
+    <div class="portal-wrapper">
+        <!-- ============================================================
+             LEFT SIDEBAR NAVIGATION
+             ============================================================ -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo" onerror="this.style.display='none'">
+                    <div class="brand-text">
+                        <div class="brand-title">Let's Explore DMC</div>
+                        <div class="brand-subtitle">OPERATIONS WORKSPACE</div>
+                    </div>
+                </a>
+                <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-menu">
+                <div class="nav-group-title">MAIN NAVIGATION</div>
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="website.html" class="nav-link">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website Management</span>
+                </a>
+                <a href="packages.html" class="nav-link active">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Packages &amp; Itineraries</span>
+                </a>
+                <a href="documents.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Documents &amp; Proposals</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="trips.html" class="nav-link">
+                    <i class="fa-solid fa-plane-departure"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="analytics.html" class="nav-link">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+
+                <div class="nav-group-title" style="margin-top:14px;">SYSTEM &amp; AI</div>
+                <a href="ai-assistant.html" class="nav-link ai-highlight">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-status-card">
+                    <div class="status-indicator-dot online"></div>
+                    <div class="user-info-text">
+                        <div class="user-name">User-1 (Admin)</div>
+                        <div class="user-role">Operations Desk &bull; Online</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT & TOPBAR
+             ============================================================ -->
+        <div class="portal-main">
+            <!-- TOPBAR -->
+            <header class="portal-topbar">
+                <div class="topbar-left">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb-trail">
+                        <span class="crumb-root">Let's Explore DMC</span>
+                        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+                        <span class="crumb-current">Packages &amp; Itineraries</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="ai-assistant.html" class="btn-ai-pill">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>AI Assistant</span>
+                    </a>
+                    <a href="../website/index.html" target="_blank" class="topbar-action-btn" title="View Public Website">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span class="hide-mobile">Public Site</span>
+                    </a>
+                    <div class="user-profile-menu">
+                        <div class="avatar-circle">A</div>
+                        <div class="user-details hide-mobile">
+                            <span class="name">Admin User</span>
+                            <span class="session-time">Active &bull; 11:00 AM</span>
+                        </div>
+                        <a href="../api/logout.php" class="logout-link" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PAGE BODY -->
+            <main class="portal-body">
+                
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Destination Packages &amp; Ready Itineraries</h1>
+                        <p class="page-subtitle">Create, manage and publish travel packages for your direct customers &amp; B2B travel agents.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnUploadDrivePkg" class="btn btn-secondary">
+                            <i class="fa-brands fa-google-drive" style="color:var(--royal-blue);"></i> Import Drive
+                        </button>
+                        <a href="ai-assistant.html" class="btn btn-secondary">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--royal-blue);"></i> AI Assistant
+                        </a>
+                        <button type="button" onclick="openPackageModal('create')" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> + Create Package
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Country Filter Navigation -->
+                <div class="filter-tabs">
+                    <button type="button" class="filter-tab pkg-filter-tab active" data-country="all">
+                        ?? All Countries (<span id="countAllPkgs">...</span>)
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="india">
+                        ???? India
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="singapore">
+                        ???? Singapore
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="malaysia">
+                        ???? Malaysia
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="indonesia">
+                        ???? Indonesia (Bali)
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="turkey">
+                        ???? Turkey
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="uae">
+                        ???? Dubai / UAE
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="thailand">
+                        ???? Thailand
+                    </button>
+                </div>
+
+                <!-- Packages Grid Container -->
+                <div id="packagesGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px;">
+                    <div style="grid-column: 1/-1; text-align:center; padding:50px 20px; color:var(--text-secondary);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:var(--royal-blue);"></i>
+                        <div style="margin-top:10px; font-weight:600;">Loading packages from MySQL database...</div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         CREATE / EDIT PACKAGE MODAL (FULL CRUD)
+         ============================================================ -->
+    <div id="packageModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.6); align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+        <div style="background:#FFF; border-radius:14px; width:100%; max-width:760px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); display:flex; flex-direction:column;">
+            
+            <div style="padding:18px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#FFF; z-index:10;">
+                <div>
+                    <h3 id="pkgModalTitle" style="margin:0; font-size:17px; font-weight:800; color:var(--primary-navy);">Create Destination Package</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-secondary);">Persists to MySQL database and syncs with live public website.</p>
+                </div>
+                <button type="button" onclick="closePackageModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+            </div>
+
+            <form id="pkgForm" onsubmit="savePackageForm(event)" style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" id="modalPkgId" value="">
+
+                <!-- Title & Country -->
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Package Title *</label>
+                        <input type="text" id="modalPkgName" class="form-control" required placeholder="e.g. Bali Luxury Tropical Escape">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Country *</label>
+                        <select id="modalPkgCountry" class="form-control" required>
+                            <option value="India">???? India</option>
+                            <option value="Indonesia">???? Indonesia (Bali)</option>
+                            <option value="Malaysia">???? Malaysia</option>
+                            <option value="Singapore">???? Singapore</option>
+                            <option value="Turkey">???? Turkey</option>
+                            <option value="UAE">???? UAE / Dubai</option>
+                            <option value="Thailand">???? Thailand</option>
+                            <option value="International">?? Other International</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Destination & Durations -->
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Destination / Cities *</label>
+                        <input type="text" id="modalPkgDestination" class="form-control" required placeholder="e.g. Ubud & Seminyak & Nusa Penida">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Days</label>
+                        <input type="number" id="modalPkgDays" class="form-control" min="1" max="60" value="6">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Nights</label>
+                        <input type="number" id="modalPkgNights" class="form-control" min="0" max="60" value="5">
+                    </div>
+                </div>
+
+                <!-- Hotel Details -->
+                <div style="display:grid; grid-template-columns:1fr 2fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Hotel Category</label>
+                        <select id="modalPkgHotelCat" class="form-control">
+                            <option value="3-Star Standard">3-Star Standard</option>
+                            <option value="4-Star Deluxe" selected>4-Star Deluxe</option>
+                            <option value="5-Star Luxury">5-Star Luxury</option>
+                            <option value="Luxury Pool Villa">Luxury Pool Villa / Resort</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Hotel Details &amp; Stays</label>
+                        <input type="text" id="modalPkgHotelDetails" class="form-control" placeholder="e.g. 3N Private Pool Villa Ubud + 2N Kuta Beach Resort">
+                    </div>
+                </div>
+
+                <!-- Pricing INR & USD & Markup -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Tariff (INR)</label>
+                        <input type="number" id="modalPkgPriceInr" class="form-control" value="48500">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Tariff (USD)</label>
+                        <input type="number" id="modalPkgPriceUsd" class="form-control" value="585">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Agent Markup (%)</label>
+                        <input type="number" id="modalPkgMarkup" class="form-control" value="10">
+                    </div>
+                </div>
+
+                <!-- Inclusions & Exclusions -->
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Key Inclusions &amp; Highlights</label>
+                    <textarea id="modalPkgInclusions" class="form-control" rows="2">Ubud Swing, Kintamani Volcano, Tanah Lot Sunset, Nusa Penida Speedboat Tour, Daily Breakfast, Private AC Transfers</textarea>
+                </div>
+
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Key Exclusions</label>
+                    <textarea id="modalPkgExclusions" class="form-control" rows="2">International Airfare, Visa on arrival fees, Personal expenses, Travel Insurance</textarea>
+                </div>
+
+                <!-- Publish Toggle -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px;">
+                    <div>
+                        <div style="font-size:12.5px; font-weight:700; color:var(--primary-navy);">Publish on Public Website</div>
+                        <div style="font-size:11px; color:var(--text-secondary);">Showcase under Handcrafted Packages on the live site</div>
+                    </div>
+                    <input type="checkbox" id="modalPkgPublished" checked style="width:18px; height:18px; cursor:pointer;">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" onclick="closePackageModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btnSubmitPkg" class="btn btn-primary">Save Package</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Import Drive Modal -->
+    <div id="driveImportModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.6); align-items:center; justify-content:center;">
+        <div style="background:#FFF; border-radius:12px; width:90%; max-width:440px; padding:22px; box-shadow:var(--shadow-lg);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                <h3 style="margin:0; font-size:15px; font-weight:800; color:var(--primary-navy);">Import from Google Drive</h3>
+                <button type="button" onclick="document.getElementById('driveImportModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted);">&times;</button>
+            </div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
+                Paste Google Drive link or sync folder to import unedited clean master itineraries (W.E).
+            </p>
+            <input type="text" placeholder="https://drive.google.com/drive/folders/..." class="form-control" style="margin-bottom:14px;">
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" onclick="document.getElementById('driveImportModal').style.display='none'" class="btn btn-secondary btn-sm">Cancel</button>
+                <button type="button" onclick="alert('Drive sync connection initiated! Packages refreshed.'); document.getElementById('driveImportModal').style.display='none';" class="btn btn-primary btn-sm">Sync Drive</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/portal.js?v=9.0"></script>
+    <script src="js/packages.js?v=9.0"></script>
+    <script src="js/idle-tracker.js?v=9.0"></script>
+</body>
+</html>

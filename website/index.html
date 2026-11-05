@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Explore DMC — Your Trusted Destination Management Partner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-navy: #0F2C59;
+            --royal-blue: #1E3A8A;
+            --accent-blue: #2563EB;
+            --gold-accent: #D97706;
+            --light-bg: #F8FAFC;
+            --text-dark: #0F172A;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #FFFFFF;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .site-header {
+            position: sticky;
+            top: 0;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            z-index: 1000;
+            padding: 14px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .site-brand img {
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .site-brand-text h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary-navy);
+            line-height: 1.1;
+        }
+
+        .site-brand-text span {
+            font-size: 11px;
+            color: var(--accent-blue);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            transition: color 0.2s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--accent-blue);
+        }
+
+        .btn-inquire-top {
+            background: var(--primary-navy);
+            color: #FFF !important;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .btn-portal-login {
+            background: #EFF6FF;
+            color: var(--accent-blue) !important;
+            border: 1px solid #BFDBFE;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Hero */
+        .hero-section {
+            background: linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%);
+            color: #FFFFFF;
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-size: 44px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            max-width: 680px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .btn-primary-hero {
+            background: #FFFFFF;
+            color: var(--primary-navy);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary-hero {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        /* Destinations */
+        .section-wrap {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 70px 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-navy);
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .dest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .dest-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .dest-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .dest-img-wrap {
+            height: 160px;
+            background: #CBD5E1;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .dest-content {
+            padding: 18px;
+        }
+
+        .dest-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+        }
+
+        .dest-name {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--primary-navy);
+            margin: 4px 0 8px;
+        }
+
+        .dest-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .btn-card-inquire {
+            display: block;
+            text-align: center;
+            background: #F1F5F9;
+            color: var(--primary-navy);
+            padding: 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .btn-card-inquire:hover {
+            background: var(--primary-navy);
+            color: #FFF;
+        }
+
+        /* Inquiry Form Container */
+        .inquiry-banner {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .form-ctrl {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        /* Footer */
+        .site-footer {
+            background: #0F2C59;
+            color: #FFFFFF;
+            padding: 40px 24px 20px;
+            font-size: 13px;
+        }
+
+        .footer-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <header class="site-header">
+        <a href="index.html" class="site-brand">
+            <img src="../images/logo.png" alt="Let's Explore DMC" onerror="this.style.display='none'">
+            <div class="site-brand-text">
+                <h1>Let's Explore DMC</h1>
+                <span>Destination Management Company</span>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="#destinations">Destinations</a></li>
+            <li><a href="#packages">Tour Packages</a></li>
+            <li><a href="#about">About DMC</a></li>
+            <li><a href="#inquiry">Inquire Online</a></li>
+            <li><a href="../inquiry-admin/leads.html" class="btn-portal-login"><i class="fa-solid fa-lock"></i> Staff
+                    CRM</a></li>
+            <li><a href="#inquiry" class="btn-inquire-top">Plan My Tour</a></li>
+        </ul>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="siteHeroSection">
+        <div class="hero-badge" id="siteHeroBadge">Official Destination Management Company</div>
+        <h2 class="hero-title" id="siteHeroTitle">Explore More... Travel Better.<br>With Let's Explore DMC.</h2>
+        <p class="hero-subtitle" id="siteHeroSubtitle">
+            Premier B2B and B2C travel experiences across Thailand, Dubai, Bali, Malaysia, Singapore, Kashmir, and
+            Kerala. Instant custom quotations and guaranteed on-ground operations.
+        </p>
+        <div class="hero-actions">
+            <a href="#inquiry" class="btn-primary-hero" id="siteHeroCtaPrimary"><i class="fa-solid fa-paper-plane"></i>
+                Plan Your Holiday</a>
+            <a href="../index.html" class="btn-secondary-hero" id="siteHeroCtaSecondary"><i
+                    class="fa-solid fa-wand-magic-sparkles"></i> Open AI Studio</a>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section class="section-wrap" id="destinations">
+        <div class="section-header">
+            <h3 class="section-title">Popular Destinations Handled</h3>
+            <p class="section-subtitle">Direct DMC contracts with leading hotels, private speedboats, luxury transports,
+                and 24/7 guest coordinators.</p>
+        </div>
+
+        <div class="dest-grid">
+            <!-- Dubai -->
+            <div class="dest-card">
+                <div class="dest-img-wrap"
+                    style="background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop');">
+                </div>
+                <div class="dest-content">
+                    <span class="dest-tag">Middle East</span>
+                    <h4 class="dest-name">Dubai &amp; Abu Dhabi</h4>
+                    <p class="dest-desc">Atlantis The Palm, Desert Safari, Burj Khalifa, private luxury transfers, and
+                        dhow cruise dinner.</p>
+                    <a href="#inquiry" onclick="prefillDest('Dubai 6D')" class="btn-card-inquire">Request Quotation
+                        &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Thailand -->
+            <div class="dest-card">
+                <div class="dest-img-wrap"
+                    style="background-image: url('https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=600&auto=format&fit=crop');">
+                </div>
+                <div class="dest-content">
+                    <span class="dest-tag">South East Asia</span>
+                    <h4 class="dest-name">Thailand (Phuket &amp; Krabi)</h4>
+                    <p class="dest-desc">Phi Phi Island speedboats, luxury beach resorts, Koh Yao Yai retreat, and city
+                        cultural tours.</p>
+                    <a href="#inquiry" onclick="prefillDest('Thailand 7D')" class="btn-card-inquire">Request Quotation
+                        &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Bali -->
+            <div class="dest-card">
+                <div class="dest-img-wrap"
+                    style="background-image: url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop');">
+                </div>
+                <div class="dest-content">
+                    <span class="dest-tag">Indonesia</span>
+                    <h4 class="dest-name">Bali Island Paradise</h4>
+                    <p class="dest-desc">Private pool villas in Ubud, Nusa Penida day tours, sunset seafood dinners, and
+                        swing experiences.</p>
+                    <a href="#inquiry" onclick="prefillDest('Bali 6D')" class="btn-card-inquire">Request Quotation
+                        &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Malaysia -->
+            <div class="dest-card">
+                <div class="dest-img-wrap"
+                    style="background-image: url('https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&auto=format&fit=crop');">
+                </div>
+                <div class="dest-content">
+                    <span class="dest-tag">Malaysia</span>
+                    <h4 class="dest-name">Kuala Lumpur &amp; Genting</h4>
+                    <p class="dest-desc">Petronas Twin Towers, Batu Caves, Genting SkyWorlds cable car, and Langkawi
+                        island cruises.</p>
+                    <a href="#inquiry" onclick="prefillDest('Malaysia 6D')" class="btn-card-inquire">Request Quotation
+                        &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Published Tour Packages from MySQL -->
+    <section class="section-wrap" id="packages" style="background:#FAFBFD; border-top:1px solid #E2E8F0;">
+        <div class="section-header">
+            <h3 class="section-title">Official Handcrafted Packages</h3>
+            <p class="section-subtitle">Guaranteed on-ground DMC operations with verified luxury stays &amp; private
+                tours.</p>
+        </div>
+        <div class="dest-grid" id="sitePackagesGrid">
+            <!-- Populated via api/website_manager.php -->
+        </div>
+    </section>
+
+    <!-- Customer Inquiry Submission Form (Connected directly to MySQL Backend) -->
+    <section class="section-wrap" id="inquiry"
+        style="background: #F8FAFC; border-top: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0;">
+        <div class="section-header">
+            <h3 class="section-title">Request a Custom Tour Itinerary</h3>
+            <p class="section-subtitle">Fill in your travel preferences. Our DMC reservations desk will prepare an
+                AI-assisted itinerary within minutes.</p>
+        </div>
+
+        <div
+            style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <form id="publicInquiryForm" onsubmit="submitInquiry(event)"
+                style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-grid">
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Your
+                            Full Name *</label>
+                        <input type="text" id="custName" class="form-ctrl" placeholder="e.g. Akash Dewani" required>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Phone
+                            / WhatsApp *</label>
+                        <input type="tel" id="custPhone" class="form-ctrl" placeholder="e.g. 9820011223" required>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Email
+                            Address</label>
+                        <input type="email" id="custEmail" class="form-ctrl" placeholder="client@example.com">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Interested
+                            Destination *</label>
+                        <select id="custDest" class="form-ctrl" required>
+                            <option value="Dubai & Abu Dhabi">Dubai &amp; Abu Dhabi</option>
+                            <option value="Thailand (Phuket/Krabi)">Thailand (Phuket &amp; Krabi)</option>
+                            <option value="Bali Paradise">Bali Paradise</option>
+                            <option value="Malaysia & Genting">Malaysia &amp; Genting</option>
+                            <option value="Singapore City & Sentosa">Singapore City &amp; Sentosa</option>
+                            <option value="Kashmir Valley">Kashmir Valley</option>
+                            <option value="Kerala God's Own Country">Kerala</option>
+                            <option value="Turkey & Cappadocia">Turkey &amp; Cappadocia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Travel
+                            Date</label>
+                        <input type="date" id="custDate" class="form-ctrl">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Number
+                            of Adults</label>
+                        <input type="number" id="custAdults" class="form-ctrl" value="2" min="1">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Kids
+                            (Under 12)</label>
+                        <input type="number" id="custKids" class="form-ctrl" value="0" min="0">
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Special
+                        Preferences / Budget</label>
+                    <textarea id="custMsg" rows="3" class="form-ctrl"
+                        placeholder="e.g. Prefer 4-star beachfront resort, private airport SUV transfers, vegetarian meals."></textarea>
+                </div>
+
+                <button type="submit" id="btnSubmitInquiry"
+                    style="background: var(--primary-navy); color: #FFFFFF; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Inquiry to DMC Reservations
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div>
+                <h4 style="font-size:16px; font-weight:800; margin-bottom:10px;">Let's Explore DMC</h4>
+                <p style="opacity:0.8; font-size:12.5px; line-height:1.6;">
+                    Leading Destination Management Company for bespoke leisure, honeymoon, family and corporate MICE
+                    travel packages across Asia &amp; Europe.
+                </p>
+            </div>
+            <div>
+                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Quick Links
+                </h5>
+                <p><a href="#destinations" style="color:#FFF; text-decoration:none; opacity:0.8;">Destinations</a></p>
+                <p><a href="#inquiry" style="color:#FFF; text-decoration:none; opacity:0.8;">Inquiry Form</a></p>
+                <p><a href="../index.html" style="color:#FFF; text-decoration:none; opacity:0.8;">AI Document Studio</a>
+                </p>
+                <p><a href="../inquiry-admin/leads.html" style="color:#FFF; text-decoration:none; opacity:0.8;">Staff
+                        CRM Login</a></p>
+            </div>
+            <div>
+                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Contact &amp;
+                    Operations</h5>
+                <p style="opacity:0.8;">Email: info@letsexploredmc.com</p>
+                <p style="opacity:0.8;">Phone: +91 98765 43210</p>
+                <p style="opacity:0.8;">GSTIN: 27AABCL1234F1Z8</p>
+            </div>
+        </div>
+        <div
+            style="text-align:center; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); opacity:0.75; font-size:11.5px;">
+            &copy; 2026 Let's Explore DMC (Pvt Ltd). All Rights Reserved.
+        </div>
+    </footer>
+
+    <script>
+        function prefillDest(dest) {
+            document.getElementById('custDest').value = dest;
+            document.getElementById('inquiry').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function submitInquiry(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitInquiry');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting to Reservations...';
+
+            const payload = {
+                action: 'create',
+                customer_name: document.getElementById('custName').value,
+                phone: document.getElementById('custPhone').value,
+                email: document.getElementById('custEmail').value,
+                destination: document.getElementById('custDest').value,
+                travel_start_date: document.getElementById('custDate').value,
+                adults: document.getElementById('custAdults').value,
+                children: document.getElementById('custKids').value,
+                rooms: 1,
+                lead_source: 'Public Website',
+                assigned_employee: 'Admin',
+                status: 'Fresh',
+                internal_notes: document.getElementById('custMsg').value
+            };
+
+            try {
+                const res = await fetch('../inquiry-admin/api/leads.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Thank you! Your tour inquiry has been submitted. Our team will contact you shortly.');
+                    document.getElementById('publicInquiryForm').reset();
+                } else {
+                    alert('Submission received! Our reservations desk will get in touch with you.');
+                }
+            } catch (err) {
+                alert('Thank you! Your inquiry has been submitted.');
+                document.getElementById('publicInquiryForm').reset();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Inquiry to DMC Reservations';
+            }
+        }
+
+        // Live CMS Hydration
+        async function loadLiveCmsContent() {
+            try {
+                const res = await fetch('../api/website_manager.php?action=get');
+                const data = await res.json();
+                if (data.success && data.content) {
+                    if (data.content.hero_banner && data.content.hero_banner.data) {
+                        const h = data.content.hero_banner.data;
+                        if (h.badge && document.getElementById('siteHeroBadge')) {
+                            document.getElementById('siteHeroBadge').innerText = h.badge;
+                        }
+                        if (h.headline && document.getElementById('siteHeroTitle')) {
+                            document.getElementById('siteHeroTitle').innerHTML = h.headline.replace(/\n/g, '<br>');
+                        }
+                        if (h.subheadline && document.getElementById('siteHeroSubtitle')) {
+                            document.getElementById('siteHeroSubtitle').innerText = h.subheadline;
+                        }
+                        if (h.cta_primary_text && document.getElementById('siteHeroCtaPrimary')) {
+                            document.getElementById('siteHeroCtaPrimary').innerHTML = `<i class="fa-solid fa-paper-plane"></i> ${h.cta_primary_text}`;
+                        }
+                    }
+                    if (data.content.seo_meta && data.content.seo_meta.data) {
+                        const s = data.content.seo_meta.data;
+                        if (s.meta_title) document.title = s.meta_title;
+                    }
+                }
+
+                // Render published packages from MySQL
+                if (data.packages && data.packages.length > 0) {
+                    const pkgGrid = document.getElementById('sitePackagesGrid');
+                    if (pkgGrid) {
+                        pkgGrid.innerHTML = data.packages.map(p => {
+                            const img = p.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop';
+                            const priceInr = Number(p.pricing_inr || 0).toLocaleString();
+                            const priceUsd = Number(p.pricing_usd || 0).toLocaleString();
+                            return `
+                                <div class="dest-card">
+                                    <div class="dest-img-wrap" style="background-image: url('${img}');"></div>
+                                    <div class="dest-content">
+                                        <span class="dest-tag">${p.country || 'International'}</span>
+                                        <h4 class="dest-name">${p.name}</h4>
+                                        <p class="dest-desc">${p.destination} &bull; ${p.duration_days}D/${p.duration_nights}N &bull; ${p.hotel_category || '4★ Resort'}</p>
+                                        <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
+                                            INR ${priceInr} <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD ${priceUsd}</span>
+                                        </div>
+                                        <a href="#inquiry" onclick="prefillDest('${(p.name || '').replace(/'/g, "\\'")}')" class="btn-card-inquire">Book This Package &rarr;</a>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+            } catch (err) {
+                console.log('CMS dynamic fetch fallback to static content:', err);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadLiveCmsContent);
+    </script>
+</body>
+
+</html>

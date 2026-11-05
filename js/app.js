@@ -65,11 +65,27 @@ const App = (() => {
       if (leadClient || leadDest || leadNo) {
         if (typeof QuotationData !== 'undefined' && QuotationData.package) {
           if (leadClient) QuotationData.package.clientName = leadClient;
-          if (leadDest) QuotationData.package.destination = leadDest;
-          if (leadPhone) QuotationData.package.clientPhone = leadPhone;
+          if (leadDest) {
+            QuotationData.package.destinations = leadDest;
+            QuotationData.package.destination = leadDest;
+          }
+          if (leadPhone) {
+            QuotationData.package.clientContact = leadPhone;
+            QuotationData.package.clientPhone = leadPhone;
+          }
           if (leadEmail) QuotationData.package.clientEmail = leadEmail;
-          if (leadPax) QuotationData.package.pax = `${leadPax} Adults`;
-          if (leadNo) QuotationData.package.quotationNo = leadNo;
+          if (leadPax) {
+            const cleanPax = parseInt(leadPax, 10) || 2;
+            QuotationData.package.travellers = `${cleanPax} Adults`;
+            QuotationData.package.pax = `${cleanPax} Adults`;
+          }
+          if (leadNo) {
+            QuotationData.package.quoteRef = leadNo;
+            QuotationData.package.quotationNo = leadNo;
+          }
+          if (typeof syncLegacyCompatibilityFields === 'function') {
+            syncLegacyCompatibilityFields();
+          }
           populateStudioFromData();
         }
         setTimeout(() => {
@@ -117,6 +133,7 @@ const App = (() => {
     } else if (name === 'chat') {
       if (sections.chat) sections.chat.style.display = 'flex';
       document.getElementById('navChat')?.classList.add('active');
+      updateLivePreviews();
     }
 
     currentSection = name;
@@ -132,8 +149,48 @@ const App = (() => {
       });
     });
 
+    safe('btnHeaderHome', () => showSection('chat'));
     safe('btnBackToEditor', () => showSection('generator'));
     safe('btnPreviewStudio', () => showSection('preview'));
+    safe('btnFullPageFromChat', () => showSection('preview'));
+    safe('btnDownloadPdfFromChat', () => {
+      if (typeof PDFGenerator !== 'undefined') PDFGenerator.generate();
+    });
+    safe('btnDownloadDocxFromChat', () => {
+      if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
+    });
+
+    // Profile Dropdown Toggle
+    const profToggle = document.getElementById('userProfileToggle');
+    const profMenu = document.getElementById('userProfileDropdown');
+    if (profToggle && profMenu) {
+      profToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = profMenu.style.display === 'none';
+        profMenu.style.display = isHidden ? 'block' : 'none';
+      });
+      document.addEventListener('click', () => {
+        profMenu.style.display = 'none';
+      });
+    }
+
+    // Connect Unified Format Selector Pills to switchDocType
+    document.querySelectorAll('.format-nav-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const docType = btn.dataset.doctype;
+        if (docType) {
+          switchDocType(docType);
+          document.querySelectorAll('.format-nav-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+    });
+
+    // Connect API Settings modal trigger
+    safe('btnOpenApiKeyModal', () => {
+      const geminiModal = document.getElementById('geminiModal');
+      if (geminiModal) geminiModal.style.display = 'flex';
+    });
   }
 
   /**
@@ -1975,11 +2032,15 @@ const App = (() => {
   function updateLivePreviews() {
     const html = Preview.buildQuotationHTML(QuotationData, false);
 
-    // 1. Right side Studio panel
+    // 1. Right side Unified AI Chat panel
     const liveContainer = document.getElementById('previewDocumentLive');
     if (liveContainer) liveContainer.innerHTML = html;
 
-    // 2. Full-page dedicated preview section
+    // 2. Right side Document Studio panel
+    const liveStudio = document.getElementById('previewDocumentLiveStudio');
+    if (liveStudio) liveStudio.innerHTML = html;
+
+    // 3. Full-page dedicated preview section
     const fullContainer = document.getElementById('previewDocument');
     if (fullContainer) fullContainer.innerHTML = html;
   }
@@ -2206,23 +2267,23 @@ const App = (() => {
 
       if (isConnected) {
         if (inputKey && !inputKey.value) inputKey.value = activeKey;
-        if (statusText) statusText.textContent = 'Active & Connected to Gemini 2.0 Flash';
+        if (statusText) statusText.textContent = 'Active & Connected to Google Gemini Flash AI';
         if (statusDisplay) {
           statusDisplay.className = 'key-status-indicator connected';
         }
-        if (engineLabel) engineLabel.textContent = 'Gemini 2.0 Flash (Connected)';
+        if (engineLabel) engineLabel.textContent = 'Gemini Flash AI (Connected)';
         if (btnLabel) btnLabel.textContent = 'AI Key: Active ✓';
-        if (headerAiLabel) headerAiLabel.innerHTML = 'Gemini 2.0 <strong style="color:#15803D;">● Connected</strong>';
+        if (headerAiLabel) headerAiLabel.innerHTML = 'Gemini AI <strong style="color:#15803D;">● Connected</strong>';
         if (aiKeyBanner) aiKeyBanner.className = 'ai-key-banner active-gemini';
         if (statusPill) {
-          statusPill.innerHTML = `<span class="status-dot" style="background:#16A34A;"></span><span class="status-text">Gemini 2.0 Connected</span>`;
+          statusPill.innerHTML = `<span class="status-dot" style="background:#16A34A;"></span><span class="status-text">Gemini AI Connected</span>`;
         }
         if (testStatusBox) {
           testStatusBox.style.display = 'block';
           testStatusBox.style.background = '#DCFCE7';
           testStatusBox.style.border = '1px solid #86EFAC';
           testStatusBox.style.color = '#15803D';
-          testStatusBox.innerHTML = '✅ <strong>Gemini 2.0 Flash is Connected & Active.</strong> Incoming PDFs, images & text are processed with real multimodal AI.';
+          testStatusBox.innerHTML = '✅ <strong>Google Gemini Flash AI is Connected & Active.</strong> Incoming PDFs, images & text are processed with real multimodal AI.';
         }
       } else {
         if (statusText) statusText.textContent = 'Offline Intelligent NLP (API Key Not Configured)';
@@ -2290,10 +2351,10 @@ const App = (() => {
             testStatusBox.style.background = '#DCFCE7';
             testStatusBox.style.border = '1px solid #86EFAC';
             testStatusBox.style.color = '#15803D';
-            testStatusBox.innerHTML = `✅ <strong>Connection Verified!</strong> Successfully connected to <strong>${res?.model || 'Gemini 2.0 Flash'}</strong>. Click "Save Key" to apply.`;
+            testStatusBox.innerHTML = `✅ <strong>Connection Verified!</strong> Successfully connected to <strong>${res?.model || CONFIG.GEMINI_MODEL || 'Gemini Flash'}</strong>. Click "Save Key" to apply.`;
           }
         }
-        if (statusText) statusText.textContent = 'Success! Gemini 2.0 Flash is responding.';
+        if (statusText) statusText.textContent = 'Success! Google Gemini AI is responding.';
         if (statusDisplay) statusDisplay.className = 'key-status-indicator connected';
         showToast('Connection verified successfully! Click Save to apply.', 'success');
       } catch (err) {
@@ -2329,7 +2390,7 @@ const App = (() => {
       CONFIG.GEMINI_API_KEY = keyVal;
       updateKeyUIState();
       closeModal();
-      showToast('Gemini 2.0 Flash API activated successfully!', 'success');
+      showToast('Google Gemini AI activated successfully!', 'success');
     };
 
     safe('btnSaveGeminiKey', handleSaveKey);

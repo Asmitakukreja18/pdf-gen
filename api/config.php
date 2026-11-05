@@ -16,7 +16,7 @@ defined('DB_NAME') or define('DB_NAME', 'ihpyruhe_pdf_generator');
 defined('DB_USER') or define('DB_USER', 'ihpyruhe_pdf_admin');
 
 // Database Password (configure your actual password here in cPanel File Manager)
-defined('DB_PASS') or define('DB_PASS', 'YOUR_CPANEL_DATABASE_PASSWORD_HERE');
+defined('DB_PASS') or define('DB_PASS', getenv('DB_PASS') ?: 'YOUR_CPANEL_DATABASE_PASSWORD_HERE');
 
 // Character Set
 defined('DB_CHARSET') or define('DB_CHARSET', 'utf8mb4');
@@ -49,3 +49,22 @@ if (session_status() === PHP_SESSION_NONE) {
     }
     session_start();
 }
+
+// ==========================================
+// AI PROVIDER CONFIGURATION (Claude, Gemini, OpenAI)
+// ==========================================
+// Anthropic Claude API Key (Complex reasoning & long documents)
+defined('CLAUDE_API_KEY') or define('CLAUDE_API_KEY', getenv('CLAUDE_API_KEY') ?: 'YOUR_CLAUDE_API_KEY_HERE');
+
+// Google Gemini API Key (Multimodal Vision, PDF/Image extraction)
+defined('GEMINI_API_KEY') or define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: 'YOUR_GEMINI_API_KEY_HERE');
+
+// OpenAI API Key (Optional)
+defined('OPENAI_API_KEY') or define('OPENAI_API_KEY', '');
+
+// Default AI Provider: 'auto' (Try Claude then Gemini), 'gemini', 'claude', 'openai'
+defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', 'auto');
+
+// Local Fallback Data Storage for Quotations (when database is offline)
+defined('LOCAL_FALLBACK_FILE') or define('LOCAL_FALLBACK_FILE', __DIR__ . '/../data/saved_quotations.json');
+

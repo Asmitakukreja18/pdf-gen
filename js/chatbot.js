@@ -16,14 +16,28 @@ const Chatbot = (() => {
   let isTyping = false;
   let initialized = false;
   let activeAttachment = null;
+  let lastPrompt = '';
 
-  // DOM Refs
+  // DOM Refs & Utilities
   const $ = (id) => document.getElementById(id);
   const msgs = () => $('chatMessages');
   const typing = () => $('typingIndicator');
   const replies = () => $('quickReplies');
   const input = () => $('chatInput');
   const sendBtn = () => $('btnSend');
+
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  if (typeof window !== 'undefined') {
+    window.escapeHTML = escapeHTML;
+  }
 
   /**
    * Initialize Chatbot
@@ -35,6 +49,31 @@ const Chatbot = (() => {
     renderWelcome();
     setupInputHandlers();
     setupAttachmentHandlers();
+
+    const btnHistory = $('btnChatHistory');
+    if (btnHistory) {
+      btnHistory.addEventListener('click', () => {
+        showReplies([
+          { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
+          { label: '🌟 Dubai 6D Itinerary', val: 'Dubai 6D itinerary with rates' },
+          { label: '🏨 Add Ramada & 10% Markup', val: 'Ramada hotel add karo aur 10% markup lagao' },
+          { label: '🧾 Akash Dewani Tax Invoice', val: 'akash dewani amravati ka tax invoice banao' },
+          { label: '🏨 Aanay Tours Voucher', val: 'aanay tours hotel voucher hilton yas island' }
+        ], true);
+        if (typeof showToast === 'function') showToast('Sample enquiries loaded in quick actions', 'info');
+      });
+    }
+
+    const btnClear = $('btnChatClear');
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        const m = msgs();
+        if (m) m.innerHTML = '';
+        history = [];
+        renderWelcome();
+        if (typeof showToast === 'function') showToast('Conversation cleared', 'info');
+      });
+    }
   }
 
   function renderWelcome() {
@@ -99,64 +138,160 @@ const Chatbot = (() => {
       name: file.name,
       size: file.size,
       type: file.type || 'application/octet-stream',
-      mimeType: file.type || '',
+      mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
       base64: '',
       extractedText: '',
       pageCount: 1,
-      isPdf: file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf'),
-      isImage: file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name)
+      isPdf: (file.type && file.type.includes('pdf')) || file.name.toLowerCase().endsWith('.pdf'),
+      isImage: (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|webp|gif)$/i.test(file.name),
+      ready: false
     };
 
+    // 1. Immediately display the attachment badge
     if (badge && badgeText) {
-      badgeText.innerHTML = `⏳ Reading & analyzing <strong>${escapeHTML(file.name)}</strong>...`;
+      badgeText.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; width:100%;">
+          <span style="font-size:22px; line-height:1;">📄</span>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <strong style="color:#0F2C59; font-size:13px; word-break:break-all;">${escapeHTML(file.name)}</strong>
+              <span id="attReadyPill" style="background:#2563EB; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;">UPLOADING TO CPANEL...</span>
+            </div>
+            <div id="attSubInfo" style="font-size:11px; color:#64748B; margin-top:2px;">
+              Uploading to cPanel server storage (${Math.round(file.size / 1024)} KB)...
+            </div>
+          </div>
+        </div>
+      `;
       badge.style.display = 'flex';
     }
 
+    // 2. Upload file directly to cPanel Server (api/upload_attachment.php)
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      activeAttachment.base64 = arrayBufferToBase64(arrayBuffer);
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await fetch('api/upload_attachment.php', {
+        method: 'POST',
+        body: formData
+      });
+      if (uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        if (uploadData && uploadData.success && uploadData.document) {
+          activeAttachment.serverPath = uploadData.document.file_path;
+          activeAttachment.serverFilename = uploadData.document.file_name;
+          activeAttachment.docId = uploadData.document.id;
+          activeAttachment.serverStored = true;
+          if (uploadData.extracted_text) {
+            activeAttachment.extractedText = uploadData.extracted_text;
+          }
+        }
+      }
+    } catch (uploadErr) {
+      console.warn('cPanel upload notice (offline or local preview):', uploadErr);
+    }
 
-      if (activeAttachment.isPdf) {
+    // 3. Read Base64 via standard browser FileReader (instant fallback & multimodal support)
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      activeAttachment.base64 = (dataUrl || '').replace(/^data:[^;]+;base64,/, '').trim();
+    } catch (readErr) {
+      console.warn('FileReader notice:', readErr);
+    }
+
+    // 4. Fast Text Extraction with strict timeout guard
+    try {
+      if (activeAttachment.isPdf && !activeAttachment.extractedText) {
         activeAttachment.mimeType = 'application/pdf';
         if (typeof pdfjsLib !== 'undefined') {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
-          const pdf = await loadingTask.promise;
-          activeAttachment.pageCount = pdf.numPages;
-          let fullText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            fullText += `[Page ${i}]\n` + pageText + '\n';
+          const ab = await file.arrayBuffer();
+          const parsePromise = (async () => {
+            try {
+              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+              const loadingTask = pdfjsLib.getDocument({ data: ab.slice(0) });
+              const pdf = await loadingTask.promise;
+              activeAttachment.pageCount = pdf.numPages || 1;
+              let fullText = '';
+              const maxPages = Math.min(pdf.numPages, 10);
+              for (let i = 1; i <= maxPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += `[Page ${i}]\n` + pageText + '\n';
+              }
+              return fullText.trim();
+            } catch (innerPdfErr) {
+              return '';
+            }
+          })();
+
+          const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(''), 1200));
+          const pdfText = await Promise.race([parsePromise, timeoutPromise]);
+          if (pdfText) {
+            activeAttachment.extractedText = pdfText;
           }
-          activeAttachment.extractedText = fullText.trim();
         }
       } else if (activeAttachment.isImage) {
         activeAttachment.mimeType = file.type || 'image/jpeg';
         activeAttachment.extractedText = `[Image Document: ${file.name}]`;
-      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('wordprocessingml') || file.type.includes('msword')) {
+      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
         activeAttachment.mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
         if (typeof mammoth !== 'undefined') {
-          const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer.slice(0) });
+          const ab = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: ab });
           activeAttachment.extractedText = result.value ? result.value.trim() : '';
         }
-      } else {
+      } else if (!activeAttachment.extractedText) {
         activeAttachment.extractedText = await file.text();
       }
-    } catch (err) {
-      console.warn('File processing notice:', err);
+    } catch (extractErr) {
+      console.warn('Client text extraction notice:', extractErr);
     }
 
-    if (badge && badgeText) {
-      const charInfo = activeAttachment.extractedText ? ` · ${activeAttachment.extractedText.length} chars` : '';
-      const pageInfo = activeAttachment.pageCount > 1 ? ` · ${activeAttachment.pageCount} pages` : '';
-      badgeText.innerHTML = `📎 <strong>Attached:</strong> ${escapeHTML(file.name)} <span style="opacity:0.8; font-size:11px;">(${Math.round(file.size / 1024)} KB${pageInfo}${charInfo})</span>`;
-      badge.style.display = 'flex';
+    // 5. Mark attachment as READY
+    activeAttachment.ready = true;
+    const readyPill = $('attReadyPill');
+    const subInfo = $('attSubInfo');
+    const pageInfo = activeAttachment.pageCount > 1 ? ` · ${activeAttachment.pageCount} pages` : '';
+    const storedStatus = activeAttachment.serverStored
+      ? `✓ Stored on cPanel Server (<code>${escapeHTML(activeAttachment.serverPath || 'uploads/')}</code>)`
+      : `✓ Ready (${Math.round(file.size / 1024)} KB${pageInfo})`;
+
+    if (readyPill) {
+      readyPill.textContent = activeAttachment.serverStored ? '✅ SAVED TO CPANEL' : '✅ READY FOR AI';
+      readyPill.style.background = '#10B981';
     }
+    if (subInfo) {
+      subInfo.innerHTML = `<span style="color:#15803D; font-weight:600;">${storedStatus}</span> — Click <strong>Send</strong> or choose an action below (zero typing required):`;
+    }
+
+    // 5. Present Quick Action pills with the file action FIRST and highlighted
+    showReplies([
+      { 
+        label: `⚡ Auto-Extract Quotation (${file.name})`, 
+        val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`, 
+        primary: true 
+      },
+      { 
+        label: '🧾 Tax Invoice Banao', 
+        val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao` 
+      },
+      { 
+        label: '🏨 Hotel Booking Voucher', 
+        val: `Attached document ${file.name} se hotel confirmation booking voucher banao` 
+      },
+      { 
+        label: '🗺️ Itinerary (Without Rates)', 
+        val: `Attached document ${file.name} se guest travel itinerary without pricing banao` 
+      }
+    ], true);
 
     if (typeof showToast === 'function') {
-      showToast(`Attached & analyzed ${file.name}`, 'success');
+      showToast(`📄 ${file.name} Attached! Click Send or an action pill.`, 'success');
     }
   }
 
@@ -182,6 +317,10 @@ const Chatbot = (() => {
         activeAttachment = null;
         if (badge) badge.style.display = 'none';
         if (fileInput) fileInput.value = '';
+        const inp = input();
+        if (inp && inp.value.includes('Extract all travel itinerary details')) {
+          clearInput();
+        }
       });
     }
 
@@ -231,23 +370,31 @@ const Chatbot = (() => {
       }
     });
 
-    btn.addEventListener('click', () => submitInput(inp.value.trim()));
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      submitInput(inp.value.trim());
+    });
   }
 
   function submitInput(text) {
     if (!text && !activeAttachment) return;
     if (isTyping) return;
 
+    // Zero-typing requirement: If user attached a file and wrote nothing, provide full instruction
     let fullPrompt = text;
     let userBubble = text;
     if (activeAttachment) {
+      const defaultInstr = `Please analyze the attached document "${activeAttachment.name}", extract all travel details (destination, travel dates, passenger counts, day-wise itinerary, hotel stays, room types, tariffs, inclusions) and build the official document.`;
+      const promptInstr = text ? text : defaultInstr;
+      
       let fileSnippet = '';
       if (activeAttachment.extractedText) {
         fileSnippet = `\n[Extracted Document Text]:\n${activeAttachment.extractedText}\n[End Document Text]\n`;
       }
-      fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}` + (text || 'Please process this attached document.');
+      fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}${promptInstr}`;
       const pageInfo = activeAttachment.pageCount > 1 ? ` (${activeAttachment.pageCount} pages)` : '';
-      userBubble = `📎 <strong>Attached: ${escapeHTML(activeAttachment.name)}</strong>${pageInfo}<br>` + (text ? escapeHTML(text) : 'Please extract all details and update the document.');
+      userBubble = `📎 <strong>Attached: ${escapeHTML(activeAttachment.name)}</strong>${pageInfo}<br>` + 
+        (text ? escapeHTML(text) : `⚡ <em>Extracting document details, itinerary &amp; pricing with AI...</em>`);
     }
 
     clearInput();
@@ -270,6 +417,9 @@ const Chatbot = (() => {
    */
   async function processMessage(text, attachment = null) {
     const t = text.trim();
+    if (!t.startsWith('__')) {
+      lastPrompt = text;
+    }
 
 
 
@@ -846,6 +996,7 @@ const Chatbot = (() => {
 
       setTyping(false);
 
+      const pkg = QuotationData.package || {};
       let thinkingCard = '';
       if (attachment) {
         thinkingCard = buildThinkingProcessCard(
@@ -870,9 +1021,8 @@ const Chatbot = (() => {
         );
       }
 
-      const pkg = QuotationData.package || {};
       const aiSourceBadge = extracted._source === 'gemini' 
-        ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini 2.0 Flash AI</span>'
+        ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini Flash AI</span>'
         : '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1E40AF; font-size:11px; font-weight:700;">🤖 Intelligent DMC Document Engine</span>';
 
       const docTypeMeta = (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[docType]) 
@@ -1168,41 +1318,67 @@ const Chatbot = (() => {
   function appendUser(text) {
     const el = msgs();
     if (!el) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg user';
-    div.innerHTML = esc(text).replace(/\n/g, '<br>');
-    el.appendChild(div);
-    scrollBottom();
-  }
-
-  function buildActionToolbar() {
-    return `
-      <div class="ai-action-toolbar" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #CBD5E1;">
-        <button type="button" class="btn-chat-action btn-act-preview" onclick="App.showSection('preview')" title="Switch to official Live Preview" style="background:#0F2C59; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(15,44,89,0.2);">
-          <span>👁️</span> Live Preview
-        </button>
-        <button type="button" class="btn-chat-action btn-act-edit" onclick="App.showSection('generator'); if (typeof App.populateStudioFromData==='function') App.populateStudioFromData(); if (typeof App.populateInvoiceFields==='function') App.populateInvoiceFields();" title="Edit hotels, days, and pricing in Studio Builder" style="background:#FFFFFF; color:#0F2C59; border:1px solid #CBD5E1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-          <span>✏️</span> Edit in Studio
-        </button>
-        <button type="button" class="btn-chat-action btn-act-pdf" onclick="if (typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Generate &amp; Download Print-Ready A4 PDF" style="background:#16A34A; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(22,163,74,0.25);">
-          <span>🖨️</span> Download PDF
-        </button>
-        <button type="button" class="btn-chat-action btn-act-docx" onclick="if (typeof DOCXGenerator!=='undefined') DOCXGenerator.generate();" title="Download Editable Microsoft Word (.docx)" style="background:#2563EB; color:#FFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(37,99,235,0.25);">
-          <span>📄</span> Download DOCX
-        </button>
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const row = document.createElement('div');
+    row.className = 'user-msg-row';
+    row.innerHTML = `
+      <div class="user-msg-bubble">
+        <div>${text}</div>
+        <div class="user-msg-meta">${timeStr} <span style="color:#2563EB;">✔✔</span></div>
       </div>
+      <div class="user-avatar-circle" style="width:28px; height:28px; font-size:12px; flex-shrink:0;">👤</div>
     `;
+    el.appendChild(row);
+    scrollBottom();
   }
 
   function appendAI(html, withActions = true) {
     const el = msgs();
     if (!el) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg ai';
-    const content = withActions ? (html + buildActionToolbar()) : html;
-    div.innerHTML = content;
-    el.appendChild(div);
+    const row = document.createElement('div');
+    row.className = 'bot-msg-row';
+
+    let actionToolbar = '';
+    if (withActions) {
+      actionToolbar = `
+        <div class="msg-actions-bar">
+          <button type="button" class="btn-msg-action" onclick="Chatbot.copyLastResponse(this)" title="Copy Response">📋 Copy</button>
+          <button type="button" class="btn-msg-action" onclick="Chatbot.regenerateResponse()" title="Regenerate Response">🔄 Regenerate</button>
+          <button type="button" class="btn-msg-action" onclick="App.showSection('generator'); if(typeof App.populateStudioFromData==='function') App.populateStudioFromData();" title="Edit in Studio Builder">✏️ Edit</button>
+          <button type="button" class="btn-msg-action" onclick="if(typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Download PDF" style="margin-left:auto; background:#0F2C59; color:#fff; border-color:#0F2C59;">⬇️ PDF</button>
+        </div>
+      `;
+    }
+
+    row.innerHTML = `
+      <div class="chat-bot-icon" style="width:28px; height:28px; font-size:12px; flex-shrink:0;">✈</div>
+      <div class="bot-msg-bubble" style="flex:1;">
+        ${html}
+        ${actionToolbar}
+      </div>
+    `;
+    el.appendChild(row);
     scrollBottom();
+  }
+
+  function copyLastResponse(btn) {
+    const bubble = btn ? btn.closest('.bot-msg-bubble') : null;
+    if (bubble) {
+      const textToCopy = bubble.innerText.replace(/📋 Copy|🔄 Regenerate|✏️ Edit|⬇️ PDF/g, '').trim();
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        if (typeof showToast === 'function') showToast('Copied to clipboard!', 'success');
+      });
+    }
+  }
+
+  function regenerateResponse() {
+    if (lastPrompt) {
+      appendUser('🔄 Regenerate: ' + lastPrompt);
+      processMessage(lastPrompt);
+    } else {
+      if (typeof showToast === 'function') showToast('No previous instruction to regenerate.', 'info');
+    }
   }
 
   function sleep(ms) {
@@ -1240,16 +1416,16 @@ const Chatbot = (() => {
   }
 
   function buildThinkingProcessCard(title, steps) {
-    const stepsHtml = steps.map(s => `<div>✔ ${s}</div>`).join('');
+    const stepsHtml = steps.map(s => `<div>• ${s}</div>`).join('');
     return `
-      <div class="thinking-process-box">
-        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; c.style.display=c.style.display==='none'?'block':'none';">
-          <span style="font-weight:700; color:#1E3A8A; display:flex; align-items:center; gap:6px;">
-            <span style="color:#2563EB;">⚡</span> ${escapeHTML(title)}
+      <div class="thinking-process-box" style="margin-bottom:10px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:9px 13px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; const chev=this.querySelector('.chev-icon'); const isCollapsed = c.style.display==='none'; c.style.display=isCollapsed?'block':'none'; if(chev) chev.textContent=isCollapsed?'▾':'▸';">
+          <span style="font-weight:600; color:#1E293B; display:flex; align-items:center; gap:6px; font-size:12px;">
+            <span style="color:#D97706;">•</span> ${escapeHTML(title)} <span class="chev-icon" style="color:#64748B; font-size:11px;">▸</span>
           </span>
-          <span style="font-size:10px; color:#64748B; background:#E2E8F0; padding:2px 6px; border-radius:4px;">Thinking Steps ▾</span>
+          <span style="font-size:10px; color:#64748B; background:#E2E8F0; padding:2px 7px; border-radius:10px;">Thinking Process</span>
         </div>
-        <div style="margin-top:6px; border-top:1px dashed #CBD5E1; padding-top:6px; display:none; line-height:1.6; font-size:11px; color:#475569;">
+        <div style="margin-top:8px; border-top:1px dashed #CBD5E1; padding-top:8px; display:none; line-height:1.6; font-size:11.5px; color:#475569;">
           ${stepsHtml}
         </div>
       </div>
@@ -1263,18 +1439,27 @@ const Chatbot = (() => {
     { label: '📄 Download DOCX (Word)', val: '__DOCX__' }
   ];
 
-  function showReplies(options = []) {
+  function showReplies(options = [], prioritizeOptions = false) {
     const el = replies();
     if (!el) return;
     el.innerHTML = '';
     
-    // Always include core actions: Preview, Edit, PDF, DOCX
-    const merged = [...CORE_ACTION_OPTIONS];
-    (options || []).forEach(opt => {
-      if (!merged.some(m => m.val === opt.val)) {
-        merged.push(opt);
-      }
-    });
+    let merged = [];
+    if (prioritizeOptions) {
+      merged = [...(options || [])];
+      CORE_ACTION_OPTIONS.forEach(core => {
+        if (!merged.some(m => m.val === core.val)) {
+          merged.push(core);
+        }
+      });
+    } else {
+      merged = [...CORE_ACTION_OPTIONS];
+      (options || []).forEach(opt => {
+        if (!merged.some(m => m.val === opt.val)) {
+          merged.push(opt);
+        }
+      });
+    }
 
     merged.forEach(opt => {
       const btn = document.createElement('button');
@@ -1288,6 +1473,14 @@ const Chatbot = (() => {
 
   function handleReplyClick(opt) {
     clearReplies();
+
+    const attachmentToProcess = activeAttachment;
+    activeAttachment = null;
+    const badge = $('chatAttachmentBadge');
+    if (badge) badge.style.display = 'none';
+    const uploadInput = $('chatDocUpload');
+    if (uploadInput) uploadInput.value = '';
+
     if (opt.val === 'restart') {
       resetQuotationData();
       if (typeof App !== 'undefined') {
@@ -1298,27 +1491,27 @@ const Chatbot = (() => {
     }
 
     if (opt.val === '__APPLY_V5_HOTELS__') {
-      processMessage('__APPLY_V5_HOTELS__');
+      processMessage('__APPLY_V5_HOTELS__', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_QUOTATION__') {
-      processMessage('quotation format banao');
+      processMessage('quotation format banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_HOTEL_COSTING__') {
-      processMessage('hotel costing format banao');
+      processMessage('hotel costing format banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_INVOICE__') {
-      processMessage('invoice banao');
+      processMessage('invoice banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_CONFIRMATION__') {
-      processMessage('confirmation voucher banao');
+      processMessage('confirmation voucher banao', attachmentToProcess);
       return;
     }
 
@@ -1344,7 +1537,7 @@ const Chatbot = (() => {
     }
 
     appendUser(opt.label);
-    processMessage(opt.val);
+    processMessage(opt.val, attachmentToProcess);
   }
 
   function clearReplies() {
@@ -1388,6 +1581,9 @@ const Chatbot = (() => {
     init,
     reset,
     processMessage,
+    submitInput,
+    copyLastResponse,
+    regenerateResponse,
     applyNewThailandHotelsAndRates
   };
 

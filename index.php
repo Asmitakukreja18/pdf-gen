@@ -1,0 +1,927 @@
+<?php
+/**
+ * Let's Explore DMC — Master Gateway Entry Portal
+ * Role-Based Login: Admin Control Center & Staff Operations
+ * Inspired by Luxury Travel-Tech SaaS UI Reference
+ */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// If already authenticated, redirect to appropriate workspace
+if (isset($_SESSION['inquiry_admin']) || isset($_SESSION['admin_user'])) {
+    header('Location: inquiry-admin/dashboard.html');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Explore DMC — Master Gateway Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-ivory: #FDFBF7;
+            --bg-warm: #F6F4EE;
+            --card-white: #FFFFFF;
+            --brand-navy: #0F172A;
+            --brand-navy-light: #1E293B;
+            --brand-gold: #C5A059;
+            --brand-gold-dark: #A9823B;
+            --brand-gold-light: #F4EBD9;
+            --accent-blue: #2563EB;
+            --accent-blue-light: #EFF6FF;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --border-subtle: rgba(15, 23, 42, 0.08);
+            --border-gold: rgba(197, 160, 89, 0.25);
+            --shadow-card: 0 20px 40px -15px rgba(15, 23, 42, 0.07), 0 0 1px 1px rgba(15, 23, 42, 0.03);
+            --shadow-hover: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(197, 160, 89, 0.3);
+            --radius-pill: 9999px;
+            --radius-card: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-ivory);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Decorative Leaf Vector Overlays */
+        .leaf-accent-top {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 140px;
+            height: 140px;
+            pointer-events: none;
+            opacity: 0.85;
+            z-index: 1;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%232D5A43' opacity='0.35'%3E%3Cpath d='M10,10 Q50,0 80,30 Q90,70 60,80 Q20,80 10,10 Z'/%3E%3Cpath d='M25,25 Q60,15 85,45 Q70,75 45,70 Z' fill='%23C5A059' opacity='0.4'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+        }
+
+        .leaf-accent-bottom {
+            position: absolute;
+            bottom: -30px;
+            right: -20px;
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+            opacity: 0.75;
+            z-index: 1;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%232D5A43' opacity='0.25'%3E%3Cpath d='M90,90 Q50,100 20,70 Q10,30 40,20 Q80,20 90,90 Z'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+        }
+
+        /* Master Navbar */
+        .gateway-header {
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: var(--brand-navy);
+        }
+
+        .brand-logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--brand-navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-title i {
+            color: var(--brand-gold);
+            font-size: 16px;
+        }
+
+        .brand-badge-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brand-gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .header-nav-tags {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+        }
+
+        .header-nav-tags span.dot {
+            color: var(--brand-gold);
+            font-size: 8px;
+        }
+
+        /* Hero Container */
+        .gateway-hero {
+            flex: 1;
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 10px 32px 30px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .headline-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: var(--brand-navy);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Dual Gateway Login Selection Cards */
+        .login-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 620px;
+        }
+
+        .portal-card {
+            background: var(--card-white);
+            border-radius: var(--radius-card);
+            padding: 32px 26px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-gold);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .portal-card.active-tab {
+            border-color: var(--brand-navy);
+            box-shadow: 0 0 0 2px var(--brand-navy), var(--shadow-hover);
+        }
+
+        .card-icon-badge {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.28s ease;
+        }
+
+        .portal-card:hover .card-icon-badge {
+            transform: scale(1.08);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            box-shadow: 0 8px 16px -4px rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+            box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            min-height: 40px;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 13px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-continue.btn-navy {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+        }
+
+        .btn-continue.btn-navy:hover {
+            background: #1E293B;
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.35);
+        }
+
+        .btn-continue.btn-outline {
+            background: #FFFFFF;
+            color: var(--brand-navy);
+            border: 1.5px solid rgba(15, 23, 42, 0.2);
+        }
+
+        .btn-continue.btn-outline:hover {
+            background: #F8FAFC;
+            border-color: var(--brand-navy);
+        }
+
+        /* Social Proof Stats Bar */
+        .trust-stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            padding-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            font-size: 20px;
+            color: var(--brand-gold-dark);
+        }
+
+        .stat-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--brand-navy);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Hero Right: Scenic Showcase */
+        .hero-right {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scenic-card-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 520px;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18);
+            border: 4px solid #FFFFFF;
+            background: #E2E8F0;
+        }
+
+        .scenic-bg-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scenic-card-wrapper:hover .scenic-bg-img {
+            transform: scale(1.04);
+        }
+
+        .scenic-overlay-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 100%);
+            pointer-events: none;
+        }
+
+        .scenic-float-caption {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .caption-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .caption-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--brand-gold-light);
+            color: var(--brand-gold-dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .caption-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        .caption-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .caption-pill {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Floating Airplane Sticker */
+        .airplane-float {
+            position: absolute;
+            top: 20px;
+            right: -25px;
+            width: 140px;
+            height: auto;
+            pointer-events: none;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.15));
+            animation: floatPlane 4s ease-in-out infinite;
+            z-index: 6;
+        }
+
+        @keyframes floatPlane {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        /* ============================================================
+           MODAL / SLIDE-IN AUTHENTICATION DIALOGUE
+           ============================================================ */
+        .auth-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .auth-modal-backdrop.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .auth-modal-box {
+            background: #FFFFFF;
+            border-radius: 28px;
+            max-width: 440px;
+            width: 100%;
+            padding: 36px 32px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .auth-modal-backdrop.open .auth-modal-box {
+            transform: scale(1);
+        }
+
+        .auth-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-close-btn:hover {
+            background: #E2E8F0;
+            color: var(--brand-navy);
+        }
+
+        /* Auth Role Switcher Tabs */
+        .role-switch-pill {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: var(--radius-pill);
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .role-switch-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: var(--radius-pill);
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .role-switch-btn.active {
+            background: #FFFFFF;
+            color: var(--brand-navy);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--brand-navy);
+            transition: all 0.2s ease;
+            background: #F8FAFC;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-navy);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.06);
+        }
+
+        .btn-submit-auth {
+            width: 100%;
+            height: 50px;
+            border-radius: var(--radius-pill);
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit-auth:hover {
+            background: #1E293B;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.35);
+        }
+
+        .auth-alert {
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-alert.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .auth-alert.success {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 40px; }
+            .gateway-hero { grid-template-columns: 1fr; gap: 30px; }
+            .hero-right { display: none; }
+            .login-cards-grid { max-width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .gateway-header { padding: 18px 20px; }
+            .header-nav-tags { display: none; }
+            .gateway-hero { padding: 10px 20px 30px; }
+            .hero-title { font-size: 32px; }
+            .hero-subtitle { font-size: 15px; }
+            .login-cards-grid { grid-template-columns: 1fr; }
+            .trust-stats-bar { flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 28px; }
+            .portal-card { padding: 24px 20px; }
+            .auth-modal-box { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Decorative Top Leaves -->
+    <div class="leaf-accent-top"></div>
+    <div class="leaf-accent-bottom"></div>
+
+    <!-- Header Navigation -->
+    <header class="gateway-header">
+        <a href="index.php" class="brand-link">
+            <img src="images/logo.png" alt="Let's Explore DMC" class="brand-logo-img" onerror="this.style.display='none'">
+            <div class="brand-title-wrap">
+                <span class="brand-title"><i class="fa-solid fa-plane-departure"></i> Let's Explore DMC</span>
+                <span class="brand-badge-tag">Travel Operations & AI Studio</span>
+            </div>
+        </a>
+
+        <div class="header-nav-tags">
+            <span>Travel</span>
+            <span class="dot">&bull;</span>
+            <span>Explore</span>
+            <span class="dot">&bull;</span>
+            <span>Experience</span>
+        </div>
+    </header>
+
+    <!-- Main Gateway Hero -->
+    <main class="gateway-hero">
+        <div class="hero-left">
+            <div class="headline-group">
+                <h1 class="hero-title">Your Next Journey Starts Here...</h1>
+                <p class="hero-subtitle">Smart Travel. Seamless Operations.</p>
+            </div>
+
+            <!-- Two Role-Based Entry Cards -->
+            <div class="login-cards-grid">
+                <!-- Card 1: Admin -->
+                <div class="portal-card" onclick="openAuthModal('admin')">
+                    <div class="card-icon-badge badge-admin">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <h3 class="card-title">Login as Admin</h3>
+                    <p class="card-desc">Access admin dashboard, analytics & controls</p>
+                    <button type="button" class="btn-continue btn-navy">
+                        Continue <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Card 2: User -->
+                <div class="portal-card" onclick="openAuthModal('user')">
+                    <div class="card-icon-badge badge-user">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <h3 class="card-title">Login as User</h3>
+                    <p class="card-desc">Manage leads, quotations & travel operations</p>
+                    <button type="button" class="btn-continue btn-outline">
+                        Continue <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trust / Social Proof Badges -->
+            <div class="trust-stats-bar">
+                <div class="stat-item">
+                    <i class="fa-solid fa-plane-up stat-icon"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">13+</span>
+                        <span class="stat-label">Tour Packages</span>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <i class="fa-solid fa-globe stat-icon"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Happy Clients</span>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <i class="fa-solid fa-star stat-icon" style="color:#F59E0B;"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">4.9/5</span>
+                        <span class="stat-label">Client Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side Scenic Display -->
+        <div class="hero-right">
+            <!-- Floating Decorative Airplane -->
+            <svg class="airplane-float" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 50 L45 42 L65 15 L72 17 L58 40 L88 36 L94 28 L98 29 L94 40 L98 44 L94 45 L98 56 L94 57 L88 49 L58 45 L72 68 L65 70 L45 43 Z" fill="#0F172A" />
+                <path d="M48 42 L64 18 L70 20 L56 41 Z" fill="#C5A059" opacity="0.8" />
+            </svg>
+
+            <div class="scenic-card-wrapper">
+                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop" alt="Dubai Luxury Destination" class="scenic-bg-img" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&auto=format&fit=crop'">
+                <div class="scenic-overlay-gradient"></div>
+                <div class="scenic-float-caption">
+                    <div class="caption-left">
+                        <div class="caption-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div>
+                            <div class="caption-title">Dubai & Emirates Luxury</div>
+                            <div class="caption-sub">5N/6D Curated DMC Tour</div>
+                        </div>
+                    </div>
+                    <span class="caption-pill">Exclusive</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Slide-in Authentication Modal -->
+    <div class="auth-modal-backdrop" id="authModalBackdrop">
+        <div class="auth-modal-box">
+            <button type="button" class="auth-close-btn" onclick="closeAuthModal()" title="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Role Switch Tabs -->
+            <div class="role-switch-pill">
+                <button type="button" class="role-switch-btn active" id="tabAdmin" onclick="setRole('admin')">
+                    <i class="fa-solid fa-crown"></i> Admin
+                </button>
+                <button type="button" class="role-switch-btn" id="tabUser" onclick="setRole('user')">
+                    <i class="fa-solid fa-user-group"></i> Staff / User
+                </button>
+            </div>
+
+            <div style="text-align:center; margin-bottom: 20px;">
+                <h3 id="modalTitle" style="font-size:22px; font-weight:800; color:var(--brand-navy); margin-bottom:4px;">Admin Sign In</h3>
+                <p id="modalSubtitle" style="font-size:13px; color:var(--text-secondary);">Enter your administrator credentials to continue</p>
+            </div>
+
+            <div class="auth-alert" id="authAlert"></div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <input type="hidden" id="selectedRole" value="admin">
+
+                <div class="form-group">
+                    <label id="usernameLabel">Username or Email</label>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="admin" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" class="form-input" placeholder="••••••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-submit-auth" id="btnSubmit">
+                    <span>Sign In to Dashboard</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px;">
+                <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> Secured by Let's Explore DMC Multi-Role Auth
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'admin';
+
+        function openAuthModal(role) {
+            setRole(role);
+            const modal = document.getElementById('authModalBackdrop');
+            modal.classList.add('open');
+            setTimeout(() => document.getElementById('usernameInput').focus(), 150);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModalBackdrop').classList.remove('open');
+            document.getElementById('authAlert').style.display = 'none';
+        }
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('selectedRole').value = role;
+            const tabAdmin = document.getElementById('tabAdmin');
+            const tabUser = document.getElementById('tabUser');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const usernameInput = document.getElementById('usernameInput');
+
+            if (role === 'admin') {
+                tabAdmin.classList.add('active');
+                tabUser.classList.remove('active');
+                modalTitle.textContent = 'Admin Sign In';
+                modalSubtitle.textContent = 'Enter your administrator credentials to continue';
+                usernameInput.placeholder = 'admin';
+            } else {
+                tabUser.classList.add('active');
+                tabAdmin.classList.remove('active');
+                modalTitle.textContent = 'Staff / User Sign In';
+                modalSubtitle.textContent = 'Enter your staff credentials (executive / agent)';
+                usernameInput.placeholder = 'chanchal / ritesh / operations';
+            }
+        }
+
+        // Close on backdrop click
+        document.getElementById('authModalBackdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeAuthModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAuthModal();
+        });
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('authAlert');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+
+            alertBox.style.display = 'none';
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+
+            try {
+                const response = await fetch('inquiry-admin/api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'auth-alert success';
+                    alertBox.textContent = 'Login successful! Redirecting to workspace...';
+                    alertBox.style.display = 'block';
+
+                    // Redirect to Admin Dashboard or Staff Workspace
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'inquiry-admin/dashboard.html';
+                    }, 600);
+                } else {
+                    alertBox.className = 'auth-alert error';
+                    alertBox.textContent = data.message || 'Invalid username or password.';
+                    alertBox.style.display = 'block';
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+                }
+            } catch (err) {
+                alertBox.className = 'auth-alert error';
+                alertBox.textContent = 'Connection error. Please verify server status.';
+                alertBox.style.display = 'block';
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+            }
+        }
+    </script>
+</body>
+</html>

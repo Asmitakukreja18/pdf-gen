@@ -1,7 +1,7 @@
 /**
  * ai-parser.js — Intelligent Multi-Format Travel Data Extractor
  * Supports:
- * - Real Google Gemini 2.0 Flash / 1.5 Flash API with Multimodal Vision (PDF & Images)
+ * - Real Google Gemini 2.5 Flash / Flash Latest API with Multimodal Vision (PDF & Images)
  * - Intelligent Real-World Rule-Based Local NLP Parser (zero fake hallucinated days)
  * - Multi-Format Document Detection:
  *     1. itinerary: Travel Itinerary (Without Rates / Experience-focused)
@@ -28,7 +28,53 @@ const AIParser = (() => {
 
     const cleanText = (text || '').trim();
 
-    // 1. If Gemini API Key is configured in CONFIG / localStorage, use real Gemini 2.0 Flash
+    // 1. Try PHP Backend AI Provider Manager first (api/ai.php — Claude/Gemini/OpenAI)
+    try {
+      const isHttp = typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http');
+      if (isHttp) {
+        const res = await fetch('api/ai.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: cleanText,
+            currentQuotation: currentQuotation ? {
+              activeDocType: currentQuotation.activeDocType,
+              package: currentQuotation.package,
+              days: currentQuotation.days,
+              hotels: currentQuotation.hotels,
+              summary: currentQuotation.summary,
+              invoice: currentQuotation.invoice,
+              confirmation: currentQuotation.confirmation
+            } : null,
+            serverFilePath: attachment ? (attachment.serverPath || '') : '',
+            originalName: attachment ? (attachment.name || '') : '',
+            attachment: attachment ? {
+              name: attachment.name,
+              mimeType: attachment.mimeType || 'application/pdf',
+              base64: (attachment.base64 || '').replace(/^data:[^;]+;base64,/, '').trim(),
+              extractedText: attachment.extractedText || '',
+              serverPath: attachment.serverPath || ''
+            } : null,
+            provider: 'auto'
+          })
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.success && json.data) {
+            json.data._hasExplicitDestination = true;
+            json.data._hasExplicitItinerary = true;
+            json.data._source = json.provider || 'gemini';
+            json.data._model = json.model;
+            return sanitizeAndVerify(json.data);
+          }
+        }
+      }
+    } catch (backendErr) {
+      console.warn('PHP Backend api/ai.php not reachable, using direct AI engine:', backendErr);
+    }
+
+    // 2. Direct Gemini 2.5 Flash Multimodal call (Client-side fallback)
     const activeKey = CONFIG.GEMINI_API_KEY;
     if (activeKey && activeKey !== 'YOUR_GEMINI_API_KEY_HERE') {
       try {
@@ -57,7 +103,12 @@ const AIParser = (() => {
     const key = (rawKey || '').trim();
     if (!key) throw new Error('API key cannot be empty.');
 
-    const modelsToTry = [CONFIG.GEMINI_MODEL || 'gemini-2.0-flash', CONFIG.GEMINI_FALLBACK_MODEL || 'gemini-1.5-flash'];
+    const modelsToTry = [
+      CONFIG.GEMINI_MODEL || 'gemini-2.5-flash',
+      CONFIG.GEMINI_FALLBACK_MODEL || 'gemini-flash-latest',
+      'gemini-2.5-flash-lite',
+      'gemini-3-flash-preview'
+    ];
     let lastError = null;
 
     for (const model of modelsToTry) {
@@ -99,7 +150,7 @@ const AIParser = (() => {
   }
 
   /**
-   * Gemini 2.0 Flash API structured JSON extraction & contextual modification
+   * Gemini 2.5 Flash API structured JSON extraction & contextual modification
    */
   async function callGeminiExtract(rawText, currentQuotation = null, attachment = null) {
     const apiKey = CONFIG.GEMINI_API_KEY;
@@ -278,15 +329,18 @@ OUTPUT JSON SCHEMA:
         else if (name.endsWith('.webp')) mime = 'image/webp';
         else mime = 'image/jpeg';
       }
+      const cleanB64 = attachment.base64.replace(/^data:[^;]+;base64,/, '').trim();
       parts.push({
         inlineData: {
           mimeType: mime,
-          data: attachment.base64
+          data: cleanB64
         }
       });
-    } else if (attachment && attachment.extractedText) {
+    }
+
+    if (attachment && attachment.extractedText) {
       parts.push({
-        text: `\n[EXTRACTED ATTACHMENT TEXT - ${attachment.name || 'Document'}]:\n${attachment.extractedText}\n[END ATTACHMENT TEXT]\n`
+        text: `\n[EXTRACTED ATTACHMENT TEXT - ${attachment.name || 'Document'}]:\n${attachment.extractedText.substring(0, 15000)}\n[END ATTACHMENT TEXT]\n`
       });
     }
 
@@ -298,7 +352,12 @@ OUTPUT JSON SCHEMA:
       }
     };
 
-    const modelsToTry = [CONFIG.GEMINI_MODEL || 'gemini-2.0-flash', CONFIG.GEMINI_FALLBACK_MODEL || 'gemini-1.5-flash'];
+    const modelsToTry = [
+      CONFIG.GEMINI_MODEL || 'gemini-2.5-flash',
+      CONFIG.GEMINI_FALLBACK_MODEL || 'gemini-flash-latest',
+      'gemini-2.5-flash-lite',
+      'gemini-3-flash-preview'
+    ];
     let lastError = null;
 
     for (const model of modelsToTry) {
@@ -671,10 +730,22 @@ OUTPUT JSON SCHEMA:
 
     if (!data.package.title) data.package.title = 'PACKAGE TOUR';
     if (!data.package.duration) data.package.duration = `${data.days.length || 5} Days`;
-    if (!data.package.destinations) data.package.destinations = 'Thailand';
-    if (!data.package.travellers) data.package.travellers = '2 Adults';
-    if (!data.package.paxCount) data.package.paxCount = 2;
-    if (!data.package.clientName) data.package.clientName = 'Valued Client';
+    if (!data.package.destinations) {
+      data.package.destinations = data.package.destination || data.destination || 'Custom Destination';
+    }
+    if (!data.package.destination) {
+      data.package.destination = data.package.destinations;
+    }
+    if (!data.package.clientName) {
+      data.package.clientName = data.package.client || data.package.customerName || data.package.guestName || data.clientName || 'Valued Client';
+    }
+    if (!data.package.travellers) {
+      data.package.travellers = data.package.pax || (data.package.paxCount ? `${data.package.paxCount} Adults` : '2 Adults');
+    }
+    if (!data.package.paxCount) {
+      const match = (data.package.travellers || '').match(/(\d+)/);
+      data.package.paxCount = match ? parseInt(match[1], 10) : 2;
+    }
     if (!data.package.usdToInrRate) data.package.usdToInrRate = 87.5;
     if (!data.package.currency) data.package.currency = 'BOTH';
 

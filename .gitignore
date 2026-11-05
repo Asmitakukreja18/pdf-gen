@@ -1,2 +1,7 @@
 *.zip
 .env
+error.txt
+out.txt
+*.log
+in0ok.pdf
+inspect_pdf.py

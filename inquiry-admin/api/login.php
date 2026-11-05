@@ -26,21 +26,30 @@ if (empty($username) || empty($password)) {
 }
 
 $pdo = getDb();
-if ($pdo) {
-    try {
-        $stmt = $pdo->prepare("SELECT id, username, email, password_hash, role FROM users WHERE username = ? OR email = ? LIMIT 1");
-        $stmt->execute([$username, $username]);
-        $user = $stmt->fetch();
+if (!$pdo) {
+    jsonError('Database connection unavailable. Please check database settings.', 503);
+}
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['inquiry_admin'] = [
-                'id' => (int)$user['id'],
-                'username' => $user['username'],
-                'email' => $user['email'],
-                'role' => $user['role']
-            ];
-            jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful');
+try {
+    $stmt = $pdo->prepare("SELECT id, username, email, password_hash, role FROM users WHERE username = ? OR email = ? LIMIT 1");
+    $stmt->execute([$username, $username]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password_hash'])) {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
         }
-    } catch (\PDOException $e) {
-jsonError('Invalid username or password.', 401);
-
+        $_SESSION['inquiry_admin'] = [
+            'id' => (int)$user['id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role' => $user['role']
+        ];
+        jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful');
+    } else {
+        jsonError('Invalid username or password.', 401);
+    }
+} catch (\PDOException $e) {
+    error_log('Inquiry admin login error: ' . $e->getMessage());
+    jsonError('Authentication error occurred.', 500);
+}

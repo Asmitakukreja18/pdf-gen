@@ -1,4 +1,4 @@
-/**
+﻿/**
  * inquiries.js — Let's Explore DMC CRM Lead Management Controller
  * Exact layout & functionality matching DMC / Traviyo CRM Portal
  */
@@ -485,25 +485,27 @@ function renderLeadsList() {
           <div class="lead-sub-date" style="color:#94A3B8; font-size:11px;">Created on ${escapeHTML(lead.createdOn?.split(' ')[0] || '—')}</div>
         </div>
 
-        <!-- Col 5: Total & Timestamp -->
+        <!-- Col 5: Total & Sub-User Timestamp (Note USP: S-U1, U2, U3 with Timestamps) -->
         <div class="lead-col-total">
           <div class="lead-total-num">${escapeHTML(lead.totalAmount || 'INR 0.00 Total')}</div>
-          <div class="lead-time-stamp">
-            <i class="fa-solid fa-user-clock" style="font-size:11px;"></i>
-            <span>${escapeHTML(lead.createdOn || 'Recently')}</span>
+          <div class="lead-time-stamp" style="display:flex; flex-direction:column; align-items:flex-start; gap:3px;">
+            <span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#1E3A8A; font-size:10px; background:#EFF6FF; padding:2px 7px; border-radius:4px; border:1px solid #BFDBFE;">
+              <i class="fa-solid fa-user-tag" style="font-size:9px; color:#2563EB;"></i> ${escapeHTML(lead.subUser || (lead.assignedTo === 'chanchal' ? 'SU1 (Chanchal)' : (lead.assignedTo === 'ritesh' ? 'SU2 (Ritesh)' : 'U1 (Admin)')))}
+            </span>
+            <span style="color:#64748B; font-size:10.5px;"><i class="fa-regular fa-clock" style="font-size:10px;"></i> ${escapeHTML(lead.createdOn || '11:00 AM')}</span>
           </div>
         </div>
 
-        <!-- Col 6: Action Buttons -->
+        <!-- Col 6: Action Buttons (Note 3: Send quotation) -->
         <div class="lead-col-actions" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-          <button type="button" class="btn-crm-view" onclick="openDocumentView(${lead.id})" title="Open official PDF page with 1-click Download button" style="background:#0F2C59; color:#FFFFFF; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; box-shadow:0 2px 4px rgba(15,44,89,0.2);">
-            <i class="fa-solid fa-file-pdf"></i> View &amp; Download PDF
+          <button type="button" class="btn-crm-quote" onclick="sendQuotationFromStudio(${lead.id})" title="Open AI Quotation Studio to prepare & send quotation" style="background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; box-shadow:0 2px 6px rgba(37,99,235,0.3);">
+            <i class="fa-solid fa-paper-plane"></i> Send Quotation
           </button>
           <div style="display:flex; gap:6px; align-items:center;">
-            <button type="button" class="btn-crm-quote" onclick="sendQuotationFromStudio(${lead.id})" title="Open AI Studio with client details" style="padding:5px 12px; font-size:11.5px; border-radius:5px;">
-              <i class="fa-solid fa-wand-magic-sparkles"></i> Open Studio
+            <button type="button" class="btn-crm-view" onclick="openDocumentView(${lead.id})" title="View and Download PDF document" style="background:#0F2C59; color:#FFFFFF; border:none; padding:5px 10px; border-radius:5px; font-weight:600; cursor:pointer; font-size:11px;">
+              <i class="fa-solid fa-file-pdf"></i> View PDF
             </button>
-            <button type="button" class="btn-crm-view" onclick="viewLeadDetails(${lead.id})" title="Quick info modal" style="padding:5px 10px; font-size:11.5px; border-radius:5px; background:#F1F5F9; color:#334155; border:1px solid #CBD5E1;">
+            <button type="button" class="btn-crm-view" onclick="viewLeadDetails(${lead.id})" title="Quick info modal" style="padding:5px 10px; font-size:11px; border-radius:5px; background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; font-weight:600;">
               Info
             </button>
           </div>

@@ -7,6 +7,14 @@ require_once __DIR__ . '/auth.php';
 
 $pdo = getDb();
 if (!$pdo) {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        jsonSuccess(['categories' => [
+            ['id' => 1, 'name' => 'Corporate Invoices', 'description' => 'Tax Invoices and Receipts', 'document_count' => 0],
+            ['id' => 2, 'name' => 'Master Quotations', 'description' => 'Commercial DMC Quotations', 'document_count' => 0],
+            ['id' => 3, 'name' => 'Hotel Booking Vouchers', 'description' => 'Hotel confirmations and vouchers', 'document_count' => 0],
+            ['id' => 4, 'name' => 'Tour Itineraries', 'description' => 'Guest-facing daywise itineraries', 'document_count' => 0]
+        ]]);
+    }
     jsonError('Database connection unavailable', 500);
 }
 

@@ -1,16 +1,54 @@
 <?php
 /**
  * api/documents.php — Document Listing, Search, Filter & Metadata Updates
+ * With graceful disk scanning fallback if database setup is pending
  */
 
 require_once __DIR__ . '/auth.php';
 
 $pdo = getDb();
-if (!$pdo) {
-    jsonError('Database connection unavailable', 500);
-}
-
 $method = $_SERVER['REQUEST_METHOD'];
+
+// Graceful fallback if database is not yet connected
+if (!$pdo) {
+    if ($method === 'GET') {
+        $uploadDir = rtrim(UPLOAD_DIR, '/\\') . DIRECTORY_SEPARATOR;
+        $fallbackDocs = [];
+        if (is_dir($uploadDir)) {
+            $files = glob($uploadDir . '*.pdf');
+            if ($files) {
+                foreach ($files as $idx => $fpath) {
+                    $bname = basename($fpath);
+                    $fsize = filesize($fpath);
+                    $ftime = date('Y-m-d H:i:s', filemtime($fpath));
+                    $cleanTitle = ucwords(preg_replace('/^\d+_[0-9a-f]+_/', '', pathinfo($bname, PATHINFO_FILENAME)));
+                    $cleanTitle = str_replace(['_', '-'], ' ', $cleanTitle);
+                    $fallbackDocs[] = [
+                        'id' => $idx + 1,
+                        'title' => $cleanTitle,
+                        'description' => 'Stored PDF Document in cPanel storage',
+                        'category_id' => null,
+                        'file_name' => $bname,
+                        'file_path' => 'uploads/' . $bname,
+                        'file_size' => $fsize,
+                        'mime_type' => 'application/pdf',
+                        'created_at' => $ftime,
+                        'updated_at' => $ftime,
+                        'category_name' => 'General',
+                        'uploader_username' => 'Admin',
+                        'comment_count' => 0
+                    ];
+                }
+            }
+        }
+        jsonSuccess([
+            'documents' => $fallbackDocs,
+            'total' => count($fallbackDocs),
+            'note' => 'Storage disk mode active. Import database.sql into phpMyAdmin for full relational tagging.'
+        ]);
+    }
+    jsonError('Database connection unavailable. Please verify api/config.php database settings.', 500);
+}
 
 // GET: Retrieve documents or single document
 if ($method === 'GET') {
@@ -126,12 +164,42 @@ if ($method === 'POST') {
             WHERE id = ?
         ");
         $stmt->execute([$title, $description, $categoryId, $id]);
-
-        jsonSuccess([], 'Document metadata updated successfully.');
+        jsonSuccess(null, 'Document details updated successfully.');
     } catch (\PDOException $e) {
         error_log('Document update error: ' . $e->getMessage());
-        jsonError('Failed to update document metadata', 500);
+        jsonError('Failed to update document details.', 500);
     }
 }
 
-jsonError('Method not allowed', 405);
+// DELETE: Remove document
+if ($method === 'DELETE') {
+    requireAuth();
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        jsonError('Document ID is required.', 400);
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT file_name FROM documents WHERE id = ?");
+        $stmt->execute([$id]);
+        $doc = $stmt->fetch();
+
+        if ($doc) {
+            $delStmt = $pdo->prepare("DELETE FROM documents WHERE id = ?");
+            $delStmt->execute([$id]);
+
+            if (!empty($doc['file_name'])) {
+                $filePath = rtrim(UPLOAD_DIR, '/\\') . DIRECTORY_SEPARATOR . $doc['file_name'];
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+            jsonSuccess(null, 'Document permanently deleted.');
+        } else {
+            jsonError('Document not found.', 404);
+        }
+    } catch (\PDOException $e) {
+        error_log('Document delete error: ' . $e->getMessage());
+        jsonError('Failed to delete document.', 500);
+    }
+}

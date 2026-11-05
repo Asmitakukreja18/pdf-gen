@@ -3,969 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Document Management Portal — Let's Explore DMC</title>
+    <title>PDF Document Management & Admin Portal — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style id="adminInlineStyle">
-/* ============================================================
-   Let's Explore DMC — Private Admin & PDF Generator Styling
-   Light Corporate DMC Studio Theme (Clean White & Navy/Royal Blue)
-   ============================================================ */
-
-:root {
-    --bg-primary: #F4F7FB;
-    --bg-secondary: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --border-color: #DCE4EF;
-    --border-hover: #CBD5E1;
-    
-    --primary-navy: #17365D;
-    --primary-blue: #3977B8;
-    --primary-blue-hover: #2D6298;
-    --soft-blue: #DCEBFA;
-    --soft-blue-hover: #CBE1F7;
-    
-    --text-primary: #17365D;
-    --text-body: #334155;
-    --text-secondary: #64748B;
-    --text-muted: #94A3B8;
-    
-    --success: #10B981;
-    --success-bg: #E6F8F0;
-    --danger: #EF4444;
-    --danger-bg: #FEE2E2;
-    --info: #3977B8;
-    --info-bg: #DCEBFA;
-    --warning: #F59E0B;
-    --warning-bg: #FEF3C7;
-    
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-full: 9999px;
-    
-    --shadow-sm: 0 1px 3px rgba(23, 54, 93, 0.06), 0 1px 2px rgba(23, 54, 93, 0.04);
-    --shadow-md: 0 4px 16px rgba(23, 54, 93, 0.08), 0 2px 4px rgba(23, 54, 93, 0.04);
-    --shadow-lg: 0 12px 30px rgba(23, 54, 93, 0.12);
-    --shadow-blue: 0 6px 20px rgba(57, 119, 184, 0.25);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-body);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-}
-::-webkit-scrollbar-track {
-    background: #EDF2F7;
-}
-::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8;
-}
-
-/* Navbar */
-.admin-navbar {
-    background: #FFFFFF;
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 14px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 10px rgba(23, 54, 93, 0.03);
-}
-
-.nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    text-decoration: none;
-    color: inherit;
-}
-
-.nav-logo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    background: var(--soft-blue);
-    border: 1px solid rgba(57, 119, 184, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-blue);
-    font-size: 20px;
-    box-shadow: var(--shadow-sm);
-}
-
-.nav-title-group h2 {
-    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-    font-size: 19px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--primary-navy);
-}
-
-.nav-title-group span {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-}
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.studio-pill-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    background: var(--soft-blue);
-    border: 1px solid rgba(57, 119, 184, 0.25);
-    color: var(--primary-blue);
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.studio-pill-btn:hover {
-    background: var(--soft-blue-hover);
-    color: var(--primary-navy);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-}
-
-.admin-user-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 14px 5px 6px;
-    background: #F8FAFC;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
-}
-
-.user-avatar-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--primary-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: #FFFFFF;
-}
-
-.user-name-text {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary-navy);
-}
-
-.btn-logout {
-    background: #FFFFFF;
-    border: 1px solid #FECACA;
-    color: #DC2626;
-    padding: 7px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-logout:hover {
-    background: #FEE2E2;
-    border-color: #EF4444;
-}
-
-/* Main Container */
-.admin-container {
-    max-width: 1360px;
-    margin: 0 auto;
-    padding: 28px 24px 60px;
-    width: 100%;
-}
-
-/* Metrics Row */
-.metrics-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 18px;
-    margin-bottom: 28px;
-}
-
-.metric-card {
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 22px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-}
-
-.metric-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
-}
-
-.metric-icon-wrap {
-    width: 50px;
-    height: 50px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.metric-icon-wrap.pdf { background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; }
-.metric-icon-wrap.cat { background: var(--soft-blue); color: var(--primary-blue); border: 1px solid #BFDBFE; }
-.metric-icon-wrap.size { background: #E6F8F0; color: #059669; border: 1px solid #A7F3D0; }
-.metric-icon-wrap.chat { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
-
-.metric-info h3 {
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--primary-navy);
-    margin-bottom: 2px;
-}
-
-.metric-info span {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Action Toolbar */
-.toolbar-section {
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    box-shadow: var(--shadow-sm);
-}
-
-.search-box-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 260px;
-    max-width: 440px;
-}
-
-.search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-}
-
-.search-input {
-    width: 100%;
-    height: 42px;
-    padding: 0 16px 0 42px;
-    background: #F8FAFC;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
-    color: var(--text-body);
-    font-size: 13.5px;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.search-input:focus {
-    border-color: var(--primary-blue);
-    background: #FFFFFF;
-    box-shadow: 0 0 0 3px rgba(57, 119, 184, 0.12);
-}
-
-.toolbar-buttons {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.btn-primary {
-    height: 42px;
-    padding: 0 20px;
-    background: linear-gradient(135deg, #3977B8 0%, #2D6298 100%);
-    border: none;
-    border-radius: var(--radius-full);
-    color: #FFFFFF;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-blue);
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #4383c7 0%, #346ea8 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(57, 119, 184, 0.32);
-}
-
-.btn-secondary {
-    height: 42px;
-    padding: 0 18px;
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
-    color: var(--primary-navy);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    box-shadow: var(--shadow-sm);
-}
-
-.btn-secondary:hover {
-    background: #F8FAFC;
-    border-color: var(--border-hover);
-    color: var(--primary-blue);
-}
-
-/* Category Filter Pills Bar */
-.category-filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 24px;
-}
-
-.cat-pill {
-    padding: 7px 16px;
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
-    font-size: 12.5px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-    user-select: none;
-    box-shadow: var(--shadow-sm);
-}
-
-.cat-pill:hover {
-    color: var(--primary-blue);
-    border-color: rgba(57, 119, 184, 0.4);
-    background: var(--soft-blue);
-}
-
-.cat-pill.active {
-    background: var(--primary-blue);
-    border-color: var(--primary-blue);
-    color: #FFFFFF;
-    box-shadow: var(--shadow-blue);
-}
-
-/* Documents Grid */
-.documents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-}
-
-.doc-card {
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
-}
-
-.doc-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(57, 119, 184, 0.35);
-    box-shadow: var(--shadow-md);
-}
-
-.doc-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.doc-badge-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.doc-cat-tag {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    background: var(--soft-blue);
-    color: var(--primary-blue);
-    border: 1px solid rgba(57, 119, 184, 0.2);
-}
-
-.doc-size-tag {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    font-weight: 600;
-}
-
-.doc-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--primary-navy);
-    line-height: 1.35;
-    margin-bottom: 6px;
-}
-
-.doc-desc {
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.doc-meta {
-    font-size: 12px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding-top: 12px;
-    border-top: 1px solid #EDF2F7;
-    margin-bottom: 14px;
-}
-
-.doc-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.action-btn-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-icon-action {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-    background: #F8FAFC;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    font-size: 13px;
-}
-
-.btn-icon-action:hover {
-    color: var(--primary-navy);
-    background: #FFFFFF;
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-sm);
-}
-
-.btn-icon-action.view:hover { color: var(--primary-blue); border-color: var(--primary-blue); background: var(--soft-blue); }
-.btn-icon-action.download:hover { color: #059669; border-color: #10B981; background: #E6F8F0; }
-.btn-icon-action.comments:hover { color: var(--primary-blue); border-color: var(--primary-blue); background: var(--soft-blue); }
-.btn-icon-action.delete:hover { color: #DC2626; border-color: #EF4444; background: #FEE2E2; }
-
-.btn-view-pill {
-    padding: 7px 14px;
-    border-radius: var(--radius-full);
-    background: var(--soft-blue);
-    border: 1px solid rgba(57, 119, 184, 0.25);
-    color: var(--primary-blue);
-    font-size: 12.5px;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-
-.btn-view-pill:hover {
-    background: var(--primary-blue);
-    color: #FFFFFF;
-    border-color: var(--primary-blue);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Empty State */
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    background: #FFFFFF;
-    border: 2px dashed var(--border-color);
-    border-radius: var(--radius-lg);
-}
-
-.empty-icon {
-    font-size: 46px;
-    color: #CBD5E1;
-    margin-bottom: 16px;
-}
-
-.empty-state h3 {
-    font-size: 18px;
-    color: var(--primary-navy);
-    font-weight: 800;
-    margin-bottom: 6px;
-}
-
-.empty-state p {
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    max-width: 400px;
-    margin: 0 auto 20px;
-}
-
-/* Modals */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal-content {
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 580px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 28px;
-    box-shadow: var(--shadow-lg);
-    animation: modalPop 0.2s ease-out;
-}
-
-@keyframes modalPop {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #EDF2F7;
-}
-
-.modal-title {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--primary-navy);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.modal-title i {
-    color: var(--primary-blue);
-}
-
-.btn-close-modal {
-    background: #F1F5F9;
-    border: none;
-    color: var(--text-secondary);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-close-modal:hover {
-    color: var(--primary-navy);
-    background: #E2E8F0;
-}
-
-/* Form Controls in Modal */
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--primary-navy);
-    margin-bottom: 6px;
-}
-
-.form-control {
-    width: 100%;
-    height: 42px;
-    padding: 0 14px;
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    color: var(--text-body);
-    font-family: inherit;
-    font-size: 13.5px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.form-control:focus {
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(57, 119, 184, 0.12);
-}
-
-/* Upload Dropzone */
-.dropzone {
-    border: 2px dashed #CBD5E1;
-    border-radius: var(--radius-md);
-    padding: 32px 20px;
-    text-align: center;
-    cursor: pointer;
-    background: #F8FAFC;
-    transition: all 0.2s;
-    margin-bottom: 18px;
-}
-
-.dropzone:hover, .dropzone.dragover {
-    border-color: var(--primary-blue);
-    background: var(--soft-blue);
-}
-
-.dropzone-icon {
-    font-size: 36px;
-    color: var(--primary-blue);
-    margin-bottom: 10px;
-}
-
-.dropzone-text {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary-navy);
-    margin-bottom: 4px;
-}
-
-.dropzone-subtext {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.file-selected-pill {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    background: #E6F8F0;
-    border: 1px solid #A7F3D0;
-    padding: 10px 14px;
-    border-radius: var(--radius-md);
-    margin-bottom: 18px;
-    font-size: 13px;
-    color: #059669;
-    font-weight: 600;
-}
-
-/* Comments Thread */
-.comments-thread {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 280px;
-    overflow-y: auto;
-    margin-bottom: 18px;
-    padding-right: 4px;
-}
-
-.comment-bubble {
-    background: #F8FAFC;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-}
-
-.comment-bubble-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: 12px;
-}
-
-.comment-author {
-    font-weight: 700;
-    color: var(--primary-navy);
-}
-
-.comment-date {
-    color: var(--text-muted);
-}
-
-.comment-body {
-    font-size: 13px;
-    color: var(--text-body);
-    line-height: 1.45;
-}
-
-/* Toast Notifications */
-.toast-container {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 9999;
-}
-
-.toast {
-    padding: 12px 18px;
-    border-radius: var(--radius-md);
-    background: #FFFFFF;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    animation: toastSlide 0.25s ease;
-}
-
-@keyframes toastSlide {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.toast.success { border-color: #A7F3D0; color: #059669; background: #E6F8F0; }
-.toast.error { border-color: #FECACA; color: #DC2626; background: #FEE2E2; }
-.toast.info { border-color: #BFDBFE; color: var(--primary-blue); background: var(--soft-blue); }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .admin-navbar { padding: 12px 16px; }
-    .admin-container { padding: 18px 14px; }
-    .toolbar-section { flex-direction: column; align-items: stretch; }
-    .search-box-wrap { max-width: 100%; }
-}
-
-</style>
+    <link rel="stylesheet" href="admin.css?v=8.0">
 </head>
 <body>
 
-    <!-- Admin Navbar -->
-    <header class="admin-navbar">
-        <a href="index.html" class="nav-brand">
-            <div class="nav-logo-icon">
-                <i class="fa-solid fa-file-invoice"></i>
-            </div>
-            <div class="nav-title-group">
-                <h2>Let's Explore DMC</h2>
-                <span>PDF Document Management & Admin Portal</span>
-            </div>
-        </a>
-
-        <div class="nav-actions">
-            <!-- Link to Document & Booking Proposals -->
-            <a href="../inquiry-admin/inquiries.html" class="studio-pill-btn" title="Open Document & Booking Proposals">
-                <i class="fa-solid fa-file-invoice"></i>
-                <span>Document Records</span>
-            </a>
-
-            <!-- Link to the AI Quotation & Invoice Studio -->
-            <a href="../index.html" class="studio-pill-btn" title="Open AI Travel Quotation & Invoice Generator">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Open AI Studio</span>
-            </a>
-
-            <div class="admin-user-badge">
-                <div class="user-avatar-circle" id="userInitial">A</div>
-                <span class="user-name-text" id="adminUsername">Admin</span>
-            </div>
-
-            <button class="btn-logout" id="logoutBtn" title="Sign out of Admin Portal">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="admin-container">
+    <!-- Full App Layout (Sidebar + Main Content) -->
+    <div class="admin-app-layout">
         
-        <!-- Metrics Row -->
-        <section class="metrics-row">
-            <div class="metric-card">
-                <div class="metric-icon-wrap pdf">
-                    <i class="fa-solid fa-file-pdf"></i>
-                </div>
-                <div class="metric-info">
-                    <h3 id="statTotalDocs">0</h3>
-                    <span>Cataloged PDFs</span>
+        <!-- LEFT SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <img src="../images/logo.png" alt="Let's Explore DMC" class="sidebar-logo" onerror="this.src='../images/logo-placeholder.svg';">
+                <div class="sidebar-brand-text">
+                    <h3>Let's Explore DMC</h3>
+                    <span>Admin Portal</span>
                 </div>
             </div>
 
-            <div class="metric-card">
-                <div class="metric-icon-wrap cat">
-                    <i class="fa-solid fa-folder-tree"></i>
+            <!-- Navigation Links -->
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link active" id="navDashboard">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="../inquiry-admin/documents.html" class="sidebar-link" id="navDocuments">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="../inquiry-admin/members.html" class="sidebar-link" id="navMembers">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Members &amp; Activity</span>
+                </a>
+                <a href="../inquiry-admin/leads.html" class="sidebar-link" id="navLeads">
+                    <i class="fa-solid fa-filter-circle-dollar"></i>
+                    <span>Leads Pipeline</span>
+                </a>
+                <a href="../inquiry-admin/packages.html" class="sidebar-link" id="navPackages">
+                    <i class="fa-solid fa-earth-americas"></i>
+                    <span>Packages</span>
+                </a>
+                <a href="../inquiry-admin/trips.html" class="sidebar-link" id="navTrips">
+                    <i class="fa-solid fa-plane-departure"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="../inquiry-admin/suppliers.html" class="sidebar-link" id="navSuppliers">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="../inquiry-admin/analytics.html" class="sidebar-link" id="navAnalytics">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+                <a href="../inquiry-admin/website.html" class="sidebar-link" id="navWebsiteCms" style="color:#0F2C59; font-weight:700;">
+                    <i class="fa-solid fa-desktop" style="color:#2563EB;"></i>
+                    <span>Website CMS</span>
+                </a>
+                <a href="../inquiry-admin/ai-assistant.html" class="sidebar-link" id="navAiAssistant" style="color:#2563EB; font-weight:700;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="../website/index.html" class="sidebar-link" id="navWebsite" target="_blank" style="color:#475569;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span>Live Public Site</span>
+                </a>
+                <a href="../inquiry-admin/settings.html" class="sidebar-link" id="sideNavSettings">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="javascript:void(0)" class="sidebar-link" id="sideNavHelp">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>Help & Support</span>
+                </a>
+            </nav>
+
+            <!-- Storage Usage Gauge Widget -->
+            <div class="sidebar-storage-card">
+                <span class="storage-title">Storage Usage</span>
+                <div class="storage-circle-wrap">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle" stroke-dasharray="42, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage" id="storagePercentText">42%</text>
+                    </svg>
                 </div>
-                <div class="metric-info">
-                    <h3 id="statTotalCategories">0</h3>
-                    <span>Document Categories</span>
+                <div class="storage-meta">
+                    <strong>Used</strong><br>
+                    <span id="storageUsageSubtext">(4.2 GB / 10 GB)</span>
                 </div>
             </div>
+        </aside>
 
-            <div class="metric-card">
-                <div class="metric-icon-wrap size">
-                    <i class="fa-solid fa-hard-drive"></i>
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="admin-main-wrapper">
+            
+            <!-- TOP HEADER -->
+            <header class="admin-top-header">
+                <div class="top-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="topSearchInput" class="top-search-input" placeholder="Search documents... (Title, Ref, Customer)">
                 </div>
-                <div class="metric-info">
-                    <h3 id="statTotalStorage">0 KB</h3>
-                    <span>Storage Utilized</span>
+
+                <div class="top-header-right">
+                    <div class="notification-bell-wrap" id="notificationBellBtn" title="3 New Notifications">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="bell-badge">3</span>
+                    </div>
+
+                    <div class="admin-profile-chip" id="adminProfileChip">
+                        <div class="user-avatar-circle" id="userInitial">A</div>
+                        <span class="admin-name" id="adminUsername">Admin</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:10px; color:#94A3B8; margin-left:2px;"></i>
+
+                        <div class="admin-profile-dropdown" id="adminProfileDropdown" style="display: none;">
+                            <a href="../index.html" class="profile-dropdown-item">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary-blue);"></i>
+                                <span>Open AI Studio</span>
+                            </a>
+                            <a href="../inquiry-admin/inquiries.html" class="profile-dropdown-item">
+                                <i class="fa-solid fa-file-invoice" style="color:var(--primary-blue);"></i>
+                                <span>Document Records</span>
+                            </a>
+                            <hr style="border:none; border-top:1px solid #EDF2F7; margin:4px 0;">
+                            <button id="logoutBtn" class="profile-dropdown-item danger">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </header>
 
-            <div class="metric-card">
-                <div class="metric-icon-wrap chat">
-                    <i class="fa-solid fa-comments"></i>
+            <!-- DASHBOARD BODY -->
+            <main class="admin-content-body">
+
+                <!-- 1. Six Statistic Metric Cards -->
+                <section class="admin-stats-row">
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap pdf">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statTotalDocs">24</h3>
+                            <span>Total PDFs</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap quotation">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statQuotations">8</h3>
+                            <span>Quotations</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap invoice">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statInvoices">5</h3>
+                            <span>Invoices</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap itinerary">
+                            <i class="fa-solid fa-plane-departure"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statItineraries">6</h3>
+                            <span>Itineraries</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap storage">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statTotalStorage">4.2 GB</h3>
+                            <span>Storage Used</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-pill-card">
+                        <div class="stat-icon-wrap notes">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h3 id="statTotalComments">12</h3>
+                            <span>Internal Notes</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Hero Travel Panoramic Banner -->
+                <section class="admin-hero-banner">
+                    <div class="hero-banner-content">
+                        <h2>Let's Explore DMC</h2>
+                        <p>Your Trusted Travel Partner — Document Management Made Easy</p>
+                        <button class="btn-hero-manage" id="btnHeroManage">Manage Documents &rarr;</button>
+                    </div>
+
+                    <div class="hero-banner-tagline">
+                        <span>Explore More...</span>
+                        <em>Travel Better...</em>
+                    </div>
+                </section>
+
+                <!-- 3. Two-Column Workspace -->
+                <div class="admin-two-col-layout">
+                    
+                    <!-- LEFT: Document Management Section -->
+                    <section class="admin-docs-section">
+                        <div class="docs-section-header">
+                            <h3>
+                                <i class="fa-solid fa-file-lines" style="color:var(--primary-blue);"></i>
+                                <span>Document Management</span>
+                            </h3>
+                            <button class="btn-primary" id="openUploadModalBtn">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Upload New PDF</span>
+                            </button>
+                        </div>
+
+                        <!-- Toolbar -->
+                        <div class="docs-toolbar-bar">
+                            <div class="search-box-wrap" style="flex:1; min-width:200px; position:relative;">
+                                <i class="fa-solid fa-magnifying-glass search-icon" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94A3B8;"></i>
+                                <input type="text" id="searchInput" class="search-input" style="width:100%; height:38px; border-radius:9999px; border:1px solid #E2E8F0; padding-left:38px; font-size:12.5px;" placeholder="Search documents...">
+                            </div>
+
+                            <select id="filterCategorySelect" class="toolbar-dropdown">
+                                <option value="">All Categories</option>
+                                <option value="Quotation">Quotations</option>
+                                <option value="Itinerary">Itineraries</option>
+                                <option value="Invoice">Invoices</option>
+                                <option value="Package Summary">Package Summaries</option>
+                                <option value="Voucher">Hotel Vouchers</option>
+                                <option value="Costing">Hotel Costings</option>
+                            </select>
+
+                            <select id="filterDateSelect" class="toolbar-dropdown">
+                                <option value="">All Dates</option>
+                                <option value="apr">April 2025</option>
+                                <option value="recent">Recent (Last 30 Days)</option>
+                                <option value="older">Older</option>
+                            </select>
+
+                            <div class="view-mode-buttons">
+                                <button class="btn-view-toggle active" id="btnViewGrid" title="Grid View">
+                                    <i class="fa-solid fa-grip"></i>
+                                </button>
+                                <button class="btn-view-toggle" id="btnViewList" title="List View">
+                                    <i class="fa-solid fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Documents Grid Container -->
+                        <div class="documents-grid" id="documentsGrid">
+                            <!-- Cards populated dynamically via admin.js -->
+                        </div>
+                    </section>
+
+                    <!-- RIGHT: Activity Timeline & Quick Actions Aside -->
+                    <aside class="admin-activity-aside" style="display:flex; flex-direction:column; gap:20px;">
+                        
+                        <!-- Recent Activity Card -->
+                        <div class="activity-panel-card">
+                            <div class="activity-card-header">
+                                <h4>
+                                    <i class="fa-solid fa-bolt" style="color:#F59E0B;"></i>
+                                    <span>Recent Activity</span>
+                                </h4>
+                                <a href="javascript:void(0)" class="link-view-all" id="btnViewAllActivity">View All &rarr;</a>
+                            </div>
+
+                            <div class="activity-timeline">
+                                <div class="timeline-event">
+                                    <div class="event-dot red"></div>
+                                    <div class="event-text">
+                                        <strong>New document added</strong>
+                                        <span>Thailand Holiday Quotation</span>
+                                        <small>2 mins ago</small>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-event">
+                                    <div class="event-dot blue"></div>
+                                    <div class="event-text">
+                                        <strong>Document downloaded</strong>
+                                        <span>Dubai Travel Itinerary</span>
+                                        <small>12 mins ago</small>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-event">
+                                    <div class="event-dot amber"></div>
+                                    <div class="event-text">
+                                        <strong>Note added</strong>
+                                        <span>Tax Invoice</span>
+                                        <small>1 hour ago</small>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-event">
+                                    <div class="event-dot cyan"></div>
+                                    <div class="event-text">
+                                        <strong>Document edited</strong>
+                                        <span>Package Summary</span>
+                                        <small>2 hours ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Card -->
+                        <div class="quick-actions-card">
+                            <div class="activity-card-header">
+                                <h4>
+                                    <i class="fa-solid fa-rocket" style="color:var(--primary-blue);"></i>
+                                    <span>Quick Actions</span>
+                                </h4>
+                            </div>
+
+                            <div class="quick-actions-btns">
+                                <a href="../index.html?format=quotation" class="btn-quick-act">
+                                    <i class="fa-solid fa-plus" style="color:var(--primary-blue);"></i>
+                                    <span>New Quotation</span>
+                                </a>
+                                <a href="../index.html?format=itinerary" class="btn-quick-act">
+                                    <i class="fa-solid fa-plus" style="color:var(--primary-blue);"></i>
+                                    <span>New Itinerary</span>
+                                </a>
+                                <a href="javascript:void(0)" class="btn-quick-act" id="qaViewAllDocs">
+                                    <i class="fa-solid fa-folder-open" style="color:#64748B;"></i>
+                                    <span>View All Documents</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </aside>
+
                 </div>
-                <div class="metric-info">
-                    <h3 id="statTotalComments">0</h3>
-                    <span>Internal Notes & Remarks</span>
-                </div>
-            </div>
-        </section>
 
-        <!-- Action Toolbar -->
-        <section class="toolbar-section">
-            <div class="search-box-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by title, description or filename...">
-            </div>
+            </main>
 
-            <div class="toolbar-buttons">
-                <button class="btn-secondary" id="manageCategoriesBtn">
-                    <i class="fa-solid fa-tags"></i>
-                    <span>Manage Topics</span>
-                </button>
-
-                <button class="btn-primary" id="openUploadModalBtn">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload New PDF</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Category Filter Pills Bar -->
-        <div class="category-filter-bar" id="categoryFilterBar">
-            <button class="cat-pill active" data-category-id="">All Documents</button>
-            <!-- Dynamic Category Pills Injected Here -->
         </div>
 
-        <!-- Documents Grid -->
-        <div class="documents-grid" id="documentsGrid">
-            <!-- Dynamic Document Cards Injected Here -->
-        </div>
-
-    </main>
+    </div>
 
     <!-- Upload PDF Modal -->
     <div class="modal-overlay" id="uploadModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="uploadModalTitle">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <span>Upload PDF to cPanel Storage</span>
+                    <i class="fa-solid fa-cloud-arrow-up" style="color:var(--primary-blue);"></i>
+                    <span>Upload PDF to Storage</span>
                 </h3>
                 <button class="btn-close-modal" id="closeUploadModalBtn">&times;</button>
             </div>
@@ -973,38 +375,43 @@ body {
             <form id="uploadForm">
                 <input type="hidden" id="replaceDocId" value="">
                 
-                <div class="dropzone" id="dropzone">
-                    <i class="fa-solid fa-file-pdf dropzone-icon"></i>
-                    <p class="dropzone-text">Click or drag & drop a PDF file here</p>
-                    <p class="dropzone-subtext">PDF format only &bull; Up to 25 MB</p>
+                <div class="dropzone" id="dropzone" style="border:2px dashed #CBD5E1; border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; background:#F8FAFC; margin-bottom:16px;">
+                    <i class="fa-solid fa-file-pdf dropzone-icon" style="font-size:32px; color:var(--primary-blue); margin-bottom:8px; display:block;"></i>
+                    <p class="dropzone-text" style="font-size:13.5px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Click or drag & drop a PDF file here</p>
+                    <p class="dropzone-subtext" style="font-size:11.5px; color:#64748B;">PDF format only &bull; Up to 25 MB</p>
                     <input type="file" id="pdfFileInput" accept="application/pdf" style="display: none;">
                 </div>
 
-                <div class="file-selected-pill" id="fileSelectedPill">
+                <div class="file-selected-pill" id="fileSelectedPill" style="display:none; align-items:center; justify-content:space-between; background:#ECFDF5; border:1px solid #A7F3D0; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:12.5px; color:#059669; font-weight:600;">
                     <span id="selectedFileName">file.pdf</span>
-                    <button type="button" id="removeFileBtn" style="background:none; border:none; color:#f87171; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" id="removeFileBtn" style="background:none; border:none; color:#EF4444; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Document Title</label>
-                    <input type="text" id="uploadTitle" class="form-control" placeholder="e.g., Swiss Tour Voucher - Mr. Sharma" style="height:44px; padding-left:14px;">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Document Title</label>
+                    <input type="text" id="uploadTitle" class="form-control" placeholder="e.g., Swiss Tour Voucher - Mr. Sharma" style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;" required>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Category / Topic</label>
-                    <select id="uploadCategory" class="form-control" style="height:44px; padding-left:14px;">
-                        <option value="">Select a category...</option>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category / Format</label>
+                    <select id="uploadCategory" class="form-control" style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
+                        <option value="Quotation">Quotation</option>
+                        <option value="Itinerary">Itinerary</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Package Summary">Package Summary</option>
+                        <option value="Voucher">Hotel Voucher</option>
+                        <option value="Costing">Hotel Costing</option>
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 22px;">
-                    <label class="form-label">Description / Remarks</label>
-                    <textarea id="uploadDescription" class="form-control" rows="3" placeholder="Optional notes about this document..." style="height:auto; padding:10px 14px;"></textarea>
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Customer / Reference Notes</label>
+                    <textarea id="uploadDescription" class="form-control" rows="3" placeholder="Customer name or reference details..." style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:8px 12px; font-size:13px;"></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary" id="submitUploadBtn" style="width: 100%; justify-content: center;">
+                <button type="submit" class="btn-primary" id="submitUploadBtn" style="width: 100%; justify-content: center; height:40px;">
                     <i class="fa-solid fa-check"></i>
-                    <span id="uploadBtnText">Upload & Save to Database</span>
+                    <span id="uploadBtnText">Upload & Save Document</span>
                 </button>
             </form>
         </div>
@@ -1012,20 +419,20 @@ body {
 
     <!-- PDF Viewer Modal -->
     <div class="modal-overlay" id="viewerModal">
-        <div class="modal-content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column;">
+        <div class="modal-content" style="max-width: 950px; height: 88vh; display: flex; flex-direction: column;">
             <div class="modal-header">
                 <h3 class="modal-title" id="viewerTitle">
-                    <i class="fa-solid fa-file-pdf"></i>
+                    <i class="fa-solid fa-file-pdf" style="color:#DC2626;"></i>
                     <span>PDF Preview</span>
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a id="viewerDownloadBtn" href="#" download class="btn-view-pill">
-                        <i class="fa-solid fa-download"></i> Download
+                    <a id="viewerDownloadBtn" href="#" download class="btn-card-act" style="padding:6px 14px; font-size:12px; background:var(--primary-navy); color:#FFFFFF; border:none; border-radius:9999px;">
+                        <i class="fa-solid fa-download"></i> Download PDF
                     </a>
                     <button class="btn-close-modal" id="closeViewerModalBtn">&times;</button>
                 </div>
             </div>
-            <iframe id="pdfViewerFrame" src="" style="width: 100%; flex: 1; border: none; border-radius: 12px; background: #ffffff;"></iframe>
+            <iframe id="pdfViewerFrame" src="" style="width: 100%; flex: 1; border: none; border-radius: 8px; background: #FFFFFF;"></iframe>
         </div>
     </div>
 
@@ -1034,24 +441,24 @@ body {
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">
-                    <i class="fa-solid fa-comments"></i>
-                    <span id="commentsModalDocTitle">Document Comments</span>
+                    <i class="fa-solid fa-comments" style="color:var(--primary-blue);"></i>
+                    <span id="commentsModalDocTitle">Document Internal Notes</span>
                 </h3>
                 <button class="btn-close-modal" id="closeCommentsModalBtn">&times;</button>
             </div>
 
-            <div class="comments-thread" id="commentsThread">
+            <div class="comments-thread" id="commentsThread" style="display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto; margin-bottom:16px;">
                 <!-- Comments injected dynamically -->
             </div>
 
             <form id="addCommentForm">
                 <input type="hidden" id="commentDocId" value="">
-                <div class="form-group" style="margin-bottom: 14px;">
-                    <textarea id="newCommentInput" class="form-control" rows="3" placeholder="Add an internal note or update about this document..." required style="height:auto; padding:10px 14px;"></textarea>
+                <div style="margin-bottom: 12px;">
+                    <textarea id="newCommentInput" class="form-control" rows="3" placeholder="Add an internal note or update about this document..." required style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:10px 12px; font-size:13px;"></textarea>
                 </div>
                 <button type="submit" class="btn-primary" id="saveCommentBtn" style="width:100%; justify-content:center;">
                     <i class="fa-solid fa-paper-plane"></i>
-                    <span>Post Comment</span>
+                    <span>Post Internal Note</span>
                 </button>
             </form>
         </div>
@@ -1062,20 +469,16 @@ body {
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">
-                    <i class="fa-solid fa-folder-tree"></i>
-                    <span>Manage Document Categories</span>
+                    <i class="fa-solid fa-folder-tree" style="color:var(--primary-blue);"></i>
+                    <span>Document Categories</span>
                 </h3>
                 <button class="btn-close-modal" id="closeCategoryModalBtn">&times;</button>
             </div>
 
-            <form id="newCategoryForm" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #EDF2F7;">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label">Category Name</label>
-                    <input type="text" id="newCatName" class="form-control" placeholder="e.g. Visa Documents" required style="height:42px; padding-left:14px;">
-                </div>
-                <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label">Description</label>
-                    <input type="text" id="newCatDesc" class="form-control" placeholder="Brief note about category..." style="height:42px; padding-left:14px;">
+            <form id="newCategoryForm" style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #EDF2F7;">
+                <div style="margin-bottom: 10px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category Name</label>
+                    <input type="text" id="newCatName" class="form-control" placeholder="e.g. Visa Documents" required style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
                     <i class="fa-solid fa-plus"></i>
@@ -1083,7 +486,7 @@ body {
                 </button>
             </form>
 
-            <h4 style="font-size:14px; margin-bottom:12px; color:var(--text-secondary);">Existing Categories</h4>
+            <h4 style="font-size:13px; margin-bottom:10px; color:#475569; font-weight:700;">Active Categories</h4>
             <div id="categoryManagerList" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
                 <!-- Category items loaded dynamically -->
             </div>
@@ -1093,6 +496,6 @@ body {
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="admin.js"></script>
+    <script src="admin.js?v=8.0"></script>
 </body>
 </html>

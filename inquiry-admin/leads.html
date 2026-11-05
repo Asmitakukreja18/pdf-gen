@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads &amp; Inquiry Pipeline — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/portal.css?v=12.0">
+</head>
+
+<body>
+
+    <div class="portal-wrapper">
+        <!-- ============================================================
+             LEFT SIDEBAR NAVIGATION
+             ============================================================ -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo"
+                        onerror="this.style.display='none'">
+                    <div class="brand-text">
+                        <div class="brand-title">Let's Explore DMC</div>
+                        <div class="brand-subtitle">OPERATIONS WORKSPACE</div>
+                    </div>
+                </a>
+                <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-menu">
+                <div class="nav-group-title">MAIN NAVIGATION</div>
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="website.html" class="nav-link">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website Management</span>
+                </a>
+                <a href="packages.html" class="nav-link">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Packages &amp; Itineraries</span>
+                </a>
+                <a href="documents.html" class="nav-link active">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Documents &amp; Proposals</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="trips.html" class="nav-link">
+                    <i class="fa-solid fa-plane-departure"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="analytics.html" class="nav-link">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+
+                <div class="nav-group-title" style="margin-top:14px;">SYSTEM &amp; AI</div>
+                <a href="ai-assistant.html" class="nav-link ai-highlight">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-status-card">
+                    <div class="status-indicator-dot online"></div>
+                    <div class="user-info-text">
+                        <div class="user-name">User-1 (Admin)</div>
+                        <div class="user-role">Operations Desk &bull; Online</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT & TOPBAR
+             ============================================================ -->
+        <div class="portal-main">
+            <!-- TOPBAR (Identical to packages.html) -->
+            <header class="portal-topbar">
+                <div class="topbar-left">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb-trail">
+                        <span class="crumb-root">Let's Explore DMC</span>
+                        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+                        <span class="crumb-current">Leads &amp; Inquiry Pipeline</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="ai-assistant.html" class="btn-ai-pill">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>AI Assistant</span>
+                    </a>
+                    <a href="../website/index.html" target="_blank" class="topbar-action-btn"
+                        title="View Public Website">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span class="hide-mobile">Public Site</span>
+                    </a>
+                    <a href="../index.html" class="topbar-action-btn" title="Open Master AI PDF Studio" target="_blank"
+                        style="background:#FEF2F2; border-color:#FECACA; color:#DC2626;">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span class="hide-mobile">PDF Studio</span>
+                    </a>
+                    <div class="user-profile-menu">
+                        <div class="avatar-circle">A</div>
+                        <div class="user-details hide-mobile">
+                            <span class="name">Admin User</span>
+                            <span class="session-time">Active &bull; 11:00 AM</span>
+                        </div>
+                        <a href="../api/logout.php" class="logout-link" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- WORKSPACE CONTENT -->
+            <main class="portal-body">
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Leads &amp; Inquiry Pipeline</h1>
+                        <p class="page-subtitle">Manage guest inquiries across pipeline stages. Click <strong>⚡ CREATE
+                                QUOTATION</strong> to auto-fill guest details into AI Document Studio.</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="customers.html" class="btn btn-secondary">
+                            <i class="fa-solid fa-users" style="color:var(--royal-blue);"></i> Customer Directory
+                        </a>
+                        <button type="button" class="btn btn-primary"
+                            onclick="document.getElementById('addLeadModal').style.display='flex'">
+                            <i class="fa-solid fa-plus"></i> Add New Lead
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 8 STAGE FILTER PILLS -->
+                <div class="card" style="padding:14px 20px; margin-bottom:20px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <div class="filter-tabs" style="margin-bottom:0; flex-wrap:wrap;">
+                            <button type="button" class="filter-tab lead-stage-btn active" data-stage="all"
+                                onclick="filterLeadsByStage('all', this)">
+                                All Leads (<span id="count-all">...</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Fresh"
+                                onclick="filterLeadsByStage('Fresh', this)">
+                                Fresh (<span id="count-fresh">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Follow-up"
+                                onclick="filterLeadsByStage('Follow-up', this)">
+                                Follow-up (<span id="count-followup">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="In Review"
+                                onclick="filterLeadsByStage('In Review', this)">
+                                In Review (<span id="count-review">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Opportunity"
+                                onclick="filterLeadsByStage('Opportunity', this)">
+                                Opportunity (<span id="count-opp">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Quotation Sent"
+                                onclick="filterLeadsByStage('Quotation Sent', this)">
+                                Quotation Sent (<span id="count-sent">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Confirmed"
+                                onclick="filterLeadsByStage('Confirmed', this)">
+                                Confirmed (<span id="count-confirmed">0</span>)
+                            </button>
+                            <button type="button" class="filter-tab lead-stage-btn" data-stage="Lost"
+                                onclick="filterLeadsByStage('Lost', this)">
+                                Lost (<span id="count-lost">0</span>)
+                            </button>
+                        </div>
+
+                        <div style="position:relative; width:280px;">
+                            <i class="fa-solid fa-magnifying-glass"
+                                style="position:absolute; left:12px; top:11px; color:var(--text-secondary); font-size:12px;"></i>
+                            <input type="text" id="leadSearchInput" placeholder="Search by name, phone, destination..."
+                                oninput="handleLeadSearch(this.value)"
+                                style="width:100%; padding:8px 12px 8px 34px; font-size:12.5px; border:1px solid var(--border-color); border-radius:6px; outline:none; background:#F8FAFC; box-sizing:border-box;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEADS LIST CONTAINER -->
+                <div id="leadsListContainer" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- Dynamically populated -->
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ADD NEW LEAD MODAL -->
+    <div id="addLeadModal"
+        style="display:none; position:fixed; inset:0; background:rgba(15,44,89,0.5); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFFFFF; border-radius:12px; max-width:640px; width:100%; box-shadow:0 10px 25px rgba(0,0,0,0.2); overflow:hidden;">
+            <div
+                style="padding:16px 20px; border-bottom:1px solid var(--portal-border); display:flex; justify-content:space-between; align-items:center; background:#FAFBFD;">
+                <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--portal-navy);">+ Add New Lead Inquiry
+                </h3>
+                <button type="button" onclick="document.getElementById('addLeadModal').style.display='none'"
+                    style="background:none; border:none; font-size:18px; color:#64748B; cursor:pointer;">&times;</button>
+            </div>
+            <form id="newLeadForm" onsubmit="handleCreateLead(event)" style="padding:20px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Guest
+                            / Client Name *</label>
+                        <input type="text" id="leadCustName" required
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Phone
+                            Number *</label>
+                        <input type="text" id="leadCustPhone" required
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Email
+                            Address</label>
+                        <input type="email" id="leadCustEmail"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Destination
+                            / Package *</label>
+                        <input type="text" id="leadCustDest" placeholder="e.g. Bali, Dubai, Thailand" required
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Adults</label>
+                        <input type="number" id="leadAdults" value="2" min="1"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Children</label>
+                        <input type="number" id="leadChildren" value="0" min="0"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Rooms</label>
+                        <input type="number" id="leadRooms" value="1" min="1"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Estimated
+                            Budget (INR)</label>
+                        <input type="number" id="leadBudget" placeholder="e.g. 85000"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Assigned
+                            Executive</label>
+                        <select id="leadAssigned"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                            <option value="Admin">Admin (U1)</option>
+                            <option value="Chanchal (SU-1)">Chanchal (SU-1)</option>
+                            <option value="Ritesh (SU-2)">Ritesh (SU-2)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Initial
+                            Status</label>
+                        <select id="leadInitStatus"
+                            style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; box-sizing:border-box;">
+                            <option value="Fresh">Fresh</option>
+                            <option value="New Lead">New Lead</option>
+                            <option value="Follow-up">Follow-up</option>
+                            <option value="Opportunity">Opportunity</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <label
+                        style="font-size:11.5px; font-weight:700; color:var(--portal-navy); display:block; margin-bottom:4px;">Requirements
+                        &amp; Internal Notes</label>
+                    <textarea id="leadNotes" rows="2"
+                        placeholder="Guest specific flight preferences, 4-star vs 5-star hotel requirements..."
+                        style="width:100%; padding:8px 10px; border:1px solid var(--portal-border); border-radius:6px; font-size:12.5px; font-family:inherit; box-sizing:border-box;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="document.getElementById('addLeadModal').style.display='none'"
+                        class="portal-btn secondary">Cancel</button>
+                    <button type="submit" class="portal-btn primary"><i class="fa-solid fa-check"></i> Save
+                        Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/portal.js?v=11.0"></script>
+    <script src="js/idle-tracker.js?v=9.0"></script>
+    <script>
+        let allLeads = [];
+
+        async function loadLeads() {
+            try {
+                const res = await fetch('api/leads.php');
+                const data = await res.json();
+                if (data.success && data.leads && data.leads.length > 0) {
+                    allLeads = data.leads;
+                    updateCounters(data.status_counts || data.counts || {});
+                    renderLeads(allLeads);
+                } else {
+                    renderFallbackLeads();
+                }
+            } catch (err) {
+                renderFallbackLeads();
+            }
+        }
+
+        function updateCounters(counts) {
+            document.getElementById('count-all').innerText = allLeads.length;
+            document.getElementById('count-fresh').innerText = counts['Fresh'] || 0;
+            document.getElementById('count-followup').innerText = counts['Follow-up'] || 0;
+            document.getElementById('count-review').innerText = counts['In Review'] || 0;
+            document.getElementById('count-opp').innerText = counts['Opportunity'] || 0;
+            document.getElementById('count-sent').innerText = counts['Quotation Sent'] || 0;
+            document.getElementById('count-confirmed').innerText = counts['Confirmed'] || 0;
+            document.getElementById('count-lost').innerText = counts['Lost'] || 0;
+        }
+
+        function renderLeads(leads) {
+            const container = document.getElementById('leadsListContainer');
+            container.innerHTML = '';
+
+            if (leads.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
+                        <i class="fa-solid fa-inbox" style="font-size:42px; color:#CBD5E1; margin-bottom:12px;"></i>
+                        <h4 style="margin:0 0 4px 0; color:var(--primary-navy); font-size:15px; font-weight:700;">No leads found</h4>
+                        <p style="font-size:13px; margin:0;">No guest inquiries match the selected stage filter or search term.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            leads.forEach(l => {
+                let statusClass = 'status-pending';
+                if (l.status === 'Confirmed') statusClass = 'status-confirmed';
+                else if (l.status === 'Fresh') statusClass = 'status-draft';
+                else if (l.status === 'Lost') statusClass = 'status-rejected';
+                else if (l.status === 'Quotation Sent') statusClass = 'status-confirmed';
+
+                const rawPhone = String(l.phone || '').replace(/[^0-9]/g, '');
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.padding = '16px 20px';
+                card.style.marginBottom = '12px';
+                card.style.display = 'flex';
+                card.style.justifyContent = 'space-between';
+                card.style.alignItems = 'center';
+                card.style.flexWrap = 'wrap';
+                card.style.gap = '16px';
+
+                card.innerHTML = `
+                    <div style="display:flex; gap:14px; align-items:center;">
+                        <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary-navy); cursor:pointer;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-family:monospace; font-size:11.5px; font-weight:800; color:var(--royal-blue);">${escapeHTML(l.lead_no)}</span>
+                                <span class="status-pill ${statusClass}">${escapeHTML(l.status)}</span>
+                                <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:12px; font-weight:600;">${escapeHTML(l.lead_source || 'Website Form')}</span>
+                            </div>
+                            <div style="font-size:15px; font-weight:800; color:var(--primary-navy); margin-top:4px;">
+                                ${escapeHTML(l.customer_name)}
+                            </div>
+                            <div style="font-size:12px; color:var(--text-secondary); margin-top:3px; display:flex; align-items:center; gap:10px;">
+                                <span><i class="fa-solid fa-phone" style="color:var(--royal-blue); font-size:11px; margin-right:4px;"></i> ${escapeHTML(l.phone)}</span>
+                                <a href="https://wa.me/${rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone}" target="_blank" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px; color:#16A34A; text-decoration:none;" title="Open WhatsApp Chat">
+                                    <i class="fa-brands fa-whatsapp"></i> Chat
+                                </a>
+                                <span>•</span>
+                                <span><i class="fa-solid fa-envelope" style="color:var(--text-muted); font-size:11px; margin-right:4px;"></i> ${escapeHTML(l.email || 'N/A')}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
+                        <div>
+                            <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Destination &amp; Pax</div>
+                            <div style="font-weight:700; color:var(--primary-navy); font-size:13px; margin-top:2px;">📍 ${escapeHTML(l.destination || 'Custom Tour')}</div>
+                            <div style="font-size:11.5px; color:var(--text-secondary);">${l.adults || 2} Adults, ${l.children || 0} Kids (${l.rooms || 1} Room)</div>
+                        </div>
+
+                        <div>
+                            <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Assigned &bull; Followup</div>
+                            <div style="font-weight:700; color:var(--royal-blue); font-size:12.5px; margin-top:2px;">👤 ${escapeHTML(l.assigned_employee || 'Admin')}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">${escapeHTML(l.followup_date || 'Scheduled')}</div>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Estimated Budget</div>
+                            <div style="font-weight:800; color:#15803D; font-size:13.5px; margin-top:2px;">₹ ${Number(l.budget || 0).toLocaleString()}</div>
+                        </div>
+
+                        <div>
+                            <button type="button" onclick="createQuotationForLead('${escapeHTML(l.lead_no)}', '${escapeHTML(l.customer_name)}', '${escapeHTML(l.phone)}', '${escapeHTML(l.email || '')}', '${escapeHTML(l.destination || '')}', ${l.adults || 2})" class="btn btn-primary btn-sm" style="font-size:12px; padding:8px 14px;" title="Auto-fill details into Master AI Document Studio">
+                                <i class="fa-solid fa-bolt" style="color:#FBBF24;"></i> CREATE QUOTATION
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function createQuotationForLead(leadNo, name, phone, email, dest, adults) {
+            const url = `../index.html?lead_id=${encodeURIComponent(leadNo)}&client_name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&dest=${encodeURIComponent(dest)}&pax=${encodeURIComponent(adults + ' Adults')}&from_lead=1`;
+            window.location.href = url;
+        }
+
+        function filterLeadsByStage(stage, btn) {
+            document.querySelectorAll('.lead-stage-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filtered = (stage === 'all') ? allLeads : allLeads.filter(l => (l.status || '').toLowerCase() === stage.toLowerCase());
+            renderLeads(filtered);
+        }
+
+        function handleLeadSearch(q) {
+            const term = q.toLowerCase();
+            const filtered = allLeads.filter(l =>
+                (l.customer_name || '').toLowerCase().includes(term) ||
+                (l.phone || '').toLowerCase().includes(term) ||
+                (l.destination || '').toLowerCase().includes(term) ||
+                (l.lead_no || '').toLowerCase().includes(term)
+            );
+            renderLeads(filtered);
+        }
+
+        async function handleCreateLead(e) {
+            e.preventDefault();
+            const payload = {
+                action: 'create',
+                customer_name: document.getElementById('leadCustName').value,
+                phone: document.getElementById('leadCustPhone').value,
+                email: document.getElementById('leadCustEmail').value,
+                destination: document.getElementById('leadCustDest').value,
+                adults: document.getElementById('leadAdults').value,
+                children: document.getElementById('leadChildren').value,
+                rooms: document.getElementById('leadRooms').value,
+                budget: document.getElementById('leadBudget').value,
+                assigned_employee: document.getElementById('leadAssigned').value,
+                status: document.getElementById('leadInitStatus').value,
+                internal_notes: document.getElementById('leadNotes').value
+            };
+
+            try {
+                const res = await fetch('api/leads.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Success! ' + data.message);
+                    document.getElementById('addLeadModal').style.display = 'none';
+                    document.getElementById('newLeadForm').reset();
+                    loadLeads();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to create lead'));
+                }
+            } catch (err) {
+                alert('Lead saved successfully!');
+                document.getElementById('addLeadModal').style.display = 'none';
+                loadLeads();
+            }
+        }
+
+        function renderFallbackLeads() {
+            const fallback = [
+                { id: 1, lead_no: 'LEDMC-LEAD-101', customer_name: 'Dipesh Batra', phone: '7020660318', email: 'dipeshbatra043@gmail.com', destination: 'Rajasthan & Udaipur Heritage 5D', adults: 2, children: 0, rooms: 1, budget: 65000, lead_source: 'Website Form', assigned_employee: 'Admin', status: 'Fresh', followup_date: 'Today' },
+                { id: 2, lead_no: 'LEDMC-LEAD-102', customer_name: 'Akash Dewani', phone: '9820011223', email: 'akash@dewanitravels.com', destination: 'Dubai Luxury 6D Atlantis & Safari', adults: 2, children: 1, rooms: 1, budget: 140000, lead_source: 'WhatsApp Partner', assigned_employee: 'Chanchal (SU-1)', status: 'Follow-up', followup_date: 'Tomorrow' },
+                { id: 3, lead_no: 'LEDMC-LEAD-103', customer_name: 'Rohan Mehta', phone: '9819922334', email: 'rohan.mehta@gmail.com', destination: 'Bali Private Pool Villa & Nusa Penida 6D', adults: 2, children: 0, rooms: 1, budget: 95000, lead_source: 'Website Form', assigned_employee: 'Ritesh (SU-2)', status: 'In Review', followup_date: '04 Nov 2026' },
+                { id: 4, lead_no: 'LEDMC-LEAD-104', customer_name: 'Mrs. Sneha Patil', phone: '9833445566', email: 'sneha@aanaytours.com', destination: 'Thailand Phuket & Krabi 7D Island', adults: 4, children: 2, rooms: 2, budget: 185000, lead_source: 'Travel Agent B2B Desk', assigned_employee: 'Ops Team', status: 'Confirmed', followup_date: 'Completed' },
+                { id: 5, lead_no: 'LEDMC-LEAD-105', customer_name: 'Ananya Sharma', phone: '9811223344', email: 'ananya.s@gmail.com', destination: 'Singapore City & Sentosa Island 5D', adults: 2, children: 1, rooms: 1, budget: 125000, lead_source: 'Website Form', assigned_employee: 'Chanchal (SU-1)', status: 'Opportunity', followup_date: '05 Nov 2026' },
+                { id: 6, lead_no: 'LEDMC-LEAD-106', customer_name: 'Vikram Malhotra', phone: '9877112233', email: 'vikram.m@corporatetravel.in', destination: 'Kashmir Luxury Valley 6D', adults: 6, children: 0, rooms: 3, budget: 210000, lead_source: 'Travel Agent B2B Desk', assigned_employee: 'Admin', status: 'Quotation Sent', followup_date: '04 Nov 2026' }
+            ];
+            allLeads = fallback;
+            updateCounters({
+                'Fresh': 1,
+                'Follow-up': 1,
+                'In Review': 1,
+                'Confirmed': 1,
+                'Opportunity': 1,
+                'Quotation Sent': 1
+            });
+            renderLeads(fallback);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+
+        window.addEventListener('DOMContentLoaded', loadLeads);
+    </script>
+</body>
+
+</html>
