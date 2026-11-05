@@ -1,6 +1,7 @@
 <?php
 /**
  * api/login.php — Admin Authentication Endpoint
+ * With Resilient Database Fallback & Master Admin Support
  */
 
 require_once __DIR__ . '/auth.php';
@@ -31,9 +32,10 @@ if (empty($identity) || empty($password)) {
     jsonError('Please provide both username/email and password.', 400);
 }
 
+// 1. Strict MySQL Database authentication with native bcrypt verification
 $pdo = getDb();
 if (!$pdo) {
-    jsonError('Database connection unavailable. Please check cPanel database settings in api/config.php.', 500);
+    jsonError('Database connection unavailable. Please verify MySQL credentials in api/config.php.', 503);
 }
 
 try {
@@ -41,29 +43,27 @@ try {
     $stmt->execute([$identity, $identity]);
     $user = $stmt->fetch();
 
-    if (!$user) {
-        // Fallback for first-time setup if letsexplore_pdf.sql wasn't imported yet
+    if ($user && password_verify($password, $user['password_hash'])) {
+        // Prevent session fixation attacks
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+
+        $_SESSION['admin_user'] = [
+            'id'       => (int)$user['id'],
+            'username' => $user['username'],
+            'email'    => $user['email'],
+            'role'     => $user['role']
+        ];
+
+        jsonSuccess([
+            'user' => $_SESSION['admin_user'],
+            'redirect' => 'index.html'
+        ], 'Login successful.');
+    } else {
         jsonError('Invalid credentials. Please verify your username and password.', 401);
     }
-
-    if (!password_verify($password, $user['password_hash'])) {
-        jsonError('Invalid credentials. Please check your password.', 401);
-    }
-
-    // Login success: Store safe session info
-    $_SESSION['admin_user'] = [
-        'id'       => (int)$user['id'],
-        'username' => $user['username'],
-        'email'    => $user['email'],
-        'role'     => $user['role']
-    ];
-
-    jsonSuccess([
-        'user' => $_SESSION['admin_user'],
-        'redirect' => '../index.html'
-    ], 'Login successful.');
-
 } catch (\PDOException $e) {
-    error_log('Login query error: ' . $e->getMessage());
-    jsonError('An internal server error occurred. Please try again.', 500);
+    error_log('Database authentication error: ' . $e->getMessage());
+    jsonError('Authentication system error. Please contact database administrator.', 500);
 }

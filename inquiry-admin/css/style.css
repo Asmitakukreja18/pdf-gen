@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Let's Explore DMC — Inquiry Admin App Styling
    Clean Light Corporate DMC Studio Theme
    ============================================================ */
@@ -567,3 +567,416 @@ body {
     .nav-links-row { overflow-x: auto; width: 100%; }
     .app-container { padding: 16px 14px; }
 }
+
+/* ============================================================
+   CRM Lead Management System (Matching Traviyo / DMC Portal)
+   ============================================================ */
+.crm-container {
+    display: flex;
+    min-height: calc(100vh - 65px);
+    background: #F8FAFC;
+    width: 100%;
+}
+
+.crm-sidebar {
+    width: 250px;
+    background: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    padding: 16px 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.crm-sidebar-section {
+    margin-bottom: 14px;
+}
+
+.crm-sidebar-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #94A3B8;
+    padding: 10px 20px 4px;
+    letter-spacing: 0.06em;
+}
+
+.crm-sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 20px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+}
+
+.crm-sidebar-item:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+.crm-sidebar-item.active {
+    background: #EFF6FF;
+    color: #1E40AF;
+    border-left-color: #2563EB;
+    font-weight: 700;
+}
+
+.crm-sidebar-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crm-sidebar-item-left i {
+    font-size: 13px;
+    width: 16px;
+    text-align: center;
+}
+
+.crm-badge-pill {
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #E2E8F0;
+    color: #475569;
+}
+
+.crm-sidebar-item.active .crm-badge-pill {
+    background: #2563EB;
+    color: #FFFFFF;
+}
+
+.crm-main-area {
+    flex: 1;
+    padding: 20px 28px 60px;
+    overflow-x: auto;
+}
+
+/* CRM Top Bar & Filters */
+.crm-top-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.crm-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.crm-select-all-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+}
+
+.crm-search-box {
+    position: relative;
+    width: 320px;
+}
+
+.crm-search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 13px;
+}
+
+.crm-search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.crm-search-input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+
+.crm-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Lead Cards / Table Rows */
+.crm-leads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lead-card-row {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.lead-card-row:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.05);
+}
+
+.lead-chk {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Column 1: ID & Status */
+.lead-col-id {
+    width: 130px;
+    flex-shrink: 0;
+}
+
+.lead-ref-code {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: #1E293B;
+}
+
+.lead-badge-select {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-top: 4px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.lead-badge-select.fresh { background: #E11D48; }
+.lead-badge-select.followup { background: #D97706; }
+.lead-badge-select.prospect { background: #7C3AED; }
+.lead-badge-select.opportunity { background: #2563EB; }
+.lead-badge-select.booking { background: #16A34A; }
+.lead-badge-select.loss { background: #DC2626; }
+
+.lead-requirement-label {
+    font-size: 11.5px;
+    color: #64748B;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Column 2: Customer Name & Contact */
+.lead-col-customer {
+    width: 220px;
+    flex-shrink: 0;
+}
+
+.lead-cust-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lead-cust-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #0F2C59;
+}
+
+.lead-b2c-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.lead-cust-sub {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lead-cust-sub a {
+    color: #334155;
+    text-decoration: none;
+}
+
+.lead-cust-sub a:hover {
+    color: #2563EB;
+}
+
+/* Column 3: Travellers & Status Assignment */
+.lead-col-travellers {
+    width: 190px;
+    flex-shrink: 0;
+}
+
+.lead-trav-label {
+    font-size: 11px;
+    color: #94A3B8;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.lead-trav-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1E293B;
+    margin-top: 2px;
+}
+
+.lead-inline-select-row {
+    font-size: 11.5px;
+    color: #64748B;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lead-inline-select {
+    padding: 2px 6px;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    font-size: 11.5px;
+    background: #FFF;
+    outline: none;
+    color: #1E293B;
+    cursor: pointer;
+}
+
+/* Column 4: Destination & Dates */
+.lead-col-destination {
+    width: 210px;
+    flex-shrink: 0;
+}
+
+.lead-dest-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0F2C59;
+    text-transform: capitalize;
+}
+
+.lead-date-line {
+    font-size: 12px;
+    color: #1E293B;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.lead-sub-date {
+    font-size: 11.5px;
+    color: #64748B;
+    margin-top: 2px;
+}
+
+/* Column 5: Total & Timestamp */
+.lead-col-total {
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.lead-total-num {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0F2C59;
+}
+
+.lead-time-stamp {
+    font-size: 11.5px;
+    color: #E11D48;
+    font-weight: 600;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Column 6: Actions */
+.lead-col-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.btn-crm-view {
+    padding: 7px 16px;
+    background: #0284C7;
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-crm-view:hover { background: #0369A1; }
+
+.btn-crm-quote {
+    padding: 7px 16px;
+    background: #0F2C59;
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.btn-crm-quote:hover { background: #1E3A8A; }
+

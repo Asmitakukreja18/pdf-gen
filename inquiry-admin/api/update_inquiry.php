@@ -25,7 +25,7 @@ $updates = [];
 $params = [];
 
 if (isset($input['status'])) {
-    $validStatuses = ['New', 'Contacted', 'Follow-up', 'Converted', 'Lost'];
+    $validStatuses = ['Fresh', 'Followup', 'Follow-up', 'Prospect', 'Opportunity', 'Booking', 'Loss', 'Lost', 'Complete', 'New', 'Contacted', 'Converted'];
     if (in_array($input['status'], $validStatuses)) {
         $updates[] = "status = ?";
         $params[] = $input['status'];

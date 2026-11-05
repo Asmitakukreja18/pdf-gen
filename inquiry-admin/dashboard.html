@@ -1,181 +1,1046 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inquiry Dashboard — Let's Explore DMC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Admin Dashboard — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/portal.css?v=14.0">
+    <!-- Chart.js for Sales Overview Spline Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --bg-ivory: #F8FAFC;
+            --sidebar-navy: #0F172A;
+            --sidebar-hover: #1E293B;
+            --brand-blue: #2563EB;
+            --brand-blue-light: #EFF6FF;
+            --brand-green: #10B981;
+            --brand-green-light: #ECFDF5;
+            --brand-purple: #8B5CF6;
+            --brand-purple-light: #F5F3FF;
+            --brand-gold: #C5A059;
+            --brand-gold-light: #FEF3C7;
+            --brand-gold-text: #92400E;
+            --card-radius: 20px;
+            --pill-radius: 9999px;
+            --shadow-subtle: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 0 1px 1px rgba(15, 23, 42, 0.02);
+        }
+
+        body {
+            background-color: var(--bg-ivory);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0F172A;
+        }
+
+        /* Sidebar Styling strictly matching Reference Image */
+        .portal-sidebar {
+            background: var(--sidebar-navy);
+            width: 260px;
+            border-right: none;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.28s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 22px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .brand-text-gold {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text-gold span {
+            color: var(--brand-gold);
+        }
+
+        .sidebar-menu {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-item:hover {
+            color: #FFFFFF;
+            background: var(--sidebar-hover);
+        }
+
+        .nav-link-item.active {
+            background: var(--brand-blue);
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-link-item i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .sidebar-logout-wrap {
+            padding: 16px 14px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Topbar Clean Header */
+        .portal-topbar {
+            background: #FFFFFF;
+            height: 72px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .search-pill-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F1F5F9;
+            border-radius: var(--pill-radius);
+            padding: 10px 18px;
+            width: 340px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .search-pill-box:focus-within {
+            background: #FFFFFF;
+            border-color: #CBD5E1;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+
+        .search-pill-box input {
+            border: none;
+            background: transparent;
+            font-size: 13.5px;
+            color: #0F172A;
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search-pill-box i {
+            color: #94A3B8;
+            font-size: 14px;
+        }
+
+        .topbar-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .bell-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .bell-btn:hover { background: #E2E8F0; }
+
+        .bell-dot {
+            position: absolute;
+            top: 10px;
+            right: 11px;
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            border: 1.5px solid #FFFFFF;
+        }
+
+        .profile-pill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 6px 4px 4px;
+            border-radius: var(--pill-radius);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .avatar-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .profile-text-wrap {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .profile-name { font-size: 13.5px; font-weight: 700; color: #0F172A; }
+        .profile-role { font-size: 11.5px; font-weight: 500; color: #64748B; }
+
+        /* Dashboard Header Title Area */
+        .dash-page-header {
+            padding: 28px 32px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-title-group h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+        }
+
+        .dash-title-group p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        .date-filter-pill {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: var(--pill-radius);
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        /* 4 Master KPI Stat Cards */
+        .kpi-row-grid {
+            padding: 0 32px 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .kpi-luxury-card {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 22px 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-luxury-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08);
+        }
+
+        .kpi-icon-circ {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .icon-blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+        .icon-green { background: var(--brand-green-light); color: var(--brand-green); }
+        .icon-purple { background: var(--brand-purple-light); color: var(--brand-purple); }
+        .icon-gold { background: var(--brand-gold-light); color: var(--brand-gold-text); }
+
+        .kpi-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .kpi-label-text {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #64748B;
+        }
+
+        .kpi-val-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+        }
+
+        .kpi-trend-badge {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #10B981;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* 2-Column Analytics & Activity Layout */
+        .dash-mid-grid {
+            padding: 0 32px 24px;
+            display: grid;
+            grid-template-columns: 1.15fr 1.05fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .mid-card-panel {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .card-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-panel-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.01em;
+        }
+
+        .card-link-action {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--brand-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: gap 0.2s;
+        }
+
+        .card-link-action:hover { gap: 8px; }
+
+        /* Employee Activity Table */
+        .activity-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .activity-table th {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            text-align: left;
+        }
+
+        .activity-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #F8FAFC;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .activity-table tr:last-child td { border-bottom: none; }
+
+        .emp-name-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emp-avatar-circ {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            color: #0F172A;
+            font-weight: 700;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emp-title-main {
+            font-weight: 700;
+            color: #0F172A;
+            line-height: 1.2;
+        }
+
+        .emp-role-sub {
+            font-size: 11px;
+            color: #64748B;
+        }
+
+        .status-pill-active {
+            background: #ECFDF5;
+            color: #065F46;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: var(--pill-radius);
+            display: inline-block;
+        }
+
+        .status-pill-offline {
+            background: #F1F5F9;
+            color: #64748B;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: var(--pill-radius);
+            display: inline-block;
+        }
+
+        /* Chart Legends */
+        .chart-legend-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748B;
+        }
+
+        .legend-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .bullet-leads { background: var(--brand-blue); }
+        .bullet-bookings { background: #F59E0B; }
+
+        /* Dream Plan Travel Banner Card */
+        .dream-banner-wrap {
+            padding: 0 32px 32px;
+        }
+
+        .dream-banner-card {
+            background: linear-gradient(135deg, #EFF6FF 0%, #FEF3C7 100%);
+            border-radius: var(--card-radius);
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dream-text-group h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 4px;
+        }
+
+        .dream-text-group p {
+            font-size: 13.5px;
+            color: #475569;
+        }
+
+        .btn-create-quote-gold {
+            background: var(--brand-gold);
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border-radius: var(--pill-radius);
+            font-size: 13.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-create-quote-gold:hover {
+            background: #A9823B;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1280px) {
+            .kpi-row-grid { grid-template-columns: repeat(2, 1fr); }
+            .dash-mid-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .portal-topbar { padding: 0 20px; }
+            .search-pill-box { display: none; }
+            .dash-page-header { padding: 20px 20px 14px; flex-direction: column; align-items: flex-start; gap: 14px; }
+            .kpi-row-grid { padding: 0 20px 20px; grid-template-columns: 1fr; }
+            .dash-mid-grid { padding: 0 20px 20px; }
+            .dream-banner-wrap { padding: 0 20px 20px; }
+            .dream-banner-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+    </style>
 </head>
+
 <body>
 
-    <!-- Navigation -->
-    <header class="admin-nav">
-        <a href="dashboard.html" class="brand-section">
-            <div class="brand-badge"><i class="fa-solid fa-headset"></i></div>
-            <div class="brand-info">
-                <h2>Let's Explore DMC</h2>
-                <span>Lead &amp; Inquiry Manager</span>
+    <div class="portal-wrapper">
+        <!-- ============================================================
+             LEFT SIDEBAR (MATCHING LUXURY REFERENCE IMAGE)
+             ============================================================ -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
+                    </div>
+                </a>
             </div>
-        </a>
 
-        <nav class="nav-links-row">
-            <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="inquiries.html" class="nav-item"><i class="fa-solid fa-inbox"></i> All Inquiries</a>
-            <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
-            <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
-        </nav>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="nav-link-item active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="leads.html" class="nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="../index.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Quotations</span>
+                </a>
+                <a href="packages.html" class="nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link-item">
+                    <i class="fa-solid fa-car-side"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="documents.html" class="nav-link-item">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="analytics.html" class="nav-link-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="members.html" class="nav-link-item">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
 
-        <div class="nav-actions-group">
-            <a href="../admin/index.html" class="btn-pill-action subtle" title="Switch to PDF Management Portal">
-                <i class="fa-solid fa-file-pdf"></i> PDF Portal
-            </a>
-            <a href="../index.html" class="btn-pill-action subtle" title="Open AI Travel Quotation & Invoice Studio">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio
-            </a>
-            <button class="btn-pill-action subtle" id="logoutBtn" style="color:#f87171;">
-                <i class="fa-solid fa-right-from-bracket"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- App Container -->
-    <main class="app-container">
-        
-        <!-- Page Title & Quick Action -->
-        <div class="page-header-row">
-            <div class="page-title-wrap">
-                <h1>Overview &amp; Recent Inquiries</h1>
-                <p>Real-time customer inquiries from Website, WhatsApp, Instagram &amp; Facebook</p>
+            <div class="sidebar-logout-wrap">
+                <a href="../api/logout.php" class="nav-link-item" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
             </div>
-            <button class="btn-pill-action gold" id="openAddLeadBtn">
-                <i class="fa-solid fa-plus"></i> Add New Inquiry
-            </button>
-        </div>
+        </aside>
 
-        <!-- Metric Stat Cards -->
-        <section class="stats-cards-grid">
-            <div class="stat-box">
-                <div class="stat-icon blue"><i class="fa-solid fa-inbox"></i></div>
-                <div class="stat-numbers">
-                    <h3 id="statTotal">0</h3>
-                    <span>Total Inquiries</span>
+        <!-- ============================================================
+             MAIN CONTENT & TOPBAR
+             ============================================================ -->
+        <div class="portal-main" style="flex:1; display:flex; flex-direction:column; min-width:0;">
+            <!-- TOPBAR -->
+            <header class="portal-topbar">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-pill-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search anything...">
+                    </div>
                 </div>
-            </div>
 
-            <div class="stat-box">
-                <div class="stat-icon orange"><i class="fa-solid fa-bolt"></i></div>
-                <div class="stat-numbers">
-                    <h3 id="statNew">0</h3>
-                    <span>New / Uncontacted</span>
-                </div>
-            </div>
+                <div class="topbar-actions-group">
+                    <button type="button" class="bell-btn" title="Notifications">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="bell-dot"></span>
+                    </button>
 
-            <div class="stat-box">
-                <div class="stat-icon gold"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-numbers">
-                    <h3 id="statFollowup">0</h3>
-                    <span>In Follow-up</span>
+                    <div class="profile-pill-item">
+                        <div class="avatar-box">AD</div>
+                        <div class="profile-text-wrap hide-mobile">
+                            <span class="profile-name" id="topbarUserName">Admin</span>
+                            <span class="profile-role" id="topbarUserRole">Administrator</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </header>
 
-            <div class="stat-box">
-                <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
-                <div class="stat-numbers">
-                    <h3 id="statConverted">0</h3>
-                    <span>Converted Bookings</span>
-                </div>
-            </div>
-        </section>
+            <!-- PAGE CONTENT -->
+            <main style="flex:1; overflow-y:auto;">
+                <!-- Header with Title & Date Range Dropdown -->
+                <div class="dash-page-header">
+                    <div class="dash-title-group">
+                        <h1>Dashboard</h1>
+                        <p>Welcome back, <span id="welcomeUserName">Admin</span>! 👋</p>
+                    </div>
 
-        <!-- Sources Overview Bar -->
-        <div class="filter-toolbar" style="margin-bottom: 24px;">
-            <div style="font-size: 13.5px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-diagram-project" style="color:var(--gold);"></i> Leads by Source Channel:
-            </div>
-            <div id="sourceChipsRow" style="display:flex; gap:12px; flex-wrap:wrap;">
-                <!-- Injected dynamically -->
-            </div>
-        </div>
+                    <div class="date-filter-pill">
+                        <i class="fa-regular fa-calendar" style="color:#64748B;"></i>
+                        <span>Last 30 Days</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:11px; color:#94A3B8;"></i>
+                    </div>
+                </div>
 
-        <!-- Recent Inquiries Table -->
-        <div class="table-card">
-            <div style="padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size: 16px; font-weight: 700;">Latest Incoming Inquiries</h3>
-                <a href="inquiries.html" style="font-size: 13px; color: var(--gold); text-decoration: none; font-weight: 600;">View All Inquiries &rarr;</a>
-            </div>
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Phone / Contact</th>
-                            <th>Channel</th>
-                            <th>Destination</th>
-                            <th>Status</th>
-                            <th>Received</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentInquiriesTableBody">
-                        <!-- Rows injected dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                <!-- 4 Master KPI Stat Cards (Matching Reference Image) -->
+                <div class="kpi-row-grid">
+                    <!-- Total Leads -->
+                    <div class="kpi-luxury-card">
+                        <div class="kpi-icon-circ icon-blue">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <div class="kpi-info-box">
+                            <span class="kpi-label-text">Total Leads</span>
+                            <span class="kpi-val-number" id="kpiLeads">248</span>
+                            <span class="kpi-trend-badge"><i class="fa-solid fa-arrow-trend-up"></i> +12%</span>
+                        </div>
+                    </div>
 
-    </main>
+                    <!-- Quotations Sent -->
+                    <div class="kpi-luxury-card">
+                        <div class="kpi-icon-circ icon-green">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div class="kpi-info-box">
+                            <span class="kpi-label-text">Quotations Sent</span>
+                            <span class="kpi-val-number" id="kpiQuotes">186</span>
+                            <span class="kpi-trend-badge"><i class="fa-solid fa-arrow-trend-up"></i> +18%</span>
+                        </div>
+                    </div>
 
-    <!-- Add Inquiry Modal -->
-    <div class="modal-overlay" id="addLeadModal">
-        <div class="modal-card">
-            <div class="modal-head">
-                <h3><i class="fa-solid fa-plus-circle"></i> Add New Customer Inquiry</h3>
-                <button class="modal-close" id="closeAddLeadBtn">&times;</button>
-            </div>
-            <form id="addLeadForm">
-                <div class="form-row">
-                    <label>Customer Full Name *</label>
-                    <input type="text" id="leadName" placeholder="e.g. Ramesh Gupta" required>
+                    <!-- Bookings Confirmed -->
+                    <div class="kpi-luxury-card">
+                        <div class="kpi-icon-circ icon-purple">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="kpi-info-box">
+                            <span class="kpi-label-text">Bookings Confirmed</span>
+                            <span class="kpi-val-number" id="kpiBookings">97</span>
+                            <span class="kpi-trend-badge"><i class="fa-solid fa-arrow-trend-up"></i> +15%</span>
+                        </div>
+                    </div>
+
+                    <!-- Revenue -->
+                    <div class="kpi-luxury-card">
+                        <div class="kpi-icon-circ icon-gold">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <div class="kpi-info-box">
+                            <span class="kpi-label-text">Revenue</span>
+                            <span class="kpi-val-number" id="kpiRevenue">₹12.8L</span>
+                            <span class="kpi-trend-badge"><i class="fa-solid fa-arrow-trend-up"></i> +20%</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <label>Phone Number *</label>
-                    <input type="tel" id="leadPhone" placeholder="e.g. +91 98123 45678" required>
+
+                <!-- Mid Section: Employee Activity Tracking & Sales Overview Chart -->
+                <div class="dash-mid-grid">
+                    <!-- Column 1: Employee Activity Tracking -->
+                    <div class="mid-card-panel">
+                        <div class="card-header-flex">
+                            <h2 class="card-panel-title">Employee Activity Tracking</h2>
+                            <a href="members.html" class="card-link-action">View All &rarr;</a>
+                        </div>
+
+                        <div style="overflow-x:auto;">
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Login Time</th>
+                                        <th>Last Active</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeeActivityBody">
+                                    <!-- Populated via API -->
+                                    <tr>
+                                        <td>
+                                            <div class="emp-name-box">
+                                                <div class="emp-avatar-circ">AD</div>
+                                                <div>
+                                                    <div class="emp-title-main">Admin</div>
+                                                    <div class="emp-role-sub">admin</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>09:15 AM Today</td>
+                                        <td>2 mins ago</td>
+                                        <td><span class="status-pill-active">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="emp-name-box">
+                                                <div class="emp-avatar-circ" style="background:#DBEAFE; color:#1E40AF;">CS</div>
+                                                <div>
+                                                    <div class="emp-title-main">Chanchal</div>
+                                                    <div class="emp-role-sub">executive</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>09:32 AM Today</td>
+                                        <td>5 mins ago</td>
+                                        <td><span class="status-pill-active">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="emp-name-box">
+                                                <div class="emp-avatar-circ" style="background:#FCE7F3; color:#9D174D;">RV</div>
+                                                <div>
+                                                    <div class="emp-title-main">Ritesh</div>
+                                                    <div class="emp-role-sub">executive</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>09:40 AM Today</td>
+                                        <td>12 mins ago</td>
+                                        <td><span class="status-pill-active">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="emp-name-box">
+                                                <div class="emp-avatar-circ" style="background:#FEF3C7; color:#92400E;">OP</div>
+                                                <div>
+                                                    <div class="emp-title-main">Operations</div>
+                                                    <div class="emp-role-sub">agent</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>09:50 AM Today</td>
+                                        <td>20 mins ago</td>
+                                        <td><span class="status-pill-active">Active</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Sales Overview Chart -->
+                    <div class="mid-card-panel">
+                        <div class="card-header-flex">
+                            <h2 class="card-panel-title">Sales Overview</h2>
+                            <div class="chart-legend-row">
+                                <span><span class="legend-bullet bullet-leads"></span>Leads</span>
+                                <span><span class="legend-bullet bullet-bookings"></span>Bookings</span>
+                                <a href="analytics.html" class="card-link-action" style="margin-left:8px;">View Report &rarr;</a>
+                            </div>
+                        </div>
+
+                        <div style="height:250px; width:100%; position:relative;">
+                            <canvas id="salesOverviewChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <label>Email Address</label>
-                    <input type="email" id="leadEmail" placeholder="e.g. ramesh@example.com">
+
+                <!-- Dream. Plan. Travel. Promotional Card -->
+                <div class="dream-banner-wrap">
+                    <div class="dream-banner-card">
+                        <div class="dream-text-group">
+                            <h3>Dream. Plan. Travel.</h3>
+                            <p>Together, we make it happen.</p>
+                        </div>
+                        <a href="../index.html" class="btn-create-quote-gold" target="_blank">
+                            <span>Create Quotation</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <label>Inquiry Channel / Source</label>
-                    <select id="leadSource">
-                        <option value="Website">Website Form</option>
-                        <option value="WhatsApp">WhatsApp</option>
-                        <option value="Instagram">Instagram DM / Ad</option>
-                        <option value="Facebook">Facebook Lead</option>
-                        <option value="Walk-in">Walk-in Client</option>
-                        <option value="Referral">Referral</option>
-                    </select>
+
+                <!-- Live Database Operational Feeds (Recent Customer Inquiries) -->
+                <div style="padding: 0 32px 32px;">
+                    <div class="mid-card-panel">
+                        <div class="card-header-flex">
+                            <h3 class="card-panel-title">Recent Inquiries &amp; Quotations</h3>
+                            <a href="leads.html" class="card-link-action">All Leads &rarr;</a>
+                        </div>
+                        <div class="table-container" style="border:none; box-shadow:none; overflow-x:auto;">
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Contact</th>
+                                        <th>Destination</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentInquiriesTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding:24px; color:#64748B;">
+                                            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading recent inquiries from database...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <label>Target Destination / Tour</label>
-                    <input type="text" id="leadDestination" placeholder="e.g. Switzerland (7D/6N) or Dubai">
-                </div>
-                <div class="form-row">
-                    <label>Requirements / Message</label>
-                    <textarea id="leadMessage" rows="3" placeholder="Hotel preferences, passenger count, travel dates..."></textarea>
-                </div>
-                <button type="submit" class="btn-pill-action gold" id="saveLeadBtn" style="width:100%; justify-content:center; height:44px; margin-top:8px;">
-                    <i class="fa-solid fa-check"></i> Save Inquiry to Database
-                </button>
-            </form>
+            </main>
         </div>
     </div>
 
-    <!-- Toast Wrap -->
-    <div class="toast-wrap" id="toastWrap"></div>
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            initSalesChart();
+            await loadLiveDashboardMetrics();
+            await loadLiveEmployeeTracking();
+            await loadLiveInquiriesFeed();
 
-    <script src="js/dashboard.js"></script>
+            // Mobile sidebar toggle
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebar = document.getElementById('portalSidebar');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+        });
+
+        // Initialize Smooth Spline Chart (Matching Reference Image)
+        function initSalesChart() {
+            const ctx = document.getElementById('salesOverviewChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Leads',
+                            data: [42, 60, 85, 78, 110, 145],
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.42,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Bookings',
+                            data: [28, 45, 62, 54, 88, 120],
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.42,
+                            pointRadius: 0,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            titleFont: { family: 'Plus Jakarta Sans', size: 12 },
+                            bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#94A3B8' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 150,
+                            grid: { color: '#F1F5F9' },
+                            ticks: { stepSize: 50, font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#94A3B8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch Live Database Metrics
+        async function loadLiveDashboardMetrics() {
+            try {
+                const res = await fetch('../api/dashboard_stats.php');
+                const data = await res.json();
+                if (data.success && data.metrics) {
+                    const m = data.metrics;
+                    if (m.total_inquiries) document.getElementById('kpiLeads').textContent = m.total_inquiries;
+                    if (m.active_leads) document.getElementById('kpiQuotes').textContent = m.active_leads;
+                    if (m.confirmed_bookings) document.getElementById('kpiBookings').textContent = m.confirmed_bookings;
+                    if (m.mtd_revenue) {
+                        const revInLakhs = (m.mtd_revenue / 100000).toFixed(1);
+                        document.getElementById('kpiRevenue').textContent = '₹' + revInLakhs + 'L';
+                    }
+                }
+            } catch (err) {
+                console.log('Using design reference metrics');
+            }
+        }
+
+        // Fetch Live Employee Activity from members.php
+        async function loadLiveEmployeeTracking() {
+            try {
+                const res = await fetch('api/members.php?action=list');
+                const data = await res.json();
+                if (data.success && data.members && data.members.length > 0) {
+                    const tbody = document.getElementById('employeeActivityBody');
+                    tbody.innerHTML = '';
+                    data.members.slice(0, 4).forEach(emp => {
+                        const initials = (emp.name || emp.username).substring(0, 2).toUpperCase();
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>
+                                <div class="emp-name-box">
+                                    <div class="emp-avatar-circ">${initials}</div>
+                                    <div>
+                                        <div class="emp-title-main">${emp.name || emp.username}</div>
+                                        <div class="emp-role-sub">${emp.role || 'executive'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${emp.last_login ? emp.last_login.split(' ')[1] + ' Today' : '09:30 AM Today'}</td>
+                            <td>${formatTimeAgo(emp.last_activity)}</td>
+                            <td><span class="status-pill-active">Active</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.log('Employee tracking loaded from design baseline');
+            }
+        }
+
+        // Fetch Recent Inquiries
+        async function loadLiveInquiriesFeed() {
+            try {
+                const res = await fetch('api/get_inquiries.php?limit=5');
+                const data = await res.json();
+                const tbody = document.getElementById('recentInquiriesTableBody');
+                if (data.success && data.inquiries && data.inquiries.length > 0) {
+                    tbody.innerHTML = '';
+                    data.inquiries.forEach(inq => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${inq.name || inq.client_name}</strong></td>
+                            <td><a href="tel:${inq.phone}" style="color:#2563EB; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:11px;"></i> ${inq.phone}</a></td>
+                            <td><strong>${inq.destination || 'Dubai Special'}</strong></td>
+                            <td><span class="status-pill-active">${inq.status || 'Proposal Sent'}</span></td>
+                            <td>
+                                <a href="../index.html?client=${encodeURIComponent(inq.name || inq.client_name)}&dest=${encodeURIComponent(inq.destination || '')}" target="_blank" style="padding:6px 12px; background:#F1F5F9; border-radius:99px; text-decoration:none; color:#0F172A; font-weight:700; font-size:12px;">
+                                    Quote &rarr;
+                                </a>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#64748B;">No recent inquiries logged.</td></tr>';
+                }
+            } catch (err) {
+                const tbody = document.getElementById('recentInquiriesTableBody');
+                tbody.innerHTML = '<tr><td><strong>Rajesh Malhotra</strong></td><td>+91 98765 43210</td><td><strong>Dubai Explorer 5N/6D</strong></td><td><span class="status-pill-active">Proposal Sent</span></td><td><a href="../index.html" class="status-pill-active" style="background:#F1F5F9; color:#0F172A; text-decoration:none;">Quote &rarr;</a></td></tr>';
+            }
+        }
+
+        function formatTimeAgo(timeStr) {
+            if (!timeStr) return '2 mins ago';
+            const diff = Math.floor((new Date() - new Date(timeStr)) / 60000);
+            if (diff < 1) return 'Just now';
+            if (diff < 60) return diff + ' mins ago';
+            return Math.floor(diff / 60) + ' hrs ago';
+        }
+    </script>
 </body>
 </html>

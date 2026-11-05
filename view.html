@@ -7,7 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     /* Floating Control Bar for Viewer */
     .viewer-bar {
@@ -21,6 +23,8 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 4px 12px rgba(23, 54, 93, 0.08);
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .viewer-brand {
       display: flex;
@@ -46,7 +50,7 @@
     .viewer-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .btn-viewer-action {
       display: inline-flex;
@@ -60,6 +64,15 @@
       text-decoration: none;
       transition: all 0.2s ease;
       border: none;
+    }
+    .btn-download-pdf {
+      background: #16A34A;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+    }
+    .btn-download-pdf:hover {
+      background: #15803D;
+      transform: translateY(-1px);
     }
     .btn-print {
       background: #3977B8;
@@ -157,13 +170,16 @@
   <!-- Floating Control Bar -->
   <div class="viewer-bar" id="viewerBar">
     <div class="viewer-brand">
-      <strong>Let's Explore DMC</strong>
+      <a href="inquiry-admin/inquiries.html" style="text-decoration:none; color:#17365D; display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-arrow-left" style="font-size:13px; color:#64748B;"></i>
+        <strong>Let's Explore DMC</strong>
+      </a>
       <span class="viewer-badge" id="refBadge">Loading...</span>
     </div>
 
     <!-- Quick Format Switcher in Viewer -->
     <div class="viewer-formats" id="viewerFormats">
-      <button class="btn-fmt-pill active" data-doctype="quotation" onclick="switchViewerFormat('quotation')" title="Master 12-Section Commercial Quotation">
+      <button class="btn-fmt-pill active" data-doctype="quotation" onclick="switchViewerFormat('quotation')" title="Master Commercial Quotation">
         📄 Quotation
       </button>
       <button class="btn-fmt-pill" data-doctype="itinerary" onclick="switchViewerFormat('itinerary')" title="Day-by-day Travel Itinerary">
@@ -184,11 +200,15 @@
     </div>
 
     <div class="viewer-actions">
-      <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as PDF via Browser">
-        🖨️ Save as PDF / Print
+      <!-- Direct 1-Click PDF Download Button -->
+      <button class="btn-viewer-action btn-download-pdf" onclick="downloadPdfDirect()" title="Download PDF directly to your device">
+        <i class="fa-solid fa-download"></i> Download PDF
       </button>
-      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="index.html" title="Open this document in Studio Builder">
-        ✏️ Edit in Studio
+      <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as Vector PDF">
+        <i class="fa-solid fa-print"></i> Print / Save
+      </button>
+      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="index.html" title="Open this document in AI Studio">
+        <i class="fa-solid fa-pen-to-square"></i> Edit in Studio
       </a>
     </div>
   </div>
@@ -197,35 +217,35 @@
   <div class="document-viewport">
     <div class="printable-sheet" id="sheetContainer">
       <div class="viewer-loading" id="loadingState">
-        ⏳ Loading official document details from database...
+        ⏳ Loading official document details...
       </div>
       <div id="documentContent" style="display:none"></div>
     </div>
   </div>
 
   <!-- Required Scripts for Dynamic Document Rendering -->
-  <script src="js/config.js?v=6.2"></script>
-  <script src="js/data.js?v=6.2"></script>
-  <script src="js/preview.js?v=6.2"></script>
-  <script src="js/pdf-generator.js?v=6.2"></script>
-  <script src="js/docx-generator.js?v=6.2"></script>
+  <script src="js/config.js?v=7.0"></script>
+  <script src="js/data.js?v=7.0"></script>
+  <script src="js/preview.js?v=7.0"></script>
+  <script src="js/pdf-generator.js?v=7.0"></script>
+  <script src="js/docx-generator.js?v=7.0"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const quoteRef = urlParams.get('ref') || urlParams.get('load');
+      const quoteRef = urlParams.get('ref') || urlParams.get('load') || 'LEDMC-DOCUMENT';
+      const clientName = urlParams.get('client') || urlParams.get('client_name') || urlParams.get('name') || '';
+      const clientPhone = urlParams.get('phone') || urlParams.get('client_phone') || '';
+      const clientEmail = urlParams.get('email') || urlParams.get('client_email') || '';
+      const destination = urlParams.get('dest') || urlParams.get('destination') || '';
+      const paxCount = urlParams.get('pax') || '2';
+      const travelDate = urlParams.get('date') || urlParams.get('travel_date') || '';
+      const returnDate = urlParams.get('return_date') || '';
+      const initialDocType = urlParams.get('doctype') || 'quotation';
       const autoPrint = urlParams.get('print') === '1';
 
-      if (!quoteRef) {
-        document.getElementById('loadingState').innerHTML = `
-          <div style="color: #DC2626; font-weight: 700;">No Document Reference Specified</div>
-          <p style="font-size: 13px; color: #64748B;">Please provide a valid document reference.</p>
-        `;
-        return;
-      }
-
       document.getElementById('refBadge').textContent = quoteRef;
-      document.getElementById('btnEditStudio').href = `index.html?load=${encodeURIComponent(quoteRef)}`;
+      document.getElementById('btnEditStudio').href = `index.html?load_client=${encodeURIComponent(clientName)}&dest=${encodeURIComponent(destination)}&lead_id=${encodeURIComponent(quoteRef)}&phone=${encodeURIComponent(clientPhone)}&email=${encodeURIComponent(clientEmail)}&pax=${encodeURIComponent(paxCount)}`;
 
       let quotation = null;
 
@@ -250,30 +270,39 @@
         } catch (e) {}
       }
 
-      // 3. Fallback demo
-      if (!quotation && quoteRef.includes('DXB')) {
-        quotation = { full_data: DEMO_DUBAI_DATA };
+      // 3. Smart Dynamic Generation for ANY Client/Proposal (Never fail with 'Not Found')
+      if (!quotation) {
+        // Load master template structure
+        loadSampleDataset('reference');
+        
+        if (typeof QuotationData !== 'undefined') {
+          if (clientName) QuotationData.package.clientName = clientName;
+          if (quoteRef) QuotationData.package.quotationNo = quoteRef;
+          if (destination) {
+            QuotationData.package.destination = destination;
+            QuotationData.package.packageTitle = `${destination.toUpperCase()} — EXCLUSIVE TAILORMADE PROPOSAL`;
+          }
+          if (clientPhone) QuotationData.package.clientPhone = clientPhone;
+          if (clientEmail) QuotationData.package.clientEmail = clientEmail;
+          if (paxCount) QuotationData.package.pax = `${paxCount} Adults`;
+          if (travelDate) QuotationData.package.travelDate = travelDate;
+          if (initialDocType) QuotationData.activeDocType = initialDocType;
+
+          quotation = { full_data: QuotationData };
+        }
       }
 
       const loadingDiv = document.getElementById('loadingState');
       const contentDiv = document.getElementById('documentContent');
 
-      if (!quotation) {
-        loadingDiv.innerHTML = `
-          <div style="color: #DC2626; font-weight: 700;">Document (${quoteRef}) Not Found</div>
-          <p style="font-size: 13px; color: #64748B;">The document may have been deleted or not yet saved.</p>
-        `;
-        return;
-      }
-
       // Render the official printable document
       try {
-        const fullData = quotation.full_data || quotation;
+        const fullData = (quotation && quotation.full_data) ? quotation.full_data : (quotation || QuotationData);
         window.currentQuotationData = fullData;
         window.QuotationData = fullData;
 
         // Sync active format button
-        const activeDocType = fullData.activeDocType || 'quotation';
+        const activeDocType = fullData.activeDocType || initialDocType || 'quotation';
         document.querySelectorAll('.btn-fmt-pill').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.doctype === activeDocType);
         });
@@ -284,7 +313,6 @@
         loadingDiv.style.display = 'none';
         contentDiv.style.display = 'block';
 
-        // Auto print if requested
         if (autoPrint) {
           setTimeout(() => window.print(), 600);
         }
@@ -295,6 +323,29 @@
         `;
       }
     });
+
+    /**
+     * Download PDF Directly (Uses html2pdf with fallback to browser print)
+     */
+    function downloadPdfDirect() {
+      const element = document.getElementById('sheetContainer');
+      const client = (window.currentQuotationData?.package?.clientName || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const ref = (window.currentQuotationData?.package?.quotationNo || 'DMC').replace(/[^a-zA-Z0-9_-]/g, '');
+      const filename = `LetsExplore_${client}_${ref}.pdf`;
+
+      if (typeof html2pdf !== 'undefined') {
+        const opt = {
+          margin: [6, 6, 6, 6],
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+      } else {
+        window.print();
+      }
+    }
 
     /**
      * Switch format directly from viewer bar

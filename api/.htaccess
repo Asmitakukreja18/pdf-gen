@@ -5,3 +5,9 @@
 </FilesMatch>
 
 Options -Indexes
+
+# LiteSpeed: Allow sufficient execution time for AI reasoning pipelines without premature abort
+<IfModule Litespeed>
+    RewriteEngine On
+    RewriteRule .* - [E=noconntimeout:1,E=noabort:1]
+</IfModule>

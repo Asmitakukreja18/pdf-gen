@@ -51,11 +51,13 @@ try {
     $countsStmt = $pdo->query("
         SELECT 
             COUNT(*) AS total,
-            SUM(CASE WHEN status = 'New' THEN 1 ELSE 0 END) AS total_new,
-            SUM(CASE WHEN status = 'Contacted' THEN 1 ELSE 0 END) AS total_contacted,
-            SUM(CASE WHEN status = 'Follow-up' THEN 1 ELSE 0 END) AS total_followup,
-            SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) AS total_converted,
-            SUM(CASE WHEN status = 'Lost' THEN 1 ELSE 0 END) AS total_lost
+            SUM(CASE WHEN status IN ('New', 'Fresh') THEN 1 ELSE 0 END) AS total_fresh,
+            SUM(CASE WHEN status IN ('Contacted', 'Followup', 'Follow-up') THEN 1 ELSE 0 END) AS total_followup,
+            SUM(CASE WHEN status = 'Prospect' THEN 1 ELSE 0 END) AS total_prospect,
+            SUM(CASE WHEN status = 'Opportunity' THEN 1 ELSE 0 END) AS total_opportunity,
+            SUM(CASE WHEN status IN ('Converted', 'Booking') THEN 1 ELSE 0 END) AS total_booking,
+            SUM(CASE WHEN status IN ('Lost', 'Loss') THEN 1 ELSE 0 END) AS total_loss,
+            SUM(CASE WHEN status = 'Complete' THEN 1 ELSE 0 END) AS total_complete
         FROM inquiries
     ");
     $stats = $countsStmt->fetch();
@@ -72,12 +74,17 @@ try {
     jsonSuccess([
         'inquiries' => $inquiries,
         'stats' => [
-            'total'      => (int)($stats['total'] ?? 0),
-            'new'        => (int)($stats['total_new'] ?? 0),
-            'contacted'  => (int)($stats['total_contacted'] ?? 0),
-            'followup'   => (int)($stats['total_followup'] ?? 0),
-            'converted'  => (int)($stats['total_converted'] ?? 0),
-            'lost'       => (int)($stats['total_lost'] ?? 0),
+            'total'       => (int)($stats['total'] ?? 0),
+            'fresh'       => (int)($stats['total_fresh'] ?? 0),
+            'new'         => (int)($stats['total_fresh'] ?? 0),
+            'followup'    => (int)($stats['total_followup'] ?? 0),
+            'prospect'    => (int)($stats['total_prospect'] ?? 0),
+            'opportunity' => (int)($stats['total_opportunity'] ?? 0),
+            'booking'     => (int)($stats['total_booking'] ?? 0),
+            'converted'   => (int)($stats['total_booking'] ?? 0),
+            'loss'        => (int)($stats['total_loss'] ?? 0),
+            'lost'        => (int)($stats['total_loss'] ?? 0),
+            'complete'    => (int)($stats['total_complete'] ?? 0)
         ],
         'sources' => $sourceBreakdown
     ]);

@@ -32,8 +32,9 @@ cPanel Server Root
     │
     ├── api/                         ← Secure PHP Backend Endpoints
     │   ├── .htaccess                ← Blocks direct web browser access to config.php
-    │   ├── config.php               ← Database credentials & server paths
+    │   ├── config.php               ← Database credentials, AI keys (Claude/Gemini/OpenAI) & paths
     │   ├── config.sample.php        ← Clean configuration template
+    │   ├── ai.php                   ← Multi-Provider AI Gateway (Claude + Gemini 2.5 Flash + OpenAI)
     │   ├── db.php                   ← Secure PDO connection handler
     │   ├── auth.php                 ← Session authentication middleware
     │   ├── login.php                ← Admin authentication endpoint

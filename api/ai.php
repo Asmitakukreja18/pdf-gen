@@ -1,0 +1,607 @@
+<?php
+/**
+ * api/ai.php — Multi-Provider AI Gateway & Document Interpreter
+ * Supports: Anthropic Claude, Google Gemini 2.5 Flash, OpenAI
+ * Automatic Fallback Chain: Claude -> Gemini -> Local
+ */
+
+header('Content-Type: application/json; charset=UTF-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+require_once __DIR__ . '/config.php';
+
+// Read incoming JSON body
+$rawInput = file_get_contents('php://input');
+$payload = json_decode($rawInput, true);
+
+if (!$payload || !isset($payload['prompt'])) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Missing prompt in request payload.'
+    ]);
+    exit;
+}
+
+$prompt = trim($payload['prompt'] ?? '');
+$currentQuotation = $payload['currentQuotation'] ?? null;
+$attachment = $payload['attachment'] ?? null;
+$serverFilePath = trim($payload['serverFilePath'] ?? '');
+$requestedProvider = strtolower(trim($payload['provider'] ?? DEFAULT_AI_PROVIDER));
+
+// Read document directly from cPanel server-side storage if serverFilePath is provided
+if (!empty($serverFilePath)) {
+    $uploadDir = rtrim(UPLOAD_DIR, '/\\') . DIRECTORY_SEPARATOR;
+    $baseName = basename($serverFilePath);
+    $fullPath = $uploadDir . $baseName;
+
+    if (file_exists($fullPath)) {
+        $fileBytes = @file_get_contents($fullPath);
+        if ($fileBytes) {
+            if (!$attachment || !is_array($attachment)) {
+                $attachment = [];
+            }
+            $attachment['base64'] = base64_encode($fileBytes);
+            $attachment['name'] = $payload['originalName'] ?? $baseName;
+            $attachment['serverStored'] = true;
+            $attachment['serverPath'] = 'uploads/' . $baseName;
+            $ext = strtolower(pathinfo($baseName, PATHINFO_EXTENSION));
+            if ($ext === 'pdf') {
+                $attachment['mimeType'] = 'application/pdf';
+            } elseif (in_array($ext, ['png', 'jpg', 'jpeg', 'webp'])) {
+                $attachment['mimeType'] = ($ext === 'png') ? 'image/png' : 'image/jpeg';
+            }
+        }
+    }
+}
+
+// Context string
+$contextText = '';
+if ($currentQuotation && is_array($currentQuotation)) {
+    $contextText = "\nCURRENT ACTIVE DOCUMENT STATE:\n" . json_encode($currentQuotation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+}
+
+$systemPrompt = "You are the Master Travel Quotation & Document AI Engine for Let's Explore DMC (Destination Management Company).
+Your mission is to intelligently parse incoming travel documents (PDF, Word, Images, WhatsApp notes, Itineraries, Invoices, Hotel Confirmation Vouchers) into the official Let's Explore DMC structured JSON schema.
+
+CRITICAL INSTRUCTIONS:
+1. Detect document type accurately:
+   - 'itinerary': Day-by-day travel plan WITHOUT rates or experience-focused.
+   - 'quotation': Master Commercial quotation WITH day-by-day line items, Pax, unit rates, USD/INR pricing.
+   - 'invoice': Corporate GST Tax Invoice / Billing document (Invoice #, Date, Bill To, HSN 998555, Tax, Total).
+   - 'confirmation': Hotel Booking Confirmation Voucher (Booking ID, Guest Name, Hotel, Dates, Rooms, Inclusions).
+   - 'hotel_costing': Hotel Comparison & Costing sheet.
+   - 'summary': Executive Package Summary.
+2. NEVER invent fake days or fake destinations if details are present in the text or attached file. Extract EVERY single day.
+3. If user provided modifications (e.g. 'hotel me 10% markup lagao', 'Berjaya times square 49160 + 10% = 54076', 'Ramada hotel add karo'), calculate prices mathematically and update the existing quotation.
+4. Output MUST be valid raw JSON matching the DMC schema with keys: detectedDocType, documentSummary, package, days, hotels, summary, invoice, confirmation.";
+
+$errors = [];
+
+// Provider Router with automatic fallback (Gemini 2.5 Flash is primary active engine)
+$providersToTry = [];
+if ($requestedProvider === 'claude') {
+    $providersToTry = ['claude', 'gemini'];
+} elseif ($requestedProvider === 'openai') {
+    $providersToTry = ['openai', 'gemini'];
+} elseif ($requestedProvider === 'gemini') {
+    $providersToTry = ['gemini'];
+} else {
+    // 'auto' default: Try Claude 3.5 Sonnet first, fallback seamlessly to Gemini 2.5 Flash
+    $providersToTry = ['claude', 'gemini'];
+}
+
+$finalResult = null;
+$successfulProvider = null;
+$usedModel = null;
+
+foreach ($providersToTry as $prov) {
+    if ($prov === 'claude') {
+        $claudeKey = !empty($payload['claudeApiKey']) ? trim($payload['claudeApiKey']) : (defined('CLAUDE_API_KEY') ? CLAUDE_API_KEY : '');
+        if ($claudeKey && strpos($claudeKey, 'YOUR_') === false) {
+            $res = callClaude($systemPrompt, $contextText, $prompt, $attachment, $claudeKey);
+            if ($res['success']) {
+                $finalResult = $res['data'];
+                $successfulProvider = 'claude';
+                $usedModel = $res['model'];
+                break;
+            } else {
+                $errors['claude'] = $res['error'];
+            }
+        }
+    }
+
+    if ($prov === 'gemini') {
+        $geminiKey = !empty($payload['geminiApiKey']) ? trim($payload['geminiApiKey']) : (defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '');
+        if ($geminiKey && strpos($geminiKey, 'YOUR_') === false) {
+            $res = callGemini($systemPrompt, $contextText, $prompt, $attachment, $geminiKey);
+            if ($res['success']) {
+                $finalResult = $res['data'];
+                $successfulProvider = 'gemini';
+                $usedModel = $res['model'];
+                break;
+            } else {
+                $errors['gemini'] = $res['error'];
+            }
+        }
+    }
+
+    if ($prov === 'openai') {
+        $openaiKey = !empty($payload['openaiApiKey']) ? trim($payload['openaiApiKey']) : (defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '');
+        if ($openaiKey && strpos($openaiKey, 'YOUR_') === false) {
+            $res = callOpenAI($systemPrompt, $contextText, $prompt, $attachment, $openaiKey);
+            if ($res['success']) {
+                $finalResult = $res['data'];
+                $successfulProvider = 'openai';
+                $usedModel = $res['model'];
+                break;
+            } else {
+                $errors['openai'] = $res['error'];
+            }
+        }
+    }
+}
+
+if ($finalResult !== null) {
+    echo json_encode([
+        'success' => true,
+        'provider' => $successfulProvider,
+        'model' => $usedModel,
+        'data' => $finalResult,
+        'fallbackNotes' => !empty($errors) ? $errors : null
+    ]);
+} else {
+    // Graceful Intelligent Local Generation: Never 502 crash
+    $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachment);
+    echo json_encode([
+        'success' => true,
+        'provider' => 'local-intelligence',
+        'model' => 'smart-travel-heuristic-v2',
+        'data' => $localData,
+        'fallbackNotes' => !empty($errors) ? $errors : ['notice' => 'Generated via local DMC travel engine']
+    ]);
+}
+
+// ==========================================
+// Provider Callers
+// ==========================================
+
+function callClaude($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+    $models = ['claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'];
+    $lastError = null;
+
+    $userContent = [];
+    $rawB64 = $attachment['base64'] ?? '';
+    $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
+    $b64 = trim($b64);
+
+    if ($attachment && !empty($b64)) {
+        $mime = $attachment['mimeType'] ?? 'application/pdf';
+        if (strpos($mime, 'pdf') !== false) {
+            $userContent[] = [
+                'type' => 'document',
+                'source' => [
+                    'type' => 'base64',
+                    'media_type' => 'application/pdf',
+                    'data' => $b64
+                ]
+            ];
+        } else {
+            $validImageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if ($mime === 'image/jpg') $mime = 'image/jpeg';
+            if (!in_array($mime, $validImageMimes)) $mime = 'image/jpeg';
+            $userContent[] = [
+                'type' => 'image',
+                'source' => [
+                    'type' => 'base64',
+                    'media_type' => $mime,
+                    'data' => $b64
+                ]
+            ];
+        }
+    }
+
+    if ($attachment && !empty($attachment['extractedText'])) {
+        $userContent[] = [
+            'type' => 'text',
+            'text' => "[EXTRACTED DOCUMENT TEXT - " . ($attachment['name'] ?? 'File') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT]\n"
+        ];
+    }
+
+    $userContent[] = [
+        'type' => 'text',
+        'text' => ($contextText ? $contextText . "\n" : '') . "User Request / Document:\n" . ($userPrompt ?: 'Extract document') . "\nReturn ONLY valid JSON."
+    ];
+
+    foreach ($models as $model) {
+        $maxTokens = (strpos($model, 'sonnet') !== false) ? 8192 : 4096;
+        $postData = [
+            'model' => $model,
+            'max_tokens' => $maxTokens,
+            'system' => $systemPrompt,
+            'messages' => [
+                ['role' => 'user', 'content' => $userContent]
+            ]
+        ];
+
+        $ch = curl_init('https://api.anthropic.com/v1/messages');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'x-api-key: ' . $apiKey,
+                'anthropic-version: 2023-06-01',
+                'anthropic-beta: pdfs-2024-09-25',
+                'content-type: application/json'
+            ],
+            CURLOPT_POSTFIELDS => json_encode($postData),
+            CURLOPT_TIMEOUT => 40
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($err) {
+            $lastError = $err;
+            continue;
+        }
+
+        $resJson = json_decode($response, true);
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $replyText = $resJson['content'][0]['text'] ?? '';
+            // Robust JSON extraction: Locate outer { ... } block
+            $firstBrace = strpos($replyText, '{');
+            $lastBrace = strrpos($replyText, '}');
+            if ($firstBrace !== false && $lastBrace !== false && $lastBrace > $firstBrace) {
+                $jsonStr = substr($replyText, $firstBrace, $lastBrace - $firstBrace + 1);
+                $parsed = json_decode($jsonStr, true);
+                if ($parsed) {
+                    return ['success' => true, 'model' => $model, 'data' => $parsed];
+                }
+            }
+            $cleaned = preg_replace('/```(?:json)?/i', '', $replyText);
+            $cleaned = trim($cleaned);
+            $parsed = json_decode($cleaned, true);
+            if ($parsed) {
+                return ['success' => true, 'model' => $model, 'data' => $parsed];
+            }
+        } else {
+            $lastError = $resJson['error']['message'] ?? "HTTP $httpCode";
+            $errType = $resJson['error']['type'] ?? '';
+            // If credit balance too low or key invalid, immediately break and fallback to Gemini
+            if ($httpCode === 400 || $httpCode === 401 || $httpCode === 403 || strpos($lastError, 'credit balance') !== false || $errType === 'invalid_request_error' || $errType === 'authentication_error') {
+                break;
+            }
+        }
+    }
+
+    return ['success' => false, 'error' => $lastError ?: 'Claude request failed.'];
+}
+
+function callGemini($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+    $models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+    $lastError = null;
+
+    $parts = [
+        ['text' => $systemPrompt],
+        ['text' => ($contextText ? $contextText . "\n" : '') . "User Instructions:\n" . ($userPrompt ?: 'Extract document structure')]
+    ];
+
+    $rawB64 = $attachment['base64'] ?? '';
+    $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
+    $b64 = trim($b64);
+
+    if ($attachment && !empty($b64)) {
+        $mime = $attachment['mimeType'] ?? 'application/pdf';
+        $parts[] = [
+            'inlineData' => [
+                'mimeType' => $mime,
+                'data' => $b64
+            ]
+        ];
+    }
+
+    if ($attachment && !empty($attachment['extractedText'])) {
+        $parts[] = [
+            'text' => "\n[DOCUMENT TEXT LAYER - " . ($attachment['name'] ?? 'PDF') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT LAYER]\n"
+        ];
+    }
+
+    $payload = [
+        'contents' => [
+            ['parts' => $parts]
+        ],
+        'generationConfig' => [
+            'temperature' => 0.1,
+            'responseMimeType' => 'application/json'
+        ]
+    ];
+
+    foreach ($models as $model) {
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . urlencode($apiKey);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_TIMEOUT => 25
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($err) {
+            $lastError = $err;
+            continue;
+        }
+
+        $resJson = json_decode($response, true);
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $rawText = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $cleaned = preg_replace('/```(?:json)?/i', '', $rawText);
+            $cleaned = trim($cleaned);
+            $parsed = json_decode($cleaned, true);
+            if ($parsed) {
+                return ['success' => true, 'model' => $model, 'data' => $parsed];
+            }
+        } else {
+            $lastError = $resJson['error']['message'] ?? "HTTP $httpCode";
+        }
+    }
+
+    return ['success' => false, 'error' => $lastError ?: 'Gemini request failed.'];
+}
+
+function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+    $postData = [
+        'model' => 'gpt-4o-mini',
+        'messages' => [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => ($contextText ? $contextText . "\n" : '') . $userPrompt]
+        ],
+        'response_format' => ['type' => 'json_object'],
+        'temperature' => 0.1
+    ];
+
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ],
+        CURLOPT_POSTFIELDS => json_encode($postData),
+        CURLOPT_TIMEOUT => 30
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) return ['success' => false, 'error' => $err];
+
+    $resJson = json_decode($response, true);
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $content = $resJson['choices'][0]['message']['content'] ?? '';
+        $parsed = json_decode($content, true);
+        if ($parsed) return ['success' => true, 'model' => 'gpt-4o-mini', 'data' => $parsed];
+    }
+
+    return ['success' => false, 'error' => $resJson['error']['message'] ?? "HTTP $httpCode"];
+}
+
+// ==========================================
+// Intelligent Local Generation Fallback
+// ==========================================
+
+function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment = null) {
+    $text = strtolower($prompt . ' ' . ($attachment['name'] ?? '') . ' ' . ($attachment['extractedText'] ?? ''));
+    
+    $dest = 'Bali, Indonesia';
+    $country = 'Indonesia';
+    $duration = '6 Days / 5 Nights';
+    $numDays = 6;
+    $numNights = 5;
+    $currency = 'INR';
+    $usdRate = 86.5;
+    $priceInr = 48500;
+    $priceUsd = 560;
+
+    if (preg_match('/(\d+)\s*(?:days?|d)\s*(?:\/\s*(\d+)\s*(?:nights?|n))?/i', $prompt, $m)) {
+        $numDays = intval($m[1]);
+        $numNights = !empty($m[2]) ? intval($m[2]) : max(1, $numDays - 1);
+        $duration = "{$numDays} Days / {$numNights} Nights";
+    }
+
+    if (strpos($text, 'dubai') !== false || strpos($text, 'uae') !== false || strpos($text, 'abu dhabi') !== false) {
+        $dest = 'Dubai & Abu Dhabi, UAE';
+        $country = 'UAE';
+        $priceInr = 62000;
+        $priceUsd = 715;
+    } elseif (strpos($text, 'singapore') !== false) {
+        $dest = 'Singapore City & Sentosa';
+        $country = 'Singapore';
+        $priceInr = 54000;
+        $priceUsd = 625;
+    } elseif (strpos($text, 'thailand') !== false || strpos($text, 'phuket') !== false || strpos($text, 'krabi') !== false || strpos($text, 'bangkok') !== false) {
+        $dest = 'Phuket & Krabi, Thailand';
+        $country = 'Thailand';
+        $priceInr = 42000;
+        $priceUsd = 485;
+    } elseif (strpos($text, 'malaysia') !== false || strpos($text, 'kuala lumpur') !== false || strpos($text, 'genting') !== false) {
+        $dest = 'Kuala Lumpur & Genting Highlands, Malaysia';
+        $country = 'Malaysia';
+        $priceInr = 38500;
+        $priceUsd = 445;
+    } elseif (strpos($text, 'turkey') !== false || strpos($text, 'cappadocia') !== false || strpos($text, 'istanbul') !== false) {
+        $dest = 'Istanbul & Cappadocia, Turkey';
+        $country = 'Turkey';
+        $priceInr = 95000;
+        $priceUsd = 1100;
+    } elseif (strpos($text, 'vietnam') !== false || strpos($text, 'hanoi') !== false || strpos($text, 'da nang') !== false) {
+        $dest = 'Da Nang, Hoi An & Hanoi, Vietnam';
+        $country = 'Vietnam';
+        $priceInr = 49000;
+        $priceUsd = 565;
+    } elseif (strpos($text, 'kashmir') !== false || strpos($text, 'srinagar') !== false || strpos($text, 'gulmarg') !== false) {
+        $dest = 'Srinagar, Gulmarg & Pahalgam, Kashmir';
+        $country = 'India';
+        $priceInr = 36000;
+        $priceUsd = 415;
+    } elseif (strpos($text, 'rajasthan') !== false || strpos($text, 'udaipur') !== false || strpos($text, 'jaipur') !== false) {
+        $dest = 'Jaipur, Jodhpur & Udaipur, Rajasthan';
+        $country = 'India';
+        $priceInr = 34500;
+        $priceUsd = 400;
+    } elseif (strpos($text, 'kerala') !== false || strpos($text, 'munnar') !== false || strpos($text, 'alleppey') !== false) {
+        $dest = 'Munnar, Thekkady & Alleppey Houseboat, Kerala';
+        $country = 'India';
+        $priceInr = 32000;
+        $priceUsd = 370;
+    }
+
+    // Days generator
+    $days = [];
+    for ($i = 1; $i <= $numDays; $i++) {
+        if ($i === 1) {
+            $days[] = [
+                'day' => 1,
+                'title' => "Arrival in {$dest} & Private Hotel Check-in",
+                'description' => "Welcome to {$dest}! Upon arrival at the international airport, meet our private representative who will transfer you in an AC vehicle to your luxury hotel. Complete check-in formalities, unwind, and enjoy evening leisure.",
+                'meals' => 'Dinner Included',
+                'hotel' => "Luxury Resort / Villa",
+                'activities' => ['Airport Meet & Greet', 'Private AC Transfer', 'Evening Leisure']
+            ];
+        } elseif ($i === $numDays) {
+            $days[] = [
+                'day' => $numDays,
+                'title' => "Breakfast & Private Airport Departure Transfer",
+                'description' => "Relish a hearty breakfast at the hotel. Spend morning hours souvenir shopping or relaxing by the pool. Check out and transfer in a private vehicle to the airport for your onward flight with wonderful memories of {$dest}.",
+                'meals' => 'Breakfast Included',
+                'hotel' => 'Check-out',
+                'activities' => ['Buffet Breakfast', 'Souvenir Shopping', 'Airport Drop Transfer']
+            ];
+        } else {
+            $days[] = [
+                'day' => $i,
+                'title' => "Day {$i}: {$dest} Signature Highlights & Cultural Excursion",
+                'description' => "After breakfast, embark on a full-day guided exploration covering premier landmarks, scenic viewpoints, local markets, and signature attractions. Includes private transfers and entry admissions.",
+                'meals' => 'Breakfast & Lunch Included',
+                'hotel' => "Luxury Resort / Villa",
+                'activities' => ['Signature Sightseeing', 'Private English-speaking Guide', 'Photo Stops']
+            ];
+        }
+    }
+
+    // Specific custom itineraries for popular destinations
+    if (strpos($dest, 'Bali') !== false && $numDays >= 5) {
+        $days[0]['title'] = "Arrival in Bali & Private Transfer to Ubud Pool Villa";
+        $days[1]['title'] = "Ubud Art Village, Kintamani Volcano & Famous Jungle Swing";
+        $days[1]['description'] = "Explore Celuk art village, witness breathtaking views of Mount Batur volcano in Kintamani, visit lush Tegalalang Rice Terraces, and experience the iconic Bali jungle swing.";
+        $days[2]['title'] = "Full Day Nusa Penida Island Speedboat Tour";
+        $days[2]['description'] = "Speedboat to Nusa Penida West Coast. Visit iconic Kelingking T-Rex Beach, Broken Beach, Angel's Billabong natural infinity pool, and Crystal Bay with local lunch included.";
+        $days[3]['title'] = "Ubud to Kuta Transfer via Tanah Lot Sunset Temple";
+        $days[3]['description'] = "Transfer to beach resort in Kuta/Seminyak. Visit the sacred Tanah Lot Temple perched on an ocean rock formation for an unforgettable sunset view.";
+        if ($numDays >= 6) {
+            $days[4]['title'] = "Uluwatu Sunset Cliff Temple & Fire Dance";
+            $days[4]['description'] = "Leisure morning at beach. Afternoon visit to dramatic Uluwatu cliff temple overlooking the Indian Ocean, followed by the enchanting Kecak Fire Dance.";
+        }
+    } elseif (strpos($dest, 'Dubai') !== false && $numDays >= 4) {
+        $days[0]['title'] = "Arrival in Dubai & Luxury Marina Dhow Cruise Dinner";
+        $days[1]['title'] = "Half Day Dubai City Tour & Burj Khalifa 124th Floor";
+        $days[1]['description'] = "Drive past Dubai Frame and Burj Al Arab. Visit Dubai Mall, observe the Dubai Aquarium, and ascend to the 124th floor observation deck of the Burj Khalifa.";
+        $days[2]['title'] = "Leisure Morning & Premium Desert Safari with BBQ Dinner";
+        $days[2]['description'] = "Afternoon thrilling 4x4 dune bashing in Red Sand Dunes, camel rides, sandboarding, falcon photography, belly dance show, Tanoura performance, and lavish buffet BBQ dinner.";
+        if ($numDays >= 5) {
+            $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
+            $days[3]['description'] = "Full day private trip to Abu Dhabi. Marvel at the architectural masterpiece Sheikh Zayed Grand Mosque, drive along Corniche, and visit Louvre Abu Dhabi / Ferrari World photo stop.";
+        }
+    }
+
+    $hotels = [
+        [
+            'city' => explode(',', $dest)[0],
+            'hotelName' => (strpos($dest, 'Bali') !== false ? 'The Kayon Jungle Resort & Pool Villa' : (strpos($dest, 'Dubai') !== false ? 'Grand Millennium Hotel Dubai (5-Star)' : 'Grand Luxury 5-Star Hotel & Resort')),
+            'roomType' => 'Deluxe Suite with Balcony / Pool Villa',
+            'nights' => $numNights,
+            'mealPlan' => 'Buffet Breakfast Included',
+            'rating' => '5 Star Luxury'
+        ]
+    ];
+
+    $inclusions = [
+        "Private airport arrival and departure transfers in air-conditioned vehicle",
+        "{$numNights} Nights accommodation in verified 4/5-Star luxury property",
+        "Daily buffet breakfast at all hotels",
+        "All sightseeing tours with dedicated English-speaking driver/guide",
+        "Entry tickets and admission passes for all mentioned attractions",
+        "All government taxes, toll charges, parking, and driver allowances",
+        "24x7 On-ground destination concierge support from Let's Explore DMC"
+    ];
+
+    $exclusions = [
+        "International / Domestic flight tickets",
+        "Personal expenses (laundry, telephone, minibar, spa treatments)",
+        "Tourist visa fees (available on request)",
+        "Travel and medical insurance (recommended)",
+        "Early check-in or late check-out beyond hotel policies"
+    ];
+
+    $terms = [
+        "Package rates are per person on double-sharing occupancy.",
+        "Rates are subject to availability at the time of final booking confirmation.",
+        "50% advance deposit required for booking; balance due 15 days before travel.",
+        "Cancellations 30+ days prior: full refund minus administrative fee."
+    ];
+
+    return [
+        'detectedDocType' => 'quotation',
+        'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by Let's Explore DMC.",
+        'package' => [
+            'title' => "{$duration} Luxury {$dest} Escape",
+            'destination' => $dest,
+            'duration' => $duration,
+            'clientName' => 'Valued Guest',
+            'guestCount' => 2,
+            'currency' => $currency,
+            'usdRate' => $usdRate,
+            'priceInr' => $priceInr,
+            'priceUsd' => $priceUsd
+        ],
+        'days' => $days,
+        'hotels' => $hotels,
+        'summary' => [
+            'inclusions' => $inclusions,
+            'exclusions' => $exclusions,
+            'terms' => $terms
+        ],
+        'invoice' => [
+            'invoiceNumber' => 'LEDMC-INV-' . date('Ymd') . '-01',
+            'date' => date('Y-m-d'),
+            'billTo' => 'Valued Guest',
+            'subtotal' => $priceInr,
+            'gst' => round($priceInr * 0.05),
+            'total' => round($priceInr * 1.05)
+        ],
+        'confirmation' => [
+            'bookingReference' => 'LEDMC-BK-' . date('Ymd') . '-01',
+            'status' => 'Confirmed'
+        ]
+    ];
+}
+

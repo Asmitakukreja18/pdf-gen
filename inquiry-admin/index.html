@@ -3,79 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inquiry Admin Login — Let's Explore DMC</title>
+    <title>Let's Explore DMC — Staff & Admin Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
     <style>
-        body.login-body {
+        :root {
+            --bg-ivory: #FDFBF7;
+            --brand-navy: #0F172A;
+            --brand-gold: #C5A059;
+            --brand-gold-dark: #A9823B;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --radius-pill: 9999px;
+            --shadow-card: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-ivory);
+            min-height: 100vh;
+            display: flex;
             align-items: center;
             justify-content: center;
-            background: #F4F7FB;
             padding: 24px;
+            position: relative;
         }
-        .login-box {
-            width: 100%;
-            max-width: 420px;
+
+        .auth-box {
             background: #FFFFFF;
-            border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 28px;
+            max-width: 440px;
+            width: 100%;
             padding: 40px 32px;
-            box-shadow: 0 10px 30px rgba(23, 54, 93, 0.08);
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            text-align: center;
+            position: relative;
+            z-index: 2;
         }
+
+        .brand-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #FEF3C7;
+            color: #92400E;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .role-switch-pill {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: var(--radius-pill);
+            padding: 4px;
+            margin: 24px 0;
+        }
+
+        .role-switch-btn {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: var(--radius-pill);
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .role-switch-btn.active {
+            background: #FFFFFF;
+            color: var(--brand-navy);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            font-size: 14px;
+            color: var(--brand-navy);
+            background: #F8FAFC;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-navy);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.06);
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            border-radius: var(--radius-pill);
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: #1E293B;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.35);
+        }
+
+        .alert-box {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .alert-box.error { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+        .alert-box.success { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
     </style>
 </head>
-<body class="login-body">
-    <div class="login-box">
-        <div style="text-align: center; margin-bottom: 28px;">
-            <div class="brand-badge" style="width: 54px; height: 54px; font-size: 24px; margin: 0 auto 14px;">
-                <i class="fa-solid fa-headset"></i>
-            </div>
-            <h2 style="font-size: 22px; margin-bottom: 4px; color: var(--primary-navy);">Let's Explore DMC</h2>
-            <p style="font-size: 12px; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;">Inquiry & Lead Management</p>
+<body>
+
+    <div class="auth-box">
+        <div class="brand-badge" id="roleBadge">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+        <h2 style="font-size: 22px; font-weight:800; color:var(--brand-navy); margin-bottom:4px;">Let's Explore DMC</h2>
+        <p style="font-size: 12px; color:var(--brand-gold-dark); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">Operations &amp; AI Studio</p>
+
+        <!-- Role Switcher -->
+        <div class="role-switch-pill">
+            <button type="button" class="role-switch-btn active" id="tabAdmin" onclick="setRole('admin')">
+                <i class="fa-solid fa-crown"></i> Admin Login
+            </button>
+            <button type="button" class="role-switch-btn" id="tabUser" onclick="setRole('user')">
+                <i class="fa-solid fa-user-group"></i> Staff / User
+            </button>
         </div>
 
-        <div id="loginAlert" style="display:none; padding:12px; border-radius:10px; font-size:13px; margin-bottom:18px;"></div>
+        <div class="alert-box" id="loginAlert"></div>
 
-        <form id="loginForm">
-            <div class="form-row">
-                <label>Username or Email</label>
-                <input type="text" id="username" placeholder="admin" required autofocus>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input type="hidden" id="selectedRole" value="admin">
+
+            <div class="form-group">
+                <label id="usernameLabel">Username or Email</label>
+                <input type="text" id="username" class="form-input" placeholder="admin" required autofocus>
             </div>
-            <div class="form-row" style="margin-bottom: 24px;">
+
+            <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" placeholder="••••••••••••" required>
+                <input type="password" id="password" class="form-input" placeholder="••••••••••••" required>
             </div>
-            <button type="submit" class="btn-pill-action gold" id="submitBtn" style="width:100%; justify-content:center; height:46px; font-size:14px;">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <span>Sign In to Dashboard</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
 
         <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:24px;">
-            <i class="fa-solid fa-shield-halved"></i> Authorized Staff Access Only
+            <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> Authorized Staff Access Only
         </p>
     </div>
 
     <script>
-        // Check session
-        fetch('api/login.php')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.user) {
-                    window.location.href = 'dashboard.html';
-                }
-            }).catch(() => {});
+        function setRole(role) {
+            document.getElementById('selectedRole').value = role;
+            const tabAdmin = document.getElementById('tabAdmin');
+            const tabUser = document.getElementById('tabUser');
+            const badge = document.getElementById('roleBadge');
+            const usernameInput = document.getElementById('username');
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            if (role === 'admin') {
+                tabAdmin.classList.add('active');
+                tabUser.classList.remove('active');
+                badge.innerHTML = '<i class="fa-solid fa-crown"></i>';
+                badge.style.background = '#FEF3C7';
+                badge.style.color = '#92400E';
+                usernameInput.placeholder = 'admin';
+            } else {
+                tabUser.classList.add('active');
+                tabAdmin.classList.remove('active');
+                badge.innerHTML = '<i class="fa-solid fa-user-group"></i>';
+                badge.style.background = '#DBEAFE';
+                badge.style.color = '#1E40AF';
+                usernameInput.placeholder = 'chanchal / ritesh / operations';
+            }
+        }
+
+        async function handleLogin(e) {
             e.preventDefault();
             const alertBox = document.getElementById('loginAlert');
             const submitBtn = document.getElementById('submitBtn');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
             alertBox.style.display = 'none';
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
-
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
 
             try {
                 const res = await fetch('api/login.php', {
@@ -83,31 +246,32 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
+
                 const data = await res.json();
 
                 if (data.success) {
+                    alertBox.className = 'alert-box success';
+                    alertBox.textContent = 'Login successful! Redirecting...';
                     alertBox.style.display = 'block';
-                    alertBox.style.background = 'rgba(16, 185, 129, 0.15)';
-                    alertBox.style.color = '#86efac';
-                    alertBox.innerHTML = '<i class="fa-solid fa-check"></i> Welcome back! Redirecting...';
-                    setTimeout(() => window.location.href = 'dashboard.html', 500);
+
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'dashboard.html';
+                    }, 500);
                 } else {
+                    alertBox.className = 'alert-box error';
+                    alertBox.textContent = data.message || 'Invalid username or password.';
                     alertBox.style.display = 'block';
-                    alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
-                    alertBox.style.color = '#fca5a5';
-                    alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (data.error || 'Login failed');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+                    submitBtn.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
                 }
             } catch (err) {
+                alertBox.className = 'alert-box error';
+                alertBox.textContent = 'Server connection error.';
                 alertBox.style.display = 'block';
-                alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
-                alertBox.style.color = '#fca5a5';
-                alertBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Could not connect to API server.';
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Dashboard';
+                submitBtn.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
             }
-        });
+        }
     </script>
 </body>
 </html>

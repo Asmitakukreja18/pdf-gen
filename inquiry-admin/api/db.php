@@ -62,7 +62,16 @@ function getDb() {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         return $pdo;
     } catch (\PDOException $e) {
-        error_log("Inquiry DB error: " . $e->getMessage());
+        error_log("Inquiry DB connection failure: " . $e->getMessage());
         return null;
     }
 }
+
+function getDbConnection() {
+    return getDb();
+}
+
+function getDatabaseConnection() {
+    return getDb();
+}
+

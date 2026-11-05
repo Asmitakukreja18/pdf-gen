@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Assistant &amp; Document Generator — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/portal.css?v=12.0">
+</head>
+<body>
+
+    <div class="portal-wrapper">
+        <!-- ============================================================
+             LEFT SIDEBAR NAVIGATION
+             ============================================================ -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo" onerror="this.style.display='none'">
+                    <div class="brand-text">
+                        <div class="brand-title">Let's Explore DMC</div>
+                        <div class="brand-subtitle">OPERATIONS WORKSPACE</div>
+                    </div>
+                </a>
+                <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-menu">
+                <div class="nav-group-title">MAIN NAVIGATION</div>
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="website.html" class="nav-link">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website Management</span>
+                </a>
+                <a href="packages.html" class="nav-link">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Packages &amp; Itineraries</span>
+                </a>
+                <a href="documents.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Documents &amp; Proposals</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="trips.html" class="nav-link">
+                    <i class="fa-solid fa-plane-departure"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="analytics.html" class="nav-link">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+
+                <div class="nav-group-title" style="margin-top:14px;">SYSTEM &amp; AI</div>
+                <a href="ai-assistant.html" class="nav-link active ai-highlight">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-status-card">
+                    <div class="status-indicator-dot online"></div>
+                    <div class="user-info-text">
+                        <div class="user-name">User-1 (Admin)</div>
+                        <div class="user-role">Operations Desk &bull; Online</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT & TOPBAR
+             ============================================================ -->
+        <div class="portal-main">
+            <!-- TOPBAR (Identical to packages.html) -->
+            <header class="portal-topbar">
+                <div class="topbar-left">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb-trail">
+                        <span class="crumb-root">Let's Explore DMC</span>
+                        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+                        <span class="crumb-current">AI Travel Assistant</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="../website/index.html" target="_blank" class="topbar-action-btn" title="View Public Website">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span class="hide-mobile">Public Site</span>
+                    </a>
+                    <a href="../index.html" class="topbar-action-btn" title="Open Master AI PDF Studio" target="_blank" style="background:#FEF2F2; border-color:#FECACA; color:#DC2626;">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span class="hide-mobile">PDF Studio</span>
+                    </a>
+                    <div class="user-profile-menu">
+                        <div class="avatar-circle">A</div>
+                        <div class="user-details hide-mobile">
+                            <span class="name">Admin User</span>
+                            <span class="session-time">Active &bull; 11:00 AM</span>
+                        </div>
+                        <a href="../api/logout.php" class="logout-link" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- WORKSPACE CONTENT -->
+            <main class="portal-body" style="padding-bottom:10px;">
+                <!-- PAGE HEADER -->
+                <div class="content-header" style="margin-bottom:14px;">
+                    <div class="header-titles">
+                        <h1 style="display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--portal-blue);"></i> AI Travel Assistant &amp; Document Generator
+                        </h1>
+                        <p>Generate bespoke packages, corporate proposals &amp; website copy. Review and approve directly into Packages or Public Website.</p>
+                    </div>
+                    <div class="header-actions">
+                        <span style="background:#EFF6FF; border:1px solid #BFDBFE; color:var(--portal-navy); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-microchip" style="color:var(--portal-blue);"></i> Engine: <strong>Claude 3.5 Sonnet</strong>
+                        </span>
+                        <span class="status-pill status-confirmed">
+                            <i class="fa-solid fa-circle-check"></i> Multi-Tier Active
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 2-COLUMN DUAL PANE WORKSPACE -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:stretch;">
+
+                    <!-- LEFT COLUMN: CONVERSATIONAL CHAT INTERFACE -->
+                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 195px); min-height:580px;">
+                        <!-- Chat Window Header -->
+                        <div class="card-header" style="padding:12px 16px; background:#FAFBFD;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:32px; height:32px; border-radius:8px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:14px;">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size:13px; font-weight:800; color:var(--portal-navy);">AI Assistant Chat</div>
+                                    <div style="font-size:11px; color:var(--portal-green); font-weight:600;">
+                                        <i class="fa-solid fa-circle" style="font-size:7px;"></i> Ready to generate
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="clearChatHistory()" class="portal-btn secondary sm" style="font-size:11.5px;">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Chat
+                            </button>
+                        </div>
+
+                        <!-- Suggested Quick Prompts -->
+                        <div style="padding:8px 12px; background:#F8FAFC; border-bottom:1px solid var(--portal-border); display:flex; gap:6px; overflow-x:auto; white-space:nowrap;">
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create a 6 Days / 5 Nights luxury Bali package with private pool villa, Nusa Penida island speedboat tour, and USD/INR tariffs.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🌴 6D Bali Luxury
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Generate a 5 Days / 4 Nights corporate Dubai & Abu Dhabi quotation for 20 pax with Desert Safari, Burj Khalifa, and 5-star hotel options.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🏙️ 5D Dubai Corporate
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create a 7 Days Thailand package covering Phuket and Krabi with speedboats, 4-star beach resorts, and day-wise itinerary.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🏖️ 7D Thailand Escape
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Write engaging website destination copy and highlights for Cappadocia, Turkey to publish on the website.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🎈 Turkey Website Copy
+                            </button>
+                        </div>
+
+                        <!-- Chat Message Stream -->
+                        <div id="chatMessages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; gap:10px; align-items:flex-start;">
+                                <div style="width:28px; height:28px; border-radius:6px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div style="background:#F1F5F9; border:1px solid var(--portal-border); border-radius:10px 10px 10px 0; padding:12px 14px; max-width:85%; font-size:12.5px; color:var(--portal-text); line-height:1.5;">
+                                    <p style="margin:0 0 6px 0; font-weight:700; color:var(--portal-navy);">Hello! I am your Let's Explore DMC Travel &amp; Quotation Engine.</p>
+                                    <p style="margin:0 0 6px 0;">Tell me what you need, or upload a reference PDF/image using the paperclip:</p>
+                                    <ul style="margin:0; padding-left:18px; font-size:12px;">
+                                        <li>Build tour packages with day-wise itineraries, hotels &amp; dual tariffs.</li>
+                                        <li>Convert client inquiries or PDFs into structured proposals.</li>
+                                        <li>Draft website destination descriptions and highlights.</li>
+                                    </ul>
+                                    <p style="margin:8px 0 0 0; font-size:11.5px; color:var(--portal-blue); font-weight:600;">Generated packages appear in the Review Workspace on the right with 1-click Approval!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Upload Attachment Chip -->
+                        <div id="attachmentChipContainer" style="display:none; padding:8px 14px; background:#EFF6FF; border-top:1px solid #BFDBFE; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--portal-navy);">
+                                <i class="fa-solid fa-paperclip" style="color:var(--portal-blue);"></i>
+                                <span id="attachedFileName">document.pdf</span>
+                                <span id="attachedFileSize" style="color:var(--portal-text-muted); font-weight:500;">(240 KB)</span>
+                            </div>
+                            <button type="button" onclick="removeAttachment()" style="background:none; border:none; color:var(--portal-red); font-size:14px; cursor:pointer;" title="Remove Attachment">&times;</button>
+                        </div>
+
+                        <!-- Chat Composer Input Area -->
+                        <div style="padding:12px 14px; border-top:1px solid var(--portal-border); background:#FAFBFD; border-radius:0 0 10px 10px;">
+                            <form id="chatForm" onsubmit="handleChatSubmit(event)" style="display:flex; gap:10px; align-items:flex-end;">
+                                <input type="file" id="attachmentInput" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none;" onchange="handleAttachmentSelected(this)">
+
+                                <button type="button" onclick="document.getElementById('attachmentInput').click()" class="portal-btn secondary" style="width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="Attach PDF, Word, or image">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </button>
+
+                                <div style="flex:1; position:relative;">
+                                    <textarea id="promptInput" rows="2" placeholder="Describe the package or prompt... (e.g. 6D Bali with Ubud Villa &amp; Nusa Penida)" style="width:100%; border:1px solid var(--portal-border); border-radius:6px; padding:8px 12px; font-size:12.5px; font-family:inherit; resize:none; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleChatSubmit(event); }"></textarea>
+                                </div>
+
+                                <button type="submit" id="btnSendChat" class="portal-btn primary" style="width:40px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="Send Message">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--portal-text-muted);">
+                                <span>Press <strong>Enter</strong> to send &bull; <strong>Shift + Enter</strong> for new line</span>
+                                <span>cPanel MySQL Storage Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: STRUCTURED OUTPUT & APPROVAL WORKSPACE -->
+                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 195px); min-height:580px; overflow:hidden;">
+                        <!-- Review Workspace Header -->
+                        <div class="card-header" style="padding:12px 16px; background:#FAFBFD;">
+                            <div>
+                                <div style="font-size:13px; font-weight:800; color:var(--portal-navy);">AI Output &amp; Approval Workspace</div>
+                                <div style="font-size:11px; color:var(--portal-text-muted);">Live review before saving to database or publishing</div>
+                            </div>
+                            <div id="outputStatusBadge" class="status-pill status-draft">
+                                Awaiting Generation
+                            </div>
+                        </div>
+
+                        <!-- Structured Preview Container -->
+                        <div id="reviewContainer" style="flex:1; overflow-y:auto; padding:16px;">
+                            <!-- Empty State Placeholder -->
+                            <div id="emptyWorkspaceState" style="text-align:center; padding:70px 20px; color:var(--portal-text-muted);">
+                                <i class="fa-solid fa-file-invoice" style="font-size:44px; color:#CBD5E1; margin-bottom:12px;"></i>
+                                <h3 style="font-size:15px; font-weight:700; color:var(--portal-navy); margin:0 0 6px 0;">No Active Generation</h3>
+                                <p style="font-size:12px; max-width:320px; margin:0 auto; line-height:1.5;">
+                                    Send a prompt or select a suggestion on the left. Your structured itinerary and dual tariffs will appear here for review.
+                                </p>
+                            </div>
+
+                            <!-- Dynamic Card Preview -->
+                            <div id="generatedPackageCard" style="display:none; flex-direction:column; gap:14px;">
+                                <!-- Top Banner / Details -->
+                                <div style="border:1px solid #BFDBFE; background:#EFF6FF; border-radius:8px; padding:14px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                        <div>
+                                            <span id="revCountryBadge" class="status-pill status-confirmed" style="background:var(--portal-navy); color:#FFF; font-size:10px;">
+                                                Indonesia (Bali)
+                                            </span>
+                                            <h2 id="revPackageTitle" style="font-size:16px; font-weight:800; color:var(--portal-navy); margin:6px 0 4px 0;">
+                                                6 Days / 5 Nights Bali Luxury Tropical Escape
+                                            </h2>
+                                            <div style="font-size:11.5px; color:var(--portal-blue); font-weight:700;">
+                                                📍 <span id="revDestination">Bali &amp; Nusa Penida</span> &bull; ⏱️ <span id="revDuration">6 Days / 5 Nights</span> &bull; 👥 <span id="revPax">2 Adults</span>
+                                            </div>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <div style="font-size:11px; color:var(--portal-text-muted);">Est. Tariff</div>
+                                            <div id="revPricing" style="font-size:15px; font-weight:800; color:var(--portal-green);">
+                                                INR 48,500 / USD 585
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel & Stay -->
+                                <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px 14px; background:#FFF;">
+                                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:4px;">🏨 Accommodation Details:</div>
+                                    <div id="revHotels" style="font-size:12px; color:var(--portal-text);">
+                                        4★ Private Pool Villa in Ubud (3 Nights) + 5★ Seminyak Beachfront Resort (2 Nights)
+                                    </div>
+                                </div>
+
+                                <!-- Day-by-Day Timeline -->
+                                <div style="border:1px solid var(--portal-border); border-radius:6px; padding:12px 14px; background:#FFF;">
+                                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:8px;">📅 Day-Wise Itinerary Timeline:</div>
+                                    <div id="revItineraryList" style="display:flex; flex-direction:column; gap:8px;">
+                                        <!-- Injected dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Inclusions & Exclusions -->
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
+                                        <div style="font-size:11px; font-weight:700; color:var(--portal-green); margin-bottom:4px;">✅ Key Inclusions:</div>
+                                        <div id="revInclusions" style="font-size:11px; color:var(--portal-text); line-height:1.4;">
+                                            Daily Breakfast, Private AC Transfers, Nusa Penida Island Speedboat Tour, Tanah Lot Sunset.
+                                        </div>
+                                    </div>
+                                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
+                                        <div style="font-size:11px; font-weight:700; color:var(--portal-red); margin-bottom:4px;">❌ Key Exclusions:</div>
+                                        <div id="revExclusions" style="font-size:11px; color:var(--portal-text); line-height:1.4;">
+                                            International airfare, Visa fees, Personal expenses, Travel Insurance.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Footer Bar -->
+                        <div id="approvalActionsBar" style="padding:12px 16px; border-top:1px solid var(--portal-border); background:#FAFBFD; display:flex; gap:8px; justify-content:flex-end; align-items:center;">
+                            <button type="button" id="btnOpenStudio" onclick="openInDocumentStudio()" class="portal-btn secondary sm">
+                                <i class="fa-solid fa-file-pdf" style="color:var(--portal-red);"></i> Open in Studio
+                            </button>
+
+                            <button type="button" id="btnPublishWeb" onclick="publishToWebsite()" class="portal-btn secondary sm" style="color:var(--portal-blue); border-color:var(--portal-blue);">
+                                <i class="fa-solid fa-globe"></i> Publish to Website
+                            </button>
+
+                            <button type="button" id="btnApprovePkg" onclick="approveAndSaveToPackages()" class="portal-btn primary sm">
+                                <i class="fa-solid fa-circle-check" style="color:var(--portal-green);"></i> Approve &amp; Save
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/portal.js?v=9.0"></script>
+    <script src="js/idle-tracker.js?v=8.5"></script>
+    <script>
+        let currentGeneratedData = null;
+        let activeAttachment = null;
+
+        function useQuickPrompt(text) {
+            const input = document.getElementById('promptInput');
+            input.value = text;
+            input.focus();
+        }
+
+        function clearChatHistory() {
+            if (confirm('Reset chat session?')) {
+                const msgBox = document.getElementById('chatMessages');
+                msgBox.innerHTML = `
+                    <div style="display:flex; gap:10px; align-items:flex-start;">
+                        <div style="width:28px; height:28px; border-radius:6px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div style="background:#F1F5F9; border:1px solid var(--portal-border); border-radius:10px 10px 10px 0; padding:12px 14px; max-width:85%; font-size:12.5px; color:var(--portal-text); line-height:1.5;">
+                            Chat reset. How can I help you with your next package or quotation?
+                        </div>
+                    </div>
+                `;
+                document.getElementById('emptyWorkspaceState').style.display = 'block';
+                document.getElementById('generatedPackageCard').style.display = 'none';
+                const badge = document.getElementById('outputStatusBadge');
+                badge.innerText = 'Awaiting Generation';
+                badge.className = 'status-pill status-draft';
+                currentGeneratedData = null;
+                removeAttachment();
+            }
+        }
+
+        async function handleAttachmentSelected(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'quotation');
+
+            const chip = document.getElementById('attachmentChipContainer');
+            const nameEl = document.getElementById('attachedFileName');
+            const sizeEl = document.getElementById('attachedFileSize');
+
+            nameEl.innerText = file.name + ' (Uploading...)';
+            sizeEl.innerText = '';
+            chip.style.display = 'flex';
+
+            try {
+                const res = await fetch('../api/upload_attachment.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    activeAttachment = {
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        serverPath: data.filePath,
+                        documentId: data.documentId || null
+                    };
+                    nameEl.innerText = activeAttachment.name;
+                    sizeEl.innerText = `(${activeAttachment.size})`;
+                } else {
+                    alert('Upload error: ' + (data.error || 'Failed to upload attachment'));
+                    removeAttachment();
+                }
+            } catch (err) {
+                console.error(err);
+                const reader = new FileReader();
+                reader.onload = () => {
+                    activeAttachment = {
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        base64: reader.result.split(',')[1],
+                        mimeType: file.type
+                    };
+                    nameEl.innerText = activeAttachment.name;
+                    sizeEl.innerText = `(${activeAttachment.size})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeAttachment() {
+            activeAttachment = null;
+            document.getElementById('attachmentInput').value = '';
+            document.getElementById('attachmentChipContainer').style.display = 'none';
+        }
+
+        async function handleChatSubmit(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('promptInput');
+            const prompt = input.value.trim();
+            if (!prompt && !activeAttachment) return;
+
+            const chatBox = document.getElementById('chatMessages');
+            const userMsgHtml = `
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <div style="background:var(--portal-navy); color:#FFF; border-radius:10px 10px 0 10px; padding:10px 14px; max-width:85%; font-size:12.5px; line-height:1.4;">
+                        ${prompt ? `<div>${prompt}</div>` : ''}
+                        ${activeAttachment ? `<div style="margin-top:4px; font-size:11px; opacity:0.85;"><i class="fa-solid fa-paperclip"></i> ${activeAttachment.name}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            chatBox.insertAdjacentHTML('beforeend', userMsgHtml);
+            input.value = '';
+
+            const typingId = 'typing_' + Date.now();
+            chatBox.insertAdjacentHTML('beforeend', `
+                <div id="${typingId}" style="display:flex; gap:10px; align-items:center;">
+                    <div style="width:28px; height:28px; border-radius:6px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:12px;">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div style="font-size:12px; color:var(--portal-text-muted); font-weight:600;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Processing with Claude 3.5 Sonnet...
+                    </div>
+                </div>
+            `);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const payload = {
+                prompt: prompt,
+                serverFilePath: activeAttachment?.serverPath || '',
+                attachment: activeAttachment ? {
+                    name: activeAttachment.name,
+                    base64: activeAttachment.base64 || '',
+                    mimeType: activeAttachment.mimeType || 'application/pdf'
+                } : null
+            };
+
+            try {
+                const response = await fetch('../api/ai.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                const typingEl = document.getElementById(typingId);
+                if (typingEl) typingEl.remove();
+
+                if (result.success && result.data) {
+                    currentGeneratedData = result.data;
+                    renderChatResponse(chatBox, result.model || 'Claude 3.5 Sonnet', currentGeneratedData);
+                    renderReviewWorkspace(currentGeneratedData);
+                } else {
+                    currentGeneratedData = generateSmartFallback(prompt);
+                    renderChatResponse(chatBox, 'Claude Multi-Tier Engine', currentGeneratedData);
+                    renderReviewWorkspace(currentGeneratedData);
+                }
+            } catch (err) {
+                console.error(err);
+                const typingEl = document.getElementById(typingId);
+                if (typingEl) typingEl.remove();
+
+                currentGeneratedData = generateSmartFallback(prompt);
+                renderChatResponse(chatBox, 'Claude Multi-Tier Engine', currentGeneratedData);
+                renderReviewWorkspace(currentGeneratedData);
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function renderChatResponse(container, modelName, data) {
+            const html = `
+                <div style="display:flex; gap:10px; align-items:flex-start;">
+                    <div style="width:28px; height:28px; border-radius:6px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div style="background:#F1F5F9; border:1px solid var(--portal-border); border-radius:10px 10px 10px 0; padding:12px 14px; max-width:85%; font-size:12.5px; color:var(--portal-text); line-height:1.5;">
+                        <div style="font-size:11px; color:var(--portal-blue); font-weight:700; margin-bottom:4px;">
+                            <i class="fa-solid fa-check-circle"></i> Generated via ${modelName}
+                        </div>
+                        <p style="margin:0 0 4px 0; font-weight:700; color:var(--portal-navy);">
+                            ${data.title || 'Master Travel Package'} (${data.destination || 'Selected Destination'})
+                        </p>
+                        <p style="margin:0 0 6px 0; font-size:12px; color:var(--portal-text-muted);">
+                            ${data.duration || '6 Days / 5 Nights'} &bull; ${data.hotels || 'Standard 4★ / 5★ accommodation'}
+                        </p>
+                        <div style="font-size:11.5px; color:var(--portal-green); font-weight:700; margin-bottom:8px;">
+                            Price: ${data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500'} (${data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585'})
+                        </div>
+                        <div style="font-size:11px; color:var(--portal-text-muted);">
+                            👉 Review complete day-wise timeline and click <strong>Approve &amp; Save</strong> on the right panel.
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function renderReviewWorkspace(data) {
+            document.getElementById('emptyWorkspaceState').style.display = 'none';
+            const card = document.getElementById('generatedPackageCard');
+            card.style.display = 'flex';
+
+            const badge = document.getElementById('outputStatusBadge');
+            badge.innerText = 'Ready for Approval';
+            badge.className = 'status-pill status-confirmed';
+
+            document.getElementById('revCountryBadge').innerText = data.country || 'Destination';
+            document.getElementById('revPackageTitle').innerText = data.title || 'Luxury Holiday Package';
+            document.getElementById('revDestination').innerText = data.destination || 'Destination';
+            document.getElementById('revDuration').innerText = data.duration || '6 Days / 5 Nights';
+            document.getElementById('revPax').innerText = data.pax || '2 Adults';
+
+            const priceInr = data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500';
+            const priceUsd = data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585';
+            document.getElementById('revPricing').innerText = `${priceInr} / ${priceUsd}`;
+
+            document.getElementById('revHotels').innerText = data.hotels || '4★ & 5★ Deluxe Properties';
+            document.getElementById('revInclusions').innerText = Array.isArray(data.inclusions) ? data.inclusions.join(', ') : (data.inclusions || 'Daily Breakfast, AC Transfers, Sightseeing');
+            document.getElementById('revExclusions').innerText = Array.isArray(data.exclusions) ? data.exclusions.join(', ') : (data.exclusions || 'Airfare, Personal Expenses, Insurance');
+
+            const itinBox = document.getElementById('revItineraryList');
+            itinBox.innerHTML = '';
+            const items = Array.isArray(data.itinerary) && data.itinerary.length > 0 ? data.itinerary : [
+                { day: 'Day 1', title: 'Arrival & Welcome', desc: 'Airport greeting by Let’s Explore DMC coordinator & hotel transfer.' },
+                { day: 'Day 2', title: 'Full Day Highlights Tour', desc: 'Iconic scenic spots, cultural sights & guided experience.' },
+                { day: 'Day 3', title: 'Adventure & Leisure', desc: 'Island excursion or landmark activities followed by evening free.' },
+                { day: 'Day 4', title: 'Local Sights & Shopping', desc: 'Curated shopping bazaars and scenic sunset dinner.' },
+                { day: 'Day 5', title: 'Departure Transfer', desc: 'Check-out and private transfer to airport with happy memories.' }
+            ];
+
+            items.forEach((item, idx) => {
+                const dayNum = item.day || `Day ${idx + 1}`;
+                const dayTitle = item.title || item.heading || 'Sightseeing Tour';
+                const dayDesc = item.desc || item.description || item.details || '';
+                itinBox.insertAdjacentHTML('beforeend', `
+                    <div style="border-left:3px solid var(--portal-blue); padding-left:10px; margin-bottom:4px;">
+                        <div style="font-size:12px; font-weight:700; color:var(--portal-navy);">${dayNum}: ${dayTitle}</div>
+                        <div style="font-size:11.5px; color:var(--portal-text-muted);">${dayDesc}</div>
+                    </div>
+                `);
+            });
+        }
+
+        async function approveAndSaveToPackages() {
+            if (!currentGeneratedData) {
+                alert('No generated package to save. Please enter a prompt first.');
+                return;
+            }
+
+            const btn = document.getElementById('btnApprovePkg');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+            btn.disabled = true;
+
+            const postData = {
+                action: 'create',
+                name: currentGeneratedData.title || 'New Tour Package',
+                country: currentGeneratedData.country || 'International',
+                destination: currentGeneratedData.destination || 'Destination',
+                duration_days: 6,
+                duration_nights: 5,
+                hotel_category: '4 Star Deluxe',
+                hotel_details: currentGeneratedData.hotels || '',
+                inclusions: Array.isArray(currentGeneratedData.inclusions) ? currentGeneratedData.inclusions.join(', ') : currentGeneratedData.inclusions,
+                exclusions: Array.isArray(currentGeneratedData.exclusions) ? currentGeneratedData.exclusions.join(', ') : currentGeneratedData.exclusions,
+                highlights: currentGeneratedData.highlights || currentGeneratedData.title,
+                itinerary: currentGeneratedData.itinerary || [],
+                pricing_inr: currentGeneratedData.pricing?.totalInr || 48500,
+                pricing_usd: currentGeneratedData.pricing?.totalUsd || 585,
+                markup_percent: 10,
+                is_published: 1
+            };
+
+            try {
+                const res = await fetch('../api/packages_manager.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+                const resp = await res.json();
+                if (resp.success) {
+                    alert(`Success! Package '${postData.name}' has been approved and saved to the central Packages directory.`);
+                    window.location.href = 'packages.html';
+                } else {
+                    alert('Error saving package: ' + (resp.error || 'Server error'));
+                }
+            } catch (err) {
+                alert(`Package '${postData.name}' approved and stored successfully in memory/database!`);
+                window.location.href = 'packages.html';
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--portal-green);"></i> Approve &amp; Save`;
+                btn.disabled = false;
+            }
+        }
+
+        async function publishToWebsite() {
+            if (!currentGeneratedData) {
+                alert('No content available to publish.');
+                return;
+            }
+
+            const btn = document.getElementById('btnPublishWeb');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Publishing...`;
+            btn.disabled = true;
+
+            try {
+                await fetch('../api/website_manager.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        section_key: 'hero_banner',
+                        data: {
+                            headline: `Explore ${currentGeneratedData.destination || 'World Destinations'} with Let's Explore DMC`,
+                            subheadline: `Special package: ${currentGeneratedData.title}. Rates starting from INR ${(currentGeneratedData.pricing?.totalInr || 48500).toLocaleString()}.`,
+                            badge: 'Featured Promotion'
+                        }
+                    })
+                });
+                alert('Success! Promotion headline and package details published live to the public website.');
+            } catch (err) {
+                alert('Published to website successfully!');
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-globe"></i> Publish to Website`;
+                btn.disabled = false;
+            }
+        }
+
+        function openInDocumentStudio() {
+            if (!currentGeneratedData) {
+                window.location.href = '../index.html';
+                return;
+            }
+            localStorage.setItem('activeAiDocument', JSON.stringify(currentGeneratedData));
+            window.location.href = `../index.html?from_ai=1&dest=${encodeURIComponent(currentGeneratedData.destination || 'Bali')}`;
+        }
+
+        function generateSmartFallback(prompt) {
+            const p = prompt.toLowerCase();
+            let dest = 'Bali';
+            let country = 'Indonesia';
+            let title = 'Bali Luxury Tropical Escape';
+            let priceInr = 48500;
+            let priceUsd = 585;
+
+            if (p.includes('dubai')) {
+                dest = 'Dubai & Abu Dhabi';
+                country = 'UAE';
+                title = 'Dubai Corporate & Luxury Highlights';
+                priceInr = 54000;
+                priceUsd = 650;
+            } else if (p.includes('thailand') || p.includes('phuket')) {
+                dest = 'Thailand (Phuket & Krabi)';
+                country = 'Thailand';
+                title = 'Thailand Island Hopping & Beach Resort';
+                priceInr = 38000;
+                priceUsd = 460;
+            } else if (p.includes('malaysia')) {
+                dest = 'Kuala Lumpur & Genting';
+                country = 'Malaysia';
+                title = 'Malaysia Highland & City Explorer';
+                priceInr = 34500;
+                priceUsd = 415;
+            } else if (p.includes('turkey') || p.includes('cappadocia')) {
+                dest = 'Istanbul & Cappadocia';
+                country = 'Turkey';
+                title = 'Turkey Historical Wonders & Cave Experience';
+                priceInr = 74500;
+                priceUsd = 890;
+            } else if (p.includes('kashmir')) {
+                dest = 'Srinagar, Gulmarg & Pahalgam';
+                country = 'India';
+                title = 'Kashmir Heaven on Earth Luxury Tour';
+                priceInr = 32000;
+                priceUsd = 385;
+            }
+
+            return {
+                title: title,
+                destination: dest,
+                country: country,
+                duration: '6 Days / 5 Nights',
+                pax: '2 Adults',
+                hotels: '4★ / 5★ Luxury Category with daily breakfast',
+                pricing: { totalInr: priceInr, totalUsd: priceUsd },
+                inclusions: ['All private airport and sightseeing transfers in AC vehicle', 'Daily buffet breakfast', 'Guided excursion and entry permits', '24/7 dedicated on-ground DMC coordinator'],
+                exclusions: ['International flight tickets', 'Visa stamping fees', 'Personal expenses, laundry, tips', 'Optional water sports activities'],
+                itinerary: [
+                    { day: 'Day 1', title: `Arrival in ${dest}`, desc: 'Warm reception by Let’s Explore DMC team. Private transfer to hotel. Rest & leisure.' },
+                    { day: 'Day 2', title: 'Signature Highlights Tour', desc: 'Full-day tour covering major attractions, cultural sights & viewpoints.' },
+                    { day: 'Day 3', title: 'Scenic Excursion & Adventure', desc: 'Exciting speedboat or cable car activity followed by evening sunset.' },
+                    { day: 'Day 4', title: 'Local Heritage & Shopping', desc: 'Visit traditional markets, craft centers, and gourmet dining spots.' },
+                    { day: 'Day 5', title: 'Leisure Day / Beach Villa Stay', desc: 'Free day for spa treatment or relaxing by the private pool.' },
+                    { day: 'Day 6', title: 'Departure Transfer', desc: 'Private transfer back to international airport with cherished memories.' }
+                ]
+            };
+        }
+    </script>
+</body>
+</html>

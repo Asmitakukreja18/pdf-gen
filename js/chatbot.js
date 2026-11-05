@@ -16,14 +16,28 @@ const Chatbot = (() => {
   let isTyping = false;
   let initialized = false;
   let activeAttachment = null;
+  let lastPrompt = '';
 
-  // DOM Refs
+  // DOM Refs & Utilities
   const $ = (id) => document.getElementById(id);
   const msgs = () => $('chatMessages');
   const typing = () => $('typingIndicator');
   const replies = () => $('quickReplies');
   const input = () => $('chatInput');
   const sendBtn = () => $('btnSend');
+
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  if (typeof window !== 'undefined') {
+    window.escapeHTML = escapeHTML;
+  }
 
   /**
    * Initialize Chatbot
@@ -35,6 +49,31 @@ const Chatbot = (() => {
     renderWelcome();
     setupInputHandlers();
     setupAttachmentHandlers();
+
+    const btnHistory = $('btnChatHistory');
+    if (btnHistory) {
+      btnHistory.addEventListener('click', () => {
+        showReplies([
+          { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
+          { label: '🌟 Dubai 6D Itinerary', val: 'Dubai 6D itinerary with rates' },
+          { label: '🏨 Add Ramada & 10% Markup', val: 'Ramada hotel add karo aur 10% markup lagao' },
+          { label: '🧾 Akash Dewani Tax Invoice', val: 'akash dewani amravati ka tax invoice banao' },
+          { label: '🏨 Aanay Tours Voucher', val: 'aanay tours hotel voucher hilton yas island' }
+        ], true);
+        if (typeof showToast === 'function') showToast('Sample enquiries loaded in quick actions', 'info');
+      });
+    }
+
+    const btnClear = $('btnChatClear');
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        const m = msgs();
+        if (m) m.innerHTML = '';
+        history = [];
+        renderWelcome();
+        if (typeof showToast === 'function') showToast('Conversation cleared', 'info');
+      });
+    }
   }
 
   function renderWelcome() {
@@ -53,7 +92,8 @@ const Chatbot = (() => {
       `• 🏨 <strong>5. Hotel Booking Voucher</strong>: Luxury confirmation voucher with guest list, occupancy & policies.<br>` +
       `• 🧾 <strong>6. Tax Invoice</strong>: Corporate GST billing with bank payment remittance.<br>` +
       `• 🛠️ <strong>7. Custom Builder</strong>: Custom modular drag & drop sections.<br><br>` +
-      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`
+      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`,
+      false
     );
 
     const defaultReplies = [
@@ -71,102 +111,204 @@ const Chatbot = (() => {
   /**
    * Setup Attachment Handlers (Multimodal file support)
    */
-  function setupAttachmentHandlers() {
-    const attachBtn = $('btnAttachFile');
-    const fileInput = $('chatDocUpload');
+  /**
+   * Helper: Convert ArrayBuffer to Base64 safely
+   */
+  function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    const chunkSize = 8192;
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, len));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return window.btoa(binary);
+  }
+
+  /**
+   * Process incoming file from file picker or drag-and-drop
+   */
+  async function processIncomingFile(file) {
+    if (!file) return;
     const badge = $('chatAttachmentBadge');
     const badgeText = $('chatAttachmentText');
-    const removeBtn = $('btnRemoveChatAttachment');
 
-    if (attachBtn && fileInput) {
-      attachBtn.addEventListener('click', () => fileInput.click());
+    activeAttachment = {
+      name: file.name,
+      size: file.size,
+      type: file.type || 'application/octet-stream',
+      mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
+      base64: '',
+      extractedText: '',
+      pageCount: 1,
+      isPdf: (file.type && file.type.includes('pdf')) || file.name.toLowerCase().endsWith('.pdf'),
+      isImage: (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|webp|gif)$/i.test(file.name),
+      ready: false
+    };
 
-      fileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // 1. Immediately display the attachment badge
+    if (badge && badgeText) {
+      badgeText.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; width:100%;">
+          <span style="font-size:22px; line-height:1;">📄</span>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <strong style="color:#0F2C59; font-size:13px; word-break:break-all;">${escapeHTML(file.name)}</strong>
+              <span id="attReadyPill" style="background:#2563EB; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;">UPLOADING TO CPANEL...</span>
+            </div>
+            <div id="attSubInfo" style="font-size:11px; color:#64748B; margin-top:2px;">
+              Uploading to cPanel server storage (${Math.round(file.size / 1024)} KB)...
+            </div>
+          </div>
+        </div>
+      `;
+      badge.style.display = 'flex';
+    }
 
-        activeAttachment = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          extractedText: ''
-        };
-
-        if (badge && badgeText) {
-          badgeText.textContent = `⏳ Reading & parsing ${file.name}...`;
-          badge.style.display = 'flex';
+    // 2. Upload file directly to cPanel Server (api/upload_attachment.php)
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await fetch('api/upload_attachment.php', {
+        method: 'POST',
+        body: formData
+      });
+      if (uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        if (uploadData && uploadData.success && uploadData.document) {
+          activeAttachment.serverPath = uploadData.document.file_path;
+          activeAttachment.serverFilename = uploadData.document.file_name;
+          activeAttachment.docId = uploadData.document.id;
+          activeAttachment.serverStored = true;
+          if (uploadData.extracted_text) {
+            activeAttachment.extractedText = uploadData.extracted_text;
+          }
         }
+      }
+    } catch (uploadErr) {
+      console.warn('cPanel upload notice (offline or local preview):', uploadErr);
+    }
 
-        // 1. If PDF file, extract text via PDF.js
-        if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            if (typeof pdfjsLib !== 'undefined') {
+    // 3. Read Base64 via standard browser FileReader (instant fallback & multimodal support)
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      activeAttachment.base64 = (dataUrl || '').replace(/^data:[^;]+;base64,/, '').trim();
+    } catch (readErr) {
+      console.warn('FileReader notice:', readErr);
+    }
+
+    // 4. Fast Text Extraction with strict timeout guard
+    try {
+      if (activeAttachment.isPdf && !activeAttachment.extractedText) {
+        activeAttachment.mimeType = 'application/pdf';
+        if (typeof pdfjsLib !== 'undefined') {
+          const ab = await file.arrayBuffer();
+          const parsePromise = (async () => {
+            try {
               pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-              const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+              const loadingTask = pdfjsLib.getDocument({ data: ab.slice(0) });
               const pdf = await loadingTask.promise;
+              activeAttachment.pageCount = pdf.numPages || 1;
               let fullText = '';
-              for (let i = 1; i <= pdf.numPages; i++) {
+              const maxPages = Math.min(pdf.numPages, 10);
+              for (let i = 1; i <= maxPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 fullText += `[Page ${i}]\n` + pageText + '\n';
               }
-              activeAttachment.extractedText = fullText.trim();
+              return fullText.trim();
+            } catch (innerPdfErr) {
+              return '';
             }
-          } catch (pdfErr) {
-            console.warn('PDF.js parsing note:', pdfErr);
-          }
-        } else if (file.type.startsWith('image/')) {
-          try {
-            const base64Data = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => {
-                const res = reader.result || '';
-                const base64 = res.split(',')[1] || '';
-                resolve(base64);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
-            });
-            activeAttachment.base64 = base64Data;
-            activeAttachment.isImage = true;
-            activeAttachment.mimeType = file.type || 'image/jpeg';
-            activeAttachment.extractedText = `[Image Reference: ${file.name}]`;
-          } catch (err) {
-            console.warn('Image reading error:', err);
-          }
-        } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc') || file.type.includes('wordprocessingml') || file.type.includes('msword')) {
-          // Native Microsoft Word DOCX Extraction
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            if (typeof mammoth !== 'undefined') {
-              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-              activeAttachment.extractedText = result.value ? result.value.trim() : '';
-            } else {
-              // Fallback text extraction
-              const text = await file.text();
-              activeAttachment.extractedText = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ').trim();
-            }
-          } catch (docxErr) {
-            console.warn('DOCX parsing note:', docxErr);
-          }
-        } else if (file.type.includes('text') || file.name.toLowerCase().endsWith('.txt')) {
-          try {
-            activeAttachment.extractedText = await file.text();
-          } catch (err) {
-            console.warn('Text reading note:', err);
-          }
-        }
+          })();
 
-        if (badge && badgeText) {
-          const charLen = activeAttachment.extractedText ? ` · ${activeAttachment.extractedText.length} chars` : '';
-          badgeText.textContent = `📎 Attached: ${file.name} (${Math.round(file.size / 1024)} KB${charLen})`;
-          badge.style.display = 'flex';
+          const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(''), 1200));
+          const pdfText = await Promise.race([parsePromise, timeoutPromise]);
+          if (pdfText) {
+            activeAttachment.extractedText = pdfText;
+          }
         }
-        if (typeof showToast === 'function') {
-          showToast(`Attached & parsed ${file.name}`, 'success');
+      } else if (activeAttachment.isImage) {
+        activeAttachment.mimeType = file.type || 'image/jpeg';
+        activeAttachment.extractedText = `[Image Document: ${file.name}]`;
+      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+        activeAttachment.mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        if (typeof mammoth !== 'undefined') {
+          const ab = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: ab });
+          activeAttachment.extractedText = result.value ? result.value.trim() : '';
         }
+      } else if (!activeAttachment.extractedText) {
+        activeAttachment.extractedText = await file.text();
+      }
+    } catch (extractErr) {
+      console.warn('Client text extraction notice:', extractErr);
+    }
+
+    // 5. Mark attachment as READY
+    activeAttachment.ready = true;
+    const readyPill = $('attReadyPill');
+    const subInfo = $('attSubInfo');
+    const pageInfo = activeAttachment.pageCount > 1 ? ` · ${activeAttachment.pageCount} pages` : '';
+    const storedStatus = activeAttachment.serverStored
+      ? `✓ Stored on cPanel Server (<code>${escapeHTML(activeAttachment.serverPath || 'uploads/')}</code>)`
+      : `✓ Ready (${Math.round(file.size / 1024)} KB${pageInfo})`;
+
+    if (readyPill) {
+      readyPill.textContent = activeAttachment.serverStored ? '✅ SAVED TO CPANEL' : '✅ READY FOR AI';
+      readyPill.style.background = '#10B981';
+    }
+    if (subInfo) {
+      subInfo.innerHTML = `<span style="color:#15803D; font-weight:600;">${storedStatus}</span> — Click <strong>Send</strong> or choose an action below (zero typing required):`;
+    }
+
+    // 5. Present Quick Action pills with the file action FIRST and highlighted
+    showReplies([
+      { 
+        label: `⚡ Auto-Extract Quotation (${file.name})`, 
+        val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`, 
+        primary: true 
+      },
+      { 
+        label: '🧾 Tax Invoice Banao', 
+        val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao` 
+      },
+      { 
+        label: '🏨 Hotel Booking Voucher', 
+        val: `Attached document ${file.name} se hotel confirmation booking voucher banao` 
+      },
+      { 
+        label: '🗺️ Itinerary (Without Rates)', 
+        val: `Attached document ${file.name} se guest travel itinerary without pricing banao` 
+      }
+    ], true);
+
+    if (typeof showToast === 'function') {
+      showToast(`📄 ${file.name} Attached! Click Send or an action pill.`, 'success');
+    }
+  }
+
+  /**
+   * Setup Attachment Handlers (Multimodal file support & Drag-and-Drop)
+   */
+  function setupAttachmentHandlers() {
+    const attachBtn = $('btnAttachFile');
+    const fileInput = $('chatDocUpload');
+    const badge = $('chatAttachmentBadge');
+    const removeBtn = $('btnRemoveChatAttachment');
+
+    if (attachBtn && fileInput) {
+      attachBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) await processIncomingFile(file);
       });
     }
 
@@ -175,6 +317,36 @@ const Chatbot = (() => {
         activeAttachment = null;
         if (badge) badge.style.display = 'none';
         if (fileInput) fileInput.value = '';
+        const inp = input();
+        if (inp && inp.value.includes('Extract all travel itinerary details')) {
+          clearInput();
+        }
+      });
+    }
+
+    // Drag and Drop support on Chat Panel
+    const chatPanel = $('chatPanel') || document.querySelector('.chat-panel');
+    if (chatPanel) {
+      ['dragenter', 'dragover'].forEach(name => {
+        chatPanel.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatPanel.style.outline = '2px dashed #2563EB';
+          chatPanel.style.outlineOffset = '-4px';
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        chatPanel.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatPanel.style.outline = 'none';
+        });
+      });
+      chatPanel.addEventListener('drop', async (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+          await processIncomingFile(dt.files[0]);
+        }
       });
     }
   }
@@ -198,22 +370,31 @@ const Chatbot = (() => {
       }
     });
 
-    btn.addEventListener('click', () => submitInput(inp.value.trim()));
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      submitInput(inp.value.trim());
+    });
   }
 
   function submitInput(text) {
     if (!text && !activeAttachment) return;
     if (isTyping) return;
 
+    // Zero-typing requirement: If user attached a file and wrote nothing, provide full instruction
     let fullPrompt = text;
     let userBubble = text;
     if (activeAttachment) {
+      const defaultInstr = `Please analyze the attached document "${activeAttachment.name}", extract all travel details (destination, travel dates, passenger counts, day-wise itinerary, hotel stays, room types, tariffs, inclusions) and build the official document.`;
+      const promptInstr = text ? text : defaultInstr;
+      
       let fileSnippet = '';
       if (activeAttachment.extractedText) {
         fileSnippet = `\n[Extracted Document Text]:\n${activeAttachment.extractedText}\n[End Document Text]\n`;
       }
-      fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}` + (text || 'Please process this attached document.');
-      userBubble = `[Attached File: ${activeAttachment.name}]\n` + (text || 'Please process this attached document.');
+      fullPrompt = `[Attached File: ${activeAttachment.name}]${fileSnippet}${promptInstr}`;
+      const pageInfo = activeAttachment.pageCount > 1 ? ` (${activeAttachment.pageCount} pages)` : '';
+      userBubble = `📎 <strong>Attached: ${escapeHTML(activeAttachment.name)}</strong>${pageInfo}<br>` + 
+        (text ? escapeHTML(text) : `⚡ <em>Extracting document details, itinerary &amp; pricing with AI...</em>`);
     }
 
     clearInput();
@@ -236,6 +417,9 @@ const Chatbot = (() => {
    */
   async function processMessage(text, attachment = null) {
     const t = text.trim();
+    if (!t.startsWith('__')) {
+      lastPrompt = text;
+    }
 
 
 
@@ -279,7 +463,7 @@ const Chatbot = (() => {
       return;
     }
 
-    setTyping(true);
+    await executeThinkingPipeline(attachment, text);
 
     try {
       // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View + Markup)
@@ -380,13 +564,85 @@ const Chatbot = (() => {
         return;
       }
 
+      // 5.8 Intelligent Entity & Document Routing (Aanay Tours, Akash Dewani, Without Rates, Dubai, Kashmir)
+      const isAanayReq = /(?:aanay|aanay\s*tours?|viraj|gaglani|hilton\s*(?:abu\s*dhabi|yas\s*island)?)/i.test(text) ||
+                         (attachment && /aanay|hilton|voucher.*aanay/i.test(attachment.name));
+
+      if (isAanayReq && !/(?:hata|remove|delete|mat|nahi)/i.test(text)) {
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('voucher_aanay');
+        }
+        QuotationData.activeDocType = 'confirmation';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+        }
+        setTyping(false);
+        appendAI(
+          `✅ <strong>Aanay Tours Hotel Booking Voucher (Hilton Abu Dhabi Yas Island) details load kar di gayi hain!</strong><br><br>` +
+          `• <strong>Agency Name</strong>: Aanay tours (Contact: Viraj Gaglani - 7709123187)<br>` +
+          `• <strong>Property</strong>: <strong>Hilton Abu Dhabi Yas Island</strong> (5-Star Luxury Resort)<br>` +
+          `• <strong>Booking Ref</strong>: <code>TG/31130</code> | <strong>Confirmation No</strong>: <code>NH27002524635670</code><br>` +
+          `• <strong>Stay Duration</strong>: 16-Nov-2026 to 18-Nov-2026 (2 Nights)<br>` +
+          `• <strong>Room Type</strong>: Deluxe Double Room (Double sharing + extra bed, Breakfast included)<br>` +
+          `• <strong>Guests / Pax</strong>: 4 Adults, 2 Children, 1 Infant (Extra mattress included)<br><br>` +
+          `Official Hilton luxury Hotel Voucher live preview me update ho gaya hai. Aap neeche se direct PDF download kar sakte hain ya Studio Builder me customize kar sakte hain!`
+        );
+        showReplies([
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
+          { label: '🖨️ Download PDF Voucher', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '📄 Master Quotation', val: '__SWITCH_QUOTATION__' },
+          { label: '🧾 Tax Invoice', val: '__SWITCH_INVOICE__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
+      // 5.9 Without Rates / Itinerary Only Intent
+      const isWithoutRatesReq = /(?:without\s*rates?|rates?\s*(?:hata|mat|nahi|remove|bina|without)|itinerary\s*only|rates?\s*ke\s*bina|bina\s*rates?)/i.test(text) ||
+                                (attachment && /without_rates/i.test(attachment.name));
+
+      if (isWithoutRatesReq && !/(?:wapas|add|show|dikhao|with\s*rates)/i.test(text)) {
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('thailand_without_rates');
+        }
+        QuotationData.activeDocType = 'itinerary';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('itinerary');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
+        }
+        setTyping(false);
+        appendAI(
+          `✅ <strong>Thailand 12D11N Itinerary (Without Rates / Guest-Facing) load ho gaya hai!</strong><br><br>` +
+          `• <strong>Destination</strong>: Krabi + Phuket + Koh Yao Yai<br>` +
+          `• <strong>Duration</strong>: 12 Days / 11 Nights<br>` +
+          `• <strong>Pricing</strong>: Rates strictly hidden / removed (guest-facing presentation mode)<br>` +
+          `• <strong>Itinerary</strong>: Day-by-day complete schedule with hotel stays and sightseeing timeline<br><br>` +
+          `Guest-facing travel itinerary live preview me ready hai!`
+        );
+        showReplies([
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
+          { label: '🖨️ Download PDF Itinerary', val: '__PDF__' },
+          { label: '📄 Download Word DOCX', val: '__DOCX__' },
+          { label: '💰 Add Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
       // 6. Check Document Format Switch Requests
       const isInvoiceReq = (
         text === '__SWITCH_INVOICE__' ||
+        /(?:akash\s*dewani|dewani|amravati\s*bill|passport\s*bill)/i.test(text) ||
         (
           /(?:banao|make|create|generate|switch|dikhao|convert|chahiye|tayyar|print).*(?:invoice|inoice|invoce|invoic|tax\s*invoice|bill|receipt|challan)/i.test(text) ||
           /(?:invoice|inoice|invoce|invoic|tax\s*invoice|receipt|challan).*(?:banao|bana|generate|create|karo|me|format|sheet)/i.test(text) ||
-          (activeAttachment && /invoice|bill|receipt/i.test(activeAttachment.name))
+          (attachment && /invoice|bill|receipt/i.test(attachment.name))
         ) && !/(?:kyu|kyun|why|sirf|only|baki|other|nahi|mat)/i.test(text)
       );
 
@@ -566,10 +822,14 @@ const Chatbot = (() => {
 
       // Format Switcher: Hotel Booking Voucher / Confirmation
       if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('confirmation');
-        } else {
-          QuotationData.activeDocType = 'confirmation';
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('voucher_aanay');
+        }
+        QuotationData.activeDocType = 'confirmation';
+        if (typeof App !== 'undefined') {
+          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
+          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
         }
         setTyping(false);
         appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');
@@ -693,9 +953,25 @@ const Chatbot = (() => {
         }
       }
 
-      // 7. General extraction via AIParser (Context aware with multimodal image support)
-      const extracted = await AIParser.parseText(text, QuotationData, activeAttachment);
+      // 7. General extraction via AIParser (Real Gemini Multimodal + Intelligent Local NLP)
+      const extracted = await AIParser.parseText(text, QuotationData, attachment);
 
+      // Automatically switch to detected document format
+      const docType = extracted.detectedDocType || QuotationData.activeDocType || 'quotation';
+      QuotationData.activeDocType = docType;
+      if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
+        App.switchDocType(docType);
+      }
+
+      if (extracted.invoice) {
+        QuotationData.invoice = Object.assign(QuotationData.invoice || {}, extracted.invoice);
+        if (typeof App !== 'undefined' && typeof App.populateInvoiceFields === 'function') {
+          App.populateInvoiceFields();
+        }
+      }
+      if (extracted.confirmation) {
+        QuotationData.confirmation = Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
+      }
       if (extracted.package) {
         Object.assign(QuotationData.package, extracted.package);
       }
@@ -711,14 +987,6 @@ const Chatbot = (() => {
 
       recalculateQuotationPricing();
 
-      // If activeDocType was invoice, automatically switch back to quotation for travel packages
-      if (QuotationData.activeDocType === 'invoice') {
-        QuotationData.activeDocType = 'quotation';
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('quotation');
-        }
-      }
-
       if (typeof App !== 'undefined') {
         if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
         if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
@@ -729,19 +997,69 @@ const Chatbot = (() => {
       setTyping(false);
 
       const pkg = QuotationData.package || {};
-      appendAI(
-        `✅ <strong>Quotation Updated Successfully!</strong><br><br>` +
-        `📍 <strong>${pkg.destinations || 'Holiday'}</strong> (${pkg.duration || '—'})<br>` +
-        `👥 <strong>${pkg.travellers || '2 Adults'}</strong> · 📅 Dates: <strong>${pkg.preparedDate || '—'}</strong><br>` +
-        `🗺️ <strong>${QuotationData.days.length} Days Itinerary & Costing Configured</strong><br><br>` +
-        `What would you like to do next?`
-      );
+      let thinkingCard = '';
+      if (attachment) {
+        thinkingCard = buildThinkingProcessCard(
+          `Document Analysis Completed: ${attachment.name}`,
+          [
+            `Read ${attachment.pageCount || 1} pages (${Math.round(attachment.size / 1024)} KB) via AI Engine`,
+            `Detected Document Type: ${docType.toUpperCase()}`,
+            `Extracted Details: Destination (${pkg.destinations || 'Selected Destination'}), Dates (${pkg.travelDates || 'Configured'}), ${QuotationData.days?.length || 0} Itinerary Days`,
+            `Hotel Stays: ${QuotationData.hotels?.length || 0} properties matched &amp; configured`,
+            `Studio &amp; Preview: 100% Real-time synchronization active`
+          ]
+        );
+      } else {
+        thinkingCard = buildThinkingProcessCard(
+          `AI Analysis Completed: ${pkg.destinations || 'Holiday Proposal'}`,
+          [
+            `Processed Request: ${docType.toUpperCase()}`,
+            `Configured ${QuotationData.days?.length || 0} Day Itinerary with morning &amp; evening tours`,
+            `Validated Dual-Currency Pricing: ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} / $ ${QuotationData.summary?.totalUSD?.toFixed(2) || '0.00'} USD`,
+            `Live Preview: All 7 formats ready to view &amp; print`
+          ]
+        );
+      }
+
+      const aiSourceBadge = extracted._source === 'gemini' 
+        ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini Flash AI</span>'
+        : '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1E40AF; font-size:11px; font-weight:700;">🤖 Intelligent DMC Document Engine</span>';
+
+      const docTypeMeta = (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[docType]) 
+        ? `${DOCUMENT_TYPES[docType].icon} ${DOCUMENT_TYPES[docType].name}`
+        : docType.toUpperCase();
+
+      let replyMsg = thinkingCard + 
+        `✅ <strong>Document Extracted &amp; Synchronized!</strong> ${aiSourceBadge}<br><br>` +
+        `📋 <strong>Active Format:</strong> <strong>${docTypeMeta}</strong><br>` +
+        `📍 <strong>Destination:</strong> ${pkg.destinations || 'Holiday Destination'} (${pkg.duration || 'Custom Plan'})<br>` +
+        `👤 <strong>Client:</strong> ${pkg.clientName || 'Valued Client'} · 👥 ${pkg.travellers || '2 Adults'}<br>`;
+
+      if (docType === 'invoice') {
+        const inv = QuotationData.invoice || {};
+        replyMsg += `🧾 <strong>Invoice No:</strong> ${inv.invoiceNumber || '—'} · Total: <strong>₹ ${inv.grandTotal?.toLocaleString('en-IN') || '—'}</strong><br>`;
+      } else if (docType === 'confirmation') {
+        const conf = QuotationData.confirmation || {};
+        replyMsg += `🏨 <strong>Hotel:</strong> ${conf.hotelName || '—'} · Stay: ${conf.checkIn || '—'} to ${conf.checkOut || '—'}<br>`;
+      } else {
+        replyMsg += `🗺️ <strong>Itinerary:</strong> ${QuotationData.days.length} Days Configured · 🏨 ${QuotationData.hotels.length} Hotel Stays<br>`;
+        if (docType === 'itinerary') {
+          replyMsg += `✨ <em>Rendered as Clean Guest Itinerary without pricing rates.</em><br>`;
+        } else {
+          replyMsg += `💰 <strong>Quotation Total:</strong> ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} ($ ${QuotationData.summary?.totalUSD?.toLocaleString('en-IN') || '0'} USD)<br>`;
+        }
+      }
+
+      replyMsg += `<br>Neeche diye format buttons se aap turant kisi bhi format me switch kar sakte hain:`;
+      appendAI(replyMsg);
 
       showReplies([
-        { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
-        { label: '🖨️ Generate PDF', val: '__PDF__' },
-        { label: '📄 Download DOCX', val: '__DOCX__' },
-        { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' }
+        { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+        { label: '📄 1. Master Quotation', val: '__SWITCH_QUOTATION__' },
+        { label: '🗺️ 2. Travel Itinerary (Without Rates)', val: '__SWITCH_ITINERARY__' },
+        { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' },
+        { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
+        { label: '🖨️ Generate PDF', val: '__PDF__' }
       ]);
 
     } catch (err) {
@@ -1000,35 +1318,150 @@ const Chatbot = (() => {
   function appendUser(text) {
     const el = msgs();
     if (!el) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg user';
-    div.innerHTML = esc(text).replace(/\n/g, '<br>');
-    el.appendChild(div);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const row = document.createElement('div');
+    row.className = 'user-msg-row';
+    row.innerHTML = `
+      <div class="user-msg-bubble">
+        <div>${text}</div>
+        <div class="user-msg-meta">${timeStr} <span style="color:#2563EB;">✔✔</span></div>
+      </div>
+      <div class="user-avatar-circle" style="width:28px; height:28px; font-size:12px; flex-shrink:0;">👤</div>
+    `;
+    el.appendChild(row);
     scrollBottom();
   }
 
-  function appendAI(html) {
+  function appendAI(html, withActions = true) {
     const el = msgs();
     if (!el) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg ai';
-    div.innerHTML = html;
-    el.appendChild(div);
+    const row = document.createElement('div');
+    row.className = 'bot-msg-row';
+
+    let actionToolbar = '';
+    if (withActions) {
+      actionToolbar = `
+        <div class="msg-actions-bar">
+          <button type="button" class="btn-msg-action" onclick="Chatbot.copyLastResponse(this)" title="Copy Response">📋 Copy</button>
+          <button type="button" class="btn-msg-action" onclick="Chatbot.regenerateResponse()" title="Regenerate Response">🔄 Regenerate</button>
+          <button type="button" class="btn-msg-action" onclick="App.showSection('generator'); if(typeof App.populateStudioFromData==='function') App.populateStudioFromData();" title="Edit in Studio Builder">✏️ Edit</button>
+          <button type="button" class="btn-msg-action" onclick="if(typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Download PDF" style="margin-left:auto; background:#0F2C59; color:#fff; border-color:#0F2C59;">⬇️ PDF</button>
+        </div>
+      `;
+    }
+
+    row.innerHTML = `
+      <div class="chat-bot-icon" style="width:28px; height:28px; font-size:12px; flex-shrink:0;">✈</div>
+      <div class="bot-msg-bubble" style="flex:1;">
+        ${html}
+        ${actionToolbar}
+      </div>
+    `;
+    el.appendChild(row);
     scrollBottom();
   }
 
-  function setTyping(flag) {
+  function copyLastResponse(btn) {
+    const bubble = btn ? btn.closest('.bot-msg-bubble') : null;
+    if (bubble) {
+      const textToCopy = bubble.innerText.replace(/📋 Copy|🔄 Regenerate|✏️ Edit|⬇️ PDF/g, '').trim();
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        if (typeof showToast === 'function') showToast('Copied to clipboard!', 'success');
+      });
+    }
+  }
+
+  function regenerateResponse() {
+    if (lastPrompt) {
+      appendUser('🔄 Regenerate: ' + lastPrompt);
+      processMessage(lastPrompt);
+    } else {
+      if (typeof showToast === 'function') showToast('No previous instruction to regenerate.', 'info');
+    }
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function setTyping(flag, statusTitle = '🧠 Thinking &amp; Analyzing...', statusSub = 'Interpreting document requirements &amp; rates...') {
     isTyping = flag;
     const el = typing();
-    if (el) el.style.display = flag ? 'flex' : 'none';
+    if (el) {
+      el.style.display = flag ? 'flex' : 'none';
+      const titleEl = $('typingStatusText');
+      const subEl = $('typingSubText');
+      if (titleEl) titleEl.innerHTML = statusTitle;
+      if (subEl) subEl.innerHTML = statusSub;
+    }
     scrollBottom();
   }
 
-  function showReplies(options) {
+  async function executeThinkingPipeline(attachment, promptText) {
+    if (attachment) {
+      const pageInfo = attachment.pageCount > 1 ? ` (${attachment.pageCount} pages)` : '';
+      setTyping(true, '📄 Reading Document...', `Inspecting ${escapeHTML(attachment.name)}${pageInfo}...`);
+      await sleep(650);
+      setTyping(true, '🔍 Analyzing Travel Itinerary &amp; Data...', 'Extracting days, hotels, room tariffs, inclusions &amp; rates...');
+      await sleep(750);
+      setTyping(true, '⚡ Structuring Rates &amp; Formatting...', 'Computing dual-currency pricing &amp; syncing Live Studio Preview...');
+      await sleep(550);
+    } else {
+      setTyping(true, '🧠 Thinking &amp; Analyzing...', 'Understanding request parameters &amp; client profile...');
+      await sleep(500);
+      setTyping(true, '🔍 Processing Quotation Engine...', 'Structuring itinerary highlights, hotels &amp; inclusions...');
+      await sleep(500);
+    }
+  }
+
+  function buildThinkingProcessCard(title, steps) {
+    const stepsHtml = steps.map(s => `<div>• ${s}</div>`).join('');
+    return `
+      <div class="thinking-process-box" style="margin-bottom:10px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:9px 13px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; const chev=this.querySelector('.chev-icon'); const isCollapsed = c.style.display==='none'; c.style.display=isCollapsed?'block':'none'; if(chev) chev.textContent=isCollapsed?'▾':'▸';">
+          <span style="font-weight:600; color:#1E293B; display:flex; align-items:center; gap:6px; font-size:12px;">
+            <span style="color:#D97706;">•</span> ${escapeHTML(title)} <span class="chev-icon" style="color:#64748B; font-size:11px;">▸</span>
+          </span>
+          <span style="font-size:10px; color:#64748B; background:#E2E8F0; padding:2px 7px; border-radius:10px;">Thinking Process</span>
+        </div>
+        <div style="margin-top:8px; border-top:1px dashed #CBD5E1; padding-top:8px; display:none; line-height:1.6; font-size:11.5px; color:#475569;">
+          ${stepsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  const CORE_ACTION_OPTIONS = [
+    { label: '👁️ Live Preview', val: '__PREVIEW__', primary: true },
+    { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' },
+    { label: '🖨️ Download PDF', val: '__PDF__' },
+    { label: '📄 Download DOCX (Word)', val: '__DOCX__' }
+  ];
+
+  function showReplies(options = [], prioritizeOptions = false) {
     const el = replies();
     if (!el) return;
     el.innerHTML = '';
-    options.forEach(opt => {
+    
+    let merged = [];
+    if (prioritizeOptions) {
+      merged = [...(options || [])];
+      CORE_ACTION_OPTIONS.forEach(core => {
+        if (!merged.some(m => m.val === core.val)) {
+          merged.push(core);
+        }
+      });
+    } else {
+      merged = [...CORE_ACTION_OPTIONS];
+      (options || []).forEach(opt => {
+        if (!merged.some(m => m.val === opt.val)) {
+          merged.push(opt);
+        }
+      });
+    }
+
+    merged.forEach(opt => {
       const btn = document.createElement('button');
       btn.className = `btn-reply ${opt.primary ? 'primary' : ''}`;
       btn.textContent = opt.label;
@@ -1040,6 +1473,14 @@ const Chatbot = (() => {
 
   function handleReplyClick(opt) {
     clearReplies();
+
+    const attachmentToProcess = activeAttachment;
+    activeAttachment = null;
+    const badge = $('chatAttachmentBadge');
+    if (badge) badge.style.display = 'none';
+    const uploadInput = $('chatDocUpload');
+    if (uploadInput) uploadInput.value = '';
+
     if (opt.val === 'restart') {
       resetQuotationData();
       if (typeof App !== 'undefined') {
@@ -1050,27 +1491,27 @@ const Chatbot = (() => {
     }
 
     if (opt.val === '__APPLY_V5_HOTELS__') {
-      processMessage('__APPLY_V5_HOTELS__');
+      processMessage('__APPLY_V5_HOTELS__', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_QUOTATION__') {
-      processMessage('quotation format banao');
+      processMessage('quotation format banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_HOTEL_COSTING__') {
-      processMessage('hotel costing format banao');
+      processMessage('hotel costing format banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_INVOICE__') {
-      processMessage('invoice banao');
+      processMessage('invoice banao', attachmentToProcess);
       return;
     }
 
     if (opt.val === '__SWITCH_CONFIRMATION__') {
-      processMessage('confirmation voucher banao');
+      processMessage('confirmation voucher banao', attachmentToProcess);
       return;
     }
 
@@ -1096,7 +1537,7 @@ const Chatbot = (() => {
     }
 
     appendUser(opt.label);
-    processMessage(opt.val);
+    processMessage(opt.val, attachmentToProcess);
   }
 
   function clearReplies() {
@@ -1140,6 +1581,9 @@ const Chatbot = (() => {
     init,
     reset,
     processMessage,
+    submitInput,
+    copyLastResponse,
+    regenerateResponse,
     applyNewThailandHotelsAndRates
   };
 

@@ -1,5 +1,8 @@
-# Protect uploaded PDFs: Disable script execution
-<FilesMatch "\.(php|php5|php7|php8|phtml|pl|py|cgi|sh|bash)$">
+# Protect uploaded PDFs: Disable directory listing and script execution
+Options -Indexes -ExecCGI
+
+# Prevent execution of any scripts in the uploads directory
+<FilesMatch "\.(php|php[0-9]|phtml|pl|py|cgi|sh|bash|html|htm|js)$">
     Order Deny,Allow
     Deny from all
 </FilesMatch>
@@ -7,7 +10,11 @@
 # Force correct MIME type for PDFs
 <FilesMatch "\.pdf$">
     ForceType application/pdf
-    Header set Content-Disposition inline
 </FilesMatch>
 
-Options -Indexes -ExecCGI
+# Security hardening headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+</IfModule>

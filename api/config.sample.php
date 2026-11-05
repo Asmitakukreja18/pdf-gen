@@ -51,3 +51,18 @@ if (session_status() === PHP_SESSION_NONE) {
     }
     session_start();
 }
+
+// ==========================================
+// AI PROVIDER CONFIGURATION (Claude, Gemini, OpenAI)
+// ==========================================
+// Anthropic Claude API Key (Optional)
+defined('CLAUDE_API_KEY') or define('CLAUDE_API_KEY', 'YOUR_CLAUDE_API_KEY_HERE');
+
+// Google Gemini API Key (Optional)
+defined('GEMINI_API_KEY') or define('GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY_HERE');
+
+// OpenAI API Key (Optional)
+defined('OPENAI_API_KEY') or define('OPENAI_API_KEY', 'YOUR_OPENAI_API_KEY_HERE');
+
+// Default AI Provider: 'auto', 'gemini', 'claude', 'openai'
+defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', 'auto');

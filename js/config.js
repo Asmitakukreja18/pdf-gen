@@ -7,7 +7,11 @@
 const CONFIG = {
   // Gemini API Configuration
   get GEMINI_API_KEY() {
-    return this._GEMINI_API_KEY || (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_gemini_api_key') || '' : '');
+    const stored = (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_gemini_api_key') : null);
+    if (stored && stored.trim() && stored !== 'YOUR_GEMINI_API_KEY_HERE') {
+      return stored.trim();
+    }
+    return this._GEMINI_API_KEY || '';
   },
   set GEMINI_API_KEY(val) {
     this._GEMINI_API_KEY = val;
@@ -17,7 +21,18 @@ const CONFIG = {
   },
   _GEMINI_API_KEY: '',
   GEMINI_MODEL: 'gemini-2.5-flash',
+  GEMINI_FALLBACK_MODEL: 'gemini-flash-latest',
   GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/',
+
+  // Anthropic Claude API Configuration (Handled securely via server-side api/ai.php proxy)
+  get CLAUDE_API_KEY() {
+    return (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_claude_api_key') : '') || '';
+  },
+  set CLAUDE_API_KEY(val) {
+    if (val && typeof localStorage !== 'undefined') {
+      localStorage.setItem('dmc_claude_api_key', val.trim());
+    }
+  },
 
   // Company Brand
   COMPANY: {
@@ -136,5 +151,21 @@ function showToast(message, type = 'info') {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
     }, 400);
   }, 3500);
+}
+
+/**
+ * Global HTML Escaper
+ */
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+if (typeof window !== 'undefined') {
+  window.escapeHTML = escapeHTML;
 }
 
