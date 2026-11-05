@@ -155,6 +155,121 @@
     <main class="app-main" id="appMain">
 
       <!-- ==========================================
+           SECTION: EXECUTIVE ITINERARY & PRICING CARDS (MATCHING REFERENCE IMAGE 3)
+           ========================================== -->
+      <section class="section-executive-cards" id="sectionExecutiveCards" style="padding: 24px 32px 36px; max-width: 1360px; margin: 0 auto; width: 100%;">
+        
+        <div style="display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 28px; align-items: start;">
+          
+          <!-- Left Card: Itinerary Details with Destination Photo -->
+          <div class="exec-card" style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0;">
+            
+            <!-- Destination Featured Image -->
+            <div style="width:100%; height:260px; border-radius:18px; overflow:hidden; margin-bottom:24px; position:relative; box-shadow:0 6px 20px -4px rgba(0,0,0,0.1);">
+              <img id="execDestImg" src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop" alt="Destination View" style="width:100%; height:100%; object-fit:cover; display:block;">
+              <div style="position:absolute; bottom:14px; left:16px; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); color:#FFF; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700;">
+                <span id="execDestBadge">📍 Dubai &amp; Emirates Luxury Tour</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+              <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin:0;">Your Itinerary</h3>
+              <button type="button" class="btn btn-sm btn-outline" onclick="App.showSection('generator'); setTimeout(() => document.querySelector('[data-tab=tabDays]')?.click(), 50);" style="border-radius:99px; font-weight:700; padding:6px 16px; font-size:12.5px; border:1px solid #CBD5E1; cursor:pointer;">
+                ✏️ Edit
+              </button>
+            </div>
+
+            <!-- Day list items (Dynamic & synced) -->
+            <div id="execDaysList" style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; gap:14px; align-items:flex-start;">
+                <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 1</div>
+                <div>
+                  <div style="font-weight:700; color:#0F172A; font-size:14px;">Arrival in Dubai</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Welcome to Dubai! Private luxury transfer to hotel &amp; evening marina dhow cruise.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:14px; align-items:flex-start;">
+                <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 2</div>
+                <div>
+                  <div style="font-weight:700; color:#0F172A; font-size:14px;">City Tour &amp; Burj Khalifa</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Explore Burj Khalifa 124th floor, Dubai Mall, and famous Dubai Fountain show.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:14px; align-items:flex-start;">
+                <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 3</div>
+                <div>
+                  <div style="font-weight:700; color:#0F172A; font-size:14px;">Desert Safari with BBQ Dinner</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Experience dune bashing, camel riding, belly dance and 5-star Arabian BBQ.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Card: Pricing Summary -->
+          <div class="exec-card" style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:22px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin:0;">Pricing Summary</h3>
+              <select id="execCurrencySelect" onchange="toggleExecCurrency(this.value)" style="border:1.5px solid #CBD5E1; border-radius:99px; padding:6px 14px; font-size:12.5px; font-weight:700; color:#0F172A; background:#F8FAFC; outline:none; cursor:pointer;">
+                <option value="INR">INR (₹)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+            </div>
+
+            <!-- Pricing Breakdown -->
+            <div style="display:flex; flex-direction:column; gap:14px; padding-bottom:14px; border-bottom:1px solid #F1F5F9;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13.5px; color:#64748B; font-weight:600;">Base Package</span>
+                <span id="execBasePrice" style="font-size:15px; font-weight:700; color:#0F172A;">₹ 75,000</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13.5px; color:#64748B; font-weight:600;">Markup (<span id="execMarkupPct">15%</span>)</span>
+                <span id="execMarkupVal" style="font-size:15px; font-weight:700; color:#10B981;">+ ₹ 11,250</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13.5px; color:#64748B; font-weight:600;">Taxes &amp; DMC Remittance</span>
+                <span id="execTaxVal" style="font-size:14px; font-weight:600; color:#64748B;">Included</span>
+              </div>
+            </div>
+
+            <!-- Total Price Card Highlight -->
+            <div style="background:linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius:18px; padding:20px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(197,160,89,0.3);">
+              <div>
+                <div style="font-size:12px; font-weight:700; color:#92400E; text-transform:uppercase; letter-spacing:0.05em;">Total Price</div>
+                <div style="font-size:11.5px; color:#78350F; margin-top:2px;">Inclusive of all services &amp; transfers</div>
+              </div>
+              <div id="execTotalPrice" style="font-size:24px; font-weight:800; color:#0F172A; letter-spacing:-0.02em;">
+                ₹ 86,250
+              </div>
+            </div>
+
+            <!-- Currency Switcher Pill + Preview & Download Button -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:8px;">
+              <div style="display:flex; background:#F1F5F9; border-radius:99px; padding:3px;">
+                <button type="button" id="btnPillInr" onclick="toggleExecCurrency('INR')" style="border:none; background:#FFFFFF; color:#0F172A; font-weight:800; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.08);">INR</button>
+                <button type="button" id="btnPillUsd" onclick="toggleExecCurrency('USD')" style="border:none; background:transparent; color:#64748B; font-weight:700; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer;">USD</button>
+              </div>
+
+              <button type="button" onclick="App.showSection('preview')" style="background:#0F172A; color:#FFFFFF; border:none; padding:12px 22px; border-radius:99px; font-weight:700; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 8px 20px -4px rgba(15,23,42,0.3); transition:all 0.2s ease;">
+                <span>Preview &amp; Download</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+
+            <!-- Quick AI Assistant Banner Button -->
+            <button type="button" onclick="App.showSection('chat')" style="width:100%; background:#EFF6FF; border:1.5px dashed #2563EB; color:#2563EB; padding:12px; border-radius:14px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+              <span>✨</span> Open AI Document Assistant
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ==========================================
            SECTION 1: DMC QUOTATION STUDIO & LIVE PREVIEW
            ========================================== -->
       <section class="section-generator" id="sectionGenerator" style="display:none">

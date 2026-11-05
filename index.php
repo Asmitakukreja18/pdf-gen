@@ -817,7 +817,12 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="passwordInput" class="form-input" placeholder="••••••••••••" required>
+                    <div style="position:relative; width:100%;">
+                        <input type="password" id="passwordInput" class="form-input" placeholder="••••••••••••" required style="padding-right:42px;">
+                        <button type="button" onclick="togglePasswordVisibility('passwordInput', this)" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94A3B8; cursor:pointer; font-size:15px;" title="Show/Hide Password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-submit-auth" id="btnSubmit">
@@ -833,6 +838,22 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
     </div>
 
     <script>
+        
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         let currentRole = 'admin';
 
         function openAuthModal(role) {

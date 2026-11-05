@@ -48,7 +48,7 @@ if (!$pdo) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, username, email, password_hash, role FROM users WHERE username = ? OR email = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, username, name, email, password_hash, role, status, last_login, last_activity FROM users WHERE username = ? OR email = ? LIMIT 1");
     $stmt->execute([$username, $username]);
     $user = $stmt->fetch();
 
@@ -59,10 +59,49 @@ try {
         $_SESSION['inquiry_admin'] = [
             'id' => (int)$user['id'],
             'username' => $user['username'],
+            'name' => $user['name'] ?: $user['username'],
             'email' => $user['email'],
             'role' => $user['role']
         ];
-        jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful');
+
+        // Inactivity & Re-Login Detection (Requirement 6)
+        $lastAct = $user['last_activity'] ? strtotime($user['last_activity']) : 0;
+        $isRelogin = ($lastAct > 0 && (time() - $lastAct > 900)) ? 1 : 0; // > 15 mins inactivity
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 250);
+        $empName = $user['name'] ?: $user['username'];
+
+        // 1. Update user timestamps & active status
+        $pdo->prepare("UPDATE users SET last_login = NOW(), last_activity = NOW(), status = 'active' WHERE id = ?")
+            ->execute([(int)$user['id']]);
+
+        // 2. Record Login History
+        try {
+            $pdo->prepare("
+                INSERT INTO login_history (user_id, username, employee_name, login_time, last_active, status, is_relogin, ip_address, user_agent)
+                VALUES (?, ?, ?, NOW(), NOW(), 'active', ?, ?, ?)
+            ")->execute([(int)$user['id'], $user['username'], $empName, $isRelogin, $ip, $ua]);
+        } catch (\Exception $ex) {
+            // Table may be created or upgraded
+        }
+
+        // 3. Log transparent work activity event
+        try {
+            $actType = $isRelogin ? 'user_relogin' : 'user_login';
+            $actDetails = $isRelogin 
+                ? "Employee $empName re-logged in after inactivity." 
+                : "Employee $empName logged in successfully.";
+            $pdo->prepare("
+                INSERT INTO user_activity_logs (user_id, employee_name, action, module, entity_id, details, ip_address, created_at)
+                VALUES (?, ?, ?, 'Authentication', ?, ?, ?, NOW())
+            ")->execute([(int)$user['id'], $empName, $actType, (string)$user['id'], $actDetails, $ip]);
+        } catch (\Exception $ex) {}
+
+        jsonSuccess([
+            'user' => $_SESSION['inquiry_admin'],
+            'redirect' => 'dashboard.html',
+            'is_relogin' => (bool)$isRelogin
+        ], 'Login successful');
     } else {
         jsonError('Invalid username or password.', 401);
     }

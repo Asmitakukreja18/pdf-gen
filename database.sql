@@ -12,8 +12,6 @@
 -- (This file contains ZERO 'DROP' or 'TRUNCATE' statements to preserve existing data)
 -- ============================================================
 
-USE `ihpyruhe_pdf_generator`;
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8mb4;
@@ -79,6 +77,29 @@ CREATE TABLE IF NOT EXISTS `user_activity_logs` (
   INDEX `idx_action` (`action`),
   INDEX `idx_module` (`module`),
   INDEX `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table: login_history (Audit Trail for User Logins, Logouts & Inactivity Re-logins)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `login_history` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `username` VARCHAR(50) NOT NULL,
+  `employee_name` VARCHAR(100) NOT NULL,
+  `login_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `logout_time` DATETIME DEFAULT NULL,
+  `last_active` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `session_duration_mins` INT UNSIGNED DEFAULT 0,
+  `ip_address` VARCHAR(45) DEFAULT NULL,
+  `user_agent` TEXT DEFAULT NULL,
+  `status` ENUM('active', 'logged_out', 'expired', 're_login') NOT NULL DEFAULT 'active',
+  `is_relogin` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  INDEX `idx_lh_user` (`user_id`),
+  INDEX `idx_lh_login` (`login_time`),
+  INDEX `idx_lh_status` (`status`),
+  CONSTRAINT `fk_lh_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------

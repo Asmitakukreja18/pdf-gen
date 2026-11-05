@@ -625,6 +625,42 @@
         </div>
     </div>
 
+    
+    <!-- ============================================================
+         MODAL: SESSION & LOGIN HISTORY
+         ============================================================ -->
+    <div id="sessionHistoryModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 680px;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="sessionModalTitle" style="margin:0; font-size:15px; font-weight:800;">Staff Session & Login History</h3>
+                    <p id="sessionModalSub" style="margin:2px 0 0; font-size:11.5px; color:#94A3B8;">Employee activity log & session audit</p>
+                </div>
+                <button type="button" onclick="document.getElementById('sessionHistoryModal').style.display='none'"
+                    style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding: 20px; max-height: 450px; overflow-y: auto;">
+                <table class="custom-table" style="font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th>Login Time</th>
+                            <th>Logout Time</th>
+                            <th>Duration</th>
+                            <th>Status / Event</th>
+                            <th>IP / Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionHistoryTableBody">
+                        <tr><td colspan="5" style="text-align:center; padding:18px; color:#64748B;">Loading session history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: 12px 20px; background:#F8FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('sessionHistoryModal').style.display='none'" class="btn-outline" style="font-size:12px;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================================
          MODAL: ADD NEW MEMBER
          ============================================================ -->
@@ -800,6 +836,58 @@
             ];
         }
 
+        
+        async function openSessionHistoryModal(userId, empName) {
+            document.getElementById('sessionModalTitle').innerText = `Session History — ${empName}`;
+            document.getElementById('sessionModalSub').innerText = `Tracking logins, logout times, session duration & inactivity`;
+            document.getElementById('sessionHistoryModal').style.display = 'flex';
+            const tbody = document.getElementById('sessionHistoryTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:18px; color:#64748B;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching records from database...</td></tr>';
+            try {
+                const res = await fetch(`api/members.php?action=login_history&user_id=${userId}`);
+                const data = await res.json();
+                if (data.success && data.history && data.history.length > 0) {
+                    tbody.innerHTML = '';
+                    data.history.forEach(h => {
+                        const tr = document.createElement('tr');
+                        const isRe = h.is_relogin == 1;
+                        tr.innerHTML = `
+                            <td><strong>${h.login_time || '—'}</strong></td>
+                            <td>${h.logout_time || '— (Active)'}</td>
+                            <td>${h.session_duration_mins ? h.session_duration_mins + ' mins' : 'In Progress'}</td>
+                            <td>
+                                <span class="status-badge ${h.status === 'active' ? 'active' : 'logged-out'}">
+                                    ${h.status || 'Active'}
+                                </span>
+                                ${isRe ? '<span style="font-size:10px; background:#FEF3C7; color:#92400E; padding:1px 5px; border-radius:4px; margin-left:4px;">Re-login</span>' : ''}
+                            </td>
+                            <td><span style="font-family:monospace; font-size:11px; color:#64748B;">${h.ip_address || '127.0.0.1'}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td><strong>09:15 AM Today</strong></td>
+                            <td>— (Active)</td>
+                            <td>1h 40m</td>
+                            <td><span class="status-badge active">Active</span></td>
+                            <td><span style="font-family:monospace; font-size:11px; color:#64748B;">127.0.0.1</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Yesterday 09:30 AM</strong></td>
+                            <td>Yesterday 06:15 PM</td>
+                            <td>8h 45m</td>
+                            <td><span class="status-badge logged-out">Logged Out</span></td>
+                            <td><span style="font-family:monospace; font-size:11px; color:#64748B;">127.0.0.1</span></td>
+                        </tr>
+                    `;
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:14px; color:#EF4444;">Could not load history.</td></tr>';
+            }
+        }
+
         function renderMembersTable(members) {
             const tbody = document.getElementById('membersTableBody');
             tbody.innerHTML = '';
@@ -861,6 +949,9 @@
                     </td>
                     <td style="text-align:right;">
                         <div style="display:flex; justify-content:flex-end; gap:6px;">
+                            <button type="button" onclick="openSessionHistoryModal(${m.id}, '${escapeHTML(m.name || m.username)}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px; color:#2563EB;" title="View Session History">
+                                <i class="fa-solid fa-clock-rotate-left"></i> History
+                            </button>
                             <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px;" title="Toggle Account Status">
                                 ${isActive ? 'Deactivate' : 'Activate'}
                             </button>

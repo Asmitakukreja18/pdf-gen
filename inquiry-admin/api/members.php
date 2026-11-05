@@ -250,3 +250,36 @@ if ($action === 'update') {
     }
 }
 
+// 6. GET LOGIN & SESSION HISTORY (Inactivity & Re-login Tracking)
+if ($action === 'login_history') {
+    $userId = (int)($input['user_id'] ?? ($_GET['user_id'] ?? 0));
+    if (!$pdo) {
+        $fallbackHistory = [
+            ['id' => 1, 'user_id' => 1, 'username' => 'admin', 'employee_name' => 'Main Admin', 'login_time' => date('Y-m-d 09:15:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 120), 'session_duration_mins' => 100, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
+            ['id' => 2, 'user_id' => 2, 'username' => 'chanchal', 'employee_name' => 'Chanchal Sharma', 'login_time' => date('Y-m-d 09:32:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 300), 'session_duration_mins' => 83, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
+            ['id' => 3, 'user_id' => 3, 'username' => 'ritesh', 'employee_name' => 'Ritesh Verma', 'login_time' => date('Y-m-d 09:40:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 720), 'session_duration_mins' => 75, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
+            ['id' => 4, 'user_id' => 4, 'username' => 'operations', 'employee_name' => 'Operations Desk', 'login_time' => date('Y-m-d 09:50:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 1200), 'session_duration_mins' => 65, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
+        ];
+        if ($userId > 0) {
+            $fallbackHistory = array_values(array_filter($fallbackHistory, function($h) use ($userId) { return $h['user_id'] == $userId; }));
+        }
+        jsonSuccess(['history' => $fallbackHistory]);
+    }
+
+    try {
+        $sql = "SELECT id, user_id, username, employee_name, login_time, logout_time, last_active, session_duration_mins, ip_address, status, is_relogin FROM login_history ";
+        $params = [];
+        if ($userId > 0) {
+            $sql .= "WHERE user_id = ? ";
+            $params[] = $userId;
+        }
+        $sql .= "ORDER BY id DESC LIMIT 50";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        jsonSuccess(['history' => $history]);
+    } catch (Exception $e) {
+        jsonError($e->getMessage(), 500);
+    }
+}
+

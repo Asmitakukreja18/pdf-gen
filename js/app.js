@@ -20,8 +20,127 @@ const App = (() => {
   /**
    * Initialize Application
    */
+  
+  let currentExecCurrency = 'INR';
+
+  window.toggleExecCurrency = function(curr) {
+    currentExecCurrency = curr || 'INR';
+    const sel = document.getElementById('execCurrencySelect');
+    if (sel) sel.value = currentExecCurrency;
+    
+    const btnInr = document.getElementById('btnPillInr');
+    const btnUsd = document.getElementById('btnPillUsd');
+    if (btnInr && btnUsd) {
+      if (currentExecCurrency === 'INR') {
+        btnInr.style.background = '#FFFFFF';
+        btnInr.style.color = '#0F172A';
+        btnInr.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+        btnUsd.style.background = 'transparent';
+        btnUsd.style.color = '#64748B';
+      } else {
+        btnUsd.style.background = '#FFFFFF';
+        btnUsd.style.color = '#0F172A';
+        btnUsd.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+        btnInr.style.background = 'transparent';
+        btnInr.style.color = '#64748B';
+      }
+    }
+    updateExecutiveCards();
+  };
+
+  function updateExecutiveCards() {
+    const pkg = state.package || {};
+    const dest = pkg.destinations || 'Dubai & Emirates Luxury Tour';
+    const destBadge = document.getElementById('execDestBadge');
+    if (destBadge) destBadge.innerHTML = '📍 ' + dest;
+
+    // Destination photo
+    const destImg = document.getElementById('execDestImg');
+    if (destImg) {
+      const lower = dest.toLowerCase();
+      if (lower.includes('thailand') || lower.includes('phuket') || lower.includes('krabi')) {
+        destImg.src = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1000&auto=format&fit=crop';
+      } else if (lower.includes('bali')) {
+        destImg.src = 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1000&auto=format&fit=crop';
+      } else if (lower.includes('kashmir')) {
+        destImg.src = 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=1000&auto=format&fit=crop';
+      } else {
+        destImg.src = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop';
+      }
+    }
+
+    // Days list
+    const daysContainer = document.getElementById('execDaysList');
+    if (daysContainer && Array.isArray(state.days) && state.days.length > 0) {
+      daysContainer.innerHTML = '';
+      state.days.slice(0, 3).forEach(d => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.gap = '14px';
+        item.style.alignItems = 'flex-start';
+        item.innerHTML = `
+          <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day ${d.day}</div>
+          <div>
+            <div style="font-weight:700; color:#0F172A; font-size:14px;">${escapeHtml(d.title || 'Sightseeing & Leisure')}</div>
+            <div style="font-size:13px; color:#64748B; margin-top:2px;">${escapeHtml((d.description || '').substring(0, 110))}${d.description && d.description.length > 110 ? '...' : ''}</div>
+          </div>
+        `;
+        daysContainer.appendChild(item);
+      });
+    }
+
+    // Pricing calculation
+    const baseInr = 75000;
+    const markupPct = 15;
+    const markupInr = Math.round(baseInr * (markupPct / 100));
+    const totalInr = baseInr + markupInr;
+    const rateUsd = 87.5;
+
+    const baseEl = document.getElementById('execBasePrice');
+    const markupEl = document.getElementById('execMarkupVal');
+    const totalEl = document.getElementById('execTotalPrice');
+
+    if (currentExecCurrency === 'INR') {
+      if (baseEl) baseEl.textContent = '₹ ' + baseInr.toLocaleString('en-IN');
+      if (markupEl) markupEl.textContent = '+ ₹ ' + markupInr.toLocaleString('en-IN');
+      if (totalEl) totalEl.textContent = '₹ ' + totalInr.toLocaleString('en-IN');
+    } else {
+      const baseUsd = Math.round(baseInr / rateUsd);
+      const markupUsd = Math.round(markupInr / rateUsd);
+      const totalUsd = Math.round(totalInr / rateUsd);
+      if (baseEl) baseEl.textContent = '$ ' + baseUsd.toLocaleString('en-US');
+      if (markupEl) markupEl.textContent = '+ $ ' + markupUsd.toLocaleString('en-US');
+      if (totalEl) totalEl.textContent = '$ ' + totalUsd.toLocaleString('en-US');
+    }
+  }
+
+  // Stepper click handlers
+  function setupStepperEvents() {
+    const steps = document.querySelectorAll('.studio-stepper-wrap .step-item');
+    if (steps.length >= 4) {
+      steps[0].style.cursor = 'pointer';
+      steps[0].onclick = () => showSection('executive');
+
+      steps[1].style.cursor = 'pointer';
+      steps[1].onclick = () => {
+        showSection('generator');
+        setTimeout(() => document.querySelector('[data-tab=tabHotels]')?.click(), 50);
+      };
+
+      steps[2].style.cursor = 'pointer';
+      steps[2].onclick = () => {
+        showSection('generator');
+        setTimeout(() => document.querySelector('[data-tab=tabSummary]')?.click(), 50);
+      };
+
+      steps[3].style.cursor = 'pointer';
+      steps[3].onclick = () => showSection('preview');
+    }
+  }
+
   function init() {
     setupNavigation();
+    setupStepperEvents();
     setupDocTypeSuite();
     setupBuilderTabs();
     setupZoomControls();
@@ -48,12 +167,11 @@ const App = (() => {
       Chatbot.init();
     }
 
-    // Open AI Chat by default on launch
-    showSection('chat');
-
-    // Check if URL has a quotation or CRM lead to load (?load=... or ?client_name=...)
+    // Check if URL specifies initial view or lead (?view=chat/generator/preview/executive)
     try {
       const urlParams = new URLSearchParams(window.location.search);
+      const initialView = urlParams.get('view') || urlParams.get('section') || 'executive';
+      showSection(initialView);
       const quoteToLoad = urlParams.get('load');
       const leadClient = urlParams.get('client_name') || urlParams.get('load_client') || urlParams.get('client');
       const leadDest = urlParams.get('dest') || urlParams.get('destination');
@@ -116,19 +234,27 @@ const App = (() => {
     const sections = {
       generator: document.getElementById('sectionGenerator'),
       preview: document.getElementById('sectionPreview'),
-      chat: document.getElementById('sectionChat')
+      chat: document.getElementById('sectionChat'),
+      executive: document.getElementById('sectionExecutiveCards')
     };
 
     Object.values(sections).forEach(s => { if (s) s.style.display = 'none'; });
     document.querySelectorAll('.header-nav .nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.studio-stepper-wrap .step-item').forEach(st => st.classList.remove('active'));
 
-    if (name === 'generator') {
+    if (name === 'executive') {
+      if (sections.executive) sections.executive.style.display = 'block';
+      document.querySelectorAll('.studio-stepper-wrap .step-item')[0]?.classList.add('active');
+      updateExecutiveCards();
+    } else if (name === 'generator') {
       if (sections.generator) sections.generator.style.display = 'block';
       document.getElementById('navGenerator')?.classList.add('active');
+      document.querySelectorAll('.studio-stepper-wrap .step-item')[1]?.classList.add('active');
       updateLivePreviews();
     } else if (name === 'preview') {
       if (sections.preview) sections.preview.style.display = 'block';
       document.getElementById('navPreview')?.classList.add('active');
+      document.querySelectorAll('.studio-stepper-wrap .step-item')[3]?.classList.add('active');
       Preview.render();
     } else if (name === 'chat') {
       if (sections.chat) sections.chat.style.display = 'flex';
