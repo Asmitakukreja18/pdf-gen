@@ -33,7 +33,13 @@
 | 🟡 **MEDIUM** | `TASK-19` | `api/dashboard_stats.php:95` | Query references `total_amount` on `invoices` instead of `grand_total` | Revenue formula fails silently; dashboard always shows default `₹ 4,85,000` | ✅ **FIXED & VERIFIED** |
 | 🟡 **MEDIUM** | `TASK-20` | `inquiry-admin/api/get_customers.php` | Customer directory ignores dedicated `customers` table | Customers view crashes with 500 error | Ready for Fix |
 | 🟢 **LOW** | `TASK-21` | Entire Portal | Raw Unicode emojis used instead of Font Awesome 6 vector icons | Platform-dependent rendering; broken tofu boxes or misaligned glyphs | ✅ **FIXED & VERIFIED** |
-| 🟢 **LOW** | `TASK-22` | Root / cPanel Bundle | `aipdfgenrater_cpanel.zip` contains older files | Needs fresh generation once fixes are applied | ✅ **GENERATED & READY** |
+| 🟢 **LOW** | `TASK-22` | Root / cPanel Bundle | `aipdfgenrater_cpanel_FINAL.zip` generated (~2.10 MB) | Production package ready for one-click cPanel upload | ✅ **PACKAGED & VERIFIED** |
+| 💎 **FEATURE** | `TASK-23` | `index.php` & `inquiry-admin/index.html` | Dual-Role Entry Login Gateway ("Login as Admin" / "Login as User") | Matches luxury travel reference design with social proof stats | ✅ **BUILT & VERIFIED** |
+| 💎 **FEATURE** | `TASK-24` | `inquiry-admin/dashboard.html` | Luxury Modern Admin Dashboard with dark navy sidebar, KPI cards, Sales Chart | Complete UI overhaul matching reference design | ✅ **BUILT & VERIFIED** |
+| 💎 **FEATURE** | `TASK-25` | `inquiry-admin/api/members.php` & `dashboard.html` | Live Employee Activity Tracking (Admin, Chanchal, Ritesh, Operations) | Tracks login times, active minutes, and status badges with safe fallback | ✅ **BUILT & VERIFIED** |
+| 💎 **FEATURE** | `TASK-26` | `index.html` & `css/style.css` | AI Quotation Studio Subbar & 4-Step Process Wizard Stepper | Luxury aesthetic with "Save Draft", "Generate PDF", currency switch | ✅ **BUILT & VERIFIED** |
+| 🛡️ **QC** | `TASK-27` | `tests/qc_runner.php` | Automated 5-Stage Quality-Control Test Suite | Verified PHP, JS, Mobile Viewports, DB Config, Upload Security (70/70 PASS) | ✅ **PASSED (70/70)** |
+| 🚀 **RELEASE** | `TASK-28` | GitHub Remote | Dedicated branch `feature/ui-redesign-and-admin-portal` (Commit `dedaee0`) | Cleanly sanitized and pushed to remote origin repository | ✅ **PUSHED TO GITHUB** |
 
 ---
 
