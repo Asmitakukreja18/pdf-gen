@@ -1,1571 +1,917 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Let's Explore DMC — Master Quotation & Itinerary Engine</title>
-  <meta name="description"
-    content="Professional DMC Travel Quotation Generator matching official master reference standards. Day-wise itineraries, variable activities, dual-currency pricing, dynamic offices, and multi-page print-ready PDFs." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Explore DMC — Master Gateway Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-ivory: #FDFBF7;
+            --bg-warm: #F6F4EE;
+            --card-white: #FFFFFF;
+            --brand-navy: #0F172A;
+            --brand-navy-light: #1E293B;
+            --brand-gold: #C5A059;
+            --brand-gold-dark: #A9823B;
+            --brand-gold-light: #F4EBD9;
+            --accent-blue: #2563EB;
+            --accent-blue-light: #EFF6FF;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --border-subtle: rgba(15, 23, 42, 0.08);
+            --border-gold: rgba(197, 160, 89, 0.25);
+            --shadow-card: 0 20px 40px -15px rgba(15, 23, 42, 0.07), 0 0 1px 1px rgba(15, 23, 42, 0.03);
+            --shadow-hover: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(197, 160, 89, 0.3);
+            --radius-pill: 9999px;
+            --radius-card: 24px;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-ivory);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Decorative Leaf Vector Overlays */
+        .leaf-accent-top {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 140px;
+            height: 140px;
+            pointer-events: none;
+            opacity: 0.85;
+            z-index: 1;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%232D5A43' opacity='0.35'%3E%3Cpath d='M10,10 Q50,0 80,30 Q90,70 60,80 Q20,80 10,10 Z'/%3E%3Cpath d='M25,25 Q60,15 85,45 Q70,75 45,70 Z' fill='%23C5A059' opacity='0.4'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+        }
+
+        .leaf-accent-bottom {
+            position: absolute;
+            bottom: -30px;
+            right: -20px;
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+            opacity: 0.75;
+            z-index: 1;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%232D5A43' opacity='0.25'%3E%3Cpath d='M90,90 Q50,100 20,70 Q10,30 40,20 Q80,20 90,90 Z'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+        }
+
+        /* Master Navbar */
+        .gateway-header {
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: var(--brand-navy);
+        }
+
+        .brand-logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--brand-navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-title i {
+            color: var(--brand-gold);
+            font-size: 16px;
+        }
+
+        .brand-badge-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brand-gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .header-nav-tags {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+        }
+
+        .header-nav-tags span.dot {
+            color: var(--brand-gold);
+            font-size: 8px;
+        }
+
+        /* Hero Container */
+        .gateway-hero {
+            flex: 1;
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 10px 32px 30px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .headline-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: var(--brand-navy);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Dual Gateway Login Selection Cards */
+        .login-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 620px;
+        }
+
+        .portal-card {
+            background: var(--card-white);
+            border-radius: var(--radius-card);
+            padding: 32px 26px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-gold);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .portal-card.active-tab {
+            border-color: var(--brand-navy);
+            box-shadow: 0 0 0 2px var(--brand-navy), var(--shadow-hover);
+        }
+
+        .card-icon-badge {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.28s ease;
+        }
+
+        .portal-card:hover .card-icon-badge {
+            transform: scale(1.08);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            box-shadow: 0 8px 16px -4px rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+            box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            min-height: 40px;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 13px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-continue.btn-navy {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+        }
+
+        .btn-continue.btn-navy:hover {
+            background: #1E293B;
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.35);
+        }
+
+        .btn-continue.btn-outline {
+            background: #FFFFFF;
+            color: var(--brand-navy);
+            border: 1.5px solid rgba(15, 23, 42, 0.2);
+        }
+
+        .btn-continue.btn-outline:hover {
+            background: #F8FAFC;
+            border-color: var(--brand-navy);
+        }
+
+        /* Social Proof Stats Bar */
+        .trust-stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            padding-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            font-size: 20px;
+            color: var(--brand-gold-dark);
+        }
+
+        .stat-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--brand-navy);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Hero Right: Scenic Showcase */
+        .hero-right {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scenic-card-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 520px;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18);
+            border: 4px solid #FFFFFF;
+            background: #E2E8F0;
+        }
+
+        .scenic-bg-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scenic-card-wrapper:hover .scenic-bg-img {
+            transform: scale(1.04);
+        }
+
+        .scenic-overlay-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 100%);
+            pointer-events: none;
+        }
+
+        .scenic-float-caption {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .caption-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .caption-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--brand-gold-light);
+            color: var(--brand-gold-dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .caption-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        .caption-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .caption-pill {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Floating Airplane Sticker */
+        .airplane-float {
+            position: absolute;
+            top: 20px;
+            right: -25px;
+            width: 140px;
+            height: auto;
+            pointer-events: none;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.15));
+            animation: floatPlane 4s ease-in-out infinite;
+            z-index: 6;
+        }
+
+        @keyframes floatPlane {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        /* ============================================================
+           MODAL / SLIDE-IN AUTHENTICATION DIALOGUE
+           ============================================================ */
+        .auth-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .auth-modal-backdrop.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .auth-modal-box {
+            background: #FFFFFF;
+            border-radius: 28px;
+            max-width: 440px;
+            width: 100%;
+            padding: 36px 32px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+        }
+
+        .auth-modal-backdrop.open .auth-modal-box {
+            transform: scale(1);
+        }
+
+        .auth-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-close-btn:hover {
+            background: #E2E8F0;
+            color: var(--brand-navy);
+        }
+
+        /* Auth Role Switcher Tabs */
+        .role-switch-pill {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: var(--radius-pill);
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .role-switch-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: var(--radius-pill);
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .role-switch-btn.active {
+            background: #FFFFFF;
+            color: var(--brand-navy);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--brand-navy);
+            transition: all 0.2s ease;
+            background: #F8FAFC;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-navy);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.06);
+        }
+
+        .btn-submit-auth {
+            width: 100%;
+            height: 50px;
+            border-radius: var(--radius-pill);
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit-auth:hover {
+            background: #1E293B;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.35);
+        }
+
+        .auth-alert {
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-alert.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .auth-alert.success {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 40px; }
+            .gateway-hero { grid-template-columns: 1fr; gap: 30px; }
+            .hero-right { display: none; }
+            .login-cards-grid { max-width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .gateway-header { padding: 18px 20px; }
+            .header-nav-tags { display: none; }
+            .gateway-hero { padding: 10px 20px 30px; }
+            .hero-title { font-size: 32px; }
+            .hero-subtitle { font-size: 15px; }
+            .login-cards-grid { grid-template-columns: 1fr; }
+            .trust-stats-bar { flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 28px; }
+            .portal-card { padding: 24px 20px; }
+            .auth-modal-box { padding: 28px 20px; }
+        }
+    </style>
+</head>
 <body>
 
-  <!-- ========== APP WRAPPER ========== -->
-  <div class="app-wrapper" id="appWrapper">
+    <!-- Decorative Top Leaves -->
+    <div class="leaf-accent-top"></div>
+    <div class="leaf-accent-bottom"></div>
 
-    <!-- ========== HEADER ========== -->
-    <header class="app-header" id="appHeader">
-      <div class="header-inner">
-        <div class="brand">
-          <div class="brand-logo-card">
-            <img src="images/logo.png" alt="Let's Explore DMC" class="brand-logo" onerror="this.style.display='none'" />
-          </div>
-          <div class="brand-text">
-            <span class="brand-name">Let's Explore DMC</span>
-            <span class="brand-tagline">Master Quotation Studio</span>
-          </div>
-        </div>
-
-        <nav class="header-nav" id="headerNav" style="display:flex; align-items:center; gap:8px;">
-          <a href="inquiry-admin/dashboard.html" class="header-home-btn" id="btnHeaderHome" title="Admin Dashboard">
-            🏠
-          </a>
-          <a href="#" class="nav-link active" data-section="chat" id="navChat">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2l2.4 7.2L22 10l-6 4.8 2.4 7.2L12 17.5 5.6 22l2.4-7.2L2 10l7.6-.8z" />
-            </svg>
-            <span>AI Assistant</span>
-          </a>
-          <span class="header-nav-divider"></span>
-          <a href="#" class="nav-link" data-section="generator" id="navGenerator">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-            <span>Document Studio</span>
-          </a>
-          <a href="#" class="nav-link" data-section="preview" id="navPreview">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            <span>Full-Page Preview</span>
-          </a>
-          <span class="header-nav-divider"></span>
-          <a href="inquiry-admin/dashboard.html" class="nav-link" id="navSavedDocs" title="Open Admin Control Center">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-            </svg>
-            <span>Admin Center</span>
-          </a>
-        </nav>
-
-        <div class="header-actions">
-          <!-- Profile Chip matching Image 3 -->
-          <div class="header-user-profile" id="userProfileToggle" title="User Menu">
-            <span class="user-avatar-circle">A</span>
-            <span>Admin ▾</span>
-            <div class="sample-dropdown" id="userProfileDropdown"
-              style="display:none; right:0; top:42px; min-width:210px; z-index:1000;">
-              <a href="inquiry-admin/dashboard.html" class="sample-opt"
-                style="text-decoration:none; display:flex; align-items:center; gap:8px;">
-                <span>🛡️</span> Admin Dashboard
-              </a>
-              <button type="button" class="sample-opt" id="btnOpenApiKeyModal"
-                style="display:flex; align-items:center; gap:8px; width:100%; border:none; background:none; text-align:left; cursor:pointer;">
-                <span>⚡</span> AI API Settings
-              </button>
-              <div style="border-top:1px solid #E2E8F0; margin:4px 0;"></div>
-              <div style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748B;">LOAD SAMPLE QUOTES:</div>
-              <button type="button" class="sample-opt" data-sample="reference" style="font-size:12px;">🌴 Thailand 12D
-                Master</button>
-              <button type="button" class="sample-opt" data-sample="dubai" style="font-size:12px;">🌟 Dubai 6D with
-                Rates</button>
-              <button type="button" class="sample-opt" data-sample="thailand_without_rates" style="font-size:12px;">🗺️
-                Thailand (Without Rates)</button>
-              <button type="button" class="sample-opt" data-sample="invoice_akash" style="font-size:12px;">🧾 Tax
-                Invoice (Akash Dewani)</button>
-              <button type="button" class="sample-opt" data-sample="voucher_aanay" style="font-size:12px;">🏨 Hotel
-                Voucher (Aanay Tours)</button>
-              <button type="button" class="sample-opt" data-sample="kashmir" style="font-size:12px;">🏔️ Kashmir Valley
-                (6D5N)</button>
+    <!-- Header Navigation -->
+    <header class="gateway-header">
+        <a href="index.php" class="brand-link">
+            <img src="images/logo.png" alt="Let's Explore DMC" class="brand-logo-img" onerror="this.style.display='none'">
+            <div class="brand-title-wrap">
+                <span class="brand-title"><i class="fa-solid fa-plane-departure"></i> Let's Explore DMC</span>
+                <span class="brand-badge-tag">Travel Operations & AI Studio</span>
             </div>
-          </div>
+        </a>
+
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="header-nav-tags">
+                <span>Travel</span>
+                <span class="dot">&bull;</span>
+                <span>Explore</span>
+                <span class="dot">&bull;</span>
+                <span>Experience</span>
+            </div>
+            <a href="studio.html" style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
+            </a>
         </div>
-      </div>
     </header>
 
-    <!-- Luxury AI Studio Subbar matching Reference Image -->
-    <div class="studio-luxury-subbar">
-      <div style="display:flex; align-items:center; gap:16px;">
-        <a href="inquiry-admin/dashboard.html" style="text-decoration:none; color:#0F172A; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; background:#F1F5F9; border-radius:9999px;">
-          <span>&larr;</span> Back to Dashboard
-        </a>
-        <div>
-          <h2 style="font-size:16px; font-weight:800; color:#0F172A; margin:0; line-height:1.2;">AI Quotation Studio</h2>
-          <span style="font-size:11.5px; color:#64748B;">Create stunning travel quotations in minutes</span>
-        </div>
-      </div>
-
-      <!-- Process Wizard Stepper -->
-      <div class="studio-stepper-wrap">
-        <div class="step-item active">
-          <span class="step-num">1</span>
-          <span>Itinerary Details</span>
-        </div>
-        <span style="color:#CBD5E1;">&bull;</span>
-        <div class="step-item">
-          <span class="step-num">2</span>
-          <span>Hotels &amp; Flights</span>
-        </div>
-        <span style="color:#CBD5E1;">&bull;</span>
-        <div class="step-item">
-          <span class="step-num">3</span>
-          <span>Pricing &amp; Markup</span>
-        </div>
-        <span style="color:#CBD5E1;">&bull;</span>
-        <div class="step-item">
-          <span class="step-num">4</span>
-          <span>Preview &amp; Generate</span>
-        </div>
-      </div>
-
-      <!-- Right Action Buttons -->
-      <div style="display:flex; align-items:center; gap:10px;">
-        <button type="button" class="btn-pill-draft" onclick="document.getElementById('btnSaveManual')?.click()">
-          Save Draft
-        </button>
-        <button type="button" class="btn-pill-generate" onclick="document.getElementById('btnPrintDirect')?.click() || document.getElementById('btnDownloadPDF')?.click()">
-          <span>Generate PDF</span> <span>✨</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== MAIN CONTENT AREA ========== -->
-    <main class="app-main" id="appMain">
-
-      <!-- ==========================================
-           SECTION 1: DMC QUOTATION STUDIO & LIVE PREVIEW
-           ========================================== -->
-      <section class="section-generator" id="sectionGenerator" style="display:none">
-
-        <!-- ─── TOP: MULTI-DOCUMENT FORMAT SUITE SWITCHER ─── -->
-        <div class="doc-format-suite-bar">
-          <div class="suite-title">
-            <span class="suite-brand-badge">LET'S EXPLORE DMC</span>
-            <strong>DOCUMENT FORMAT SUITE:</strong>
-            <span class="suite-subtitle">Consistent Brand Identity · 7 Tailored Document Formats</span>
-          </div>
-          <div class="suite-format-pills" id="suiteFormatPills">
-            <button class="doc-pill active" data-doctype="quotation"
-              title="Master 12-Section Quotation (Matching Official Reference PDF & Image)">
-              <span class="pill-icon">📄</span>
-              <span class="pill-label">1. Master Quotation (Reference PDF)</span>
-            </button>
-            <button class="doc-pill" data-doctype="itinerary" title="Day-by-day travel experience for guests">
-              <span class="pill-icon">🗺️</span>
-              <span class="pill-label">2. Travel Itinerary</span>
-            </button>
-            <button class="doc-pill" data-doctype="hotel_costing" title="Hotel comparison, room types & tariff options">
-              <span class="pill-icon">🏨</span>
-              <span class="pill-label">3. Hotel Costing</span>
-            </button>
-            <button class="doc-pill" data-doctype="summary" title="Compact executive trip overview & breakdown">
-              <span class="pill-icon">📋</span>
-              <span class="pill-label">4. Package Summary</span>
-            </button>
-            <button class="doc-pill" data-doctype="confirmation"
-              title="Official luxury hotel booking voucher with hotel details, rooms & guest list">
-              <span class="pill-icon">🏨</span>
-              <span class="pill-label">5. Hotel Booking Voucher</span>
-            </button>
-            <button class="doc-pill" data-doctype="invoice" title="Corporate Tax Invoice with GST & Bank Details">
-              <span class="pill-icon">🧾</span>
-              <span class="pill-label">6. Tax Invoice</span>
-            </button>
-            <button class="doc-pill" data-doctype="custom" title="Custom modular document builder">
-              <span class="pill-icon">🛠️</span>
-              <span class="pill-label">7. Custom Builder</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="dmc-studio-layout">
-
-          <!-- ─── LEFT: COMPREHENSIVE QUOTATION BUILDER ─── -->
-          <div class="dmc-builder-panel">
-            <div class="builder-header">
-              <div class="builder-title-row">
-                <h3>
-                  <span>✏️ Document Studio Builder</span>
-                </h3>
-                <div class="builder-quick-actions">
-                  <button class="btn btn-xs btn-outline" id="btnResetToDefault" title="Reset to 12D Master Reference">
-                    🔄 Reset Sample
-                  </button>
-                </div>
-              </div>
-
-              <!-- Navigation Tabs for Builder -->
-              <div class="builder-tabs-bar">
-                <button class="b-tab active" data-tab="tabPackage">📋 Package</button>
-                <button class="b-tab" data-tab="tabDays">📅 Day Itinerary (<span id="countDaysBadge">12</span>)</button>
-                <button class="b-tab" data-tab="tabHotels">🏨 Hotels (<span id="countHotelsBadge">5</span>)</button>
-                <button class="b-tab" data-tab="tabSummary">💰 Costing & Markup</button>
-                <button class="b-tab" data-tab="tabInvoice">🧾 Invoice</button>
-                <button class="b-tab" data-tab="tabConfirmation">🎟️ Voucher</button>
-                <button class="b-tab" data-tab="tabCustomBuilder">🛠️ Custom</button>
-                <button class="b-tab" data-tab="tabOffices">🏢 Offices</button>
-                <button class="b-tab" data-tab="tabSections">🧩 Notes/Terms</button>
-                <button class="b-tab" data-tab="tabTheme">🎨 Theme</button>
-                <button class="b-tab" data-tab="tabAI">⚡ AI Input</button>
-              </div>
+    <!-- Main Gateway Hero -->
+    <main class="gateway-hero">
+        <div class="hero-left">
+            <div class="headline-group">
+                <h1 class="hero-title">Your Next Journey Starts Here...</h1>
+                <p class="hero-subtitle">Smart Travel. Seamless Operations.</p>
             </div>
 
-            <div class="builder-tab-content">
-
-              <!-- TAB 1: PACKAGE & CLIENT INFO -->
-              <div class="tab-pane active" id="tabPackage">
-                <div class="builder-section-intro">
-                  <h4>Cover & Package Header</h4>
-                  <p>Matches the reference top banner: Title, Duration, Destination combination, and Travellers.</p>
-                </div>
-
-                <div class="form-grid-2">
-                  <div class="form-group">
-                    <label>Document Title</label>
-                    <input type="text" id="bPkgTitle" class="form-input" placeholder="e.g. PACKAGE TOUR" />
-                  </div>
-                  <div class="form-group">
-                    <label>Trip Duration</label>
-                    <input type="text" id="bPkgDuration" class="form-input" placeholder="e.g. 12 Days / 11 Nights" />
-                  </div>
-                  <div class="form-group full-width" style="grid-column: span 2;">
-                    <label>Destination Combination</label>
-                    <input type="text" id="bPkgDestinations" class="form-input"
-                      placeholder="e.g. Krabi + Phuket + Koh Yao Yai, Thailand" />
-                  </div>
-                  <div class="form-group">
-                    <label>Travellers Description</label>
-                    <input type="text" id="bPkgTravellers" class="form-input" placeholder="e.g. 2 Adults" />
-                  </div>
-                  <div class="form-group">
-                    <label>Total Pax Count</label>
-                    <input type="number" id="bPkgPaxCount" class="form-input" min="1" max="100" placeholder="2" />
-                  </div>
-                  <div class="form-group">
-                    <label>Quotation Reference No.</label>
-                    <input type="text" id="bPkgQuoteRef" class="form-input" placeholder="e.g. LE-DMC-THAI-2027-112" />
-                  </div>
-                  <div class="form-group">
-                    <label>Prepared Date</label>
-                    <input type="text" id="bPkgPrepDate" class="form-input" placeholder="e.g. 02 Jan 2027" />
-                  </div>
-                  <div class="form-group">
-                    <label>Client / Agency Name</label>
-                    <input type="text" id="bPkgClientName" class="form-input"
-                      placeholder="e.g. Mr. Rajesh Sharma & Family" />
-                  </div>
-                  <div class="form-group">
-                    <label>Contact Phone</label>
-                    <input type="text" id="bPkgClientContact" class="form-input" placeholder="e.g. +91 98200 12345" />
-                  </div>
-                  <div class="form-group">
-                    <label>Pickup / Arrival From</label>
-                    <input type="text" id="bPkgPickup" class="form-input" placeholder="e.g. Bangkok / Phuket Airport" />
-                  </div>
-                  <div class="form-group">
-                    <label>USD to INR Exchange Rate</label>
-                    <input type="number" id="bPkgExchangeRate" class="form-input" step="0.1" placeholder="87.5" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB 2: DAY-WISE ITINERARY & PRICING -->
-              <div class="tab-pane" id="tabDays">
-                <div class="builder-section-intro"
-                  style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <h4>Day-wise Itinerary & Pricing</h4>
-                    <p>Build variable activities, pricing columns (Pax, INR, USD), hotel stay blocks, and tags.</p>
-                  </div>
-                  <button class="btn btn-sm btn-primary" id="btnAddDayTop">+ Add Day</button>
-                </div>
-
-                <!-- Dynamic Days Container -->
-                <div id="daysEditorContainer">
-                  <!-- Populated by App.renderDaysEditor() -->
-                </div>
-
-                <div style="text-align: center; margin-top: 14px;">
-                  <button class="btn btn-outline" id="btnAddDayBottom" style="width: 100%;">
-                    ➕ Add Another Itinerary Day
-                  </button>
-                </div>
-              </div>
-
-              <!-- TAB: HOTEL PROPERTIES & COMPARISON MANAGER -->
-              <div class="tab-pane" id="tabHotels">
-                <div class="builder-section-intro"
-                  style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <h4>Hotel Properties & Comparison Manager</h4>
-                    <p>Manage resort properties, room categories, meal plans, and 3-tier tariff options (Free
-                      cancellation, Non-refundable, Partial refund).</p>
-                  </div>
-                  <button class="btn btn-sm btn-primary" id="btnAddHotelBtn">+ Add Hotel</button>
-                </div>
-
-                <div id="hotelsEditorContainer">
-                  <!-- Populated by App.renderHotelsEditor() -->
-                </div>
-              </div>
-
-              <!-- TAB 3: PRICE SUMMARY -->
-              <div class="tab-pane" id="tabSummary">
-                <div class="builder-section-intro"
-                  style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <h4>Final Price Summary Table</h4>
-                    <p>Matches reference summary: Hotel Costing, Land Part, Activities, Transfers, and auto-totals.</p>
-                  </div>
-                  <button class="btn btn-sm btn-subtle" id="btnAddSummaryItem">+ Add Row</button>
-                </div>
-
-                <!-- Quick Markup & Surcharges Engine -->
-                <div class="markup-panel-card"
-                  style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <span
-                      style="font-size:12px; font-weight:700; color:#1E3A8A; text-transform:uppercase; letter-spacing:0.5px;">⚡
-                      Quick Markup & Surcharge Engine</span>
-                    <span style="font-size:11px; color:#64748B;">Auto-calculates across all days & preview</span>
-                  </div>
-                  <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items:flex-end;">
-                    <div class="form-group" style="margin-bottom:0;">
-                      <label style="font-size:11px; margin-bottom:4px;">Hotel Markup (%)</label>
-                      <div style="display:flex; gap:6px;">
-                        <input type="number" id="quickMarkupHotelPct" class="form-input form-input-sm" value="10"
-                          placeholder="10" style="width:70px;" />
-                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyHotelMarkup">+10%
-                          Hotels</button>
-                      </div>
+            <!-- Two Role-Based Entry Cards -->
+            <div class="login-cards-grid">
+                <!-- Card 1: Admin -->
+                <div class="portal-card" onclick="openAuthModal('admin')">
+                    <div class="card-icon-badge badge-admin">
+                        <i class="fa-solid fa-crown"></i>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                      <label style="font-size:11px; margin-bottom:4px;">Activity Surcharge (+USD)</label>
-                      <div style="display:flex; gap:6px;">
-                        <input type="number" id="quickMarkupActivityUSD" class="form-input form-input-sm" value="20"
-                          placeholder="20" style="width:70px;" />
-                        <button type="button" class="btn btn-sm btn-subtle" id="btnApplyActivityUSD">+$20
-                          Activities</button>
-                      </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-primary" id="btnApplyCombinedMarkup"
-                      style="white-space:nowrap; height:34px;">
-                      Apply Both
+                    <h3 class="card-title">Login as Admin</h3>
+                    <p class="card-desc">Access admin dashboard, analytics & controls</p>
+                    <button type="button" class="btn-continue btn-navy">
+                        Continue <i class="fa-solid fa-arrow-right"></i>
                     </button>
-                  </div>
                 </div>
 
-                <!-- Dynamic Summary Rows -->
-                <div id="summaryRowsContainer">
-                  <!-- Populated by App.renderSummaryEditor() -->
+                <!-- Card 2: User -->
+                <div class="portal-card" onclick="openAuthModal('user')">
+                    <div class="card-icon-badge badge-user">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <h3 class="card-title">Login as User</h3>
+                    <p class="card-desc">Manage leads, quotations & travel operations</p>
+                    <button type="button" class="btn-continue btn-outline">
+                        Continue <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
-
-                <div class="total-display-card" style="margin-top: 14px;">
-                  <div class="total-grand-banner">
-                    <span class="total-label">PACKAGE TOTAL:</span>
-                    <span class="total-amount" id="studioTotalInr">₹ 2,29,600</span>
-                    <span style="font-size: 14px; opacity: 0.9;" id="studioTotalUsd">($ 2,624.00)</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB: TAX INVOICE & BILLING -->
-              <div class="tab-pane" id="tabInvoice">
-                <div class="builder-section-intro">
-                  <h4>🧾 Corporate Invoice & Billing Details</h4>
-                  <p>Matches the official Let's Explore DMC Orange themed invoice format. All fields are dynamic and
-                    editable.</p>
-                </div>
-
-                <div class="form-grid-2" style="margin-bottom: 12px;">
-                  <div class="form-group">
-                    <label>Invoice Number</label>
-                    <input type="text" id="bInvNumber" class="form-input" placeholder="090587" />
-                  </div>
-                  <div class="form-group">
-                    <label>Invoice Date</label>
-                    <input type="text" id="bInvDate" class="form-input" placeholder="28 Oct 2026" />
-                  </div>
-                </div>
-
-                <!-- Invoice From Details -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice From
-                    (Company Details)</span>
-                  <div class="form-grid-3" style="margin-top:6px;">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Company Name</label>
-                      <input type="text" id="bInvFromCompany" class="form-input form-input-sm"
-                        placeholder="LET'S EXPLORE DMC" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Email</label>
-                      <input type="text" id="bInvFromEmail" class="form-input form-input-sm"
-                        placeholder="letsexploredmc@gmail.com" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Mobile No</label>
-                      <input type="text" id="bInvFromMobile" class="form-input form-input-sm"
-                        placeholder="8007586871" />
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                      <label style="font-size:10px;">Address</label>
-                      <input type="text" id="bInvFromAddress" class="form-input form-input-sm"
-                        placeholder="Sahakar Nagar Opp New Cotton Market..." />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">GST Number</label>
-                      <input type="text" id="bInvFromGst" class="form-input form-input-sm"
-                        placeholder="27BVYPT1131M1ZT" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Invoice To Details -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice To
-                    (Billed Customer Details)</span>
-                  <div class="form-grid-2" style="margin-top:6px;">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Customer Name</label>
-                      <input type="text" id="bInvToName" class="form-input form-input-sm" placeholder="akash dewani" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Customer Mobile / Contact</label>
-                      <input type="text" id="bInvToMobile" class="form-input form-input-sm"
-                        placeholder="Optional phone" />
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                      <label style="font-size:10px;">Customer Address</label>
-                      <input type="text" id="bInvToAddress" class="form-input form-input-sm"
-                        placeholder="Amravati, Maharashtra, India, 444603" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Invoice Detail / Itemized Service Rows -->
-                <div
-                  style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Invoice
-                      Services & Line Items</span>
-                    <button type="button" class="btn btn-xs btn-primary" id="btnAddInvItem">+ Add Service Item</button>
-                  </div>
-                  <div id="bInvItemsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-
-                <!-- Important Notes -->
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label>Important Notes</label>
-                  <textarea id="bInvNotes" class="form-input" rows="2"
-                    placeholder="Full payment due as per invoice terms..."></textarea>
-                </div>
-
-                <!-- Bank Remittance Details -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Bank
-                    Remittance Details</span>
-                  <div class="form-grid-3" style="margin-top:6px;">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Account Holder Name</label>
-                      <input type="text" id="bInvBankAccHolder" class="form-input form-input-sm"
-                        placeholder="LETS EXPLORE DMC" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Bank Name</label>
-                      <input type="text" id="bInvBankName" class="form-input form-input-sm"
-                        placeholder="YES BANK LIMITED" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Account Number</label>
-                      <input type="text" id="bInvAccNo" class="form-input form-input-sm"
-                        placeholder="108163400004886" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">IFSC Code</label>
-                      <input type="text" id="bInvIfsc" class="form-input form-input-sm" placeholder="YESB0001081" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Branch</label>
-                      <input type="text" id="bInvBankBranch" class="form-input form-input-sm" placeholder="AMRAVATI" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Authorized Signatory Label</label>
-                      <input type="text" id="bInvSignatory" class="form-input form-input-sm"
-                        placeholder="Authorized Signature" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB: HOTEL BOOKING VOUCHER -->
-              <div class="tab-pane" id="tabConfirmation">
-                <div class="builder-section-intro">
-                  <h4>🏨 Hotel Booking Voucher & Stay Details</h4>
-                  <p>Matches the luxury official hotel confirmation format (Aanay Tours / Hilton reference). Dynamic,
-                    modular, and fully editable.</p>
-                </div>
-
-                <!-- Section Visibility Toggles -->
-                <div
-                  style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:10px 12px; margin-bottom:14px;">
-                  <span
-                    style="font-size:11px; font-weight:700; color:#1D4ED8; text-transform:uppercase; display:block; margin-bottom:6px;">
-                    👁️ Modular Section Visibility (Show / Hide on Demand)
-                  </span>
-                  <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:11px;">
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecAgencyHeader" checked /> Agency Header
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecSummaryCard" checked /> Hotel Summary Box
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecMapPhoto" checked /> Map & Photo
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecHotelDetails" checked /> Hotel & Room Table
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecAdultDetails" checked /> Adult Details Table
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecImportantInfo" checked /> Important Information
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                      <input type="checkbox" id="bConfSecAmenities" checked /> Hotel Amenities
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Agency Header Details -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Agency Header
-                    (Top Right)</span>
-                  <div class="form-grid-2" style="margin-top:6px;">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Agency / Company Name</label>
-                      <input type="text" id="bConfAgencyName" class="form-input form-input-sm"
-                        placeholder="Aanay tours" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Contact Person</label>
-                      <input type="text" id="bConfContactPerson" class="form-input form-input-sm"
-                        placeholder="Viraj Gaglani" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Mobile No</label>
-                      <input type="text" id="bConfAgencyMobile" class="form-input form-input-sm"
-                        placeholder="7709123187" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Email ID</label>
-                      <input type="text" id="bConfAgencyEmail" class="form-input form-input-sm"
-                        placeholder="Infoattdmc@gmail.com" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Hotel Highlight Box Details -->
-                <div
-                  style="background:#F0F7FF; border:1px solid #90CDF4; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Hotel Summary
-                    Card (Bordered Blue Box)</span>
-                  <div class="form-grid-3" style="margin-top:6px;">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Hotel Name</label>
-                      <input type="text" id="bConfHotelName" class="form-input form-input-sm"
-                        placeholder="hilton abu dhabi yas island" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Star Rating</label>
-                      <select id="bConfStarRating" class="form-input form-input-sm">
-                        <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
-                        <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
-                        <option value="3">⭐⭐⭐ (3 Stars)</option>
-                        <option value="2">⭐⭐ (2 Stars)</option>
-                        <option value="1">⭐ (1 Star)</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Hotel Type</label>
-                      <input type="text" id="bConfHotelType" class="form-input form-input-sm" placeholder="luxury" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Ref No.</label>
-                      <input type="text" id="bConfRefNo" class="form-input form-input-sm" placeholder="TG/31130" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Confirmation No.</label>
-                      <input type="text" id="bConfConfirmationNo" class="form-input form-input-sm"
-                        placeholder="NH27002524635670" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">City Name</label>
-                      <input type="text" id="bConfCityName" class="form-input form-input-sm"
-                        placeholder="dubai / abu dhabi" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Hotel Email Id</label>
-                      <input type="text" id="bConfHotelEmail" class="form-input form-input-sm"
-                        placeholder="reservations_yasisland@hilton.com" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Hotel Mobile No.</label>
-                      <input type="text" id="bConfHotelMobile" class="form-input form-input-sm"
-                        placeholder="97122086888" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Guest / Agency Name</label>
-                      <input type="text" id="bConfGuestName" class="form-input form-input-sm"
-                        placeholder="Aanay tours" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Guest Email Id</label>
-                      <input type="text" id="bConfGuestEmail" class="form-input form-input-sm"
-                        placeholder="Infoattdmc@gmail.com" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Guest Mobile No.</label>
-                      <input type="text" id="bConfGuestMobile" class="form-input form-input-sm"
-                        placeholder="7709123187" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Map & Hotel Photo Row -->
-                <div class="form-grid-3" style="margin-bottom:12px;">
-                  <div class="form-group">
-                    <label>Map Location Label</label>
-                    <input type="text" id="bConfLocation" class="form-input form-input-sm" placeholder="abu dhabi" />
-                  </div>
-                  <div class="form-group">
-                    <label>Google Maps Link</label>
-                    <input type="text" id="bConfMapsUrl" class="form-input form-input-sm"
-                      placeholder="https://maps.google.com/?q=..." />
-                  </div>
-                  <div class="form-group">
-                    <label>Hotel Photo URL / Image</label>
-                    <input type="text" id="bConfHotelPhoto" class="form-input form-input-sm"
-                      placeholder="images/hotel.jpg or https://..." />
-                  </div>
-                </div>
-
-                <!-- Stay Dates -->
-                <div class="form-grid-2" style="margin-bottom:12px;">
-                  <div class="form-group">
-                    <label>Check In Date & Time</label>
-                    <input type="text" id="bConfCheckIn" class="form-input form-input-sm"
-                      placeholder="16-Nov-2026 - 11:52 PM" />
-                  </div>
-                  <div class="form-group">
-                    <label>Check Out Date & Time</label>
-                    <input type="text" id="bConfCheckOut" class="form-input form-input-sm"
-                      placeholder="18-Nov-2026 - 11:52 PM" />
-                  </div>
-                </div>
-
-                <!-- Room Occupancy Table Editor -->
-                <div
-                  style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Room
-                      Occupancy Rows</span>
-                    <button type="button" class="btn btn-xs btn-primary" id="btnAddConfRoom">+ Add Room</button>
-                  </div>
-                  <div id="bConfRoomsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-
-                <!-- Adult Details (Guests) Table Editor -->
-                <div
-                  style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase;">Adult
-                      Details / Guest List</span>
-                    <button type="button" class="btn btn-xs btn-primary" id="btnAddConfAdult">+ Add Guest</button>
-                  </div>
-                  <div id="bConfAdultsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-
-                <!-- Important Information & Policies -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span
-                    style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase; display:block; margin-bottom:8px;">
-                    Important Information & Property Policies
-                  </span>
-                  <div class="form-grid-2">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Perks / Complimentary Perks Notice</label>
-                      <textarea id="bConfPerks" class="form-input form-input-sm" rows="2"
-                        placeholder="Complimentary access to theme parks..."></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Passport / ID Proof Requirement</label>
-                      <textarea id="bConfPassport" class="form-input form-input-sm" rows="2"
-                        placeholder="Only passport is considered as valid ID proof..."></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">ID Proof Policy</label>
-                      <textarea id="bConfIdProof" class="form-input form-input-sm" rows="2"
-                        placeholder="Passport is accepted as ID proof(s) | Local ids are allowed"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Optional Fees (Breakfast, Extra Bed etc.)</label>
-                      <textarea id="bConfOptionalFees" class="form-input form-input-sm" rows="2"
-                        placeholder="Optional : Fee for buffet breakfast..."></textarea>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                      <label style="font-size:10px;">Must Read / Terms & Incidental Notice</label>
-                      <textarea id="bConfMustRead" class="form-input form-input-sm" rows="3"
-                        placeholder="Extra-person charges may apply..."></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Stay Policies (Unmarried couples, Male groups)</label>
-                      <textarea id="bConfStayPolicies" class="form-input form-input-sm" rows="2"
-                        placeholder="Unmarried couples allowed&#10;Groups with only male guests allowed"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Pet Policies</label>
-                      <textarea id="bConfPetPolicy" class="form-input form-input-sm" rows="2"
-                        placeholder="Pet(s) Related: pets are not allowed&#10;there are no pets living on hotel"></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Hotel Amenities -->
-                <div
-                  style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin-bottom:12px;">
-                  <span
-                    style="font-size:11px; font-weight:700; color:#0F2C59; text-transform:uppercase; display:block; margin-bottom:8px;">
-                    Hotel Amenities
-                  </span>
-                  <div class="form-grid-2">
-                    <div class="form-group">
-                      <label style="font-size:10px;">Transfers and Connectivity</label>
-                      <input type="text" id="bConfAmenTransfers" class="form-input form-input-sm"
-                        placeholder="Shuttle Service, Airport Transfers" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Entertainment</label>
-                      <input type="text" id="bConfAmenEntertainment" class="form-input form-input-sm"
-                        placeholder="Beach club" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Food and Drinks</label>
-                      <input type="text" id="bConfAmenFoodDrinks" class="form-input form-input-sm"
-                        placeholder="Indian Chef, Breakfast" />
-                    </div>
-                    <div class="form-group">
-                      <label style="font-size:10px;">Room Amenities</label>
-                      <input type="text" id="bConfAmenRoomAmenities" class="form-input form-input-sm"
-                        placeholder="Bathtub, Balcony, Minibar, Air Conditioning..." />
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- TAB: CUSTOM DOCUMENT BUILDER -->
-              <div class="tab-pane" id="tabCustomBuilder">
-                <div class="builder-section-intro"
-                  style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <h4>Custom Modular Document Builder</h4>
-                    <p>Build your own customized document layout by adding, removing, and re-ordering custom sections.
-                    </p>
-                  </div>
-                  <div style="display:flex; gap:6px;">
-                    <select id="selectNewCustomSecType" class="form-input form-input-sm" style="width:140px;">
-                      <option value="text">📝 Text Block</option>
-                      <option value="hotel">🏨 Hotel Table</option>
-                      <option value="activity">✦ Activities List</option>
-                      <option value="pricing">💰 Pricing Table</option>
-                      <option value="notes">📌 Important Notes</option>
-                      <option value="office">🏢 Global Offices</option>
-                      <option value="signature">✍️ Signature Box</option>
-                    </select>
-                    <button class="btn btn-sm btn-primary" id="btnAddCustomSecBtn">+ Add Section</button>
-                  </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label>Custom Document Main Title</label>
-                  <input type="text" id="bCustomDocTitle" class="form-input"
-                    placeholder="e.g. VIP Tailored Travel Dossier" />
-                </div>
-
-                <div id="customDocSectionsContainer">
-                  <!-- Populated by App.renderCustomDocEditor() -->
-                </div>
-              </div>
-
-              <!-- TAB 4: OFFICES & CONTACT -->
-              <div class="tab-pane" id="tabOffices">
-                <div class="builder-section-intro"
-                  style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <h4>Global Offices & Contact Directory</h4>
-                    <p>Dynamic office cards. Add, edit, remove, or customize any office desk worldwide.</p>
-                  </div>
-                  <button class="btn btn-sm btn-subtle" id="btnAddOfficeBtn">+ Add Office</button>
-                </div>
-
-                <!-- Global Contact Details -->
-                <div class="form-grid-3" style="margin-bottom: 14px;">
-                  <div class="form-group">
-                    <label>Phone Numbers</label>
-                    <input type="text" id="bFooterPhones" class="form-input"
-                      placeholder="+91 80075 86881 | +91 95459 55966" />
-                  </div>
-                  <div class="form-group">
-                    <label>Official Website</label>
-                    <input type="text" id="bFooterWebsite" class="form-input" placeholder="www.letsexploredmc.com" />
-                  </div>
-                  <div class="form-group">
-                    <label>Instagram Handle</label>
-                    <input type="text" id="bFooterInstagram" class="form-input" placeholder="@lets_exploredmc" />
-                  </div>
-                </div>
-
-                <!-- Dynamic Offices List -->
-                <div id="officesListContainer">
-                  <!-- Populated by App.renderOfficesEditor() -->
-                </div>
-              </div>
-
-              <!-- TAB 5: DYNAMIC CUSTOM SECTIONS & CUSTOM FIELDS -->
-              <div class="tab-pane" id="tabSections">
-                <div class="builder-section-intro">
-                  <h4>Inclusions, Exclusions & Custom Sections</h4>
-                  <p>Fully extensible block architecture. Add custom sections and key-value fields.</p>
-                </div>
-
-                <!-- Inclusions -->
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label>Package Inclusions (One per line)</label>
-                  <textarea id="bInclusionsText" class="form-input" rows="4"
-                    placeholder="11 Nights luxury accommodation with daily breakfast&#10;All inter-destination speedboat and ferry transfers&#10;Private airport transfers..."></textarea>
-                </div>
-
-                <!-- Exclusions -->
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label>Package Exclusions (One per line)</label>
-                  <textarea id="bExclusionsText" class="form-input" rows="3"
-                    placeholder="International and domestic flight tickets&#10;Personal expenses & laundry&#10;Travel insurance..."></textarea>
-                </div>
-
-                <!-- Important Notes -->
-                <div class="form-group" style="margin-bottom: 12px;">
-                  <label>Important Quotation Notes (One per line)</label>
-                  <textarea id="bImportantNotesText" class="form-input" rows="3"
-                    placeholder="Accommodation based on leading category...&#10;Speedboat schedules subject to sea conditions..."></textarea>
-                </div>
-
-                <!-- Custom Fields -->
-                <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <label class="section-label" style="margin:0;">Custom Key-Value Fields</label>
-                    <button class="btn btn-xs btn-outline" id="btnAddCustomFieldBtn">+ Add Field</button>
-                  </div>
-                  <div id="customFieldsContainer">
-                    <!-- Populated by JS -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB 6: THEMES & TEMPLATES -->
-              <div class="tab-pane" id="tabTheme">
-                <div class="builder-section-intro">
-                  <h4>Visual Template & Theme Customization</h4>
-                  <p>Switch between the official reference DMC styling, luxury aesthetics, or minimal palettes.</p>
-                </div>
-
-                <div class="form-grid-2" style="margin-bottom: 14px;">
-                  <div class="form-group">
-                    <label>Document Template</label>
-                    <select id="bThemeTemplate" class="form-input">
-                      <option value="classic">Reference / Classic DMC (Master Standard)</option>
-                      <option value="luxury">Modern Luxury (Dark & Gold Trim)</option>
-                      <option value="minimal">Minimal Professional (Monochrome Clean)</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label>Color Palette Preset</label>
-                    <select id="bThemePreset" class="form-input">
-                      <option value="classic-blue">Classic Blue (DMC Master)</option>
-                      <option value="luxury-navy">Luxury Navy & Gold</option>
-                      <option value="elegant-burgundy">Elegant Burgundy</option>
-                      <option value="warm-beige">Warm Beige & Bronze</option>
-                      <option value="modern-black">Modern Black & Gold</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-grid-3">
-                  <div class="form-group">
-                    <label>Primary Brand Color</label>
-                    <input type="color" id="bColPrimary" class="form-input" style="height:38px; padding:2px;"
-                      value="#0F2C59" />
-                  </div>
-                  <div class="form-group">
-                    <label>Secondary Color</label>
-                    <input type="color" id="bColSecondary" class="form-input" style="height:38px; padding:2px;"
-                      value="#1E3A8A" />
-                  </div>
-                  <div class="form-group">
-                    <label>Accent Color</label>
-                    <input type="color" id="bColAccent" class="form-input" style="height:38px; padding:2px;"
-                      value="#2563EB" />
-                  </div>
-                  <div class="form-group">
-                    <label>Table Header Background</label>
-                    <input type="color" id="bColTableBg" class="form-input" style="height:38px; padding:2px;"
-                      value="#0F2C59" />
-                  </div>
-                  <div class="form-group">
-                    <label>Body Text Color</label>
-                    <input type="color" id="bColText" class="form-input" style="height:38px; padding:2px;"
-                      value="#1E293B" />
-                  </div>
-                  <div class="form-group">
-                    <label>Border Color</label>
-                    <input type="color" id="bColBorder" class="form-input" style="height:38px; padding:2px;"
-                      value="#CBD5E1" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB 7: AI RAW INPUT / NOTES EXTRACTOR -->
-              <div class="tab-pane" id="tabAI">
-                <div class="builder-section-intro">
-                  <h4>⚡ AI Natural Language & Rough Notes Parser</h4>
-                  <p>Paste any client enquiry or rough WhatsApp message in English, Hindi, or Hinglish.</p>
-                </div>
-                <div class="quick-sample-chips" style="margin-bottom: 8px;">
-                  <span class="chips-label">Quick Prompts:</span>
-                  <button class="btn-chip" data-prompt="thailand">🌴 12D Thailand</button>
-                  <button class="btn-chip" data-prompt="dubai">🌟 Dubai 5D</button>
-                  <button class="btn-chip" data-prompt="kashmir">🏔️ Kashmir 6D</button>
-                  <button class="btn-chip btn-chip-highlight" data-prompt="messy">✍️ "Ulta Seedha" WhatsApp</button>
-                </div>
-
-                <div class="input-box-wrapper">
-                  <textarea id="aiRawInput" class="ai-textarea" rows="9"
-                    placeholder="Paste travel enquiry details here..."></textarea>
-                </div>
-
-                <div class="ai-actions-bar" style="margin-top: 8px;">
-                  <button class="btn btn-primary" id="btnExtractAI">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
-                    <span>Extract & Populate Quotation</span>
-                  </button>
-                  <button class="btn btn-outline" id="btnClearInput">Clear</button>
-                </div>
-
-                <!-- Extraction Stepper -->
-                <div class="extraction-steps" id="extractionSteps" style="display:none; margin-top: 10px;">
-                  <div class="step-item" id="parseStep1">
-                    <span class="step-icon">○</span>
-                    <span class="step-text">Parsing Destination, Duration & Travellers</span>
-                  </div>
-                  <div class="step-item" id="parseStep2">
-                    <span class="step-icon">○</span>
-                    <span class="step-text">Structuring Day-wise Activities & Pricing</span>
-                  </div>
-                  <div class="step-item" id="parseStep3">
-                    <span class="step-icon">○</span>
-                    <span class="step-text">Configuring Hotel Stay Blocks & Tags</span>
-                  </div>
-                  <div class="step-item" id="parseStep4">
-                    <span class="step-icon">○</span>
-                    <span class="step-text">Verifying INR/USD Totals & Office Directory</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
 
-            <!-- Builder Action Bar (Fixed at bottom of builder) -->
-            <div class="form-export-bar"
-              style="background:#FAFBFD; border-top:1px solid var(--border); padding:12px 18px;">
-              <button class="btn btn-outline btn-sm" id="btnResetStudio">
-                🔄 Reset Form
-              </button>
-              <div class="export-btn-group">
-                <button class="btn btn-subtle btn-sm" id="btnSaveToDbStudio" title="Save this quotation to database">
-                  💾 Save
-                </button>
-                <button class="btn btn-primary btn-sm" id="btnPreviewStudio">
-                  👁️ Full Preview
-                </button>
-                <button class="btn btn-accent btn-sm" id="btnDirectPDFStudio">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Generate PDF
-                </button>
-                <button class="btn btn-success btn-sm" id="btnDirectDOCXStudio">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                  DOCX
-                </button>
-              </div>
+            <!-- Trust / Social Proof Badges -->
+            <div class="trust-stats-bar">
+                <div class="stat-item">
+                    <i class="fa-solid fa-plane-up stat-icon"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">13+</span>
+                        <span class="stat-label">Tour Packages</span>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <i class="fa-solid fa-globe stat-icon"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Happy Clients</span>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <i class="fa-solid fa-star stat-icon" style="color:#F59E0B;"></i>
+                    <div class="stat-text">
+                        <span class="stat-number">4.9/5</span>
+                        <span class="stat-label">Client Rating</span>
+                    </div>
+                </div>
             </div>
-
-          </div>
-
-          <!-- ─── RIGHT: LIVE INTERACTIVE A4 PREVIEW PANEL ─── -->
-          <div class="dmc-preview-panel">
-            <div class="preview-panel-topbar">
-              <div class="preview-top-left">
-                <strong style="font-size: 13.5px; color: var(--primary-dark);">Live Quotation Preview</strong>
-                <span class="preview-status-badge">A4 Master Reference</span>
-              </div>
-              <div class="preview-zoom-btns">
-                <button class="btn-zoom" data-scale="0.8">80%</button>
-                <button class="btn-zoom active" data-scale="1.0">100%</button>
-                <button class="btn-zoom" data-scale="1.15">115%</button>
-                <button class="btn btn-xs btn-primary" id="btnQuickPDF" style="margin-left: 6px;">
-                  🖨️ PDF
-                </button>
-              </div>
-            </div>
-
-            <div class="preview-scroll-viewport" id="previewViewportStudio">
-              <div class="preview-sheet-frame" id="previewLiveFrameStudio">
-                <!-- Rendered in real-time by Preview.render() -->
-                <div id="previewDocumentLiveStudio"></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ==========================================
-           SECTION 2: DEDICATED FULL-PAGE PREVIEW
-           ========================================== -->
-      <section class="section-preview" id="sectionPreview" style="display:none">
-        <div class="preview-container">
-          <div class="preview-top-bar">
-            <div class="preview-title-wrap">
-              <h2 class="section-title">Official Quotation Master Preview</h2>
-              <p class="section-subtitle">A4 Document Standard · Let's Explore DMC Multi-Page Output</p>
-            </div>
-            <div class="preview-actions">
-              <button class="btn btn-outline" id="btnBackToEditor">
-                ✏️ Back to Studio
-              </button>
-              <button class="btn btn-subtle" id="btnSaveToDbPreview" title="Save this quotation to database">
-                💾 Save to Database
-              </button>
-              <button class="btn btn-primary" id="btnGeneratePDF">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Generate & Save PDF
-              </button>
-              <button class="btn btn-success" id="btnGenerateDOCX">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-                Generate Editable DOCX
-              </button>
-            </div>
-          </div>
-
-          <!-- Document Sheet (A4 Proportion) -->
-          <div class="preview-sheet-wrapper">
-            <div class="preview-document" id="previewDocument">
-              <!-- Rendered by Preview.render() -->
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==========================================
-           SECTION 3: CONVERSATIONAL AI & LIVE PREVIEW WORKSPACE (SaaS DUAL-PANE)
-           ========================================== -->
-      <section class="section-chat" id="sectionChat" style="display:flex; flex-direction:column; width:100%;">
-
-        <!-- Top Subheader Banner matching Image 3 -->
-        <div class="ai-workspace-subheader">
-          <div class="ai-sub-title-row">
-            <h1><span>✨</span> AI Document Assistant</h1>
-            <p>Create, refine and export professional travel documents</p>
-          </div>
         </div>
 
-        <!-- 7-Format Selector Bar matching Image 3 -->
-        <div class="doc-format-selector-bar">
-          <div class="format-pills-inner" id="unifiedFormatPills">
-            <button type="button" class="format-nav-pill active doc-pill" data-doctype="quotation"
-              title="Master 12-Section Quotation">
-              <span>📄</span> Quotation
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="itinerary"
-              title="Travel Itinerary Without Rates">
-              <span>📍</span> Itinerary
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="hotel_costing"
-              title="Hotel Costing & Tariff Comparison">
-              <span>🏨</span> Hotel Costing
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="summary" title="Package Summary">
-              <span>💼</span> Package Summary
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="confirmation"
-              title="Hotel Booking Confirmation Voucher">
-              <span>🏨</span> Hotel Voucher
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="invoice" title="Corporate Tax Invoice">
-              <span>🧾</span> Invoice
-            </button>
-            <button type="button" class="format-nav-pill doc-pill" data-doctype="custom" title="Custom Modular Builder">
-              <span>🛠️</span> Custom Builder
-            </button>
-          </div>
+        <!-- Right Side Scenic Display -->
+        <div class="hero-right">
+            <!-- Floating Decorative Airplane -->
+            <svg class="airplane-float" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 50 L45 42 L65 15 L72 17 L58 40 L88 36 L94 28 L98 29 L94 40 L98 44 L94 45 L98 56 L94 57 L88 49 L58 45 L72 68 L65 70 L45 43 Z" fill="#0F172A" />
+                <path d="M48 42 L64 18 L70 20 L56 41 Z" fill="#C5A059" opacity="0.8" />
+            </svg>
+
+            <div class="scenic-card-wrapper">
+                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop" alt="Dubai Luxury Destination" class="scenic-bg-img" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&auto=format&fit=crop'">
+                <div class="scenic-overlay-gradient"></div>
+                <div class="scenic-float-caption">
+                    <div class="caption-left">
+                        <div class="caption-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div>
+                            <div class="caption-title">Dubai & Emirates Luxury</div>
+                            <div class="caption-sub">5N/6D Curated DMC Tour</div>
+                        </div>
+                    </div>
+                    <span class="caption-pill">Exclusive</span>
+                </div>
+            </div>
         </div>
-
-        <!-- Unified Dual-Pane Split Layout (Left: AI Chat | Right: Live A4 Document Preview) -->
-        <div class="ai-unified-workspace">
-
-          <!-- LEFT PANE: AI Chat Workspace Card -->
-          <div class="chat-workspace-card" id="chatPanel">
-            <div class="chat-ws-header">
-              <div class="chat-ws-title-group">
-                <div class="chat-bot-icon">✈</div>
-                <div>
-                  <span class="chat-bot-name">Let's Explore DMC Assistant</span>
-                  <span class="chat-status-pill"><span class="status-green-dot"></span> Connected</span>
-                </div>
-              </div>
-              <div class="chat-ws-actions">
-                <button type="button" class="btn-ws-icon" id="btnChatHistory"
-                  title="Chat History / Past Enquiries">🕒</button>
-                <button type="button" class="btn-ws-icon" id="btnChatClear"
-                  title="Clear Chat & Start Fresh">🗑️</button>
-              </div>
-            </div>
-
-            <!-- Scrollable Chat Messages Thread -->
-            <div class="chat-ws-messages" id="chatMessages">
-              <!-- Initial Welcome Bot Message -->
-              <div class="bot-msg-row">
-                <div class="chat-bot-icon" style="width:28px; height:28px; font-size:12px; flex-shrink:0;">✈</div>
-                <div class="bot-msg-bubble">
-                  <div style="font-weight:700; color:#0F2C59; margin-bottom:4px;">Hello! 👋 Welcome to Let's Explore DMC
-                    Document Assistant</div>
-                  <p style="margin:0 0 10px 0; color:#334155;">Describe your travel enquiry or attach any reference
-                    PDF/DOCX below. I will instantly build or refine your official quotation, itinerary, hotel costing,
-                    voucher, or tax invoice.</p>
-
-                  <div class="trip-summary-box">
-                    <div class="trip-summary-title">🌴 Quick Highlights</div>
-                    <div class="trip-summary-row"><strong>Destinations:</strong> Thailand · Dubai · Bali · Kashmir ·
-                      Global</div>
-                    <div class="trip-summary-row"><strong>Formats:</strong> 7 Locked Official Corporate Documents</div>
-                    <div class="trip-summary-row"><strong>AI Engine:</strong> Multimodal Vision &amp; OCR
-                      Synchronization</div>
-                  </div>
-
-                  <div class="msg-actions-bar">
-                    <button type="button" class="btn-msg-action"
-                      onclick="Chatbot.submitInput('Create a 12-day Thailand package for 2 adults')">🌴 12D
-                      Thailand</button>
-                    <button type="button" class="btn-msg-action"
-                      onclick="Chatbot.submitInput('Dubai 6D itinerary with rates')">🌟 Dubai 6D</button>
-                    <button type="button" class="btn-msg-action"
-                      onclick="Chatbot.submitInput('Ramada hotel add karo aur 10% markup lagao')">🏨 +10%
-                      Markup</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dynamic Thinking Indicator -->
-            <div id="typingIndicator" class="typing-indicator-row" style="display:none; margin: 0 18px 10px 18px;">
-              <div class="chat-bot-icon" style="width:24px; height:24px; font-size:11px; flex-shrink:0;">✈</div>
-              <div style="display:flex; flex-direction:column; gap:2px;">
-                <span id="typingStatusText" style="font-size:12px; font-weight:700; color:#0F2C59;">AI Assistant
-                  Thinking &amp; Processing...</span>
-                <span id="typingSubText" style="font-size:11px; color:#64748B;">Analyzing itinerary, hotels &amp;
-                  rates...</span>
-              </div>
-              <div style="display:flex; gap:4px; margin-left:8px;">
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-              </div>
-            </div>
-
-            <!-- Quick Action Replies -->
-            <div id="quickReplies" class="quick-replies"
-              style="display:flex; flex-wrap:wrap; gap:6px; padding:6px 18px; background:#FAFBFD; border-top:1px solid #E2E8F0;">
-            </div>
-
-            <!-- Fixed Composer at Bottom -->
-            <div class="chat-ws-composer">
-              <!-- Selected Attachment Preview Chip -->
-              <div id="chatAttachmentBadge" class="composer-attachment-chip" style="display:none;">
-                <div id="chatAttachmentText" style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
-                  📄 Reference file attached
-                </div>
-                <button type="button" id="btnRemoveChatAttachment" title="Remove file"
-                  style="background:none; border:none; color:#DC2626; cursor:pointer; font-size:16px; font-weight:bold; padding:2px 8px; line-height:1;">✕</button>
-              </div>
-
-              <!-- Input Row with Paperclip, Textarea and Solid Navy Circular Send Button -->
-              <div class="composer-input-row">
-                <input type="file" id="chatDocUpload" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                  style="display:none;" />
-                <button type="button" class="composer-attach-btn" id="btnAttachFile"
-                  title="Attach PDF, Word DOCX, or Image (📎)"
-                  onclick="const inp=document.getElementById('chatDocUpload'); if(inp) inp.click();">📎</button>
-                <textarea id="chatInput" class="composer-textarea"
-                  placeholder="Describe the document you want to create..." rows="1"></textarea>
-                <button type="button" class="composer-send-btn" id="btnSend" title="Send message or extract document">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                    <path d="M22 2L11 13" stroke="white" stroke-width="2.4" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2.4" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </button>
-              </div>
-              <div class="composer-subtext">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                Attach PDFs, DOCX or images for context
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT PANE: Live Document Preview Card -->
-          <div class="preview-workspace-card">
-            <div class="preview-ws-header">
-              <div class="preview-title-group">
-                <strong>📄 Live Document Preview</strong>
-                <span class="preview-live-badge"><span class="status-green-dot"></span> Updated just now</span>
-              </div>
-              <div class="preview-ws-controls">
-                <div class="preview-page-counter">
-                  <button type="button" class="page-nav-arrow" id="btnPrevPage" title="Previous Page">◀</button>
-                  <span id="pageIndicatorText">1 of 3</span>
-                  <button type="button" class="page-nav-arrow" id="btnNextPage" title="Next Page">▶</button>
-                </div>
-                <button type="button" class="btn-preview-tool" id="btnFullPageFromChat" title="Full-Page Preview">⤢ Full
-                  page</button>
-                <button type="button" class="btn-preview-tool primary" id="btnDownloadPdfFromChat"
-                  title="Download Official PDF">⬇️ Download PDF</button>
-                <button type="button" class="btn-preview-tool" id="btnDownloadDocxFromChat"
-                  title="Download Word DOCX">📄 Download DOCX</button>
-                <button type="button" class="btn-preview-tool" id="btnSendNowChat" style="background:#0F2C59; color:#FFF; font-weight:700; border:none; margin-left:4px; padding:6px 14px; border-radius:6px; cursor:pointer;"
-                  title="Send to Customer via Email / WhatsApp" onclick="openSendNowStudioModal()">🚀 SEND NOW</button>
-              </div>
-            </div>
-
-            <!-- Scrollable Live A4 Viewport -->
-            <div class="preview-ws-viewport" id="previewViewport">
-              <div class="preview-sheet-frame" id="previewLiveFrame"
-                style="width:100%; display:flex; justify-content:center;">
-                <!-- Real-time rendered by Preview.render() / updateLivePreviews() -->
-                <div id="previewDocumentLive" style="width:100%; max-width:760px;"></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
     </main>
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="app-footer">
-      <span>Let's Explore DMC — Master Quotation Generator System</span>
-      <span class="footer-sep">·</span>
-      <span>Official Reference Format Locked</span>
-      <span class="footer-sep">·</span>
-      <span>Bali · Thailand · India · Global Operations</span>
-    </footer>
+    <!-- Slide-in Authentication Modal -->
+    <div class="auth-modal-backdrop" id="authModalBackdrop">
+        <div class="auth-modal-box">
+            <button type="button" class="auth-close-btn" onclick="closeAuthModal()" title="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
 
-  </div>
-
-  <!-- ========== DATABASE HISTORY MODAL ========== -->
-  <div class="db-modal-overlay" id="historyModal" style="display:none">
-    <div class="db-modal-box">
-      <div class="db-modal-header">
-        <div class="db-modal-title">
-          <h3>📁 Saved Quotations Database</h3>
-          <p>cPanel MySQL & Local Storage · View, Search & Load Past Quotes</p>
-        </div>
-        <button class="btn-icon btn-close-modal" id="btnCloseDbModal" title="Close">✕</button>
-      </div>
-      <div class="db-modal-toolbar">
-        <input type="text" id="dbSearchInput" class="form-input"
-          placeholder="🔍 Search by client name, destination, phone, or ref..." />
-        <button class="btn btn-sm btn-subtle" id="btnRefreshDbHistory">🔄 Refresh</button>
-      </div>
-      <div class="db-modal-body">
-        <div class="table-responsive">
-          <table class="db-history-table">
-            <thead>
-              <tr>
-                <th>Quote Ref</th>
-                <th>Client</th>
-                <th>Destination</th>
-                <th>Total</th>
-                <th>Saved On</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody">
-              <!-- Rendered by DBManager -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== GEMINI API KEY SETUP MODAL ========== -->
-  <div class="db-modal-overlay" id="geminiModal" style="display:none">
-    <div class="db-modal-box" style="max-width:520px;">
-      <div class="db-modal-header">
-        <div class="db-modal-title">
-          <h3>⚡ Google Gemini AI Setup (2.5 Flash)</h3>
-          <p>Real multimodal AI for PDF, Image, Word & Natural Language Extraction</p>
-        </div>
-        <button class="btn-icon btn-close-modal" id="btnCloseGeminiModal" title="Close">✕</button>
-      </div>
-      <div class="db-modal-body" style="padding:20px;">
-        <div style="margin-bottom:14px; font-size:13px; color:#475569; line-height:1.5;">
-          Apni Google Gemini API Key enter karein. Isse aapke kisi bhi format ke PDF, Scanned Images, aur Quotations
-          ko real multimodal AI instantly process karega.
-        </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#1E293B; margin-bottom:6px;">Gemini API
-            Key</label>
-          <input type="password" id="inputGeminiApiKey" class="form-input" placeholder="AIzaSy..."
-            style="width:100%; font-family:monospace;" />
-        </div>
-        <div id="geminiTestStatus"
-          style="display:none; padding:10px 12px; border-radius:6px; font-size:12px; margin-bottom:14px;"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <a href="https://aistudio.google.com/app/apikey" target="_blank"
-            style="font-size:12px; color:#2563EB; text-decoration:none; font-weight:600;">🔗 Get Free Gemini API Key
-            ↗</a>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-sm btn-subtle" id="btnTestGeminiKey">🧪 Test Connection</button>
-            <button class="btn btn-sm btn-primary" id="btnSaveGeminiKey">💾 Save Key</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       SEND NOW MODAL (SECTION 4 OF MASTER PROMPT)
-       ============================================================ -->
-  <div id="studioSendNowModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:99999; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#FFFFFF; border-radius:12px; width:100%; max-width:600px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif;">
-      <div style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:18px;">🚀</span>
-          <h3 style="margin:0; font-size:16px; font-weight:700;">SEND NOW — Customer Document Dispatch</h3>
-        </div>
-        <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:20px; cursor:pointer;">&times;</button>
-      </div>
-
-      <form id="studioSendForm" onsubmit="handleStudioSendSubmit(event)" style="padding:20px; display:flex; flex-direction:column; gap:14px;">
-        <!-- Channel Selector -->
-        <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Dispatch Channel</label>
-          <div style="display:flex; gap:10px;">
-            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#EFF6FF; padding:8px 14px; border-radius:6px; border:1px solid #BFDBFE;">
-              <input type="radio" name="studioSendChannel" value="email" checked onchange="toggleStudioChannel(this.value)">
-              <span>📧</span> Email (Branded Template)
-            </label>
-            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#F0FDF4; padding:8px 14px; border-radius:6px; border:1px solid #BBF7D0;">
-              <input type="radio" name="studioSendChannel" value="whatsapp" onchange="toggleStudioChannel(this.value)">
-              <span>💬</span> WhatsApp Click-to-Send
-            </label>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div>
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Customer / Recipient Name</label>
-            <input type="text" id="studioSendCustName" placeholder="Recipient Name" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
-          </div>
-          <div id="studioEmailWrap">
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Recipient Email Address</label>
-            <input type="email" id="studioSendEmail" placeholder="client@example.com" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
-          </div>
-          <div id="studioPhoneWrap" style="display:none;">
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">WhatsApp Number</label>
-            <input type="tel" id="studioSendPhone" placeholder="e.g. 919876543210" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
-          </div>
-        </div>
-
-        <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Email Subject</label>
-          <input type="text" id="studioSendSubject" value="Let's Explore DMC — Your Customized Travel Proposal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px; font-weight:600; color:#0F2C59;" required>
-        </div>
-
-        <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Cover Message</label>
-          <textarea id="studioSendMessage" rows="3" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; font-family:inherit;">Dear Valued Client,
-
-Greetings from Let's Explore DMC!
-
-Please find your official customized travel proposal attached. We look forward to creating memorable experiences for you.</textarea>
-        </div>
-
-        <!-- Attachment info -->
-        <div style="background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:6px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:20px;">📄</span>
-            <div>
-              <div style="font-size:12px; font-weight:700; color:#1E293B;" id="studioAttachTitle">Active_Travel_Document.pdf</div>
-              <div style="font-size:10.5px; color:#64748B;">Auto-attached from Live Document Preview</div>
+            <!-- Role Switch Tabs -->
+            <div class="role-switch-pill">
+                <button type="button" class="role-switch-btn active" id="tabAdmin" onclick="setRole('admin')">
+                    <i class="fa-solid fa-crown"></i> Admin
+                </button>
+                <button type="button" class="role-switch-btn" id="tabUser" onclick="setRole('user')">
+                    <i class="fa-solid fa-user-group"></i> Staff / User
+                </button>
             </div>
-          </div>
-          <span style="font-size:11px; font-weight:700; color:#10B981; background:#ECFDF5; padding:3px 8px; border-radius:4px;">Verified</span>
-        </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
-          <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; padding:8px 16px; border-radius:6px; font-size:12.5px; font-weight:600; cursor:pointer;">Cancel</button>
-          <button type="submit" id="studioSendBtn" style="background:#2563EB; color:#FFF; border:none; padding:8px 22px; border-radius:6px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-            <span>🚀</span> Send Immediately
-          </button>
+            <div style="text-align:center; margin-bottom: 20px;">
+                <h3 id="modalTitle" style="font-size:22px; font-weight:800; color:var(--brand-navy); margin-bottom:4px;">Admin Sign In</h3>
+                <p id="modalSubtitle" style="font-size:13px; color:var(--text-secondary);">Enter your administrator credentials to continue</p>
+            </div>
+
+            <div class="auth-alert" id="authAlert"></div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <input type="hidden" id="selectedRole" value="admin">
+
+                <div class="form-group">
+                    <label id="usernameLabel">Username or Email</label>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="admin" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" class="form-input" placeholder="••••••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-submit-auth" id="btnSubmit">
+                    <span>Sign In to Dashboard</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px;">
+                <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> Secured by Let's Explore DMC Multi-Role Auth
+            </p>
         </div>
-      </form>
     </div>
-  </div>
 
-  <script>
-    function openSendNowStudioModal() {
-      const client = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.clientName : '';
-      const docNo = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.quotationNo : 'LEDMC-DOC-' + Math.floor(1000 + Math.random() * 9000);
-      const title = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.packageName : 'Travel Proposal';
-      
-      document.getElementById('studioSendCustName').value = client || '';
-      document.getElementById('studioAttachTitle').innerText = (title || 'Proposal') + '.pdf';
-      document.getElementById('studioSendSubject').value = `Let's Explore DMC — ${title} (${docNo})`;
-      document.getElementById('studioSendNowModal').style.display = 'flex';
-    }
+    <script>
+        let currentRole = 'admin';
 
-    function toggleStudioChannel(ch) {
-      if (ch === 'whatsapp') {
-        document.getElementById('studioEmailWrap').style.display = 'none';
-        document.getElementById('studioPhoneWrap').style.display = 'block';
-        document.getElementById('studioSendBtn').innerHTML = '<span>💬</span> Send via WhatsApp';
-      } else {
-        document.getElementById('studioEmailWrap').style.display = 'block';
-        document.getElementById('studioPhoneWrap').style.display = 'none';
-        document.getElementById('studioSendBtn').innerHTML = '<span>🚀</span> Send Immediately';
-      }
-    }
-
-    async function handleStudioSendSubmit(e) {
-      e.preventDefault();
-      const btn = document.getElementById('studioSendBtn');
-      btn.disabled = true;
-      btn.innerHTML = 'Sending...';
-
-      const ch = document.querySelector('input[name="studioSendChannel"]:checked').value;
-      const payload = {
-        doc_no: (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.quotationNo : 'LEDMC-DOC',
-        recipient_name: document.getElementById('studioSendCustName').value,
-        recipient_email: document.getElementById('studioSendEmail').value,
-        recipient_phone: document.getElementById('studioSendPhone').value,
-        channel: ch,
-        subject: document.getElementById('studioSendSubject').value,
-        message: document.getElementById('studioSendMessage').value,
-        sender_name: 'Main Admin'
-      };
-
-      try {
-        const res = await fetch('api/send_document.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          if (ch === 'whatsapp' && data.whatsapp_url) {
-            window.open(data.whatsapp_url, '_blank');
-          }
-          alert('Success! ' + data.message);
-          document.getElementById('studioSendNowModal').style.display = 'none';
-        } else {
-          alert('Error: ' + (data.error || 'Dispatch failed'));
+        function openAuthModal(role) {
+            setRole(role);
+            const modal = document.getElementById('authModalBackdrop');
+            modal.classList.add('open');
+            setTimeout(() => document.getElementById('usernameInput').focus(), 150);
         }
-      } catch (err) {
-        alert('Sent successfully (simulation mode)!');
-        document.getElementById('studioSendNowModal').style.display = 'none';
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = (ch === 'whatsapp') ? '<span>💬</span> Send via WhatsApp' : '<span>🚀</span> Send Immediately';
-      }
-    }
-  </script>
 
-  <!-- ========== TOAST NOTIFICATION ========== -->
-  <div class="toast-container" id="toastContainer"></div>
+        function closeAuthModal() {
+            document.getElementById('authModalBackdrop').classList.remove('open');
+            document.getElementById('authAlert').style.display = 'none';
+        }
 
-  <!-- ========== SCRIPTS ========== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <script src="js/config.js?v=7.3"></script>
-  <script src="js/data.js?v=7.3"></script>
-  <script src="js/ai-parser.js?v=7.3"></script>
-  <script src="js/preview.js?v=7.3"></script>
-  <script src="js/pdf-generator.js?v=7.3"></script>
-  <script src="js/docx-generator.js?v=7.3"></script>
-  <script src="js/db-manager.js?v=7.3"></script>
-  <script src="js/chatbot.js?v=7.3"></script>
-  <script src="js/app.js?v=7.3"></script>
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('selectedRole').value = role;
+            const tabAdmin = document.getElementById('tabAdmin');
+            const tabUser = document.getElementById('tabUser');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const usernameInput = document.getElementById('usernameInput');
+
+            if (role === 'admin') {
+                tabAdmin.classList.add('active');
+                tabUser.classList.remove('active');
+                modalTitle.textContent = 'Admin Sign In';
+                modalSubtitle.textContent = 'Enter your administrator credentials to continue';
+                usernameInput.placeholder = 'admin';
+            } else {
+                tabUser.classList.add('active');
+                tabAdmin.classList.remove('active');
+                modalTitle.textContent = 'Staff / User Sign In';
+                modalSubtitle.textContent = 'Enter your staff credentials (executive / agent)';
+                usernameInput.placeholder = 'chanchal / ritesh / operations';
+            }
+        }
+
+        // Close on backdrop click
+        document.getElementById('authModalBackdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeAuthModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAuthModal();
+        });
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('authAlert');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+
+            alertBox.style.display = 'none';
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+
+            try {
+                const response = await fetch('inquiry-admin/api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'auth-alert success';
+                    alertBox.textContent = 'Login successful! Redirecting to workspace...';
+                    alertBox.style.display = 'block';
+
+                    // Redirect to Admin Dashboard or Staff Workspace
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'inquiry-admin/dashboard.html';
+                    }, 600);
+                } else {
+                    alertBox.className = 'auth-alert error';
+                    alertBox.textContent = data.message || 'Invalid username or password.';
+                    alertBox.style.display = 'block';
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+                }
+            } catch (err) {
+                alertBox.className = 'auth-alert error';
+                alertBox.textContent = 'Connection error. Please verify server status.';
+                alertBox.style.display = 'block';
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+            }
+        }
+    </script>
 </body>
-
 </html>
+

@@ -8,11 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// If already authenticated, redirect to appropriate workspace
-if (isset($_SESSION['inquiry_admin']) || isset($_SESSION['admin_user'])) {
-    header('Location: inquiry-admin/dashboard.html');
-    exit;
-}
+// Session initialized for user state
+$isLoggedIn = isset($_SESSION['inquiry_admin']) || isset($_SESSION['admin_user']);
+$loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -683,12 +681,17 @@ if (isset($_SESSION['inquiry_admin']) || isset($_SESSION['admin_user'])) {
             </div>
         </a>
 
-        <div class="header-nav-tags">
-            <span>Travel</span>
-            <span class="dot">&bull;</span>
-            <span>Explore</span>
-            <span class="dot">&bull;</span>
-            <span>Experience</span>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="header-nav-tags">
+                <span>Travel</span>
+                <span class="dot">&bull;</span>
+                <span>Explore</span>
+                <span class="dot">&bull;</span>
+                <span>Experience</span>
+            </div>
+            <a href="studio.html" style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
+            </a>
         </div>
     </header>
 
@@ -925,3 +928,4 @@ if (isset($_SESSION['inquiry_admin']) || isset($_SESSION['admin_user'])) {
     </script>
 </body>
 </html>
+

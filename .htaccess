@@ -1,0 +1,6 @@
+# Let's Explore DMC — Root Apache Configuration
+DirectoryIndex index.html index.php
+
+# Security & Directory Listing Protection
+Options -Indexes
+ServerSignature Off

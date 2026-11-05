@@ -7,7 +7,9 @@
     <title>Staff Management &amp; Employee Activity Tracking — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=14.0">
 
@@ -356,7 +358,9 @@
 
         /* Responsive */
         @media (max-width: 1280px) {
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
@@ -365,13 +369,28 @@
                 left: -260px;
                 height: 100%;
             }
+
             .portal-sidebar.open {
                 left: 0;
             }
-            .portal-topbar { padding: 0 16px; }
-            .search-pill-box { display: none; }
-            .metrics-grid { padding: 16px 16px 0; grid-template-columns: 1fr; }
-            .content-card { margin: 16px; padding: 16px; }
+
+            .portal-topbar {
+                padding: 0 16px;
+            }
+
+            .search-pill-box {
+                display: none;
+            }
+
+            .metrics-grid {
+                padding: 16px 16px 0;
+                grid-template-columns: 1fr;
+            }
+
+            .content-card {
+                margin: 16px;
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -406,7 +425,7 @@
                     <i class="fa-solid fa-user-group"></i>
                     <span>Customers</span>
                 </a>
-                <a href="../index.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
+                <a href="../studio.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
                     <i class="fa-solid fa-file-invoice"></i>
                     <span>Quotations</span>
                 </a>
@@ -451,12 +470,15 @@
             <!-- TOPBAR -->
             <header class="portal-topbar">
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <button type="button" onclick="document.getElementById('portalSidebar').classList.toggle('open')" style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;" title="Toggle Sidebar">
+                    <button type="button" onclick="document.getElementById('portalSidebar').classList.toggle('open')"
+                        style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
+                        title="Toggle Sidebar">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="search-pill-box">
                         <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
-                        <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()" placeholder="Search staff by name or role...">
+                        <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()"
+                            placeholder="Search staff by name or role...">
                     </div>
                 </div>
 
@@ -472,9 +494,11 @@
             </header>
 
             <!-- PAGE HEADER -->
-            <div style="padding: 24px 32px 0; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+            <div
+                style="padding: 24px 32px 0; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
                 <div>
-                    <h1 style="font-size:24px; font-weight:800; color:#0F172A; margin:0 0 6px 0; letter-spacing:-0.02em;">
+                    <h1
+                        style="font-size:24px; font-weight:800; color:#0F172A; margin:0 0 6px 0; letter-spacing:-0.02em;">
                         Employee Activity &amp; Staff Control Center
                     </h1>
                     <p style="font-size:13.5px; color:#64748B; margin:0;">
@@ -485,7 +509,8 @@
                     <button type="button" onclick="exportActivityCSV()" class="btn-outline">
                         <i class="fa-solid fa-download"></i> Export Activity CSV
                     </button>
-                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='flex'" class="btn-gold">
+                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='flex'"
+                        class="btn-gold">
                         <i class="fa-solid fa-user-plus"></i> Add Staff Member
                     </button>
                 </div>
@@ -498,7 +523,8 @@
                         <i class="fa-solid fa-users"></i>
                     </div>
                     <div>
-                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Total Staff</div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Total
+                            Staff</div>
                         <div id="statTotalStaff" style="font-size:22px; font-weight:800; color:#0F172A;">4</div>
                     </div>
                 </div>
@@ -507,7 +533,8 @@
                         <i class="fa-solid fa-signal"></i>
                     </div>
                     <div>
-                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Active Sessions</div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Active
+                            Sessions</div>
                         <div id="statActiveSessions" style="font-size:22px; font-weight:800; color:#10B981;">4</div>
                     </div>
                 </div>
@@ -516,7 +543,8 @@
                         <i class="fa-solid fa-file-invoice-dollar"></i>
                     </div>
                     <div>
-                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Quotes Handled</div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Quotes
+                            Handled</div>
                         <div id="statQuotesHandled" style="font-size:22px; font-weight:800; color:#0F172A;">86</div>
                     </div>
                 </div>
@@ -525,7 +553,8 @@
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
                     <div>
-                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Avg. Session Time</div>
+                        <div style="font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase;">Avg.
+                            Session Time</div>
                         <div style="font-size:22px; font-weight:800; color:#0F172A;">1h 22m</div>
                     </div>
                 </div>
@@ -533,22 +562,29 @@
 
             <!-- MAIN TABLE CARD -->
             <div class="content-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0;">
                             Employee Roster &amp; Live Tracking
                         </h3>
-                        <span id="memberCountBadge" style="font-size:11.5px; font-weight:700; background:#EFF6FF; color:#2563EB; padding:3px 10px; border-radius:12px;">
+                        <span id="memberCountBadge"
+                            style="font-size:11.5px; font-weight:700; background:#EFF6FF; color:#2563EB; padding:3px 10px; border-radius:12px;">
                             4 Members
                         </span>
                     </div>
 
                     <!-- Role Filters -->
                     <div style="display:flex; gap:8px;">
-                        <button type="button" class="role-filter-btn btn-outline active" onclick="filterByRole('all', this)" style="padding:6px 12px; font-size:12px;">All</button>
-                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('admin', this)" style="padding:6px 12px; font-size:12px;">Admin</button>
-                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('executive', this)" style="padding:6px 12px; font-size:12px;">Executives</button>
-                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('agent', this)" style="padding:6px 12px; font-size:12px;">Operations</button>
+                        <button type="button" class="role-filter-btn btn-outline active"
+                            onclick="filterByRole('all', this)" style="padding:6px 12px; font-size:12px;">All</button>
+                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('admin', this)"
+                            style="padding:6px 12px; font-size:12px;">Admin</button>
+                        <button type="button" class="role-filter-btn btn-outline"
+                            onclick="filterByRole('executive', this)"
+                            style="padding:6px 12px; font-size:12px;">Executives</button>
+                        <button type="button" class="role-filter-btn btn-outline" onclick="filterByRole('agent', this)"
+                            style="padding:6px 12px; font-size:12px;">Operations</button>
                     </div>
                 </div>
 
@@ -581,7 +617,8 @@
                     </h3>
                     <span style="font-size:12px; color:#64748B;">Audit Log (Work-Related Events Only)</span>
                 </div>
-                <div id="activityLogsFeed" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+                <div id="activityLogsFeed"
+                    style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
                     <!-- Activity Items -->
                 </div>
             </div>
@@ -595,35 +632,55 @@
         <div class="modal-box">
             <div class="modal-header">
                 <h3 style="margin:0; font-size:15px; font-weight:800;">Add New Staff Member</h3>
-                <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;">&times;</button>
+                <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'"
+                    style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;">&times;</button>
             </div>
-            <form id="newMemberForm" onsubmit="handleAddMember(event)" style="padding:22px; display:flex; flex-direction:column; gap:14px;">
+            <form id="newMemberForm" onsubmit="handleAddMember(event)"
+                style="padding:22px; display:flex; flex-direction:column; gap:14px;">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Full Name</label>
-                        <input type="text" id="mName" placeholder="e.g. Chanchal Sharma" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Full
+                            Name</label>
+                        <input type="text" id="mName" placeholder="e.g. Chanchal Sharma"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                            required>
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Username (Login ID)</label>
-                        <input type="text" id="mUsername" placeholder="e.g. chanchal" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Username
+                            (Login ID)</label>
+                        <input type="text" id="mUsername" placeholder="e.g. chanchal"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                            required>
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Work Email</label>
-                        <input type="email" id="mEmail" placeholder="employee@letsexploredmc.com" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Work
+                            Email</label>
+                        <input type="email" id="mEmail" placeholder="employee@letsexploredmc.com"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                            required>
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Phone Number</label>
-                        <input type="tel" id="mPhone" placeholder="+91 98765 00000" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Phone
+                            Number</label>
+                        <input type="tel" id="mPhone" placeholder="+91 98765 00000"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Role &amp; Privilege</label>
-                        <select id="mRole" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Role
+                            &amp; Privilege</label>
+                        <select id="mRole"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
                             <option value="executive">Reservations Executive</option>
                             <option value="manager">Operations Manager</option>
                             <option value="agent">Operations Desk</option>
@@ -631,13 +688,18 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Initial Password</label>
-                        <input type="password" id="mPassword" value="LETSEXPLOREDMC" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                        <label
+                            style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Initial
+                            Password</label>
+                        <input type="password" id="mPassword" value="LETSEXPLOREDMC"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                            required>
                     </div>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
-                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'" class="btn-outline">Cancel</button>
+                    <button type="button" onclick="document.getElementById('addMemberModal').style.display='none'"
+                        class="btn-outline">Cancel</button>
                     <button type="submit" class="btn-gold">Save &amp; Activate Staff</button>
                 </div>
             </form>
@@ -749,7 +811,7 @@
 
             document.getElementById('memberCountBadge').innerText = `${filtered.length} Staff Members`;
             document.getElementById('statTotalStaff').innerText = members.length;
-            
+
             const activeCount = members.filter(m => m.status === 'active').length;
             document.getElementById('statActiveSessions').innerText = activeCount;
 
@@ -821,7 +883,7 @@
 
         function filterEmployees() {
             const query = document.getElementById('employeeSearchInput').value.toLowerCase();
-            const filtered = membersList.filter(m => 
+            const filtered = membersList.filter(m =>
                 (m.name && m.name.toLowerCase().includes(query)) ||
                 (m.username && m.username.toLowerCase().includes(query)) ||
                 (m.role && m.role.toLowerCase().includes(query))
@@ -922,7 +984,7 @@
                     });
                     return;
                 }
-            } catch (err) {}
+            } catch (err) { }
 
             feed.innerHTML = `
                 <div style="padding:12px 14px; background:#F8FAFC; border-radius:10px; border-left:3px solid #2563EB;">
@@ -952,7 +1014,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('href', url);
-            a.setAttribute('download', `employee_activity_${new Date().toISOString().slice(0,10)}.csv`);
+            a.setAttribute('download', `employee_activity_${new Date().toISOString().slice(0, 10)}.csv`);
             a.click();
         }
 

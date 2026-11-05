@@ -585,7 +585,7 @@
                     <i class="fa-solid fa-user-group"></i>
                     <span>Customers</span>
                 </a>
-                <a href="../index.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
+                <a href="../studio.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
                     <i class="fa-solid fa-file-invoice"></i>
                     <span>Quotations</span>
                 </a>
@@ -828,7 +828,7 @@
                             <h3>Dream. Plan. Travel.</h3>
                             <p>Together, we make it happen.</p>
                         </div>
-                        <a href="../index.html" class="btn-create-quote-gold" target="_blank">
+                        <a href="../studio.html" class="btn-create-quote-gold" target="_blank">
                             <span>Create Quotation</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </a>
@@ -1018,7 +1018,7 @@
                             <td><strong>${inq.destination || 'Dubai Special'}</strong></td>
                             <td><span class="status-pill-active">${inq.status || 'Proposal Sent'}</span></td>
                             <td>
-                                <a href="../index.html?client=${encodeURIComponent(inq.name || inq.client_name)}&dest=${encodeURIComponent(inq.destination || '')}" target="_blank" style="padding:6px 12px; background:#F1F5F9; border-radius:99px; text-decoration:none; color:#0F172A; font-weight:700; font-size:12px;">
+                                <a href="../studio.html?client=${encodeURIComponent(inq.name || inq.client_name)}&dest=${encodeURIComponent(inq.destination || '')}" target="_blank" style="padding:6px 12px; background:#F1F5F9; border-radius:99px; text-decoration:none; color:#0F172A; font-weight:700; font-size:12px;">
                                     Quote &rarr;
                                 </a>
                             </td>
@@ -1030,7 +1030,7 @@
                 }
             } catch (err) {
                 const tbody = document.getElementById('recentInquiriesTableBody');
-                tbody.innerHTML = '<tr><td><strong>Rajesh Malhotra</strong></td><td>+91 98765 43210</td><td><strong>Dubai Explorer 5N/6D</strong></td><td><span class="status-pill-active">Proposal Sent</span></td><td><a href="../index.html" class="status-pill-active" style="background:#F1F5F9; color:#0F172A; text-decoration:none;">Quote &rarr;</a></td></tr>';
+                tbody.innerHTML = '<tr><td><strong>Rajesh Malhotra</strong></td><td>+91 98765 43210</td><td><strong>Dubai Explorer 5N/6D</strong></td><td><span class="status-pill-active">Proposal Sent</span></td><td><a href="../studio.html" class="status-pill-active" style="background:#F1F5F9; color:#0F172A; text-decoration:none;">Quote &rarr;</a></td></tr>';
             }
         }
 
