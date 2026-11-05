@@ -1,0 +1,94 @@
+{
+    "LEDMC-B34400FF": {
+        "quote_ref": "LEDMC-B34400FF",
+        "client_name": "Guest Traveller",
+        "client_phone": "",
+        "client_email": "",
+        "destination": "Dubai Luxury 5N\/6D",
+        "travel_date": "",
+        "duration": "",
+        "pax_count": "2 Adults",
+        "hotel_name": "",
+        "flight_airline": "",
+        "flights_total": 0,
+        "land_total": 0,
+        "grand_total": 0,
+        "status": "Confirmed",
+        "updated_at": "2026-11-05 21:48:45",
+        "full_data": {
+            "client_name": "Dr. Rajesh Malhotra",
+            "client_phone": "+91 98765 43210",
+            "client_email": "rajesh.malhotra@gmail.com",
+            "destination": "Dubai Luxury 5N\/6D",
+            "duration": "6 Days \/ 5 Nights",
+            "pax_count": 2,
+            "total_inr": 86250,
+            "total_usd": 985.71,
+            "markup_percent": 15,
+            "quotation_ref": "LE-DMC-DXB-2027-TEST",
+            "days": [
+                {
+                    "day": 1,
+                    "title": "Arrival in Dubai",
+                    "desc": "Transfer to hotel"
+                },
+                {
+                    "day": 2,
+                    "title": "City Tour & Burj Khalifa",
+                    "desc": "124th floor visit"
+                },
+                {
+                    "day": 3,
+                    "title": "Desert Safari with BBQ",
+                    "desc": "Evening safari"
+                }
+            ]
+        }
+    },
+    "LEDMC-660E13EB": {
+        "quote_ref": "LEDMC-660E13EB",
+        "client_name": "Guest Traveller",
+        "client_phone": "",
+        "client_email": "",
+        "destination": "Dubai Luxury 5N\/6D",
+        "travel_date": "",
+        "duration": "",
+        "pax_count": "2 Adults",
+        "hotel_name": "",
+        "flight_airline": "",
+        "flights_total": 0,
+        "land_total": 0,
+        "grand_total": 0,
+        "status": "Confirmed",
+        "updated_at": "2026-11-05 21:50:33",
+        "full_data": {
+            "client_name": "Dr. Rajesh Malhotra",
+            "client_phone": "+91 98765 43210",
+            "client_email": "rajesh.malhotra@gmail.com",
+            "destination": "Dubai Luxury 5N\/6D",
+            "duration": "6 Days \/ 5 Nights",
+            "pax_count": 2,
+            "total_inr": 86250,
+            "total_usd": 985.71,
+            "markup_percent": 15,
+            "quotation_ref": "LE-DMC-DXB-2027-TEST",
+            "days": [
+                {
+                    "day": 1,
+                    "title": "Arrival in Dubai",
+                    "desc": "Transfer to hotel"
+                },
+                {
+                    "day": 2,
+                    "title": "City Tour & Burj Khalifa",
+                    "desc": "124th floor visit"
+                },
+                {
+                    "day": 3,
+                    "title": "Desert Safari with BBQ",
+                    "desc": "Evening safari"
+                }
+            ]
+        }
+    }
+}
