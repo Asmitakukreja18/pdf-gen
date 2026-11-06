@@ -121,12 +121,34 @@ if ($isPdf && file_exists($destinationPath)) {
     if (empty($extractedText)) {
         $pdfContent = @file_get_contents($destinationPath);
         if ($pdfContent) {
-            // Find uncompressed text chunks inside BT (Begin Text) ... ET (End Text) blocks
+            $textParts = [];
+            // Parse FlateDecode compressed streams
+            if (preg_match_all('/stream[\r\n]+(.*?)[\r\n]+endstream/s', $pdfContent, $streams)) {
+                foreach ($streams[1] as $st) {
+                    $decomp = @gzuncompress($st);
+                    if ($decomp) {
+                        if (preg_match_all('/\((.*?)\)\s*Tj/s', $decomp, $matches)) {
+                            $textParts[] = implode(' ', $matches[1]);
+                        }
+                        if (preg_match_all('/\[(.*?)\]\s*TJ/s', $decomp, $matchesArray)) {
+                            foreach ($matchesArray[1] as $arr) {
+                                if (preg_match_all('/\((.*?)\)/', $arr, $subMatches)) {
+                                    $textParts[] = implode(' ', $subMatches[1]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Parse uncompressed text chunks inside BT ... ET
             if (preg_match_all('/\((.*?)\)\s*Tj/s', $pdfContent, $matches)) {
-                $rawText = implode(' ', $matches[1]);
+                $textParts[] = implode(' ', $matches[1]);
+            }
+            if (!empty($textParts)) {
+                $rawText = implode(' ', $textParts);
                 $clean = preg_replace('/\\\\[0-9]{3}/', '', $rawText);
                 $clean = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $clean);
-                if (strlen(trim($clean)) > 50) {
+                if (strlen(trim($clean)) > 20) {
                     $extractedText = substr(trim($clean), 0, 15000);
                 }
             }
