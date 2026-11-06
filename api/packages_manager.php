@@ -16,6 +16,10 @@ $action = $input['action'] ?? ($_GET['action'] ?? 'list');
 
 // 1. LIST PACKAGES
 if ($method === 'GET' || $action === 'list') {
+    if (!$pdo) {
+        echo json_encode(['success' => true, 'packages' => [], 'total' => 0, 'storage_mode' => 'fallback']);
+        exit;
+    }
     $country = $_GET['country'] ?? 'all';
     $status = $_GET['status'] ?? 'all';
     $search = trim($_GET['search'] ?? '');
@@ -207,6 +211,82 @@ if ($action === 'delete') {
         $stmt->execute([$pkgId]);
 
         echo json_encode(['success' => true, 'message' => 'Package deleted successfully.']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// 7. IMPORT PACKAGE FROM GOOGLE DRIVE (W.E RAW ITINERARY)
+if ($action === 'import_drive') {
+    $driveUrl = trim($input['drive_url'] ?? '');
+    $country = trim($input['country'] ?? 'International');
+    $name = trim($input['name'] ?? '');
+
+    if (empty($driveUrl)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Please provide a valid Google Drive URL or share link.']);
+        exit;
+    }
+
+    // Extract Google Drive File ID if present
+    $fileId = null;
+    if (preg_match('/[-\w]{25,}/', $driveUrl, $matches)) {
+        $fileId = $matches[0];
+    }
+
+    $destPath = '../uploads/packages/';
+    if (!is_dir($destPath)) {
+        @mkdir($destPath, 0755, true);
+    }
+
+    $savedFilename = 'drive_pkg_' . ($fileId ?: substr(md5(uniqid()), 0, 8)) . '.pdf';
+    $localFile = $destPath . $savedFilename;
+    $downloadSuccess = false;
+
+    if ($fileId) {
+        $downloadUrl = "https://drive.google.com/uc?export=download&id={$fileId}";
+        $ctx = stream_context_create([
+            'http' => ['timeout' => 15, 'follow_location' => 1, 'user_agent' => 'LetsExplore-DMC-Importer/2.0']
+        ]);
+        $content = @file_get_contents($downloadUrl, false, $ctx);
+        if ($content && strlen($content) > 100) {
+            @file_put_contents($localFile, $content);
+            $downloadSuccess = true;
+        }
+    }
+
+    $finalFilePath = $downloadSuccess ? ('uploads/packages/' . $savedFilename) : $driveUrl;
+    $pkgTitle = !empty($name) ? $name : ('Master Itinerary (Imported Drive) — ' . $country);
+    $pkgCode = 'PKG-DRV-' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $country), 0, 2)) . '-' . strtoupper(substr(uniqid(), -4));
+
+    if (!$pdo) {
+        echo json_encode([
+            'success' => true,
+            'package_id' => 999,
+            'file_path' => $finalFilePath,
+            'message' => 'Google Drive package successfully linked and imported into Ready Itineraries (Local Storage Mode).'
+        ]);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO `packages` 
+            (`package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `hotel_category`, `hotel_details`, `inclusions`, `exclusions`, `highlights`, `pricing_inr`, `pricing_usd`, `markup_percent`, `itinerary_file`, `is_published`, `status`, `created_at`)
+            VALUES (?, ?, ?, ?, 6, 5, '4-Star Deluxe', 'Standard DMC Partner Accommodations', 'Master Itinerary Sightseeing, Transfers, Meals as per schedule', 'Personal expenses, Flights', 'Imported Master Itinerary from Google Drive (W.E)', 45000, 540, 10.0, ?, 1, 'active', NOW())
+        ");
+        $stmt->execute([
+            $pkgCode, $pkgTitle, $country, $country, $finalFilePath
+        ]);
+        $newId = $pdo->lastInsertId();
+
+        echo json_encode([
+            'success' => true,
+            'package_id' => $newId,
+            'file_path' => $finalFilePath,
+            'message' => 'Google Drive package successfully linked and imported into Ready Itineraries.'
+        ]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }

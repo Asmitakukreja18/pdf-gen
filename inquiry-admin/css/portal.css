@@ -540,6 +540,8 @@ body {
 .portal-body {
   padding: 24px;
   flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Page Header Row */
@@ -664,6 +666,8 @@ button {
 .portal-content, .portal-body {
   padding: 24px;
   flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Sub-User Session Badge in Topbar */

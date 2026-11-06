@@ -38,7 +38,20 @@ $flightSector = (!empty($payload['flightDetails']['origin']) && !empty($payload[
 $flightsTotal = isset($payload['flightsTotal']) ? floatval($payload['flightsTotal']) : 0.00;
 $landTotal    = isset($payload['landTotal']) ? floatval($payload['landTotal']) : 0.00;
 $grandTotal   = isset($payload['grandTotal']) ? floatval($payload['grandTotal']) : ($flightsTotal + $landTotal);
-$status       = !empty($payload['status']) ? trim($payload['status']) : 'Confirmed';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$currentUserId   = $_SESSION['user_id'] ?? 1;
+$currentUserRole = $_SESSION['user_role'] ?? 'admin';
+$currentUserName = $_SESSION['user_name'] ?? 'Admin';
+
+// Role-based status: staff default is Draft, admin can set Approved/Published
+if (!empty($payload['status'])) {
+    $status = trim($payload['status']);
+} else {
+    $status = ($currentUserRole === 'admin') ? 'Approved' : 'Draft';
+}
 
 $fullDataJson = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
@@ -149,9 +162,15 @@ if ($pdo) {
                 $upDoc = $pdo->prepare("UPDATE `documents` SET `title` = ?, `description` = ?, `category_id` = ?, `updated_at` = CURRENT_TIMESTAMP WHERE `id` = ?");
                 $upDoc->execute([$docTitle, $docDesc, $docCategory, $existingDoc['id']]);
             } else {
-                $insDoc = $pdo->prepare("INSERT INTO `documents` (`title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `uploaded_by`) VALUES (?, ?, ?, ?, ?, 102400, 'application/pdf', 1)");
-                $insDoc->execute([$docTitle, $docDesc, $docCategory, $docFileName, $docFilePath]);
+                $insDoc = $pdo->prepare("INSERT INTO `documents` (`title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `uploaded_by`) VALUES (?, ?, ?, ?, ?, 102400, 'application/pdf', ?)");
+                $insDoc->execute([$docTitle, $docDesc, $docCategory, $docFileName, $docFilePath, $currentUserId]);
             }
+
+            // Silent real-time activity log for employee time tracking
+            try {
+                $actStmt = $pdo->prepare("INSERT INTO `user_activity_logs` (`user_id`, `employee_name`, `action`, `module`, `entity_id`, `details`, `created_at`) VALUES (?, ?, 'quotation_created', 'Quotation', ?, ?, NOW())");
+                $actStmt->execute([$currentUserId, $currentUserName, $quoteRef, "Created quotation for {$clientName} ({$destination})"]);
+            } catch (\Exception $logE) {}
         } catch (\PDOException $docErr) {
             error_log("Failed to sync document table: " . $docErr->getMessage());
         }

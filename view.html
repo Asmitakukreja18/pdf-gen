@@ -301,6 +301,29 @@
         window.currentQuotationData = fullData;
         window.QuotationData = fullData;
 
+        // Check Client Gating: If Draft and not previewing internally
+        const urlParams = new URLSearchParams(window.location.search);
+        const isInternalPreview = urlParams.get('preview') === '1' || urlParams.get('from_admin') === '1';
+        const qStatus = quotation?.status || fullData?.status || 'Confirmed';
+
+        if (qStatus === 'Draft' && !isInternalPreview) {
+          loadingDiv.innerHTML = `
+            <div style="max-width:540px; margin:60px auto; text-align:center; padding:40px 30px; background:#FFFFFF; border-radius:16px; box-shadow:0 10px 25px rgba(15,23,42,0.06); border:1px solid #E2E8F0;">
+              <div style="width:60px; height:60px; border-radius:50%; background:#FEF3C7; color:#B45309; font-size:26px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <h2 style="font-size:20px; font-weight:800; color:#0F172A; margin-bottom:8px;">Proposal Under Final Review</h2>
+              <p style="font-size:14px; color:#64748B; line-height:1.6; margin-bottom:20px;">
+                This quotation is currently an internal working draft and undergoing final tariff verification by Let's Explore DMC. Your final approved itinerary and dual tariff proposal will be accessible once published.
+              </p>
+              <div style="font-size:12px; font-weight:700; color:#2563EB; background:#EFF6FF; padding:8px 16px; border-radius:9999px; display:inline-block;">
+                Quotation Ref: ${quoteRef || 'PENDING'}
+              </div>
+            </div>
+          `;
+          return;
+        }
+
         // Sync active format button
         const activeDocType = fullData.activeDocType || initialDocType || 'quotation';
         document.querySelectorAll('.btn-fmt-pill').forEach(btn => {

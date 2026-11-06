@@ -127,28 +127,28 @@
                 <!-- Country Filter Navigation -->
                 <div class="filter-tabs">
                     <button type="button" class="filter-tab pkg-filter-tab active" data-country="all">
-                        ?? All Countries (<span id="countAllPkgs">...</span>)
+                        <i class="fa-solid fa-earth-americas"></i> All Countries (<span id="countAllPkgs">...</span>)
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="india">
-                        ???? India
+                        <i class="fa-solid fa-location-dot"></i> India
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="singapore">
-                        ???? Singapore
+                        <i class="fa-solid fa-location-dot"></i> Singapore
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="malaysia">
-                        ???? Malaysia
+                        <i class="fa-solid fa-location-dot"></i> Malaysia
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="indonesia">
-                        ???? Indonesia (Bali)
+                        <i class="fa-solid fa-location-dot"></i> Indonesia (Bali)
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="turkey">
-                        ???? Turkey
+                        <i class="fa-solid fa-location-dot"></i> Turkey
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="uae">
-                        ???? Dubai / UAE
+                        <i class="fa-solid fa-location-dot"></i> Dubai / UAE
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="thailand">
-                        ???? Thailand
+                        <i class="fa-solid fa-location-dot"></i> Thailand
                     </button>
                 </div>
 
@@ -190,14 +190,14 @@
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Country *</label>
                         <select id="modalPkgCountry" class="form-control" required>
-                            <option value="India">???? India</option>
-                            <option value="Indonesia">???? Indonesia (Bali)</option>
-                            <option value="Malaysia">???? Malaysia</option>
-                            <option value="Singapore">???? Singapore</option>
-                            <option value="Turkey">???? Turkey</option>
-                            <option value="UAE">???? UAE / Dubai</option>
-                            <option value="Thailand">???? Thailand</option>
-                            <option value="International">?? Other International</option>
+                            <option value="India">🇮🇳 India</option>
+                            <option value="Indonesia">🇮🇩 Indonesia (Bali)</option>
+                            <option value="Malaysia">🇲🇾 Malaysia</option>
+                            <option value="Singapore">🇸🇬 Singapore</option>
+                            <option value="Turkey">🇹🇷 Turkey</option>
+                            <option value="UAE">🇦🇪 UAE / Dubai</option>
+                            <option value="Thailand">🇹🇭 Thailand</option>
+                            <option value="International">🌐 Other International</option>
                         </select>
                     </div>
                 </div>
@@ -288,12 +288,28 @@
                 <button type="button" onclick="document.getElementById('driveImportModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
             <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
-                Paste Google Drive link or sync folder to import unedited clean master itineraries (W.E).
+                Paste Google Drive link or share URL to import unedited clean master itineraries (W.E).
             </p>
-            <input type="text" placeholder="https://drive.google.com/drive/folders/..." class="form-control" style="margin-bottom:14px;">
+            <div style="margin-bottom:10px;">
+                <label style="font-size:12px; font-weight:700; color:var(--primary-navy); display:block; margin-bottom:4px;">Google Drive Share Link *</label>
+                <input type="text" id="driveUrlInput" placeholder="https://drive.google.com/file/d/..." class="form-control" style="width:100%; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--primary-navy); display:block; margin-bottom:4px;">Country</label>
+                <select id="driveCountrySelect" class="form-control" style="width:100%; box-sizing:border-box;">
+                    <option value="Bali">Indonesia (Bali)</option>
+                    <option value="Dubai">Dubai / UAE</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="Singapore">Singapore</option>
+                    <option value="Malaysia">Malaysia</option>
+                    <option value="Turkey">Turkey</option>
+                    <option value="India">India</option>
+                    <option value="International">International</option>
+                </select>
+            </div>
             <div style="display:flex; justify-content:flex-end; gap:8px;">
                 <button type="button" onclick="document.getElementById('driveImportModal').style.display='none'" class="btn btn-secondary btn-sm">Cancel</button>
-                <button type="button" onclick="alert('Drive sync connection initiated! Packages refreshed.'); document.getElementById('driveImportModal').style.display='none';" class="btn btn-primary btn-sm">Sync Drive</button>
+                <button type="button" id="btnConfirmDriveSync" onclick="submitDriveImport()" class="btn btn-primary btn-sm">Sync Drive</button>
             </div>
         </div>
     </div>

@@ -105,8 +105,6 @@
                     </div>
                 </div>
             </header>
-                </div>
-            </header>
 
             <!-- WORKSPACE CONTENT -->
             <main class="portal-body">
@@ -311,13 +309,23 @@
     <script src="js/idle-tracker.js?v=9.0"></script>
     <script>
         let allLeads = [];
+        let currentUserRole = 'admin';
+        let currentUserName = 'Admin';
 
         async function loadLeads() {
             try {
                 const res = await fetch('api/leads.php');
                 const data = await res.json();
                 if (data.success && data.leads && data.leads.length > 0) {
-                    allLeads = data.leads;
+                    let leadsList = data.leads;
+                    if (currentUserRole !== 'admin') {
+                        const myLower = currentUserName.toLowerCase();
+                        leadsList = leadsList.filter(l => {
+                            const assigned = (l.assigned_employee || '').toLowerCase();
+                            return assigned.includes(myLower) || assigned.includes('su-') || assigned === '' || assigned.includes('all');
+                        });
+                    }
+                    allLeads = leadsList;
                     updateCounters(data.status_counts || data.counts || {});
                     renderLeads(allLeads);
                 } else {
@@ -522,6 +530,8 @@
                     const u = data.user;
                     const role = (u.role || 'executive').toLowerCase();
                     const name = u.name || u.username || 'User';
+                    currentUserRole = role;
+                    currentUserName = name;
                     if (document.getElementById('topbarUserName')) document.getElementById('topbarUserName').textContent = name;
                     if (document.getElementById('topbarUserRole')) document.getElementById('topbarUserRole').textContent = (role === 'admin') ? 'Administrator' : (role.charAt(0).toUpperCase() + role.slice(1));
                     if (document.getElementById('topbarAvatar')) document.getElementById('topbarAvatar').textContent = name.substring(0, 2).toUpperCase();
@@ -533,6 +543,8 @@
                             dashLink.innerHTML = '<i class="fa-solid fa-desktop"></i> <span>My Workspace</span>';
                         }
                         document.querySelectorAll('.admin-only-nav').forEach(el => el.style.display = 'none');
+                        const subEl = document.querySelector('.page-subtitle');
+                        if (subEl) subEl.innerHTML = `Showing assigned guest inquiries for <strong>${escapeHTML(name)}</strong>.`;
                     }
                 }
             } catch (e) {}

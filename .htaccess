@@ -1,4 +1,4 @@
-# Let's Explore DMC — Root Apache Configuration
+# Let's Explore DMC — Root Apache & LiteSpeed Configuration
 DirectoryIndex index.html index.php
 
 # Security & Directory Listing Protection
@@ -10,11 +10,24 @@ RewriteEngine On
 RewriteBase /
 
 # Graceful redirection to inquiry-admin dashboard & staff workspace
-RewriteRule ^dashboard\.html$ inquiry-admin/dashboard.html [R=301,L]
-RewriteRule ^staff\.html$ inquiry-admin/staff.html [R=301,L]
+RewriteRule ^dashboard(\.html)?$ inquiry-admin/dashboard.html [R=301,L]
+RewriteRule ^staff(\.html)?$ inquiry-admin/staff.html [R=301,L]
+RewriteRule ^admin/?$ inquiry-admin/dashboard.html [R=301,L]
 </IfModule>
 
 <IfModule lsapi_module>
+   php_value upload_max_filesize 64M
+   php_value post_max_size 64M
+   php_value memory_limit 256M
+</IfModule>
+
+<IfModule mod_php7.c>
+   php_value upload_max_filesize 64M
+   php_value post_max_size 64M
+   php_value memory_limit 256M
+</IfModule>
+
+<IfModule mod_php.c>
    php_value upload_max_filesize 64M
    php_value post_max_size 64M
    php_value memory_limit 256M

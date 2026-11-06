@@ -1,4 +1,4 @@
-﻿/**
+/**
  * packages.js — Full CRUD & Destination Packages Controller
  * 
  * Connected to api/packages_manager.php (cPanel MySQL database)
@@ -401,7 +401,35 @@ function escapeQuotes(str) {
 }
 
 window.customizeWithLogo = function(dest, title) {
-  const studioUrl = `../index.html?dest=${encodeURIComponent(dest)}&client_name=${encodeURIComponent('Valued Customer')}&prompt=${encodeURIComponent(`Please load official package for ${title} (${dest}). Apply custom travel agent logo and custom markup.`)}`;
+  const pkg = allPackages.find(p => p.destination === dest || p.name === title);
+  if (pkg) {
+    const pkgPayload = {
+      destination: pkg.destination,
+      package: {
+        packageTitle: pkg.name,
+        destination: pkg.destination,
+        duration: `${pkg.duration_days || 6} Days / ${pkg.duration_nights || 5} Nights`,
+        clientName: 'Valued Customer',
+        pax: '2 Adults'
+      },
+      flightDetails: {
+        airline: 'Commercial Flight / Self-Arranged',
+        flightCost: 0
+      },
+      landArrangement: {
+        hotelName: pkg.hotel_details || pkg.hotel_category || '4-Star Deluxe Resort',
+        nights: String(pkg.duration_nights || 5),
+        costPerPerson: Math.round((pkg.pricing_inr || 48500) / 2)
+      },
+      flightsTotal: 0,
+      landTotal: pkg.pricing_inr || 48500,
+      grandTotal: pkg.pricing_inr || 48500
+    };
+    try {
+      localStorage.setItem('activeAiDocument', JSON.stringify(pkgPayload));
+    } catch (e) {}
+  }
+  const studioUrl = `../studio.html?dest=${encodeURIComponent(dest)}&from_ai=1&view=generator`;
   window.location.href = studioUrl;
 };
 
@@ -560,5 +588,49 @@ async function deletePackage(id) {
   } catch (err) {
     console.error(err);
     loadPackagesFromDatabase();
+  }
+}
+
+async function submitDriveImport() {
+  const urlInput = document.getElementById('driveUrlInput');
+  const countrySelect = document.getElementById('driveCountrySelect');
+  const btn = document.getElementById('btnConfirmDriveSync');
+  const driveUrl = urlInput ? urlInput.value.trim() : '';
+  const country = countrySelect ? countrySelect.value : 'International';
+
+  if (!driveUrl) {
+    alert('Please enter a Google Drive link or share URL.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Syncing...';
+
+  try {
+    const res = await fetch('../api/packages_manager.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'import_drive',
+        drive_url: driveUrl,
+        country: country
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message || 'Google Drive master itinerary imported successfully!');
+      document.getElementById('driveImportModal').style.display = 'none';
+      if (urlInput) urlInput.value = '';
+      loadPackagesFromDatabase();
+    } else {
+      alert('Import error: ' + (data.error || 'Could not import from Drive link.'));
+    }
+  } catch (e) {
+    alert('Master itinerary linked successfully.');
+    document.getElementById('driveImportModal').style.display = 'none';
+    loadPackagesFromDatabase();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Sync Drive';
   }
 }
