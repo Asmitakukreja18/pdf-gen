@@ -326,16 +326,16 @@
                         </div>
 
                         <!-- Action Footer Bar -->
-                        <div id="approvalActionsBar" style="padding:12px 16px; border-top:1px solid var(--portal-border); background:#FAFBFD; display:flex; gap:8px; justify-content:flex-end; align-items:center;">
-                            <button type="button" id="btnOpenStudio" onclick="openInDocumentStudio()" class="portal-btn secondary sm">
+                        <div id="approvalActionsBar" style="padding:12px 16px; border-top:1px solid var(--portal-border); background:#FAFBFD; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; align-items:center;">
+                            <button type="button" id="btnOpenStudio" onclick="openInDocumentStudio()" class="portal-btn secondary sm" style="white-space:nowrap;">
                                 <i class="fa-solid fa-file-pdf" style="color:var(--portal-red);"></i> Open in Studio
                             </button>
 
-                            <button type="button" id="btnPublishWeb" onclick="publishToWebsite()" class="portal-btn secondary sm" style="color:var(--portal-blue); border-color:var(--portal-blue);">
+                            <button type="button" id="btnPublishWeb" onclick="publishToWebsite()" class="portal-btn secondary sm" style="white-space:nowrap; color:var(--portal-blue); border-color:var(--portal-blue);">
                                 <i class="fa-solid fa-globe"></i> Publish to Website
                             </button>
 
-                            <button type="button" id="btnApprovePkg" onclick="approveAndSaveToPackages()" class="portal-btn primary sm">
+                            <button type="button" id="btnApprovePkg" onclick="approveAndSaveToPackages()" class="portal-btn primary sm" style="white-space:nowrap;">
                                 <i class="fa-solid fa-circle-check" style="color:var(--portal-green);"></i> Approve &amp; Save
                             </button>
                         </div>
@@ -387,17 +387,37 @@
             if (!input.files || input.files.length === 0) return;
             const file = input.files[0];
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'quotation');
+            if (file.size > 30 * 1024 * 1024) {
+                alert('File is too large. Please select a document under 30MB.');
+                return;
+            }
 
             const chip = document.getElementById('attachmentChipContainer');
             const nameEl = document.getElementById('attachedFileName');
             const sizeEl = document.getElementById('attachedFileSize');
 
-            nameEl.innerText = file.name + ' (Uploading...)';
+            nameEl.innerText = file.name + ' (Attaching...)';
             sizeEl.innerText = '';
             chip.style.display = 'flex';
+
+            const fallbackToLocal = () => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    activeAttachment = {
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        base64: reader.result.split(',')[1],
+                        mimeType: file.type || 'application/pdf'
+                    };
+                    nameEl.innerText = activeAttachment.name;
+                    sizeEl.innerText = `(${activeAttachment.size})`;
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'quotation');
 
             try {
                 const res = await fetch('../api/upload_attachment.php', {
@@ -415,23 +435,10 @@
                     nameEl.innerText = activeAttachment.name;
                     sizeEl.innerText = `(${activeAttachment.size})`;
                 } else {
-                    alert('Upload error: ' + (data.error || 'Failed to upload attachment'));
-                    removeAttachment();
+                    fallbackToLocal();
                 }
             } catch (err) {
-                console.error(err);
-                const reader = new FileReader();
-                reader.onload = () => {
-                    activeAttachment = {
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(1) + ' KB',
-                        base64: reader.result.split(',')[1],
-                        mimeType: file.type
-                    };
-                    nameEl.innerText = activeAttachment.name;
-                    sizeEl.innerText = `(${activeAttachment.size})`;
-                };
-                reader.readAsDataURL(file);
+                fallbackToLocal();
             }
         }
 
@@ -516,6 +523,20 @@
         }
 
         function renderChatResponse(container, modelName, data) {
+            let destText = data.destination;
+            if (typeof destText === 'object' && destText !== null) {
+                destText = destText.name || destText.city || destText.region || 'Selected Destination';
+            }
+            if (!destText) destText = 'Selected Destination';
+
+            let hotelText = data.hotels;
+            if (Array.isArray(hotelText)) {
+                hotelText = hotelText.map(h => typeof h === 'object' && h !== null ? (h.name || h.hotelName || 'Luxury Hotel') : h).join(', ');
+            } else if (typeof hotelText === 'object' && hotelText !== null) {
+                hotelText = hotelText.name || hotelText.hotelName || 'Standard 4★ / 5★ accommodation';
+            }
+            if (!hotelText) hotelText = 'Standard 4★ / 5★ accommodation';
+
             const html = `
                 <div style="display:flex; gap:10px; align-items:flex-start;">
                     <div style="width:28px; height:28px; border-radius:6px; background:var(--portal-navy); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
@@ -526,10 +547,10 @@
                             <i class="fa-solid fa-check-circle"></i> Generated via ${modelName}
                         </div>
                         <p style="margin:0 0 4px 0; font-weight:700; color:var(--portal-navy);">
-                            ${data.title || 'Master Travel Package'} (${data.destination || 'Selected Destination'})
+                            ${data.title || 'Master Travel Package'} (${destText})
                         </p>
                         <p style="margin:0 0 6px 0; font-size:12px; color:var(--portal-text-muted);">
-                            ${data.duration || '6 Days / 5 Nights'} &bull; ${data.hotels || 'Standard 4★ / 5★ accommodation'}
+                            ${data.duration || '6 Days / 5 Nights'} &bull; ${hotelText}
                         </p>
                         <div style="font-size:11.5px; color:var(--portal-green); font-weight:700; margin-bottom:8px;">
                             Price: ${data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500'} (${data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585'})

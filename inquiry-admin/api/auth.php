@@ -84,3 +84,20 @@ function checkSessionActivity($requiredRole = null) {
 function getActiveUser() {
     return $_SESSION['inquiry_admin'] ?? $_SESSION['admin_user'] ?? null;
 }
+
+// Silent Activity Heartbeat Endpoint
+if (isset($_GET['action']) && $_GET['action'] === 'heartbeat') {
+    $u = checkSessionActivity();
+    $pdo = getDb();
+    if ($pdo && !empty($u['id'])) {
+        try {
+            $pdo->prepare("UPDATE users SET last_activity = NOW(), status = 'active' WHERE id = ?")->execute([(int)$u['id']]);
+            $pdo->prepare("UPDATE login_history SET last_active = NOW(), status = 'active' WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1")->execute([(int)$u['id']]);
+        } catch (\Throwable $th) {}
+    }
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'alive' => true, 'timestamp' => time()]);
+    exit;
+}
+
+

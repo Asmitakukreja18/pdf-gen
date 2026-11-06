@@ -929,8 +929,15 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
 
                     // Redirect to Admin Dashboard or Staff Workspace
                     setTimeout(() => {
-                        window.location.href = data.redirect || 'inquiry-admin/dashboard.html';
-                    }, 600);
+                        let dest = data.redirect || 'dashboard.html';
+                        if (data.user && data.user.role && data.user.role !== 'admin') {
+                            dest = 'staff.html';
+                        }
+                        if (!dest.startsWith('inquiry-admin/')) {
+                            dest = 'inquiry-admin/' + dest;
+                        }
+                        window.location.href = dest;
+                    }, 500);
                 } else {
                     alertBox.className = 'auth-alert error';
                     alertBox.textContent = data.message || 'Invalid username or password.';

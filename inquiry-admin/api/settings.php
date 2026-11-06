@@ -77,3 +77,4 @@ if ($method === 'POST') {
         jsonError($e->getMessage(), 500);
     }
 }
+

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Packages &amp; Itineraries — Let's Explore DMC</title>
+    <title>Packages &amp; Itineraries  Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -19,75 +19,55 @@
         <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo" onerror="this.style.display='none'">
-                    <div class="brand-text">
-                        <div class="brand-title">Let's Explore DMC</div>
-                        <div class="brand-subtitle">OPERATIONS WORKSPACE</div>
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
                     </div>
                 </a>
-                <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
             </div>
 
             <nav class="sidebar-menu">
-                <div class="nav-group-title">MAIN NAVIGATION</div>
-                <a href="dashboard.html" class="nav-link">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Overview</span>
+                <a href="dashboard.html" class="nav-link" id="navItemDashboard">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
                 </a>
-                <a href="website.html" class="nav-link">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>Website Management</span>
+                <a href="leads.html" class="nav-link">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="../studio.html" class="nav-link" target="_blank" title="AI Quotation Studio">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
                 </a>
                 <a href="packages.html" class="nav-link active">
                     <i class="fa-solid fa-box-open"></i>
-                    <span>Packages &amp; Itineraries</span>
+                    <span>Tour Packages</span>
                 </a>
                 <a href="documents.html" class="nav-link">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Documents &amp; Proposals</span>
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
                 </a>
-                <a href="customers.html" class="nav-link">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Customers</span>
+                <a href="members.html" class="nav-link admin-only-nav" id="navItemStaffMgmt">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
                 </a>
-                <a href="invoices.html" class="nav-link">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Invoices &amp; Vouchers</span>
-                </a>
-                <a href="trips.html" class="nav-link">
-                    <i class="fa-solid fa-plane-departure"></i>
-                    <span>Running Trips</span>
-                </a>
-                <a href="suppliers.html" class="nav-link">
-                    <i class="fa-solid fa-handshake"></i>
-                    <span>Suppliers</span>
-                </a>
-                <a href="analytics.html" class="nav-link">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Reports &amp; Analytics</span>
-                </a>
-
-                <div class="nav-group-title" style="margin-top:14px;">SYSTEM &amp; AI</div>
-                <a href="ai-assistant.html" class="nav-link ai-highlight">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>AI Assistant</span>
-                </a>
-                <a href="settings.html" class="nav-link">
+                <a href="settings.html" class="nav-link admin-only-nav" id="navItemSettings">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
             </nav>
 
-            <div class="sidebar-footer">
-                <div class="user-status-card">
-                    <div class="status-indicator-dot online"></div>
-                    <div class="user-info-text">
-                        <div class="user-name">User-1 (Admin)</div>
-                        <div class="user-role">Operations Desk &bull; Online</div>
-                    </div>
-                </div>
+            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+                <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
             </div>
         </aside>
 
@@ -97,35 +77,27 @@
         <div class="portal-main">
             <!-- TOPBAR -->
             <header class="portal-topbar">
-                <div class="topbar-left">
-                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" style="background:none; border:none; font-size:18px; cursor:pointer;">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div class="breadcrumb-trail">
-                        <span class="crumb-root">Let's Explore DMC</span>
-                        <i class="fa-solid fa-chevron-right crumb-sep"></i>
-                        <span class="crumb-current">Packages &amp; Itineraries</span>
+                    <div class="search-pill-box" style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:10px 18px; width:340px;">
+                        <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
+                        <input type="text" id="topSearchInput" placeholder="Search tour packages, destinations, pricing..." style="border:none; background:transparent; font-size:13.5px; outline:none; width:100%;">
                     </div>
                 </div>
 
-                <div class="topbar-right">
-                    <a href="ai-assistant.html" class="btn-ai-pill">
+                <div class="topbar-actions-group" style="display:flex; align-items:center; gap:20px;">
+                    <a href="../studio.html" target="_blank" style="background:#2563EB; color:#FFF; font-weight:700; font-size:13px; padding:8px 16px; border-radius:9999px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Assistant</span>
+                        <span>AI Studio</span>
                     </a>
-                    <a href="../website/index.html" target="_blank" class="topbar-action-btn" title="View Public Website">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        <span class="hide-mobile">Public Site</span>
-                    </a>
-                    <div class="user-profile-menu">
-                        <div class="avatar-circle">A</div>
-                        <div class="user-details hide-mobile">
-                            <span class="name">Admin User</span>
-                            <span class="session-time">Active &bull; 11:00 AM</span>
+                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:12px;">
+                        <div class="avatar-box" id="topbarAvatar" style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px;">MA</div>
+                        <div class="profile-text-wrap" style="display:flex; flex-direction:column; line-height:1.25;">
+                            <span class="profile-name" id="topbarUserName" style="font-size:13.5px; font-weight:700; color:#0F172A;">Admin</span>
+                            <span class="profile-role" id="topbarUserRole" style="font-size:11.5px; font-weight:500; color:#64748B;">Administrator</span>
                         </div>
-                        <a href="../api/logout.php" class="logout-link" title="Logout">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </a>
                     </div>
                 </div>
             </header>

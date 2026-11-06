@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Workspace — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/portal.css?v=15.0">
+
+    <style>
+        :root {
+            --bg-ivory: #F8FAFC;
+            --sidebar-navy: #0F172A;
+            --sidebar-hover: #1E293B;
+            --brand-blue: #2563EB;
+            --brand-blue-light: #EFF6FF;
+            --brand-green: #10B981;
+            --brand-green-light: #ECFDF5;
+            --brand-gold: #C5A059;
+            --brand-gold-light: #FEF3C7;
+            --brand-gold-text: #92400E;
+            --card-radius: 20px;
+            --pill-radius: 9999px;
+            --shadow-subtle: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 0 1px 1px rgba(15, 23, 42, 0.02);
+        }
+
+        body {
+            background-color: var(--bg-ivory);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0F172A;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .portal-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .portal-sidebar {
+            background: var(--sidebar-navy);
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.28s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 22px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .brand-text-gold {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text-gold span {
+            color: var(--brand-gold);
+        }
+
+        .sidebar-menu {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-item:hover {
+            color: #FFFFFF;
+            background: var(--sidebar-hover);
+        }
+
+        .nav-link-item.active {
+            background: var(--brand-blue);
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-link-item i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .sidebar-logout-wrap {
+            padding: 16px 14px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Main Workspace Area */
+        .portal-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow-y: auto;
+        }
+
+        .portal-topbar {
+            background: #FFFFFF;
+            height: 72px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .search-pill-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F1F5F9;
+            border-radius: var(--pill-radius);
+            padding: 10px 18px;
+            width: 340px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .search-pill-box input {
+            border: none;
+            background: transparent;
+            font-size: 13.5px;
+            color: #0F172A;
+            width: 100%;
+            outline: none;
+        }
+
+        .topbar-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-pill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .avatar-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .profile-text-wrap {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .profile-name { font-size: 13.5px; font-weight: 700; color: #0F172A; }
+        .profile-role { font-size: 11.5px; font-weight: 500; color: #64748B; }
+
+        /* Workspace Header */
+        .work-header {
+            padding: 28px 32px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .work-title-group h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .work-title-group p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748B;
+            margin: 4px 0 0;
+        }
+
+        .btn-create-quote {
+            background: var(--brand-blue);
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border-radius: var(--pill-radius);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-create-quote:hover {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+        }
+
+        /* Metric Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 0 32px 24px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid rgba(15, 23, 42, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+        .stat-icon.green { background: var(--brand-green-light); color: var(--brand-green); }
+        .stat-icon.gold { background: var(--brand-gold-light); color: var(--brand-gold-text); }
+
+        .stat-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.1;
+        }
+
+        .stat-lbl {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        /* Content Sections */
+        .content-body {
+            padding: 0 32px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel-card {
+            background: #FFFFFF;
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid rgba(15, 23, 42, 0.04);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0F172A;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        table.custom-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748B;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        table.custom-table td {
+            padding: 16px;
+            font-size: 13.5px;
+            color: #1E293B;
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        table.custom-table tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--pill-radius);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-badge.fresh { background: #EFF6FF; color: #2563EB; }
+        .status-badge.followup { background: #FEF3C7; color: #B45309; }
+        .status-badge.booking { background: #ECFDF5; color: #059669; }
+
+        .action-btn-sm {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .action-btn-primary { background: var(--brand-blue); color: #FFF; }
+        .action-btn-primary:hover { background: #1D4ED8; }
+        .action-btn-whatsapp { background: #25D366; color: #FFF; }
+        .action-btn-whatsapp:hover { background: #1EBE5D; }
+
+        @media (max-width: 900px) {
+            .portal-wrapper { flex-direction: column; }
+            .portal-sidebar { width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="portal-wrapper">
+        <!-- Staff Dedicated Sidebar -->
+        <aside class="portal-sidebar">
+            <div class="sidebar-header">
+                <a href="staff.html" class="sidebar-brand">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="staff.html" class="nav-link-item active">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>My Workspace</span>
+                </a>
+                <a href="leads.html" class="nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="../studio.html" class="nav-link-item" target="_blank">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
+                </a>
+                <a href="packages.html" class="nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Tour Packages</span>
+                </a>
+                <a href="documents.html" class="nav-link-item">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-logout-wrap">
+                <a href="../api/logout.php" class="nav-link-item" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="portal-main">
+            <!-- Topbar -->
+            <header class="portal-topbar">
+                <div class="search-pill-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="staffSearchInput" placeholder="Search inquiries, guests or destinations...">
+                </div>
+
+                <div class="topbar-actions-group">
+                    <div class="profile-pill-item">
+                        <div class="avatar-box" id="userAvatar">ST</div>
+                        <div class="profile-text-wrap">
+                            <span class="profile-name" id="userName">Staff Executive</span>
+                            <span class="profile-role" id="userRole">Operations Desk</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Header -->
+            <section class="work-header">
+                <div class="work-title-group">
+                    <h1>Welcome, <span id="welcomeUserName">Executive</span>! 👋</h1>
+                    <p>Here is your active inquiry queue and itinerary pipeline for today.</p>
+                </div>
+                <div>
+                    <a href="../studio.html" target="_blank" class="btn-create-quote">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Create AI Quotation</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Staff Stat Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fa-solid fa-inbox"></i></div>
+                    <div>
+                        <div class="stat-num" id="statLeads">14</div>
+                        <div class="stat-lbl">My Assigned Leads</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-file-circle-check"></i></div>
+                    <div>
+                        <div class="stat-num" id="statQuotes">18</div>
+                        <div class="stat-lbl">Quotations Sent</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div class="stat-num" id="statFollowups">3</div>
+                        <div class="stat-lbl">Pending Follow-ups</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Leads Table -->
+            <section class="content-body">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fa-solid fa-list-check" style="color:var(--brand-blue);"></i>
+                            <span>My Action Queue &amp; Leads</span>
+                        </div>
+                        <a href="leads.html" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">View All Inquiries &rarr;</a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table" id="leadsTable">
+                            <thead>
+                                <tr>
+                                    <th>Lead / Guest</th>
+                                    <th>Destination</th>
+                                    <th>Travelers &amp; Budget</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTableBody">
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:#0F172A;">Akash Dewani</div>
+                                        <div style="font-size:12px; color:#64748B;">Dewani Travels (B2B) • 9820011223</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:600;">Dubai Luxury 6D</div>
+                                        <div style="font-size:12px; color:#64748B;">Atlantis + Desert Safari</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:700; color:#059669;">₹1,40,000</div>
+                                        <div style="font-size:12px; color:#64748B;">2 Adults, 1 Child</div>
+                                    </td>
+                                    <td><span class="status-badge followup">Follow-up</span></td>
+                                    <td>
+                                        <div style="display:flex; gap:6px;">
+                                            <a href="../studio.html" class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/919820011223" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:#0F172A;">Dipesh Batra</div>
+                                        <div style="font-size:12px; color:#64748B;">Direct B2C • 7020660318</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:600;">Rajasthan &amp; Udaipur</div>
+                                        <div style="font-size:12px; color:#64748B;">4N Heritage Hotels</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:700; color:#059669;">₹65,000</div>
+                                        <div style="font-size:12px; color:#64748B;">2 Adults</div>
+                                    </td>
+                                    <td><span class="status-badge fresh">Fresh Lead</span></td>
+                                    <td>
+                                        <div style="display:flex; gap:6px;">
+                                            <a href="../studio.html" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/917020660318" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:#0F172A;">Rohan Mehta</div>
+                                        <div style="font-size:12px; color:#64748B;">Direct B2C • 9819922334</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:600;">Bali Honeymoon Package</div>
+                                        <div style="font-size:12px; color:#64748B;">Private Pool Villa</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight:700; color:#059669;">₹95,000</div>
+                                        <div style="font-size:12px; color:#64748B;">2 Adults</div>
+                                    </td>
+                                    <td><span class="status-badge booking">In Review</span></td>
+                                    <td>
+                                        <div style="display:flex; gap:6px;">
+                                            <a href="../studio.html" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/919819922334" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Saved Documents & PDFs -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fa-solid fa-file-pdf" style="color:#EF4444;"></i>
+                            <span>Recent Client Quotations &amp; PDF Downloads</span>
+                        </div>
+                        <a href="documents.html" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">Open Document Hub &rarr;</a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Document Title</th>
+                                    <th>Customer</th>
+                                    <th>File Size</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> Thailand Holiday Quotation (LEDMC-2025-001)</div>
+                                        <div style="font-size:12px; color:#64748B;">12 Days Krabi &amp; Phuket Luxury Package</div>
+                                    </td>
+                                    <td>Priya Sharma</td>
+                                    <td>245 KB</td>
+                                    <td>15 Apr 2025</td>
+                                    <td>
+                                        <a href="../images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> Download</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> Dubai Travel Itinerary (LEDMC-2025-002)</div>
+                                        <div style="font-size:12px; color:#64748B;">6 Days / 5 Nights Dubai &amp; Abu Dhabi</div>
+                                    </td>
+                                    <td>Rohan Mehta</td>
+                                    <td>320 KB</td>
+                                    <td>12 Apr 2025</td>
+                                    <td>
+                                        <a href="../images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> Download</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Silent Heartbeat & Session Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('api/login.php');
+                const data = await res.json();
+                if (data.authenticated && data.user) {
+                    const u = data.user;
+                    const empName = u.name || u.username || 'Executive';
+                    const empRole = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'Operations';
+                    
+                    document.getElementById('userName').textContent = empName;
+                    document.getElementById('welcomeUserName').textContent = empName;
+                    document.getElementById('userRole').textContent = empRole + ' Desk';
+                    document.getElementById('userAvatar').textContent = empName.substring(0, 2).toUpperCase();
+                }
+            } catch (e) {}
+
+            // Silent Heartbeat every 45 seconds for transparent admin tracking (Zero notification for staff)
+            setInterval(() => {
+                fetch('api/auth.php?action=heartbeat').catch(() => {});
+            }, 45000);
+        });
+    </script>
+</body>
+</html>

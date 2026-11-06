@@ -45,9 +45,9 @@
   --danger-bg: #FEF2F2;
   --danger-border: #FECACA;
 
-  --sidebar-width: 250px;
+  --sidebar-width: 260px;
   --sidebar-collapsed-width: 72px;
-  --topbar-height: 64px;
+  --topbar-height: 72px;
   --border-radius: 10px;
   --card-radius: 12px;
   --shadow-sm: 0 1px 3px rgba(16, 43, 80, 0.04);
@@ -98,11 +98,11 @@ body {
   width: 100%;
 }
 
-/* LEFT SIDEBAR */
+/* LEFT SIDEBAR (MODERN LUXURY DARK-NAVY THEME) */
 .portal-sidebar {
-  width: var(--sidebar-width);
-  background: #FFFFFF;
-  border-right: 1px solid var(--border-color);
+  width: 260px;
+  background: #0F172A;
+  border-right: none;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -110,7 +110,7 @@ body {
   bottom: 0;
   left: 0;
   z-index: 1000;
-  transition: width 0.25s ease, transform 0.25s ease;
+  transition: all 0.28s ease;
   user-select: none;
 }
 
@@ -119,21 +119,44 @@ body {
 }
 
 .sidebar-header {
-  height: var(--topbar-height);
-  padding: 0 18px;
+  padding: 24px 22px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.brand-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #92400E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.brand-text-gold {
+  font-size: 17px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+}
+
+.brand-text-gold span {
+  color: #C5A059;
 }
 
 .brand-logo {
@@ -153,9 +176,9 @@ body {
 
 .brand-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
-  color: var(--primary-navy);
+  color: #FFFFFF;
   line-height: 1.1;
   letter-spacing: -0.01em;
 }
@@ -163,7 +186,7 @@ body {
 .brand-subtitle {
   font-size: 9.5px;
   font-weight: 700;
-  color: var(--royal-blue);
+  color: #C5A059;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -171,7 +194,7 @@ body {
 .sidebar-toggle-btn {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: #94A3B8;
   font-size: 15px;
   cursor: pointer;
   padding: 6px;
@@ -183,27 +206,27 @@ body {
 }
 
 .sidebar-toggle-btn:hover {
-  background: var(--light-blue);
-  color: var(--royal-blue);
+  background: #1E293B;
+  color: #FFFFFF;
 }
 
 /* SIDEBAR NAVIGATION LINKS */
 .sidebar-menu {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 10px;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .nav-group-title {
   font-size: 10.5px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #64748B;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 10px 10px 4px 10px;
+  padding: 12px 14px 4px;
   white-space: nowrap;
   transition: opacity 0.2s;
 }
@@ -212,72 +235,60 @@ body {
   display: none;
 }
 
-.nav-link {
+.nav-link, .nav-link-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  color: var(--text-primary);
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #94A3B8;
   text-decoration: none;
   font-size: 13.5px;
-  font-weight: 500;
-  transition: var(--transition);
+  font-weight: 600;
+  transition: all 0.2s ease;
   position: relative;
   white-space: nowrap;
+  border: none;
 }
 
-.nav-link i {
+.nav-link i, .nav-link-item i {
   font-size: 15px;
   width: 18px;
   text-align: center;
-  color: #64748B;
+  color: inherit;
   transition: color 0.2s;
   flex-shrink: 0;
 }
 
-.nav-link:hover {
-  background: var(--bg-page);
-  color: var(--royal-blue);
-}
-
-.nav-link:hover i {
-  color: var(--royal-blue);
+.nav-link:hover, .nav-link-item:hover {
+  background: #1E293B;
+  color: #FFFFFF;
 }
 
 /* Active Link State */
-.nav-link.active {
-  background: var(--light-blue);
-  color: var(--royal-blue);
+.nav-link.active, .nav-link-item.active {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
   font-weight: 700;
+  box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
 }
 
-.nav-link.active i {
-  color: var(--royal-blue);
-}
-
-.nav-link.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3.5px;
-  background: var(--royal-blue);
-  border-radius: 0 3px 3px 0;
+.nav-link.active i, .nav-link-item.active i {
+  color: #FFFFFF !important;
 }
 
 .nav-link.ai-highlight {
-  color: #1D4ED8;
+  color: #93C5FD;
   font-weight: 600;
 }
 
 .nav-link.ai-highlight i {
-  color: #2563EB;
+  color: #60A5FA;
 }
 
 .nav-link.ai-highlight.active {
-  background: linear-gradient(135deg, #EFF6FF, #E0E7FF);
+  background: #2563EB;
+  color: #FFFFFF;
 }
 
 .portal-sidebar.collapsed .nav-link span {

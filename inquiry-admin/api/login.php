@@ -43,7 +43,8 @@ if (!$pdo) {
         $_SESSION['inquiry_admin'] = $staticStaff[$uLower];
         $_SESSION['admin_user'] = $_SESSION['inquiry_admin'];
         $_SESSION['last_activity_time'] = time();
-        jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful (Standby Mode)');
+        $redir = ($staticStaff[$uLower]['role'] === 'admin') ? 'dashboard.html' : 'staff.html';
+        jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => $redir], 'Login successful (Standby Mode)');
     } else {
         jsonError('Invalid username or password.', 401);
     }
@@ -101,9 +102,11 @@ try {
             ")->execute([(int)$user['id'], $empName, $actType, (string)$user['id'], $actDetails, $ip]);
         } catch (\Exception $ex) {}
 
+        $userRole = strtolower($user['role'] ?? 'executive');
+        $redir = ($userRole === 'admin') ? 'dashboard.html' : 'staff.html';
         jsonSuccess([
             'user' => $_SESSION['inquiry_admin'],
-            'redirect' => 'dashboard.html',
+            'redirect' => $redir,
             'is_relogin' => (bool)$isRelogin
         ], 'Login successful');
     } else {

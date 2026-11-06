@@ -16,13 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 if (!isset($_FILES['pdf_file']) || $_FILES['pdf_file']['error'] !== UPLOAD_ERR_OK) {
     $code = $_FILES['pdf_file']['error'] ?? -1;
     $errors = [
-        UPLOAD_ERR_INI_SIZE   => 'Uploaded file exceeds upload_max_filesize directive in php.ini',
-        UPLOAD_ERR_FORM_SIZE  => 'Uploaded file exceeds MAX_FILE_SIZE directive in HTML form',
-        UPLOAD_ERR_PARTIAL    => 'The uploaded file was only partially uploaded',
-        UPLOAD_ERR_NO_FILE    => 'No PDF file was uploaded',
-        UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder on server',
-        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-        UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the file upload'
+        UPLOAD_ERR_INI_SIZE   => 'The uploaded PDF exceeds the allowable server limit (up to 32MB allowed). Please select a smaller PDF.',
+        UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the form upload limit.',
+        UPLOAD_ERR_PARTIAL    => 'The uploaded file was only partially uploaded. Please try again.',
+        UPLOAD_ERR_NO_FILE    => 'No PDF file was uploaded.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Missing server temporary folder.',
+        UPLOAD_ERR_CANT_WRITE => 'Failed to save file to server storage.',
+        UPLOAD_ERR_EXTENSION  => 'A server extension interrupted the upload.'
     ];
     jsonError($errors[$code] ?? 'File upload error occurred.', 400);
 }

@@ -585,25 +585,17 @@
                     <i class="fa-solid fa-user-group"></i>
                     <span>Customers</span>
                 </a>
-                <a href="../studio.html" class="nav-link-item" target="_blank" title="Open AI Quotation Studio">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Quotations</span>
+                <a href="../studio.html" class="nav-link-item" target="_blank" title="AI Quotation Studio">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
                 </a>
                 <a href="packages.html" class="nav-link-item">
                     <i class="fa-solid fa-box-open"></i>
-                    <span>Packages</span>
-                </a>
-                <a href="trips.html" class="nav-link-item">
-                    <i class="fa-solid fa-car-side"></i>
-                    <span>Running Trips</span>
+                    <span>Tour Packages</span>
                 </a>
                 <a href="documents.html" class="nav-link-item">
                     <i class="fa-solid fa-folder-open"></i>
-                    <span>Documents</span>
-                </a>
-                <a href="analytics.html" class="nav-link-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Reports</span>
+                    <span>Documents &amp; PDFs</span>
                 </a>
                 <a href="members.html" class="nav-link-item" id="navItemStaffMgmt">
                     <i class="fa-solid fa-id-card-clip"></i>
@@ -892,14 +884,10 @@
                 const welcomeEl = document.getElementById('welcomeSubtext');
                 if (welcomeEl) welcomeEl.textContent = `Welcome back, ${name}! 👋`;
 
-                // If non-admin staff member, adjust interface to Staff Workspace
+                // If non-admin staff member, immediately direct to dedicated Staff Workspace
                 if (role !== 'admin') {
-                    const pageTitle = document.querySelector('.portal-page-title');
-                    if (pageTitle) pageTitle.textContent = 'Staff Workspace';
-                    const staffMgmt = document.getElementById('navItemStaffMgmt');
-                    if (staffMgmt) staffMgmt.style.display = 'none';
-                    const settingsLink = document.getElementById('navItemSettings');
-                    if (settingsLink) settingsLink.style.display = 'none';
+                    window.location.replace('staff.html');
+                    return;
                 }
             } catch (err) {
                 console.warn('Auth check notice:', err);

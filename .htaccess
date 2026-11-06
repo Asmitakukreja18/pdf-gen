@@ -5,3 +5,18 @@ DirectoryIndex index.html index.php
 Options -Indexes
 ServerSignature Off
 
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Graceful redirection to inquiry-admin dashboard & staff workspace
+RewriteRule ^dashboard\.html$ inquiry-admin/dashboard.html [R=301,L]
+RewriteRule ^staff\.html$ inquiry-admin/staff.html [R=301,L]
+</IfModule>
+
+<IfModule lsapi_module>
+   php_value upload_max_filesize 64M
+   php_value post_max_size 64M
+   php_value memory_limit 256M
+</IfModule>
+

@@ -33,13 +33,13 @@ $file = $_FILES['file'] ?? $_FILES['pdf_file'] ?? $_FILES['attachment'] ?? null;
 if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
     $code = $file['error'] ?? -1;
     $errors = [
-        UPLOAD_ERR_INI_SIZE   => 'Uploaded file exceeds upload_max_filesize in php.ini',
-        UPLOAD_ERR_FORM_SIZE  => 'Uploaded file exceeds form MAX_FILE_SIZE',
-        UPLOAD_ERR_PARTIAL    => 'File upload was only partially completed',
-        UPLOAD_ERR_NO_FILE    => 'No attachment was provided in the upload request',
-        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder on server',
-        UPLOAD_ERR_CANT_WRITE => 'Failed to write file to server disk',
-        UPLOAD_ERR_EXTENSION  => 'A PHP extension blocked the upload'
+        UPLOAD_ERR_INI_SIZE   => 'The uploaded file exceeds the maximum allowed server limit (up to 32MB). Please select a compressed file.',
+        UPLOAD_ERR_FORM_SIZE  => 'The uploaded file exceeds the form upload limit.',
+        UPLOAD_ERR_PARTIAL    => 'File upload was only partially completed. Please retry.',
+        UPLOAD_ERR_NO_FILE    => 'No attachment was provided in the upload request.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Missing server temporary directory.',
+        UPLOAD_ERR_CANT_WRITE => 'Failed to save file to server storage.',
+        UPLOAD_ERR_EXTENSION  => 'A server extension blocked the upload.'
     ];
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => $errors[$code] ?? 'File upload error occurred.']);
