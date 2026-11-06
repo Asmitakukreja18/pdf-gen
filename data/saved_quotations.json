@@ -160,7 +160,7 @@
         "land_total": 68500,
         "grand_total": 113500,
         "status": "Confirmed",
-        "updated_at": "2026-11-06 07:21:39",
+        "updated_at": "2026-11-06 07:36:25",
         "full_data": {
             "quoteRef": "LEDMC-SPRINT-2026-001",
             "client": {
@@ -257,6 +257,55 @@
                         "Souvenir Shopping",
                         "Airport Drop Transfer"
                     ]
+                }
+            ]
+        }
+    },
+    "LEDMC-AUTO-TEST-889": {
+        "quote_ref": "LEDMC-AUTO-TEST-889",
+        "client_name": "Dr. Rohit Sharma",
+        "client_phone": "+91 98765 12345",
+        "client_email": "rohit.sharma@example.com",
+        "destination": "Bali & Nusa Penida",
+        "travel_date": "2026-12-15",
+        "duration": "6 Days \/ 5 Nights",
+        "pax_count": "2 Adults",
+        "hotel_name": "The Kayon Jungle Resort & Pool Villa",
+        "flight_airline": "",
+        "flights_total": 0,
+        "land_total": 68500,
+        "grand_total": 68500,
+        "status": "Confirmed",
+        "updated_at": "2026-11-06 07:46:41",
+        "full_data": {
+            "quoteRef": "LEDMC-AUTO-TEST-889",
+            "client": {
+                "name": "Dr. Rohit Sharma",
+                "phone": "+91 98765 12345",
+                "email": "rohit.sharma@example.com",
+                "travelDate": "2026-12-15",
+                "duration": "6 Days \/ 5 Nights",
+                "pax": "2 Adults"
+            },
+            "destination": "Bali & Nusa Penida",
+            "landArrangement": {
+                "hotelName": "The Kayon Jungle Resort & Pool Villa",
+                "nights": "5 Nights"
+            },
+            "flightsTotal": 0,
+            "landTotal": 68500,
+            "grandTotal": 68500,
+            "status": "Confirmed",
+            "itinerary": [
+                {
+                    "day": 1,
+                    "title": "Arrival in Bali",
+                    "description": "Private transfer to villa"
+                },
+                {
+                    "day": 2,
+                    "title": "Ubud Art Village & Swing",
+                    "description": "Full day tour"
                 }
             ]
         }

@@ -180,7 +180,58 @@ const App = (() => {
       const leadPax = urlParams.get('pax');
       const leadNo = urlParams.get('lead_id') || urlParams.get('lead_no');
 
-      if (leadClient || leadDest || leadNo) {
+      const fromAi = urlParams.get('from_ai') === '1';
+      const storedAiDoc = localStorage.getItem('activeAiDocument');
+      if (fromAi && storedAiDoc) {
+        try {
+          const aiDoc = JSON.parse(storedAiDoc);
+          if (typeof QuotationData !== 'undefined' && QuotationData.package) {
+            if (aiDoc.title) QuotationData.package.title = aiDoc.title;
+            if (aiDoc.destination) {
+              QuotationData.package.destinations = aiDoc.destination;
+              QuotationData.package.destination = aiDoc.destination;
+            }
+            if (aiDoc.duration) QuotationData.package.duration = aiDoc.duration;
+            if (aiDoc.pax) QuotationData.package.travellers = aiDoc.pax;
+            if (aiDoc.pricing && aiDoc.pricing.totalInr) {
+              QuotationData.pricing = QuotationData.pricing || {};
+              QuotationData.pricing.totalInr = aiDoc.pricing.totalInr;
+              QuotationData.pricing.totalUsd = aiDoc.pricing.totalUsd || Math.round(aiDoc.pricing.totalInr / 83.5);
+              QuotationData.package.priceInr = aiDoc.pricing.totalInr;
+              QuotationData.package.priceUsd = QuotationData.pricing.totalUsd;
+            }
+            if (Array.isArray(aiDoc.itinerary) && aiDoc.itinerary.length > 0) {
+              QuotationData.days = aiDoc.itinerary.map((d, i) => ({
+                day: i + 1,
+                title: d.title || `Day ${i + 1}`,
+                description: d.desc || d.description || '',
+                meals: 'Breakfast Included',
+                hotel: typeof aiDoc.hotels === 'string' ? aiDoc.hotels : 'Luxury Category Hotel'
+              }));
+            }
+            if (aiDoc.inclusions) {
+              QuotationData.summary = QuotationData.summary || {};
+              QuotationData.summary.inclusions = aiDoc.inclusions;
+            }
+            if (aiDoc.exclusions) {
+              QuotationData.summary = QuotationData.summary || {};
+              QuotationData.summary.exclusions = aiDoc.exclusions;
+            }
+            if (typeof syncLegacyCompatibilityFields === 'function') {
+              syncLegacyCompatibilityFields();
+            }
+            populateStudioFromData();
+            setTimeout(() => {
+              showSection('generator');
+              if (typeof showToast === 'function') {
+                showToast('✨ AI Itinerary & Tariffs loaded into Studio Editor!', 'success');
+              }
+            }, 300);
+          }
+        } catch (aiErr) {
+          console.warn('Failed to parse activeAiDocument:', aiErr);
+        }
+      } else if (leadClient || leadDest || leadNo) {
         if (typeof QuotationData !== 'undefined' && QuotationData.package) {
           if (leadClient) QuotationData.package.clientName = leadClient;
           if (leadDest) {

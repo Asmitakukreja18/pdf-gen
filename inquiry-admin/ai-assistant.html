@@ -442,6 +442,124 @@
             document.getElementById('attachmentChipContainer').style.display = 'none';
         }
 
+        function normalizeAiQuotationData(raw, userPrompt = '') {
+            if (!raw) return null;
+            const d = raw.data || raw;
+            const pkg = d.package || {};
+
+            let destination = pkg.destination || d.destination || '';
+            if (typeof destination === 'object' && destination !== null) {
+                destination = destination.name || destination.city || destination.region || 'Selected Destination';
+            }
+            if (!destination) destination = 'Selected Destination';
+
+            let country = d.country || pkg.country || '';
+            if (!country) {
+                const low = destination.toLowerCase();
+                if (low.includes('bali') || low.includes('indonesia')) country = 'Indonesia';
+                else if (low.includes('dubai') || low.includes('abu dhabi')) country = 'UAE';
+                else if (low.includes('thailand') || low.includes('phuket') || low.includes('krabi')) country = 'Thailand';
+                else if (low.includes('malaysia')) country = 'Malaysia';
+                else if (low.includes('turkey') || low.includes('cappadocia')) country = 'Turkey';
+                else if (low.includes('vietnam')) country = 'Vietnam';
+                else if (low.includes('kashmir') || low.includes('rajasthan') || low.includes('kerala')) country = 'India';
+                else country = 'International';
+            }
+
+            let duration = pkg.duration || d.duration || '6 Days / 5 Nights';
+            let title = pkg.title || d.title || `${duration} Luxury ${destination} Escape`;
+
+            let priceInr = Number(pkg.priceInr || d.pricing?.totalInr || d.priceInr || 48500);
+            let priceUsd = Number(pkg.priceUsd || d.pricing?.totalUsd || d.priceUsd || Math.round(priceInr / 83.5));
+
+            // Intelligent Math & Amount Modification
+            if (userPrompt) {
+                const numMatch = userPrompt.match(/(?:increase|add|badha|extra|markup|badhao|kar do|plus|\+)\s*(?:by|to|ke)?\s*(?:rs\.?|inr|₹)?\s*(\d+[\d,]*)/i)
+                              || userPrompt.match(/(\d+[\d,]*)\s*(?:rs\.?|inr|₹)?\s*(?:increase|add|badha|extra|markup|kar do)/i);
+                if (numMatch) {
+                    const modVal = parseInt(numMatch[1].replace(/,/g, ''), 10);
+                    if (!isNaN(modVal) && modVal > 0) {
+                        const pLow = userPrompt.toLowerCase();
+                        if (pLow.includes('increase') || pLow.includes('add') || pLow.includes('badha') || pLow.includes('plus') || pLow.includes('+') || pLow.includes('extra')) {
+                            priceInr += modVal;
+                            priceUsd = Math.round(priceInr / 83.5);
+                            title += ` (+₹${modVal.toLocaleString()})`;
+                        } else if (pLow.includes('kar do') || pLow.includes('set to')) {
+                            priceInr = modVal;
+                            priceUsd = Math.round(priceInr / 83.5);
+                        }
+                    }
+                }
+            }
+
+            let hotelString = '';
+            const rawHotels = d.hotels || pkg.hotels;
+            if (Array.isArray(rawHotels)) {
+                hotelString = rawHotels.map(h => {
+                    if (typeof h === 'object' && h !== null) {
+                        const name = h.hotelName || h.name || 'Luxury Category Hotel';
+                        const room = h.roomType ? ` (${h.roomType})` : '';
+                        return `${name}${room}`;
+                    }
+                    return String(h);
+                }).join(', ');
+            } else if (typeof rawHotels === 'object' && rawHotels !== null) {
+                hotelString = rawHotels.hotelName || rawHotels.name || 'Luxury Category Hotel';
+            } else if (typeof rawHotels === 'string') {
+                hotelString = rawHotels;
+            }
+            if (!hotelString) hotelString = '4★ & 5★ Deluxe Properties';
+
+            let daysList = [];
+            const rawDays = d.days || d.itinerary || [];
+            if (Array.isArray(rawDays) && rawDays.length > 0) {
+                daysList = rawDays.map((item, idx) => ({
+                    day: item.day ? (typeof item.day === 'number' ? `Day ${item.day}` : item.day) : `Day ${idx + 1}`,
+                    title: item.title || item.heading || 'Sightseeing Tour',
+                    desc: item.description || item.desc || item.details || 'Curated sightseeing and guided experience.'
+                }));
+            } else {
+                daysList = [
+                    { day: 'Day 1', title: `Arrival in ${destination}`, desc: 'Private airport meet & greet by Let\'s Explore DMC representative, transfer to hotel, evening leisure.' },
+                    { day: 'Day 2', title: 'Signature Highlights Tour', desc: 'Full-day tour covering major attractions, cultural sights & viewpoints.' },
+                    { day: 'Day 3', title: 'Scenic Excursion & Adventure', desc: 'Exciting speedboat or cable car activity followed by evening sunset.' },
+                    { day: 'Day 4', title: 'Local Heritage & Shopping', desc: 'Visit traditional markets, craft centers, and gourmet dining spots.' },
+                    { day: 'Day 5', title: 'Departure Transfer', desc: 'Check-out and private transfer to airport with happy memories.' }
+                ];
+            }
+
+            const rawSummary = d.summary || {};
+            let inclusions = d.inclusions || rawSummary.inclusions || [
+                'Private AC airport and sightseeing transfers throughout tour',
+                'Daily buffet breakfast at all hotels',
+                'All entry tickets, admissions & toll permits mentioned in itinerary',
+                '24/7 dedicated on-ground DMC concierge support'
+            ];
+            let exclusions = d.exclusions || rawSummary.exclusions || [
+                'International and domestic flights',
+                'Tourist visa stamping fees',
+                'Personal expenses, laundry, tips and minibar charges',
+                'Travel insurance'
+            ];
+
+            return {
+                title,
+                destination,
+                country,
+                duration,
+                pax: pkg.paxCount ? `${pkg.paxCount} Adults` : (d.pax || '2 Adults'),
+                hotels: hotelString,
+                pricing: {
+                    totalInr: priceInr,
+                    totalUsd: priceUsd
+                },
+                itinerary: daysList,
+                inclusions,
+                exclusions,
+                rawResponse: d
+            };
+        }
+
         async function handleChatSubmit(e) {
             if (e) e.preventDefault();
             const input = document.getElementById('promptInput');
@@ -467,7 +585,7 @@
                         <i class="fa-solid fa-robot"></i>
                     </div>
                     <div style="font-size:12px; color:var(--portal-text-muted); font-weight:600;">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Processing with Claude 3.5 Sonnet...
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Processing with Travel Engine...
                     </div>
                 </div>
             `);
@@ -476,6 +594,7 @@
             const payload = {
                 prompt: prompt,
                 serverFilePath: activeAttachment?.serverPath || '',
+                currentQuotation: currentGeneratedData || null,
                 attachment: activeAttachment ? {
                     name: activeAttachment.name,
                     base64: activeAttachment.base64 || '',
@@ -495,12 +614,19 @@
                 if (typingEl) typingEl.remove();
 
                 if (result.success && result.data) {
-                    currentGeneratedData = result.data;
-                    renderChatResponse(chatBox, result.model || 'Claude 3.5 Sonnet', currentGeneratedData);
+                    let engineLabel = 'Local DMC Heuristic Engine (smart-travel-heuristic-v2)';
+                    if (result.provider === 'claude') {
+                        engineLabel = 'Anthropic Claude 3.5 Sonnet';
+                    } else if (result.provider === 'gemini') {
+                        engineLabel = 'Google Gemini 2.5 Flash';
+                    }
+                    currentGeneratedData = normalizeAiQuotationData(result.data, prompt);
+                    renderChatResponse(chatBox, engineLabel, currentGeneratedData);
                     renderReviewWorkspace(currentGeneratedData);
                 } else {
-                    currentGeneratedData = generateSmartFallback(prompt);
-                    renderChatResponse(chatBox, 'Claude Multi-Tier Engine', currentGeneratedData);
+                    const fallbackRaw = generateSmartFallback(prompt);
+                    currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
+                    renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData);
                     renderReviewWorkspace(currentGeneratedData);
                 }
             } catch (err) {
@@ -508,8 +634,9 @@
                 const typingEl = document.getElementById(typingId);
                 if (typingEl) typingEl.remove();
 
-                currentGeneratedData = generateSmartFallback(prompt);
-                renderChatResponse(chatBox, 'Claude Multi-Tier Engine', currentGeneratedData);
+                const fallbackRaw = generateSmartFallback(prompt);
+                currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
+                renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData);
                 renderReviewWorkspace(currentGeneratedData);
             }
 
@@ -689,11 +816,11 @@
 
         function openInDocumentStudio() {
             if (!currentGeneratedData) {
-                window.location.href = '../index.html';
+                window.location.href = '../studio.html';
                 return;
             }
             localStorage.setItem('activeAiDocument', JSON.stringify(currentGeneratedData));
-            window.location.href = `../index.html?from_ai=1&dest=${encodeURIComponent(currentGeneratedData.destination || 'Bali')}`;
+            window.location.href = `../studio.html?from_ai=1&dest=${encodeURIComponent(currentGeneratedData.destination || 'Bali')}&view=generator`;
         }
 
         function generateSmartFallback(prompt) {

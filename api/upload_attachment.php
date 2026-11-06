@@ -190,6 +190,8 @@ if ($pdo) {
 echo json_encode([
     'success' => true,
     'message' => 'PDF successfully uploaded and saved to cPanel hosting storage.',
+    'filePath' => $relativeDbPath,
+    'documentId' => $docId,
     'document' => [
         'id'            => $docId,
         'original_name' => $originalName,
