@@ -497,11 +497,11 @@ INSERT IGNORE INTO `user_activity_logs` (`id`, `user_id`, `employee_name`, `acti
 (2, 2, 'Chanchal (SU-1)', 'sent_quotation', 'Documents', 'LEDMC-2025-001', 'Quotation sent to Priya Sharma via Email & WhatsApp.', NOW() - INTERVAL 2 HOUR),
 (3, 3, 'Ritesh (SU-2)', 'created_lead', 'Leads', 'LEDMC-LEAD-103', 'Rohan Mehta lead added for Bali Honeymoon package.', NOW() - INTERVAL 1 HOUR);
 
--- Seed Showcase Documents in Central Repository
-INSERT IGNORE INTO `documents` (`id`, `doc_no`, `title`, `description`, `category_id`, `doc_type`, `customer_name`, `destination`, `file_name`, `file_path`, `file_size`, `mime_type`, `created_by_name`, `status`, `created_at`) VALUES
-(1, 'LEDMC-DOC-001', 'Thailand Holiday Quotation (LEDMC-2025-001)', 'Customer: Priya Sharma | 12 Days Krabi, Phuket luxury quotation.', 2, 'quotation', 'Priya Sharma', 'Thailand', 'Thailand_12D11N_Itinerary_Without_Rates.pdf', 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf', 250880, 'application/pdf', 'Chanchal (SU-1)', 'Sent', '2025-04-15 11:30:00'),
-(2, 'LEDMC-DOC-002', 'Dubai Travel Itinerary (LEDMC-2025-002)', 'Customer: Rohan Mehta | 6 Days / 5 Nights Dubai & Abu Dhabi premium itinerary.', 6, 'itinerary', 'Rohan Mehta', 'Dubai', 'LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 327680, 'application/pdf', 'Ritesh (SU-2)', 'Final', '2025-04-12 10:00:00'),
-(3, 'LEDMC-DOC-003', 'Tax Invoice (LEDMC-2025-003)', 'Customer: Neha Kapoor | Commercial corporate GST tax invoice.', 1, 'invoice', 'Neha Kapoor', 'Corporate', 'akash Dewani.pdf', 'images/pdf/akash Dewani.pdf', 215040, 'application/pdf', 'Main Admin', 'Sent', '2025-04-10 16:45:00');
+-- Seed Showcase Documents in Central Repository (Universal Base Columns)
+INSERT IGNORE INTO `documents` (`id`, `title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `created_at`) VALUES
+(1, 'Thailand Holiday Quotation (LEDMC-2025-001)', 'Customer: Priya Sharma | 12 Days Krabi, Phuket luxury quotation.', 2, 'Thailand_12D11N_Itinerary_Without_Rates.pdf', 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf', 250880, 'application/pdf', '2025-04-15 11:30:00'),
+(2, 'Dubai Travel Itinerary (LEDMC-2025-002)', 'Customer: Rohan Mehta | 6 Days / 5 Nights Dubai & Abu Dhabi premium itinerary.', 6, 'LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 327680, 'application/pdf', '2025-04-12 10:00:00'),
+(3, 'Tax Invoice (LEDMC-2025-003)', 'Customer: Neha Kapoor | Commercial corporate GST tax invoice.', 1, 'akash Dewani.pdf', 'images/pdf/akash Dewani.pdf', 215040, 'application/pdf', '2025-04-10 16:45:00');
 
 -- --------------------------------------------------------
 -- Seed Live Public Website Content

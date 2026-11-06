@@ -82,11 +82,22 @@ function ensureDatabaseSchemaSynced(\PDO $pdo) {
             }
         }
 
-        // 2. Ensure documents table has uploaded_by column
+        // 2. Ensure documents table has all modern columns
         $hasDocs = $pdo->query("SHOW TABLES LIKE 'documents'")->fetch();
         if ($hasDocs) {
-            $docCols = $pdo->query("SHOW COLUMNS FROM `documents` LIKE 'uploaded_by'")->fetchAll();
-            if (empty($docCols)) {
+            $docCols = $pdo->query("SHOW COLUMNS FROM `documents`")->fetchAll(PDO::FETCH_COLUMN);
+            if (!in_array('doc_no', $docCols)) {
+                $pdo->exec("ALTER TABLE `documents` 
+                    ADD COLUMN `doc_no` VARCHAR(60) DEFAULT NULL AFTER `id`,
+                    ADD COLUMN `doc_type` VARCHAR(50) NOT NULL DEFAULT 'quotation' AFTER `category_id`,
+                    ADD COLUMN `customer_id` INT UNSIGNED DEFAULT NULL AFTER `doc_type`,
+                    ADD COLUMN `customer_name` VARCHAR(150) DEFAULT NULL AFTER `customer_id`,
+                    ADD COLUMN `destination` VARCHAR(150) DEFAULT NULL AFTER `customer_name`,
+                    ADD COLUMN `created_by_name` VARCHAR(100) DEFAULT 'Admin' AFTER `uploaded_by`,
+                    ADD COLUMN `last_updated_by` VARCHAR(100) DEFAULT 'Admin' AFTER `created_by_name`,
+                    ADD COLUMN `status` VARCHAR(30) NOT NULL DEFAULT 'Draft' AFTER `last_updated_by`");
+            }
+            if (!in_array('uploaded_by', $docCols)) {
                 $pdo->exec("ALTER TABLE `documents` ADD COLUMN `uploaded_by` INT UNSIGNED DEFAULT 1 AFTER `mime_type`");
             }
         }
