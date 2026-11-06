@@ -392,35 +392,27 @@ CREATE TABLE IF NOT EXISTS `quotations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
--- Compatibility View: inquiries -> leads
--- Seamlessly bridges all APIs querying inquiries with the leads table
+-- Table: inquiries (Direct Inquiries from Website Forms & Lead Funnel)
+-- Safe, Non-Destructive: Preserves all existing client inquiries
 -- --------------------------------------------------------
-DROP VIEW IF EXISTS `inquiries`;
-DROP TABLE IF EXISTS `inquiries`;
-
-CREATE VIEW `inquiries` AS 
-SELECT 
-  `id`,
-  `lead_no`,
-  `customer_name`,
-  `phone`,
-  `email`,
-  `destination`,
-  `travel_start_date`,
-  `travel_end_date`,
-  `adults`,
-  `children`,
-  `rooms`,
-  `budget`,
-  `lead_source`,
-  `assigned_user_id`,
-  `assigned_employee`,
-  `followup_date`,
-  `status`,
-  `internal_notes`,
-  `created_at`,
-  `updated_at`
-FROM `leads`;
+CREATE TABLE IF NOT EXISTS `inquiries` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(150) NOT NULL DEFAULT '',
+  `phone` VARCHAR(30) NOT NULL,
+  `email` VARCHAR(120) DEFAULT NULL,
+  `source` VARCHAR(50) NOT NULL DEFAULT 'Website',
+  `destination` VARCHAR(150) DEFAULT NULL,
+  `message` TEXT DEFAULT NULL,
+  `status` ENUM('New', 'Fresh', 'Contacted', 'Followup', 'Follow-up', 'Prospect', 'Opportunity', 'Booking', 'Converted', 'Loss', 'Lost', 'Complete') NOT NULL DEFAULT 'New',
+  `assigned_to` VARCHAR(100) DEFAULT NULL,
+  `notes` TEXT DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_inq_phone` (`phone`),
+  INDEX `idx_inq_status` (`status`),
+  INDEX `idx_inq_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ============================================================
@@ -458,6 +450,12 @@ INSERT IGNORE INTO `leads` (`id`, `lead_no`, `client_type`, `customer_name`, `ph
 (1, 'LEDMC-LEAD-101', 'B2C', 'Dipesh Batra', '7020660318', 'dipeshbatra043@gmail.com', 'Rajasthan & Udaipur', 2, 0, 1, 65000.00, 'Website Form', 'Admin', 'Fresh', 'Looking for 4N heritage hotels with private SUV transport.'),
 (2, 'LEDMC-LEAD-102', 'B2B', 'Akash Dewani', '9820011223', 'akash@dewanitravels.com', 'Dubai Luxury 6D', 2, 1, 1, 140000.00, 'WhatsApp Partner', 'Chanchal (SU-1)', 'Follow-up', 'Atlantis the palm query, flight BOM-DXB-BOM requested.'),
 (3, 'LEDMC-LEAD-103', 'B2C', 'Rohan Mehta', '9819922334', 'rohan.mehta@gmail.com', 'Bali Honeymoon', 2, 0, 1, 95000.00, 'Website Form', 'Ritesh (SU-2)', 'In Review', 'Private pool villa with Nusa Penida tour.');
+
+-- Seed Website Inquiries
+INSERT IGNORE INTO `inquiries` (`id`, `name`, `phone`, `email`, `source`, `destination`, `message`, `status`, `assigned_to`) VALUES
+(1, 'Rajesh Malhotra', '+91 98765 43210', 'rajesh.malhotra@gmail.com', 'Website', 'Dubai Explorer 5N/6D', 'Looking for 5-star Dubai package with Burj Khalifa and desert safari.', 'Fresh', 'Admin'),
+(2, 'Aanand Singhal', '+91 98111 22334', 'aanand.s@travelcorp.in', 'WhatsApp', 'Thailand 12D Master', 'Corporate incentive tour for 15 executives.', 'Followup', 'Chanchal (SU-1)'),
+(3, 'Pooja Kulkarni', '+91 99223 34455', 'pooja.k@gmail.com', 'Website', 'Bali & Nusa Penida Luxury 7D', 'Honeymoon couple, private pool villa in Ubud.', 'Booking', 'Ritesh (SU-2)');
 
 -- Seed Country Packages
 INSERT IGNORE INTO `packages` (`id`, `package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `pricing_inr`, `pricing_usd`, `original_pdf_url`) VALUES

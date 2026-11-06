@@ -4,6 +4,9 @@
  */
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth.php';
+
+$activeUser = checkSessionActivity(); // Ensure authenticated
 
 $method = $_SERVER['REQUEST_METHOD'];
 if ($method !== 'POST' && $method !== 'DELETE') {

@@ -17,18 +17,19 @@ if (!$quoteRef) {
 
 $pdo = getDatabaseConnection();
 
+$deletedFromDb = false;
+
 if ($pdo) {
     try {
         $stmt = $pdo->prepare("DELETE FROM `quotations` WHERE `quote_ref` = :quote_ref");
         $stmt->execute([':quote_ref' => $quoteRef]);
-        echo json_encode(['success' => true, 'message' => "Quotation {$quoteRef} deleted from database."]);
-        exit;
+        $deletedFromDb = true;
     } catch (\PDOException $e) {
         error_log("Failed to delete from MySQL: " . $e->getMessage());
     }
 }
 
-// Fallback to JSON file
+// Synchronously clean up local fallback file to prevent reappearance or state inconsistency
 if (file_exists(LOCAL_FALLBACK_FILE)) {
     $content = @file_get_contents(LOCAL_FALLBACK_FILE);
     $data = json_decode($content, true) ?: [];
@@ -38,4 +39,8 @@ if (file_exists(LOCAL_FALLBACK_FILE)) {
     }
 }
 
-echo json_encode(['success' => true, 'message' => "Quotation {$quoteRef} deleted."]);
+echo json_encode([
+    'success' => true,
+    'source'  => $deletedFromDb ? 'MySQL + File Store Synchronized' : 'File Store',
+    'message' => "Quotation {$quoteRef} successfully deleted."
+]);

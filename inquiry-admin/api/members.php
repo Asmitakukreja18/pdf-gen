@@ -10,11 +10,19 @@
  */
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth.php';
 $pdo = getDbConnection();
 $method = $_SERVER['REQUEST_METHOD'];
 
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $action = $input['action'] ?? ($_GET['action'] ?? 'list');
+
+// Role-Based Authorization: Member creation, status toggling and revoking require Admin
+if (in_array($action, ['create', 'toggle_status', 'revoke_session', 'update'])) {
+    $activeUser = checkSessionActivity('admin');
+} else {
+    $activeUser = checkSessionActivity(); // Any authenticated user can view members & status
+}
 
 // 1. LIST ALL MEMBERS
 if ($method === 'GET' || $action === 'list') {

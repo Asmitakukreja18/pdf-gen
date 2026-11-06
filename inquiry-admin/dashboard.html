@@ -605,11 +605,11 @@
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reports</span>
                 </a>
-                <a href="members.html" class="nav-link-item">
+                <a href="members.html" class="nav-link-item" id="navItemStaffMgmt">
                     <i class="fa-solid fa-id-card-clip"></i>
                     <span>Staff Management</span>
                 </a>
-                <a href="settings.html" class="nav-link-item">
+                <a href="settings.html" class="nav-link-item" id="navItemSettings">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
@@ -871,6 +871,40 @@
     <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Session & Role Validation
+            try {
+                const authRes = await fetch('api/login.php');
+                const authData = await authRes.json();
+                if (!authData.success || !authData.user) {
+                    window.location.href = '../index.html?msg=unauthorized';
+                    return;
+                }
+                const user = authData.user;
+                const role = (user.role || 'executive').toLowerCase();
+                const name = user.name || user.username || 'User';
+
+                const nameEl = document.getElementById('topbarUserName');
+                if (nameEl) nameEl.textContent = name;
+                const roleEl = document.getElementById('topbarUserRole');
+                if (roleEl) roleEl.textContent = (role === 'admin') ? 'Administrator' : (role.charAt(0).toUpperCase() + role.slice(1));
+                const avatarEl = document.querySelector('.avatar-box');
+                if (avatarEl) avatarEl.textContent = name.substring(0, 2).toUpperCase();
+                const welcomeEl = document.getElementById('welcomeSubtext');
+                if (welcomeEl) welcomeEl.textContent = `Welcome back, ${name}! 👋`;
+
+                // If non-admin staff member, adjust interface to Staff Workspace
+                if (role !== 'admin') {
+                    const pageTitle = document.querySelector('.portal-page-title');
+                    if (pageTitle) pageTitle.textContent = 'Staff Workspace';
+                    const staffMgmt = document.getElementById('navItemStaffMgmt');
+                    if (staffMgmt) staffMgmt.style.display = 'none';
+                    const settingsLink = document.getElementById('navItemSettings');
+                    if (settingsLink) settingsLink.style.display = 'none';
+                }
+            } catch (err) {
+                console.warn('Auth check notice:', err);
+            }
+
             initSalesChart();
             await loadLiveDashboardMetrics();
             await loadLiveEmployeeTracking();

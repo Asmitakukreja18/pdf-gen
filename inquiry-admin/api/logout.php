@@ -50,3 +50,4 @@ if (isset($_GET['redirect']) || empty($_SERVER['HTTP_ACCEPT']) || strpos($_SERVE
 }
 
 jsonSuccess(['redirect' => '../../index.html'], 'Logged out successfully.');
+

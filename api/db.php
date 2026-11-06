@@ -106,10 +106,26 @@ function ensureDatabaseSchemaSynced(\PDO $pdo) {
             }
         }
 
-        // 4. Ensure inquiries compatibility view exists
-        $hasLeads = $pdo->query("SHOW TABLES LIKE 'leads'")->fetch();
-        if ($hasLeads) {
-            $pdo->exec("CREATE OR REPLACE VIEW `inquiries` AS SELECT * FROM `leads`");
+        // 4. Ensure inquiries table exists for website and CRM inquiries
+        $hasInquiries = $pdo->query("SHOW TABLES LIKE 'inquiries'")->fetch();
+        if (!$hasInquiries) {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `inquiries` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `name` VARCHAR(150) NOT NULL DEFAULT '',
+                `phone` VARCHAR(30) NOT NULL,
+                `email` VARCHAR(120) DEFAULT NULL,
+                `source` VARCHAR(50) NOT NULL DEFAULT 'Website',
+                `destination` VARCHAR(150) DEFAULT NULL,
+                `message` TEXT DEFAULT NULL,
+                `status` ENUM('New', 'Fresh', 'Contacted', 'Followup', 'Follow-up', 'Prospect', 'Opportunity', 'Booking', 'Converted', 'Loss', 'Lost', 'Complete') NOT NULL DEFAULT 'New',
+                `assigned_to` VARCHAR(100) DEFAULT NULL,
+                `notes` TEXT DEFAULT NULL,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                INDEX `idx_inq_phone` (`phone`),
+                INDEX `idx_inq_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         }
     } catch (\Throwable $e) {
         error_log("Schema auto-sync notice: " . $e->getMessage());

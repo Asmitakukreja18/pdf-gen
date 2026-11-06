@@ -90,5 +90,59 @@
                 }
             ]
         }
+    },
+    "LEDMC-F42D352C": {
+        "quote_ref": "LEDMC-F42D352C",
+        "client_name": "Guest Traveller",
+        "client_phone": "",
+        "client_email": "",
+        "destination": "Dubai, UAE",
+        "travel_date": "",
+        "duration": "",
+        "pax_count": "2 Adults",
+        "hotel_name": "",
+        "flight_airline": "",
+        "flights_total": 0,
+        "land_total": 0,
+        "grand_total": 0,
+        "status": "Confirmed",
+        "updated_at": "2026-11-05 23:34:45",
+        "full_data": {
+            "quotation_ref": "LE-DMC-DXB-2027-EXECUTIVE",
+            "client_name": "Mr. Vikramaditya Singhania (Modified Post-AI Edit)",
+            "client_phone": "+91 99888 77665",
+            "client_email": "vikram@singhaniagroup.com",
+            "destination": "Dubai, UAE",
+            "duration": "6 Days \/ 5 Nights",
+            "pax_count": 2,
+            "total_inr": 149500,
+            "total_usd": 1657.14,
+            "markup_percent": 15,
+            "hotel_name": "Atlantis The Palm Dubai",
+            "hotel_nights": "3 Nights",
+            "days": [
+                {
+                    "day": 1,
+                    "title": "Airport VIP Arrival & Marina Cruise",
+                    "desc": "Private transfer to Atlantis The Palm & evening yacht cruise."
+                },
+                {
+                    "day": 2,
+                    "title": "Burj Khalifa Sky Lounge & Dubai Mall",
+                    "desc": "148th floor Sky Lounge access and VIP shopping tour."
+                },
+                {
+                    "day": 3,
+                    "title": "Premium Desert Safari & Private Majlis",
+                    "desc": "Red dune bashing, falconry display, and 5-star private BBQ."
+                },
+                {
+                    "day": 4,
+                    "title": "Departure Private Limousine Transfer",
+                    "desc": "Gourmet breakfast and limousine transfer to DXB Airport."
+                }
+            ],
+            "internal_notes": "Client requested extra airport meet-and-greet service."
+        }
     }
 }

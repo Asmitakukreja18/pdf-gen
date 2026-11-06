@@ -41,6 +41,8 @@ if (!$pdo) {
             session_regenerate_id(true);
         }
         $_SESSION['inquiry_admin'] = $staticStaff[$uLower];
+        $_SESSION['admin_user'] = $_SESSION['inquiry_admin'];
+        $_SESSION['last_activity_time'] = time();
         jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'redirect' => 'dashboard.html'], 'Login successful (Standby Mode)');
     } else {
         jsonError('Invalid username or password.', 401);
@@ -63,6 +65,8 @@ try {
             'email' => $user['email'],
             'role' => $user['role']
         ];
+        $_SESSION['admin_user'] = $_SESSION['inquiry_admin'];
+        $_SESSION['last_activity_time'] = time();
 
         // Inactivity & Re-Login Detection (Requirement 6)
         $lastAct = $user['last_activity'] ? strtotime($user['last_activity']) : 0;

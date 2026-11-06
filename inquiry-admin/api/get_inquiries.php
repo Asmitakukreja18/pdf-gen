@@ -4,6 +4,9 @@
  */
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth.php';
+
+$activeUser = checkSessionActivity(); // Ensure authenticated & within 15-minute activity window
 
 $pdo = getDb();
 if (!$pdo) {
