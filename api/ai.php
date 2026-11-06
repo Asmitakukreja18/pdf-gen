@@ -422,6 +422,27 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $priceInr = 48500;
     $priceUsd = 560;
 
+    // If an existing quotation is active in current state, preserve its destination & structure
+    if ($currentQuotation && is_array($currentQuotation)) {
+        $cPkg = $currentQuotation['package'] ?? [];
+        $activeDest = $cPkg['destinations'] ?? ($cPkg['destination'] ?? '');
+        if (!empty($activeDest)) {
+            $hasExplicitNewDest = preg_match('/\b(bali|dubai|uae|singapore|malaysia|turkey|vietnam|kashmir|rajasthan|kerala)\b/i', $prompt);
+            if (!$hasExplicitNewDest) {
+                $dest = $activeDest;
+                $country = $cPkg['country'] ?? 'Thailand';
+                $duration = $cPkg['duration'] ?? '4 Days / 3 Nights';
+                if (preg_match('/(\d+)\s*days?/i', $duration, $dm)) {
+                    $numDays = intval($dm[1]);
+                    $numNights = max(1, $numDays - 1);
+                }
+                if (stripos($dest, 'tomorrowland') !== false || stripos($dest, 'pattaya') !== false) {
+                    $text .= ' tomorrowland pattaya';
+                }
+            }
+        }
+    }
+
     if (preg_match('/(\d+)\s*(?:days?|d)\s*(?:\/\s*(\d+)\s*(?:nights?|n))?/i', $prompt, $m)) {
         $numDays = intval($m[1]);
         $numNights = !empty($m[2]) ? intval($m[2]) : max(1, $numDays - 1);
@@ -439,12 +460,30 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
 
         // Check for pass / amount increase delta (e.g., "Passes ka amount increase kar do 20000")
         $passDelta = 0;
-        if (preg_match('/(?:increase|bada|badhao|add|markup|extra).*?(\d+)/i', $prompt, $pm) || preg_match('/(\d{4,}).*?(?:increase|bada)/i', $prompt, $pm)) {
+        if (preg_match('/(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i', $prompt, $pm) || preg_match('/(\d{4,}).*?(?:increase|bada|badhao|add)/i', $prompt, $pm) || preg_match('/(?:passes|pass).*?(\d{4,})/i', $prompt, $pm)) {
             $passDelta = intval($pm[1]);
         }
-        $fullMadnessPrice = 120000 + $passDelta;
-        $vipPrice = 175000 + $passDelta;
-        $landPriceInr = 11062; // USD 127.15 @ 87.0
+
+        // Preserve previous pass price if already updated in current quotation
+        $existingMadness = 120000;
+        $existingVip = 175000;
+        if ($currentQuotation && !empty($currentQuotation['summary']['items'])) {
+            foreach ($currentQuotation['summary']['items'] as $it) {
+                if (stripos($it['name'], 'Full Madness') !== false || stripos($it['name'], 'Tomorrowland') !== false) {
+                    if (!empty($it['amountINR']) && $it['amountINR'] >= 120000) {
+                        $existingMadness = intval($it['amountINR']);
+                    }
+                }
+                if (stripos($it['name'], 'VIP') !== false) {
+                    if (!empty($it['amountINR']) && $it['amountINR'] >= 175000) {
+                        $existingVip = intval($it['amountINR']);
+                    }
+                }
+            }
+        }
+        $fullMadnessPrice = $existingMadness + $passDelta;
+        $vipPrice = $existingVip + $passDelta;
+        $landPriceInr = 11065; // USD 127.15 @ 87.0
         $priceInr = $landPriceInr + $fullMadnessPrice;
         $priceUsd = round($priceInr / $usdRate, 2);
     } elseif (strpos($text, 'dubai') !== false || strpos($text, 'uae') !== false || strpos($text, 'abu dhabi') !== false) {

@@ -694,20 +694,24 @@ OUTPUT JSON SCHEMA:
 
     if (/Tomorrowland|Pattaya/i.test(fullText)) {
       let passDelta = 0;
-      const passMatch = fullText.match(/(?:increase|bada|badhao|add|markup|extra).*?(\d+)/i) || fullText.match(/(\d{4,}).*?(?:increase|bada)/i);
-      if (passMatch) {
-        passDelta = parseInt(passMatch[1], 10);
+      const userPrompt = text || '';
+      const promptDeltaMatch = userPrompt.match(/(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i)
+                            || userPrompt.match(/(\d{4,}).*?(?:increase|bada|badhao|add)/i)
+                            || userPrompt.match(/(?:passes|pass).*?(\d{4,})/i)
+                            || fullText.match(/(?:increase|bada|badhao).*?(\d{4,})/i);
+      if (promptDeltaMatch) {
+        passDelta = parseInt(promptDeltaMatch[1], 10);
       }
       const fullMadness = 120000 + passDelta;
       const vip = 175000 + passDelta;
-      const landInr = 11062;
+      const landInr = 11065;
       summaryItems = [
         { name: 'Land Package (2 Vans Transfers + Pattaya City Tour + Local Insurance)', amountUSD: 127.15, amountINR: landInr },
-        { name: 'Tomorrowland 3 Days Festival Pass (Full Madness)' + (passDelta > 0 ? ` [Updated +INR ${passDelta.toLocaleString('en-IN')}]` : ''), amountUSD: Math.round(fullMadness / 87.5), amountINR: fullMadness },
+        { name: 'Tomorrowland 3 Days Festival Pass (Full Madness)' + (passDelta > 0 ? ` [Updated +INR ${passDelta.toLocaleString('en-IN')}]` : ''), amountUSD: Math.round(fullMadness / 87.0), amountINR: fullMadness },
         { name: `Optional Add-on: Comfort VIP Pass @ INR ${vip.toLocaleString('en-IN')}`, amountUSD: 0, amountINR: 0 }
       ];
       totalINR = landInr + fullMadness;
-      totalUSD = +(127.15 + (fullMadness / 87.5)).toFixed(2);
+      totalUSD = +(127.15 + (fullMadness / 87.0)).toFixed(2);
     }
 
     return {

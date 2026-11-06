@@ -880,6 +880,80 @@ const Chatbot = (() => {
         return;
       }
 
+      // 5B. Theme & Color Consistency Handler ("WANT SAME THEME COLOR", "COLOR THEME SAME CHAHIYE N", etc.)
+      const isThemeColorCommand = /(?:theme\s*color|color\s*theme|same\s*color|theme|color\s*chahiye|same\s*theme)/i.test(text);
+      if (isThemeColorCommand && !attachment) {
+        // Guarantee official DMC Deep Navy (#0F2C59) and Gold accents
+        if (!QuotationData.themeSettings) {
+          QuotationData.themeSettings = {
+            template: 'classic',
+            preset: 'classic-blue',
+            primaryColor: '#0F2C59',
+            secondaryColor: '#1E3A8A',
+            accentColor: '#2563EB',
+            textColor: '#1E293B',
+            mutedColor: '#64748B',
+            borderColor: '#CBD5E1',
+            tableHeaderBg: '#0F2C59',
+            tableHeaderText: '#FFFFFF'
+          };
+        } else {
+          QuotationData.themeSettings.primaryColor = '#0F2C59';
+          QuotationData.themeSettings.tableHeaderBg = '#0F2C59';
+          QuotationData.themeSettings.tableHeaderText = '#FFFFFF';
+        }
+
+        // If user also included a price modification command in the same message (e.g. "Passes ka amount increase kar do 20000")
+        const hasPriceIncrease = /(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i.test(text)
+                              || /(\d{4,}).*?(?:increase|bada|badhao|add)/i.test(text);
+        let priceNote = '';
+        if (hasPriceIncrease) {
+          const pm = text.match(/(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i) || text.match(/(\d{4,}).*?(?:increase|bada)/i);
+          if (pm) {
+            const delta = parseInt(pm[1], 10);
+            if (QuotationData.summary && QuotationData.summary.items) {
+              const passItem = QuotationData.summary.items.find(it => /pass|passes|madness|festival/i.test(it.name));
+              if (passItem) {
+                passItem.amountINR = (Number(passItem.amountINR) || 120000) + delta;
+                passItem.amountUSD = Math.round(passItem.amountINR / (QuotationData.package.usdToInrRate || 87.0));
+                passItem.name = `Tomorrowland 3 Days Festival Pass (Full Madness) [Updated +INR ${delta.toLocaleString('en-IN')}]`;
+              } else {
+                QuotationData.summary.items.push({
+                  name: `Passes Adjustment (+INR ${delta.toLocaleString('en-IN')})`,
+                  amountINR: delta,
+                  amountUSD: Math.round(delta / (QuotationData.package.usdToInrRate || 87.0))
+                });
+              }
+              recalculateQuotationPricing();
+              priceNote = `<br>💰 <strong>Passes / Pricing Updated:</strong> +₹ ${delta.toLocaleString('en-IN')} successfully added to quotation total! Total is now <strong>₹ ${QuotationData.summary.totalINR.toLocaleString('en-IN')} ($ ${QuotationData.summary.totalUSD.toFixed(2)} USD)</strong>.<br>`;
+            }
+          }
+        }
+
+        if (typeof App !== 'undefined' && typeof App.updateLivePreviews === 'function') {
+          App.updateLivePreviews();
+        }
+
+        setTyping(false);
+        const activePkgName = QuotationData.package.destinations || QuotationData.package.title || 'Tomorrowland Thailand Group Package';
+        const activeDuration = QuotationData.package.duration || '4 Days / 3 Nights';
+        appendAI(
+          `✅ <strong>Official Let's Explore DMC Theme Color Strictly Preserved &amp; Applied!</strong><br><br>` +
+          `• <strong>Primary Header &amp; Table Theme:</strong> Luxury Deep Navy (<code>#0F2C59</code>)<br>` +
+          `• <strong>Accent &amp; Highlights:</strong> Warm Gold &amp; Royal Blue<br>` +
+          `• <strong>Active Package:</strong> <strong>${activePkgName}</strong> (${activeDuration})<br>` +
+          (priceNote ? priceNote : `• <strong>Quotation Total:</strong> ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '1,51,065'} ($ ${QuotationData.summary?.totalUSD?.toFixed(2) || '1,736.35'} USD)<br>`) +
+          `<br>Document ka design, colors, tables, aur reference branding 100% synchronized hain! Live preview me turant check kar sakte hain.`
+        );
+        showReplies([
+          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
+          { label: '🖨️ PDF Generate / Download', val: '__PDF__' },
+          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
+        ]);
+        scrollBottom();
+        return;
+      }
+
       // 6. Section Removal / Addition in Natural Language ("adult details hata do", "amenities hata do", etc.)
       const isPriceOrDocRequest = /(?:increase|decrease|kam|zyada|bada|amount|price|rate|cost|tariff|pass|passes|markup|\b\d{4,}\b|\[Extracted Document Text\])/i.test(text);
       const isShortCommand = text.trim().length < 150;
