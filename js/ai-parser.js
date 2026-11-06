@@ -448,6 +448,7 @@ OUTPUT JSON SCHEMA:
     } else {
       // Find prominent destination names
       const dests = [];
+      if (/Tomorrowland|Pattaya/i.test(fullText)) dests.push('Pattaya Tomorrowland');
       if (/Krabi/i.test(fullText)) dests.push('Krabi');
       if (/Phuket/i.test(fullText)) dests.push('Phuket');
       if (/Koh\s*Yao\s*Yai/i.test(fullText)) dests.push('Koh Yao Yai');
@@ -461,7 +462,7 @@ OUTPUT JSON SCHEMA:
 
       if (dests.length > 0) {
         destination = dests.join(' + ');
-        if (/Krabi|Phuket|Koh Yao|Bangkok/i.test(destination) && !/Thailand/i.test(destination)) destination += ', Thailand';
+        if (/Tomorrowland|Pattaya|Krabi|Phuket|Koh Yao|Bangkok/i.test(destination) && !/Thailand/i.test(destination)) destination += ', Thailand';
         else if (/Dubai|Abu Dhabi/i.test(destination) && !/UAE/i.test(destination)) destination += ', UAE';
       } else {
         destination = (typeof QuotationData !== 'undefined' && QuotationData.package?.destinations) || 'Thailand (Krabi + Phuket)';
@@ -683,11 +684,37 @@ OUTPUT JSON SCHEMA:
       ]
     };
 
+    // Dynamic or Tomorrowland festival pass calculation
+    let summaryItems = [
+      { name: 'Hotel & Resort Accommodation', amountUSD: 0, amountINR: isWithoutRates ? 0 : 169143 },
+      { name: 'Land Part (Private Transfers & Ferries)', amountUSD: isWithoutRates ? 0 : 1808, amountINR: 0 }
+    ];
+    let totalUSD = isWithoutRates ? 0 : 1808;
+    let totalINR = isWithoutRates ? 0 : 169143;
+
+    if (/Tomorrowland|Pattaya/i.test(fullText)) {
+      let passDelta = 0;
+      const passMatch = fullText.match(/(?:increase|bada|badhao|add|markup|extra).*?(\d+)/i) || fullText.match(/(\d{4,}).*?(?:increase|bada)/i);
+      if (passMatch) {
+        passDelta = parseInt(passMatch[1], 10);
+      }
+      const fullMadness = 120000 + passDelta;
+      const vip = 175000 + passDelta;
+      const landInr = 11062;
+      summaryItems = [
+        { name: 'Land Package (2 Vans Transfers + Pattaya City Tour + Local Insurance)', amountUSD: 127.15, amountINR: landInr },
+        { name: 'Tomorrowland 3 Days Festival Pass (Full Madness)' + (passDelta > 0 ? ` [Updated +INR ${passDelta.toLocaleString('en-IN')}]` : ''), amountUSD: Math.round(fullMadness / 87.5), amountINR: fullMadness },
+        { name: `Optional Add-on: Comfort VIP Pass @ INR ${vip.toLocaleString('en-IN')}`, amountUSD: 0, amountINR: 0 }
+      ];
+      totalINR = landInr + fullMadness;
+      totalUSD = +(127.15 + (fullMadness / 87.5)).toFixed(2);
+    }
+
     return {
       detectedDocType: detectedDocType,
       documentSummary: `Extracted ${detectedDocType.toUpperCase()} for ${destination} (${duration || 'Custom Plan'})`,
       package: {
-        title: 'PACKAGE TOUR',
+        title: /Tomorrowland/i.test(destination) ? 'Pattaya Tomorrowland Thailand Group Package' : 'PACKAGE TOUR',
         duration: duration || '12 Days / 11 Nights',
         destinations: destination,
         travellers: travellers,
@@ -703,13 +730,10 @@ OUTPUT JSON SCHEMA:
       days: days,
       hotels: hotels,
       summary: {
-        items: [
-          { name: 'Hotel & Resort Accommodation', amountUSD: 0, amountINR: isWithoutRates ? 0 : 169143 },
-          { name: 'Land Part (Private Transfers & Ferries)', amountUSD: isWithoutRates ? 0 : 1808, amountINR: 0 }
-        ],
+        items: summaryItems,
         autoCalculate: true,
-        totalUSD: isWithoutRates ? 0 : 1808,
-        totalINR: isWithoutRates ? 0 : 169143
+        totalUSD: totalUSD,
+        totalINR: totalINR
       },
       invoice: invoiceData,
       confirmation: voucherData

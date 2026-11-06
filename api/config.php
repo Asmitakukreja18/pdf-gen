@@ -53,17 +53,23 @@ if (session_status() === PHP_SESSION_NONE) {
 // ==========================================
 // AI PROVIDER CONFIGURATION (Claude, Gemini, OpenAI)
 // ==========================================
+$aiSettingsFile = __DIR__ . '/../data/ai_settings.json';
+$dynamicAiSettings = file_exists($aiSettingsFile) ? json_decode(file_get_contents($aiSettingsFile), true) : [];
+
 // Anthropic Claude API Key (Complex reasoning & long documents)
-defined('CLAUDE_API_KEY') or define('CLAUDE_API_KEY', getenv('CLAUDE_API_KEY') ?: 'YOUR_CLAUDE_API_KEY_HERE');
+$savedClaudeKey = !empty($dynamicAiSettings['claude_api_key']) ? trim($dynamicAiSettings['claude_api_key']) : '';
+defined('CLAUDE_API_KEY') or define('CLAUDE_API_KEY', $savedClaudeKey ?: (getenv('CLAUDE_API_KEY') ?: 'YOUR_CLAUDE_API_KEY_HERE'));
 
 // Google Gemini API Key (Multimodal Vision, PDF/Image extraction)
-defined('GEMINI_API_KEY') or define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: 'YOUR_GEMINI_API_KEY_HERE');
+$savedGeminiKey = !empty($dynamicAiSettings['gemini_api_key']) ? trim($dynamicAiSettings['gemini_api_key']) : '';
+defined('GEMINI_API_KEY') or define('GEMINI_API_KEY', $savedGeminiKey ?: (getenv('GEMINI_API_KEY') ?: 'YOUR_GEMINI_API_KEY_HERE'));
 
 // OpenAI API Key (Optional)
 defined('OPENAI_API_KEY') or define('OPENAI_API_KEY', '');
 
 // Default AI Provider: 'auto' (Try Claude then Gemini), 'gemini', 'claude', 'openai'
-defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', 'auto');
+$savedProvider = !empty($dynamicAiSettings['default_provider']) ? trim($dynamicAiSettings['default_provider']) : 'auto';
+defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', $savedProvider ?: (getenv('DEFAULT_AI_PROVIDER') ?: 'auto'));
 
 // Local Fallback Data Storage for Quotations (when database is offline)
 defined('LOCAL_FALLBACK_FILE') or define('LOCAL_FALLBACK_FILE', __DIR__ . '/../data/saved_quotations.json');

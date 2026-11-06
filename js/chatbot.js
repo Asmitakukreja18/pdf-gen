@@ -881,8 +881,10 @@ const Chatbot = (() => {
       }
 
       // 6. Section Removal / Addition in Natural Language ("adult details hata do", "amenities hata do", etc.)
-      const isRemove = /(?:hata|remove|delete|hide|nikal|band\s*karo)/i.test(text);
-      const isShow = /(?:dikhao|show|wapas|add|enable|unhide|chahiye)/i.test(text) && !isRemove;
+      const isPriceOrDocRequest = /(?:increase|decrease|kam|zyada|bada|amount|price|rate|cost|tariff|pass|passes|markup|\b\d{4,}\b|\[Extracted Document Text\])/i.test(text);
+      const isShortCommand = text.trim().length < 150;
+      const isRemove = !isPriceOrDocRequest && isShortCommand && /(?:hata|remove|delete|hide|nikal|band\s*karo)/i.test(text);
+      const isShow = !isPriceOrDocRequest && isShortCommand && /(?:dikhao|show|wapas|enable|unhide)/i.test(text) && !isRemove;
 
       if (isRemove || isShow) {
         if (!QuotationData.confirmation.sections) {

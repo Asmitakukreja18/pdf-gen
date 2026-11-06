@@ -428,7 +428,26 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         $duration = "{$numDays} Days / {$numNights} Nights";
     }
 
-    if (strpos($text, 'dubai') !== false || strpos($text, 'uae') !== false || strpos($text, 'abu dhabi') !== false) {
+    if (strpos($text, 'tomorrowland') !== false || strpos($text, 'pattaya') !== false) {
+        $dest = 'Pattaya & Tomorrowland Festival, Thailand';
+        $country = 'Thailand';
+        $numDays = 4;
+        $numNights = 3;
+        $duration = '4 Days / 3 Nights';
+        $currency = 'BOTH';
+        $usdRate = 87.0;
+
+        // Check for pass / amount increase delta (e.g., "Passes ka amount increase kar do 20000")
+        $passDelta = 0;
+        if (preg_match('/(?:increase|bada|badhao|add|markup|extra).*?(\d+)/i', $prompt, $pm) || preg_match('/(\d{4,}).*?(?:increase|bada)/i', $prompt, $pm)) {
+            $passDelta = intval($pm[1]);
+        }
+        $fullMadnessPrice = 120000 + $passDelta;
+        $vipPrice = 175000 + $passDelta;
+        $landPriceInr = 11062; // USD 127.15 @ 87.0
+        $priceInr = $landPriceInr + $fullMadnessPrice;
+        $priceUsd = round($priceInr / $usdRate, 2);
+    } elseif (strpos($text, 'dubai') !== false || strpos($text, 'uae') !== false || strpos($text, 'abu dhabi') !== false) {
         $dest = 'Dubai & Abu Dhabi, UAE';
         $country = 'UAE';
         $priceInr = 62000;
@@ -531,18 +550,64 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
             $days[3]['description'] = "Full day private trip to Abu Dhabi. Marvel at the architectural masterpiece Sheikh Zayed Grand Mosque, drive along Corniche, and visit Louvre Abu Dhabi / Ferrari World photo stop.";
         }
-    }
+    } elseif (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
+        $days = [
+            [
+                'day' => 1,
+                'title' => "11 DEC: Suvarnabhumi Airport to Pattaya Hotel & Tomorrowland Day 1 Transfers (2 Vans)",
+                'description' => "Private transfer in 2 Vans from Suvarnabhumi Airport to Pattaya Hotel. Evening round-trip festival transfers for Tomorrowland Thailand Day 1. Thailand local travel insurance included.",
+                'meals' => 'Hotel Self Booked',
+                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
+                'activities' => ['Airport Meet & Transfer (2 Vans)', 'Tomorrowland Day 1 Pick-up & Drop-off (2 Vans)', 'Travel Insurance']
+            ],
+            [
+                'day' => 2,
+                'title' => "12 DEC: Tomorrowland Day 2 Pick-up & Drop-off (2 Vans)",
+                'description' => "Dedicated private 2 Vans on standby for Tomorrowland Day 2 festival transfers. Convenient hotel pick-up and late-night return transfer to hotel.",
+                'meals' => 'Hotel Self Booked',
+                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
+                'activities' => ['Tomorrowland Day 2 Round-trip Transfers (2 Vans)', '24x7 Driver Concierge Support']
+            ],
+            [
+                'day' => 3,
+                'title' => "13 DEC: Tomorrowland Day 3 Pick-up & Drop-off (2 Vans)",
+                'description' => "Tomorrowland Thailand Day 3 grand finale transfers. Private 2 Vans pick-up from hotel and return drop-off post festival.",
+                'meals' => 'Hotel Self Booked',
+                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
+                'activities' => ['Tomorrowland Day 3 Round-trip Transfers (2 Vans)', 'Destination Concierge Support']
+            ],
+            [
+                'day' => 4,
+                'title' => "14 DEC: Pattaya City Tour + Big Buddha & Return Airport Transfer (2 Vans)",
+                'description' => "Pattaya City Tour with Big Buddha temple admission ticket and private transfer. Return airport transfer in 2 Vans to Suvarnabhumi Airport for flight departure.",
+                'meals' => 'Hotel Self Booked',
+                'hotel' => 'Check-out & Airport Drop',
+                'activities' => ['Pattaya City Tour', 'Big Buddha Temple Ticket', 'Return Airport Transfer (2 Vans)']
+            ]
+        ];
 
-    $hotels = [
-        [
-            'city' => explode(',', $dest)[0],
-            'hotelName' => (strpos($dest, 'Bali') !== false ? 'The Kayon Jungle Resort & Pool Villa' : (strpos($dest, 'Dubai') !== false ? 'Grand Millennium Hotel Dubai (5-Star)' : 'Grand Luxury 5-Star Hotel & Resort')),
-            'roomType' => 'Deluxe Suite with Balcony / Pool Villa',
-            'nights' => $numNights,
-            'mealPlan' => 'Buffet Breakfast Included',
-            'rating' => '5 Star Luxury'
-        ]
-    ];
+        $hotels = [
+            [
+                'city' => 'Pattaya',
+                'hotelName' => 'Welcome Plaza Hotel / K Station / Private Pool Villa (Self-Booked)',
+                'roomType' => 'Double / Twin Bed Room with Breakfast (or Private 15-Pax Villa)',
+                'nights' => 3,
+                'mealPlan' => 'Hotel Self Booked by Guests Directly',
+                'rating' => 'Festival Reference Stay'
+            ]
+        ];
+    } else {
+        $hotels = [
+            [
+                'city' => explode(',', $dest)[0],
+                'hotelName' => (strpos($dest, 'Bali') !== false ? 'The Kayon Jungle Resort & Pool Villa' : (strpos($dest, 'Dubai') !== false ? 'Grand Millennium Hotel Dubai (5-Star)' : 'Grand Luxury 5-Star Hotel & Resort')),
+                'roomType' => 'Deluxe Suite with Balcony / Pool Villa',
+                'nights' => $numNights,
+                'mealPlan' => 'Buffet Breakfast Included',
+                'rating' => '5 Star Luxury'
+            ]
+        ];
+    }
 
     $inclusions = [
         "Private airport arrival and departure transfers in air-conditioned vehicle",
@@ -554,12 +619,22 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         "24x7 On-ground destination concierge support from Let's Explore DMC"
     ];
 
+    if (strpos($dest, 'Tomorrowland') !== false) {
+        $inclusions = [
+            "Airport Transfers Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)",
+            "Tomorrowland Festival Shuttles: Day 1, Day 2 & Day 3 Pick-up & Drop-off (2 Vans)",
+            "Pattaya City Tour + Big Buddha ticket & private transfer (2 Vans)",
+            "Thailand travel insurance during local tours within country boundaries",
+            "Tomorrowland 3 Days Festival Pass: Full Madness (Entry pass only per person)"
+        ];
+    }
+
     $exclusions = [
         "International / Domestic flight tickets",
+        "Hotel stay (if marked Hotel Self Booked by guests directly)",
         "Personal expenses (laundry, telephone, minibar, spa treatments)",
         "Tourist visa fees (available on request)",
-        "Travel and medical insurance (recommended)",
-        "Early check-in or late check-out beyond hotel policies"
+        "VIP passes or additional festival upgrades unless explicitly invoiced"
     ];
 
     $terms = [
@@ -569,15 +644,29 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         "Cancellations 30+ days prior: full refund minus administrative fee."
     ];
 
+    $summaryItems = [
+        ['name' => 'Land Package Tour Services', 'amountUSD' => round($priceUsd * 0.4, 2), 'amountINR' => round($priceInr * 0.4)],
+        ['name' => 'Accommodation & Inclusions', 'amountUSD' => round($priceUsd * 0.6, 2), 'amountINR' => round($priceInr * 0.6)]
+    ];
+    if (strpos($dest, 'Tomorrowland') !== false) {
+        $summaryItems = [
+            ['name' => 'Land Package (2 Vans Airport & Festival Transfers + City Tour + Insurance)', 'amountUSD' => 127.15, 'amountINR' => $landPriceInr],
+            ['name' => 'Tomorrowland 3 Days Pass (Full Madness)' . ($passDelta > 0 ? " [Updated +INR " . number_format($passDelta) . "]" : ""), 'amountUSD' => round($fullMadnessPrice / $usdRate, 2), 'amountINR' => $fullMadnessPrice],
+            ['name' => "Optional Add-on: Comfort VIP Pass @ INR " . number_format($vipPrice) . " / USD " . round($vipPrice / $usdRate, 2), 'amountUSD' => 0, 'amountINR' => 0]
+        ];
+    }
+
     return [
         'detectedDocType' => 'quotation',
         'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by Let's Explore DMC.",
         'package' => [
-            'title' => "{$duration} Luxury {$dest} Escape",
+            'title' => (strpos($dest, 'Tomorrowland') !== false ? "Pattaya Tomorrowland Thailand 4D3N Group Package" . ($passDelta > 0 ? " (+INR " . number_format($passDelta) . " Passes)" : "") : "{$duration} Luxury {$dest} Escape"),
             'destination' => $dest,
+            'destinations' => $dest,
             'duration' => $duration,
             'clientName' => 'Valued Guest',
             'guestCount' => 2,
+            'pax' => '2 Adults',
             'currency' => $currency,
             'usdRate' => $usdRate,
             'priceInr' => $priceInr,
@@ -585,10 +674,17 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ],
         'days' => $days,
         'hotels' => $hotels,
+        'pricing' => [
+            'totalInr' => $priceInr,
+            'totalUsd' => $priceUsd
+        ],
         'summary' => [
+            'items' => $summaryItems,
             'inclusions' => $inclusions,
             'exclusions' => $exclusions,
-            'terms' => $terms
+            'terms' => $terms,
+            'totalINR' => $priceInr,
+            'totalUSD' => $priceUsd
         ],
         'invoice' => [
             'invoiceNumber' => 'LEDMC-INV-' . date('Ymd') . '-01',

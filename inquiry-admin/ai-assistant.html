@@ -654,15 +654,17 @@
             if (typeof destText === 'object' && destText !== null) {
                 destText = destText.name || destText.city || destText.region || 'Selected Destination';
             }
-            if (!destText) destText = 'Selected Destination';
+            if (!destText || destText === '[object Object]') destText = 'Selected Destination';
 
             let hotelText = data.hotels;
             if (Array.isArray(hotelText)) {
-                hotelText = hotelText.map(h => typeof h === 'object' && h !== null ? (h.name || h.hotelName || 'Luxury Hotel') : h).join(', ');
+                hotelText = hotelText.map(h => typeof h === 'object' && h !== null ? (h.hotelName || h.name || 'Luxury Hotel') : String(h)).filter(Boolean).join(', ');
             } else if (typeof hotelText === 'object' && hotelText !== null) {
-                hotelText = hotelText.name || hotelText.hotelName || 'Standard 4★ / 5★ accommodation';
+                hotelText = hotelText.hotelName || hotelText.name || 'Standard 4★ / 5★ accommodation';
             }
-            if (!hotelText) hotelText = 'Standard 4★ / 5★ accommodation';
+            if (!hotelText || hotelText === '[object Object]') hotelText = 'Standard 4★ / 5★ accommodation';
+
+            let durationText = (typeof data.duration === 'string' && data.duration !== '[object Object]') ? data.duration : '6 Days / 5 Nights';
 
             const html = `
                 <div style="display:flex; gap:10px; align-items:flex-start;">
@@ -677,7 +679,7 @@
                             ${data.title || 'Master Travel Package'} (${destText})
                         </p>
                         <p style="margin:0 0 6px 0; font-size:12px; color:var(--portal-text-muted);">
-                            ${data.duration || '6 Days / 5 Nights'} &bull; ${hotelText}
+                            ${durationText} &bull; ${hotelText}
                         </p>
                         <div style="font-size:11.5px; color:var(--portal-green); font-weight:700; margin-bottom:8px;">
                             Price: ${data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500'} (${data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585'})
@@ -837,7 +839,15 @@
             let priceInr = 48500;
             let priceUsd = 585;
 
-            if (p.includes('dubai')) {
+            if (p.includes('tomorrowland') || p.includes('pattaya')) {
+                dest = 'Pattaya Tomorrowland Thailand';
+                country = 'Thailand';
+                title = 'Tomorrowland Thailand 4D3N Pattaya Group Package';
+                priceInr = 131062;
+                priceUsd = 1530;
+                duration = '4 Days / 3 Nights';
+                hotels = 'Welcome Plaza Hotel / K Station / Private Pool Villa (Self-Booked)';
+            } else if (p.includes('dubai')) {
                 dest = 'Dubai & Abu Dhabi';
                 country = 'UAE';
                 title = 'Dubai Corporate & Luxury Highlights';
