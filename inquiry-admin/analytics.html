@@ -1,93 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports &amp; Analytics — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
 </head>
+
 <body>
 
     <div class="portal-wrapper">
         <!-- ============================================================
-             LEFT SIDEBAR NAVIGATION
+             LEFT SIDEBAR NAVIGATION (MODERN LUXURY DARK-NAVY)
              ============================================================ -->
         <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo" onerror="this.style.display='none'">
-                    <div class="brand-text">
-                        <div class="brand-title">Let's Explore DMC</div>
-                        <div class="brand-subtitle">OPERATIONS WORKSPACE</div>
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
                     </div>
                 </a>
-                <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
             </div>
 
             <nav class="sidebar-menu">
-                <div class="nav-group-title">MAIN NAVIGATION</div>
-                <a href="dashboard.html" class="nav-link">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Overview</span>
+                <a href="dashboard.html" class="nav-link" id="navItemDashboard">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
                 </a>
-                <a href="website.html" class="nav-link">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>Website Management</span>
+                <a href="leads.html" class="nav-link">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="../studio.html" class="nav-link" target="_blank" title="AI Quotation Studio">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
                 </a>
                 <a href="packages.html" class="nav-link">
                     <i class="fa-solid fa-box-open"></i>
-                    <span>Packages &amp; Itineraries</span>
+                    <span>Tour Packages</span>
                 </a>
                 <a href="documents.html" class="nav-link">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>Documents &amp; Proposals</span>
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
                 </a>
-                <a href="customers.html" class="nav-link">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Customers</span>
+                <a href="members.html" class="nav-link admin-only-nav" id="navItemStaffMgmt">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
                 </a>
-                <a href="invoices.html" class="nav-link">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Invoices &amp; Vouchers</span>
-                </a>
-                <a href="trips.html" class="nav-link">
-                    <i class="fa-solid fa-plane-departure"></i>
-                    <span>Running Trips</span>
-                </a>
-                <a href="suppliers.html" class="nav-link">
-                    <i class="fa-solid fa-handshake"></i>
-                    <span>Suppliers</span>
-                </a>
-                <a href="analytics.html" class="nav-link active">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Reports &amp; Analytics</span>
-                </a>
-
-                <div class="nav-group-title" style="margin-top:14px;">SYSTEM &amp; AI</div>
-                <a href="ai-assistant.html" class="nav-link ai-highlight">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>AI Assistant</span>
-                </a>
-                <a href="settings.html" class="nav-link">
+                <a href="settings.html" class="nav-link admin-only-nav" id="navItemSettings">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
             </nav>
 
-            <div class="sidebar-footer">
-                <div class="user-status-card">
-                    <div class="status-indicator-dot online"></div>
-                    <div class="user-info-text">
-                        <div class="user-name">User-1 (Admin)</div>
-                        <div class="user-role">Operations Desk &bull; Online</div>
-                    </div>
-                </div>
+            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+                <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
             </div>
         </aside>
 
@@ -113,7 +97,8 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>AI Assistant</span>
                     </a>
-                    <a href="../website/index.html" target="_blank" class="topbar-action-btn" title="View Public Website">
+                    <a href="../website/index.html" target="_blank" class="topbar-action-btn"
+                        title="View Public Website">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         <span class="hide-mobile">Public Site</span>
                     </a>
@@ -136,7 +121,8 @@
                 <div class="page-header">
                     <div>
                         <h1 class="page-title">Performance Reports &amp; Conversion Analytics</h1>
-                        <p class="page-subtitle">Periodic analysis across 1, 3, 6, 12 months with sub-user performance tracking (SU1, SU2, Admin, Overall).</p>
+                        <p class="page-subtitle">Periodic analysis across 1, 3, 6, 12 months with sub-user performance
+                            tracking (SU1, SU2, Admin, Overall).</p>
                     </div>
                     <div class="header-actions">
                         <button type="button" class="btn btn-secondary" onclick="window.print()">
@@ -147,24 +133,35 @@
 
                 <!-- FILTER BAR (Handwritten Note #9: 1, 3, 6, 12 Months & SU1, SU2, Overall) -->
                 <div class="card" style="padding:14px 20px; margin-bottom:20px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
                         <!-- Period Filters -->
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <span style="font-size:11.5px; font-weight:700; color:var(--primary-navy); margin-right:4px;">TIME PERIOD:</span>
+                            <span
+                                style="font-size:11.5px; font-weight:700; color:var(--primary-navy); margin-right:4px;">TIME
+                                PERIOD:</span>
                             <button type="button" class="filter-tab period-btn" data-months="1">1 Month</button>
                             <button type="button" class="filter-tab period-btn" data-months="3">3 Months</button>
                             <button type="button" class="filter-tab period-btn" data-months="6">6 Months</button>
-                            <button type="button" class="filter-tab period-btn" data-months="12">12 Months (Yearly)</button>
-                            <button type="button" class="filter-tab period-btn active" data-months="all">All Time</button>
+                            <button type="button" class="filter-tab period-btn" data-months="12">12 Months
+                                (Yearly)</button>
+                            <button type="button" class="filter-tab period-btn active" data-months="all">All
+                                Time</button>
                         </div>
 
                         <!-- Sub-User Filters -->
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <span style="font-size:11.5px; font-weight:700; color:var(--primary-navy); margin-right:4px;">EXECUTIVE VIEW:</span>
-                            <button type="button" class="filter-tab user-btn active" data-user="all"><i class="fa-solid fa-earth-americas"></i> Overall Team</button>
-                            <button type="button" class="filter-tab user-btn" data-user="su1"><i class="fa-solid fa-user"></i> SU-1 (Chanchal)</button>
-                            <button type="button" class="filter-tab user-btn" data-user="su2"><i class="fa-solid fa-user"></i> SU-2 (Ritesh)</button>
-                            <button type="button" class="filter-tab user-btn" data-user="admin"><i class="fa-solid fa-crown"></i> Admin (U1)</button>
+                            <span
+                                style="font-size:11.5px; font-weight:700; color:var(--primary-navy); margin-right:4px;">EXECUTIVE
+                                VIEW:</span>
+                            <button type="button" class="filter-tab user-btn active" data-user="all"><i
+                                    class="fa-solid fa-earth-americas"></i> Overall Team</button>
+                            <button type="button" class="filter-tab user-btn" data-user="su1"><i
+                                    class="fa-solid fa-user"></i> SU-1 (Chanchal)</button>
+                            <button type="button" class="filter-tab user-btn" data-user="su2"><i
+                                    class="fa-solid fa-user"></i> SU-2 (Ritesh)</button>
+                            <button type="button" class="filter-tab user-btn" data-user="admin"><i
+                                    class="fa-solid fa-crown"></i> Admin (U1)</button>
                         </div>
                     </div>
                 </div>
@@ -211,7 +208,9 @@
                             <span class="widget-title">Gross Booking Value</span>
                             <div class="widget-icon icon-purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                         </div>
-                        <div class="widget-value" id="kpiTotalRevenue" style="font-size:clamp(18px, 1.6vw, 24px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">₹ 24,85,000</div>
+                        <div class="widget-value" id="kpiTotalRevenue"
+                            style="font-size:clamp(18px, 1.6vw, 24px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ₹ 24,85,000</div>
                         <div class="widget-trend" style="color:var(--text-secondary);">
                             <span>Dual Currency INR + USD</span>
                         </div>
@@ -222,11 +221,14 @@
                 <div class="card" style="margin-bottom:24px; padding:0; overflow:hidden;">
                     <div class="card-header" style="padding:16px 20px; margin:0;">
                         <div class="card-title">
-                            <i class="fa-solid fa-user-group" style="color:var(--royal-blue);"></i> Sub-User Conversion &amp; Productivity Breakdown
+                            <i class="fa-solid fa-user-group" style="color:var(--royal-blue);"></i> Sub-User Conversion
+                            &amp; Productivity Breakdown
                         </div>
-                        <span style="font-size:12px; color:var(--text-muted);">Real-time tracking of SU-1, SU-2, Admin &amp; Overall metrics</span>
+                        <span style="font-size:12px; color:var(--text-muted);">Real-time tracking of SU-1, SU-2, Admin
+                            &amp; Overall metrics</span>
                     </div>
-                    <div class="table-responsive" style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                    <div class="table-responsive"
+                        style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
                         <table class="portal-table" style="width:100%; min-width:680px; border-collapse:collapse;">
                             <thead>
                                 <tr>
@@ -243,7 +245,8 @@
                                 <tr>
                                     <td>
                                         <div style="font-weight:700; color:var(--primary-navy);">SU-1 — Chanchal</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Central Reservations Specialist</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Central Reservations
+                                            Specialist</div>
                                     </td>
                                     <td style="font-weight:700;">84</td>
                                     <td style="color:var(--royal-blue); font-weight:700;">68</td>
@@ -257,7 +260,8 @@
                                 <tr>
                                     <td>
                                         <div style="font-weight:700; color:var(--primary-navy);">SU-2 — Ritesh</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Corporate &amp; B2B Partner Desk</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Corporate &amp; B2B
+                                            Partner Desk</div>
                                     </td>
                                     <td style="font-weight:700;">48</td>
                                     <td style="color:var(--royal-blue); font-weight:700;">41</td>
@@ -271,7 +275,8 @@
                                 <tr>
                                     <td>
                                         <div style="font-weight:700; color:var(--primary-navy);">U-1 — Admin</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Master Operations &amp; High-Value Leads</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Master Operations
+                                            &amp; High-Value Leads</div>
                                     </td>
                                     <td style="font-weight:700;">28</td>
                                     <td style="color:var(--royal-blue); font-weight:700;">25</td>
@@ -284,13 +289,15 @@
                                 </tr>
                                 <tr style="background:#F8FAFC; font-weight:800;">
                                     <td style="color:var(--primary-navy);">
-                                        <i class="fa-solid fa-users" style="color:var(--royal-blue); margin-right:6px;"></i> Team Overall Total
+                                        <i class="fa-solid fa-users"
+                                            style="color:var(--royal-blue); margin-right:6px;"></i> Team Overall Total
                                     </td>
                                     <td>160</td>
                                     <td style="color:var(--royal-blue);">134</td>
                                     <td style="color:var(--success);">29</td>
                                     <td>
-                                        <span class="status-pill" style="background:var(--primary-navy); color:#FFF;">18.1%</span>
+                                        <span class="status-pill"
+                                            style="background:var(--primary-navy); color:#FFF;">18.1%</span>
                                     </td>
                                     <td style="color:#B45309;">₹ 24,85,000</td>
                                     <td style="text-align:center; color:var(--text-secondary);">13 mins</td>
@@ -305,51 +312,71 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                <i class="fa-solid fa-map-location-dot" style="color:var(--royal-blue);"></i> Top Inquired Destinations
+                                <i class="fa-solid fa-map-location-dot" style="color:var(--royal-blue);"></i> Top
+                                Inquired Destinations
                             </div>
                             <span style="font-size:12px; color:var(--text-muted);">By inquiry volume</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:16px;">
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
                                     <span>🇮🇩 Indonesia (Bali)</span>
-                                    <span style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">38 inquiries (24%)</span>
+                                    <span
+                                        style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">38
+                                        inquiries (24%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
-                                    <div style="background:var(--royal-blue); width:24%; height:100%; border-radius:6px;"></div>
+                                    <div
+                                        style="background:var(--royal-blue); width:24%; height:100%; border-radius:6px;">
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
                                     <span>🇸🇬 Singapore</span>
-                                    <span style="background:#EEF5FF; color:var(--primary-navy); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">32 inquiries (20%)</span>
+                                    <span
+                                        style="background:#EEF5FF; color:var(--primary-navy); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">32
+                                        inquiries (20%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
-                                    <div style="background:var(--primary-navy); width:20%; height:100%; border-radius:6px;"></div>
+                                    <div
+                                        style="background:var(--primary-navy); width:20%; height:100%; border-radius:6px;">
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
                                     <span>🇹🇷 Turkey (Istanbul &amp; Cappadocia)</span>
-                                    <span style="background:#F3E8FF; color:#7C3AED; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">28 inquiries (17.5%)</span>
+                                    <span
+                                        style="background:#F3E8FF; color:#7C3AED; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">28
+                                        inquiries (17.5%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#7C3AED; width:17.5%; height:100%; border-radius:6px;"></div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
                                     <span>🇲🇾 Malaysia (Kuala Lumpur &amp; Genting)</span>
-                                    <span style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">26 inquiries (16%)</span>
+                                    <span
+                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">26
+                                        inquiries (16%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#16A34A; width:16%; height:100%; border-radius:6px;"></div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
                                     <span>🇮🇳 India (Kerala, Kashmir, Rajasthan)</span>
-                                    <span style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">22 inquiries (14%)</span>
+                                    <span
+                                        style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">22
+                                        inquiries (14%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#D97706; width:14%; height:100%; border-radius:6px;"></div>
@@ -361,42 +388,62 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                <i class="fa-solid fa-bullhorn" style="color:var(--royal-blue);"></i> Inbound Lead Sources
+                                <i class="fa-solid fa-bullhorn" style="color:var(--royal-blue);"></i> Inbound Lead
+                                Sources
                             </div>
                             <span style="font-size:12px; color:var(--text-muted);">Acquisition channels</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:16px;">
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
-                                    <span><i class="fa-solid fa-globe" style="color:var(--royal-blue); margin-right:6px;"></i> Public Website Form</span>
-                                    <span style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">64 leads (40%)</span>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                    <span><i class="fa-solid fa-globe"
+                                            style="color:var(--royal-blue); margin-right:6px;"></i> Public Website
+                                        Form</span>
+                                    <span
+                                        style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">64
+                                        leads (40%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
-                                    <div style="background:var(--royal-blue); width:40%; height:100%; border-radius:6px;"></div>
+                                    <div
+                                        style="background:var(--royal-blue); width:40%; height:100%; border-radius:6px;">
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
-                                    <span><i class="fa-solid fa-handshake" style="color:#16A34A; margin-right:6px;"></i> Travel Agent B2B Desk</span>
-                                    <span style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">48 leads (30%)</span>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                    <span><i class="fa-solid fa-handshake" style="color:#16A34A; margin-right:6px;"></i>
+                                        Travel Agent B2B Desk</span>
+                                    <span
+                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">48
+                                        leads (30%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#16A34A; width:30%; height:100%; border-radius:6px;"></div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
-                                    <span><i class="fa-brands fa-whatsapp" style="color:#22C55E; margin-right:6px;"></i> WhatsApp Business Chat</span>
-                                    <span style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">32 leads (20%)</span>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                    <span><i class="fa-brands fa-whatsapp" style="color:#22C55E; margin-right:6px;"></i>
+                                        WhatsApp Business Chat</span>
+                                    <span
+                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">32
+                                        leads (20%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#22C55E; width:20%; height:100%; border-radius:6px;"></div>
                                 </div>
                             </div>
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
-                                    <span><i class="fa-solid fa-users" style="color:#D97706; margin-right:6px;"></i> Direct Referral / Repeat B2C</span>
-                                    <span style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">16 leads (10%)</span>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:var(--primary-navy); margin-bottom:6px;">
+                                    <span><i class="fa-solid fa-users" style="color:#D97706; margin-right:6px;"></i>
+                                        Direct Referral / Repeat B2C</span>
+                                    <span
+                                        style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">16
+                                        leads (10%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#D97706; width:10%; height:100%; border-radius:6px;"></div>
@@ -415,18 +462,18 @@
     <script src="js/idle-tracker.js?v=7.3"></script>
     <script>
         const PERIOD_STATS = {
-            '1':   { leads: 38, quotes: 31, bookings: 7, conv: '18.4%', rev: '₹ 5,80,000' },
-            '3':   { leads: 92, quotes: 78, bookings: 16, conv: '17.3%', rev: '₹ 13,40,000' },
-            '6':   { leads: 135, quotes: 112, bookings: 24, conv: '17.7%', rev: '₹ 19,60,000' },
-            '12':  { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' },
+            '1': { leads: 38, quotes: 31, bookings: 7, conv: '18.4%', rev: '₹ 5,80,000' },
+            '3': { leads: 92, quotes: 78, bookings: 16, conv: '17.3%', rev: '₹ 13,40,000' },
+            '6': { leads: 135, quotes: 112, bookings: 24, conv: '17.7%', rev: '₹ 19,60,000' },
+            '12': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' },
             'all': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' }
         };
 
         const USER_STATS = {
-            'su1':   { leads: 84, quotes: 68, bookings: 14, conv: '16.6%', rev: '₹ 11,40,000' },
-            'su2':   { leads: 48, quotes: 41, bookings: 9, conv: '18.7%', rev: '₹ 8,25,000' },
+            'su1': { leads: 84, quotes: 68, bookings: 14, conv: '16.6%', rev: '₹ 11,40,000' },
+            'su2': { leads: 48, quotes: 41, bookings: 9, conv: '18.7%', rev: '₹ 8,25,000' },
             'admin': { leads: 28, quotes: 25, bookings: 6, conv: '21.4%', rev: '₹ 5,20,000' },
-            'all':   { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' }
+            'all': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' }
         };
 
         let selectedPeriod = 'all';
@@ -487,4 +534,5 @@
         }
     </script>
 </body>
+
 </html>
