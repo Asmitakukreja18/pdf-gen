@@ -89,7 +89,7 @@ if ($method === 'GET' || $action === 'list') {
 
 // 2. CREATE NEW LEAD
 if ($action === 'create') {
-    $name = trim($input['customer_name'] ?? '');
+    $name = trim($input['customer_name'] ?? $input['name'] ?? '');
     $phone = trim($input['phone'] ?? '');
     $email = trim($input['email'] ?? '');
     $destination = trim($input['destination'] ?? 'Custom Tour');
@@ -97,11 +97,11 @@ if ($action === 'create') {
     $children = (int)($input['children'] ?? 0);
     $rooms = (int)($input['rooms'] ?? 1);
     $budget = (float)($input['budget'] ?? 0);
-    $source = trim($input['lead_source'] ?? 'Website Form');
-    $assigned = trim($input['assigned_employee'] ?? 'Admin');
-    $followup = !empty($input['followup_date']) ? $input['followup_date'] : null;
+    $source = trim($input['lead_source'] ?? $input['source'] ?? 'Website Form');
+    $assigned = trim($input['assigned_employee'] ?? $input['assigned_to'] ?? 'Admin');
+    $followup = !empty($input['followup_date']) ? $input['followup_date'] : (!empty($input['follow_up_date']) ? $input['follow_up_date'] : null);
     $status = trim($input['status'] ?? 'Fresh');
-    $notes = trim($input['internal_notes'] ?? '');
+    $notes = trim($input['internal_notes'] ?? $input['notes'] ?? '');
 
     if (empty($name) || empty($phone)) {
         jsonError('Customer Name and Phone Number are required.');
@@ -135,6 +135,7 @@ if ($action === 'create') {
         ")->execute([$assigned, $leadNo, "New lead created for $name ($destination)"]);
 
         jsonSuccess([
+            'id' => $leadId,
             'lead_id' => $leadId,
             'lead_no' => $leadNo
         ], "Lead $leadNo created successfully!");
@@ -143,23 +144,58 @@ if ($action === 'create') {
     }
 }
 
-// 3. UPDATE LEAD STATUS
-if ($action === 'update_status') {
-    $leadId = (int)($input['lead_id'] ?? 0);
-    $newStatus = trim($input['status'] ?? 'Fresh');
-    $employee = trim($input['employee_name'] ?? 'Admin');
+// 3. UPDATE LEAD (STATUS, ASSIGNMENT, FOLLOW-UP)
+if ($action === 'update' || $action === 'update_status') {
+    $leadId = (int)($input['lead_id'] ?? $input['id'] ?? 0);
+    if ($leadId <= 0) {
+        jsonError('Valid lead_id or id is required.', 400);
+    }
+
+    $newStatus = trim($input['status'] ?? '');
+    $assigned  = trim($input['assigned_employee'] ?? $input['assigned_to'] ?? '');
+    $followup  = !empty($input['followup_date']) ? $input['followup_date'] : (!empty($input['follow_up_date']) ? $input['follow_up_date'] : null);
+    $notes     = trim($input['internal_notes'] ?? $input['notes'] ?? '');
+    $employee  = trim($input['employee_name'] ?? 'Admin');
 
     try {
-        $stmt = $pdo->prepare("UPDATE `leads` SET `status` = ?, `updated_at` = NOW() WHERE `id` = ?");
-        $stmt->execute([$newStatus, $leadId]);
+        $updates = [];
+        $params = [];
+
+        if (!empty($newStatus)) {
+            $updates[] = "`status` = ?";
+            $params[] = $newStatus;
+        }
+        if (!empty($assigned)) {
+            $updates[] = "`assigned_employee` = ?";
+            $params[] = $assigned;
+        }
+        if ($followup !== null) {
+            $updates[] = "`followup_date` = ?";
+            $params[] = $followup;
+        }
+        if (!empty($notes)) {
+            $updates[] = "`internal_notes` = ?";
+            $params[] = $notes;
+        }
+
+        if (empty($updates)) {
+            $updates[] = "`updated_at` = NOW()";
+        } else {
+            $updates[] = "`updated_at` = NOW()";
+        }
+
+        $params[] = $leadId;
+        $sql = "UPDATE `leads` SET " . implode(', ', $updates) . " WHERE `id` = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
 
         // Audit log
         $pdo->prepare("
             INSERT INTO `user_activity_logs` (`user_id`, `employee_name`, `action`, `module`, `entity_id`, `details`, `created_at`)
             VALUES (1, ?, 'updated_status', 'Leads', ?, ?, NOW())
-        ")->execute([$employee, "Lead #$leadId", "Status changed to $newStatus"]);
+        ")->execute([$employee, "Lead #$leadId", "Lead updated: " . ($newStatus ? "status -> $newStatus" : "assigned -> $assigned")]);
 
-        jsonSuccess(['lead_id' => $leadId, 'status' => $newStatus], "Lead status updated to $newStatus.");
+        jsonSuccess(['lead_id' => $leadId, 'status' => $newStatus, 'assigned' => $assigned], "Lead #$leadId updated successfully.");
     } catch (Exception $e) {
         jsonError($e->getMessage(), 500);
     }

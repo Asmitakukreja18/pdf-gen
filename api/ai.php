@@ -633,6 +633,21 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         $country = 'India';
         $priceInr = 32000;
         $priceUsd = 370;
+    } elseif (strpos($text, 'maldives') !== false || strpos($text, 'male') !== false || strpos($text, 'water villa') !== false) {
+        $dest = 'Maldives Luxury Island Atolls';
+        $country = 'Maldives';
+        $priceInr = 145000;
+        $priceUsd = 1680;
+    }
+
+    // Dynamic markup from user prompt (% increase)
+    if (preg_match('/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|extra|increase)?/i', $prompt, $mMatch) ||
+        preg_match('/(?:markup|increase).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i', $prompt, $mMatch)) {
+        $pct = floatval($mMatch[1]);
+        if ($pct > 0 && $pct <= 100) {
+            $priceInr = round($priceInr * (1 + $pct / 100));
+            $priceUsd = round($priceUsd * (1 + $pct / 100), 2);
+        }
     }
 
     // Days generator
@@ -691,6 +706,51 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
             $days[3]['description'] = "Full day private trip to Abu Dhabi. Marvel at the architectural masterpiece Sheikh Zayed Grand Mosque, drive along Corniche, and visit Louvre Abu Dhabi / Ferrari World photo stop.";
         }
+    } elseif (strpos($dest, 'Maldives') !== false && $numDays >= 4) {
+        $days = [
+            [
+                'day' => 1,
+                'title' => "Velana International Airport Arrival & Luxury Speedboat Transfer to Water Villa",
+                'description' => "Meet and greet by Let's Explore DMC airport representative upon arrival in Malé. Seamless scenic speedboat transfer to the island resort. Check-in to your luxury Sunset Water Villa with direct lagoon access. Evening welcome cocktail and sunset beach stroll.",
+                'meals' => 'Dinner Included',
+                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
+                'activities' => ['Airport Representative Meet & Greet', 'Scenic Speedboat Roundtrip Transfer', 'Lagoon Sunset Welcome Drink']
+            ],
+            [
+                'day' => 2,
+                'title' => "House Reef Snorkeling Safari & Coral Garden Exploration",
+                'description' => "Awake to panoramic turquoise ocean views and a lavish international buffet breakfast. Embark on a guided house reef snorkeling safari to explore vibrant coral gardens, sea turtles, and colorful marine life with snorkeling gear included.",
+                'meals' => 'Breakfast, Lunch & Dinner Included',
+                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
+                'activities' => ['Guided House Reef Snorkeling Safari', 'Complimentary Snorkeling Equipment', 'Afternoon High Tea']
+            ],
+            [
+                'day' => 3,
+                'title' => "Sunset Dolphin Cruise & Candle Light Romantic Dinner",
+                'description' => "Morning at leisure enjoying resort water sports (kayaking, paddleboarding). In the late afternoon, set sail on a traditional wooden Dhoni boat for an exhilarating Sunset Dolphin Cruise. Enjoy an exclusive 4-course Candle Light Dinner setup under the stars on the pristine beach.",
+                'meals' => 'Breakfast, Lunch & Candle Light Beach Dinner',
+                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
+                'activities' => ['Sunset Dolphin Cruise on Traditional Dhoni', 'Beach Candle Light Dinner Setup', 'Complimentary Non-motorized Water Sports']
+            ],
+            [
+                'day' => 4,
+                'title' => "Resort Spa Rejuvenation & Sandbank Excursion",
+                'description' => "Indulge in a signature relaxing Balinese/Aromatherapy spa treatment at the overwater spa pavilion. Afternoon private boat excursion to a secluded desert sandbank surrounded by crystalline waters.",
+                'meals' => 'Breakfast, Sandbank Picnic Lunch & Dinner Included',
+                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
+                'activities' => ['Overwater Spa Rejuvenation Session', 'Secluded Sandbank Boat Trip', 'Cocktails at Sunset Overwater Bar']
+            ]
+        ];
+        if ($numDays >= 5) {
+            $days[] = [
+                'day' => $numDays,
+                'title' => "Floating Breakfast & Speedboat Transfer to Malé Airport",
+                'description' => "Begin your final morning with a private Floating Breakfast served in your villa plunge pool. Relax until check-out. Enjoy your return speedboat transfer to Velana International Airport for departure with cherished tropical memories.",
+                'meals' => 'Floating Breakfast Included',
+                'hotel' => 'Check-out & Airport Drop',
+                'activities' => ['Floating Breakfast Experience in Private Pool', 'Return Speedboat Transfer to Malé Airport']
+            ];
+        }
     } elseif (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
         $days = [
             [
@@ -726,7 +786,9 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
                 'activities' => ['Pattaya City Tour', 'Big Buddha Temple Ticket', 'Return Airport Transfer (2 Vans)']
             ]
         ];
+    }
 
+    if (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
         $hotels = [
             [
                 'city' => 'Pattaya',
@@ -737,11 +799,44 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
                 'rating' => 'Festival Reference Stay'
             ]
         ];
+    } elseif (strpos($dest, 'Bali') !== false) {
+        $hotels = [
+            [
+                'city' => 'Bali (Ubud & Kuta)',
+                'hotelName' => 'The Kayon Jungle Resort & Ubud Pool Villa',
+                'roomType' => 'Private Pool Villa / Deluxe Ocean Suite',
+                'nights' => $numNights,
+                'mealPlan' => 'Daily Buffet Breakfast Included',
+                'rating' => '5 Star Luxury Resort'
+            ]
+        ];
+    } elseif (strpos($dest, 'Maldives') !== false) {
+        $hotels = [
+            [
+                'city' => 'Maldives (North Malé Atoll)',
+                'hotelName' => 'Centara Grand Island Resort & Adaaran Prestige Vadoo',
+                'roomType' => 'Sunset Water Villa with Direct Lagoon Access & Private Plunge Pool',
+                'nights' => $numNights,
+                'mealPlan' => 'All-Inclusive Dine Around (Breakfast, Lunch, Dinner & Beverages)',
+                'rating' => '5 Star Luxury Water Villa'
+            ]
+        ];
+    } elseif (strpos($dest, 'Dubai') !== false) {
+        $hotels = [
+            [
+                'city' => 'Dubai',
+                'hotelName' => 'Grand Millennium Hotel Business Bay / Atlantis The Palm',
+                'roomType' => 'Deluxe King Room with City & Canal View',
+                'nights' => $numNights,
+                'mealPlan' => 'International Buffet Breakfast',
+                'rating' => '5 Star Deluxe'
+            ]
+        ];
     } else {
         $hotels = [
             [
                 'city' => explode(',', $dest)[0],
-                'hotelName' => (strpos($dest, 'Bali') !== false ? 'The Kayon Jungle Resort & Pool Villa' : (strpos($dest, 'Dubai') !== false ? 'Grand Millennium Hotel Dubai (5-Star)' : 'Grand Luxury 5-Star Hotel & Resort')),
+                'hotelName' => 'Grand Luxury 5-Star Hotel & Resort',
                 'roomType' => 'Deluxe Suite with Balcony / Pool Villa',
                 'nights' => $numNights,
                 'mealPlan' => 'Buffet Breakfast Included',
@@ -760,7 +855,18 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         "24x7 On-ground destination concierge support from Let's Explore DMC"
     ];
 
-    if (strpos($dest, 'Tomorrowland') !== false) {
+    if (strpos($dest, 'Maldives') !== false) {
+        $inclusions = [
+            "Roundtrip Airport Speedboat Transfers (Velana International Airport - Island Resort - Airport)",
+            "{$numNights} Nights Luxury Sunset Water Villa accommodation with private lagoon access",
+            "All-Inclusive Dine Around Meal Plan (Breakfast, Lunch, Dinner, Afternoon Tea & Premium Beverages)",
+            "Guided House Reef Snorkeling Safari with complimentary snorkeling gear",
+            "Sunset Dolphin Cruise excursion on traditional wooden Dhoni boat",
+            "Beach Candle Light Romantic Dinner setup under the stars (1 Evening)",
+            "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
+            "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
+        ];
+    } elseif (strpos($dest, 'Tomorrowland') !== false) {
         $inclusions = [
             "Airport Transfers Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)",
             "Tomorrowland Festival Shuttles: Day 1, Day 2 & Day 3 Pick-up & Drop-off (2 Vans)",
@@ -789,7 +895,18 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ['name' => 'Land Package Tour Services', 'amountUSD' => round($priceUsd * 0.4, 2), 'amountINR' => round($priceInr * 0.4)],
         ['name' => 'Accommodation & Inclusions', 'amountUSD' => round($priceUsd * 0.6, 2), 'amountINR' => round($priceInr * 0.6)]
     ];
-    if (strpos($dest, 'Tomorrowland') !== false) {
+    if (strpos($dest, 'Maldives') !== false) {
+        $inclusions = [
+            "Roundtrip Airport Speedboat Transfers (Velana International Airport - Island Resort - Airport)",
+            "{$numNights} Nights Luxury Sunset Water Villa accommodation with private lagoon access",
+            "All-Inclusive Dine Around Meal Plan (Breakfast, Lunch, Dinner, Afternoon Tea & Premium Beverages)",
+            "Guided House Reef Snorkeling Safari with complimentary snorkeling gear",
+            "Sunset Dolphin Cruise excursion on traditional wooden Dhoni boat",
+            "Beach Candle Light Romantic Dinner setup under the stars (1 Evening)",
+            "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
+            "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
+        ];
+    } elseif (strpos($dest, 'Tomorrowland') !== false) {
         $summaryItems = [
             ['name' => 'Land Package (2 Vans Airport & Festival Transfers + City Tour + Insurance)', 'amountUSD' => 127.15, 'amountINR' => $landPriceInr],
             ['name' => 'Tomorrowland 3 Days Pass (Full Madness)' . ($passDelta > 0 ? " [Updated +INR " . number_format($passDelta) . "]" : ""), 'amountUSD' => round($fullMadnessPrice / $usdRate, 2), 'amountINR' => $fullMadnessPrice],

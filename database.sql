@@ -190,6 +190,7 @@ CREATE TABLE IF NOT EXISTS `documents` (
   `created_by_name` VARCHAR(100) DEFAULT 'Admin',
   `last_updated_by` VARCHAR(100) DEFAULT 'Admin',
   `status` VARCHAR(30) NOT NULL DEFAULT 'Draft', -- 'Draft', 'Final', 'Sent', 'Archived'
+  `admin_remarks` TEXT DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -384,9 +385,11 @@ CREATE TABLE IF NOT EXISTS `quotations` (
   `land_total` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `grand_total` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `status` VARCHAR(50) NOT NULL DEFAULT 'Confirmed',
+  `admin_remarks` TEXT DEFAULT NULL,
   `full_data_json` LONGTEXT DEFAULT NULL,
   `created_by` VARCHAR(100) DEFAULT 'Admin',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `idx_q_ref` (`quote_ref`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

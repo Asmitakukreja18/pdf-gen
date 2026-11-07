@@ -346,35 +346,52 @@
     "LEDMC-TEST-999": {
         "quote_ref": "LEDMC-TEST-999",
         "client_name": "Dipesh Batra",
-        "client_phone": "7020660318",
-        "client_email": "dipesh@example.com",
-        "destination": "Rajasthan & Udaipur",
+        "client_phone": "",
+        "client_email": "",
+        "destination": "Bali Luxury Honeymoon 6D5N",
         "travel_date": "",
-        "duration": "4 Days \/ 3 Nights",
+        "duration": "",
         "pax_count": "2 Adults",
-        "hotel_name": "4N Heritage Hotels",
+        "hotel_name": "",
         "flight_airline": "",
         "flights_total": 0,
         "land_total": 0,
-        "grand_total": 65000,
-        "status": "Approved",
-        "updated_at": "2026-11-07 05:44:55",
+        "grand_total": 48500,
+        "status": "Draft",
+        "updated_at": "2026-11-07 11:08:01",
         "full_data": {
             "quoteRef": "LEDMC-TEST-999",
-            "client": {
-                "name": "Dipesh Batra",
-                "phone": "7020660318",
-                "email": "dipesh@example.com",
-                "duration": "4 Days \/ 3 Nights",
-                "pax": "2 Adults"
-            },
-            "destination": "Rajasthan & Udaipur",
-            "grandTotal": 65000,
-            "landArrangement": {
-                "hotelName": "4N Heritage Hotels",
-                "nights": "3"
-            },
-            "status": "Approved"
+            "clientName": "Dipesh Batra",
+            "destination": "Bali Luxury Honeymoon 6D5N",
+            "grandTotal": 48500,
+            "status": "Draft"
+        }
+    },
+    "LEDMC-D8C942CD": {
+        "quote_ref": "LEDMC-D8C942CD",
+        "client_name": "Guest Traveller",
+        "client_phone": "",
+        "client_email": "",
+        "destination": "Bali Luxury Honeymoon 6D5N",
+        "travel_date": "",
+        "duration": "",
+        "pax_count": "2 Adults",
+        "hotel_name": "",
+        "flight_airline": "",
+        "flights_total": 0,
+        "land_total": 0,
+        "grand_total": 0,
+        "status": "draft",
+        "updated_at": "2026-11-07 11:05:36",
+        "full_data": {
+            "lead_id": 1,
+            "customer_name": "Dipesh Batra",
+            "destination": "Bali Luxury Honeymoon 6D5N",
+            "total_amount_inr": 48500,
+            "total_amount_usd": 560,
+            "content_json": "{\"package\": {\"destination\": \"Bali\", \"priceInr\": 48500}}",
+            "status": "draft",
+            "created_by": 1
         }
     }
 }
