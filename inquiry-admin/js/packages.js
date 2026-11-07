@@ -429,8 +429,9 @@ window.customizeWithLogo = function(dest, title) {
       localStorage.setItem('activeAiDocument', JSON.stringify(pkgPayload));
     } catch (e) {}
   }
-  const studioUrl = `../studio.html?dest=${encodeURIComponent(dest)}&from_ai=1&view=generator`;
-  window.location.href = studioUrl;
+  const urlRole = new URLSearchParams(window.location.search).get('role') || localStorage.getItem('dmc_role') || 'admin';
+  const assistantUrl = `ai-assistant.html?role=${encodeURIComponent(urlRole)}&dest=${encodeURIComponent(dest)}&pkg_id=${encodeURIComponent(pkg?.id || '')}&from_pkg=1`;
+  window.location.href = assistantUrl;
 };
 
 // CRUD Operations

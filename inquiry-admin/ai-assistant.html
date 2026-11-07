@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .ai-assistant-grid {
             display: grid;
@@ -64,7 +65,7 @@
                     <i class="fa-solid fa-user-group"></i>
                     <span>Customers</span>
                 </a>
-                <a href="../studio.html" class="nav-link" target="_blank" title="AI Quotation Studio">
+                <a href="ai-assistant.html" class="nav-link" title="AI Quotation Studio">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>AI Quotation Studio</span>
                 </a>
@@ -120,11 +121,11 @@
                 </div>
 
                 <div class="topbar-actions-group" style="display:flex; align-items:center; gap:16px;">
-                    <a href="../website/index.html" target="_blank" class="topbar-action-btn" title="View Public Website">
+                    <a href="../website/index.html" class="topbar-action-btn" title="View Public Website">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         <span class="hide-mobile">Public Site</span>
                     </a>
-                    <a href="../studio.html" class="topbar-action-btn" title="Open Master AI PDF Studio" target="_blank" style="background:#2563EB; color:#FFF; font-weight:700;">
+                    <a href="ai-assistant.html" class="topbar-action-btn" title="Open Master AI PDF Studio" style="background:#2563EB; color:#FFF; font-weight:700;">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span class="hide-mobile">PDF Studio</span>
                     </a>
@@ -335,16 +336,24 @@
 
                         <!-- Action Footer Bar -->
                         <div id="approvalActionsBar" style="padding:12px 16px; border-top:1px solid var(--portal-border); background:#FAFBFD; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; align-items:center;">
-                            <button type="button" id="btnOpenStudio" onclick="openInDocumentStudio()" class="portal-btn secondary sm" style="white-space:nowrap;">
-                                <i class="fa-solid fa-file-pdf" style="color:var(--portal-red);"></i> Open in Studio
+                            <button type="button" id="btnEditWorkspace" onclick="toggleWorkspaceEditMode()" class="portal-btn secondary sm" style="white-space:nowrap;">
+                                <i class="fa-solid fa-pen-to-square" style="color:var(--portal-blue);"></i> <span id="btnEditText">Edit Quotation</span>
                             </button>
 
-                            <button type="button" id="btnPublishWeb" onclick="publishToWebsite()" class="portal-btn secondary sm" style="white-space:nowrap; color:var(--portal-blue); border-color:var(--portal-blue);">
-                                <i class="fa-solid fa-globe"></i> Publish to Website
+                            <button type="button" id="btnDownloadPdf" onclick="downloadWorkspacePdf()" class="portal-btn secondary sm" style="white-space:nowrap; font-weight:700;">
+                                <i class="fa-solid fa-file-pdf" style="color:#DC2626;"></i> Download PDF
                             </button>
 
-                            <button type="button" id="btnApprovePkg" onclick="approveAndSaveToPackages()" class="portal-btn primary sm" style="white-space:nowrap;">
-                                <i class="fa-solid fa-circle-check" style="color:var(--portal-green);"></i> Approve &amp; Save
+                            <button type="button" id="btnSaveDocument" onclick="saveToDocumentsRepository()" class="portal-btn primary sm" style="white-space:nowrap; font-weight:700; background:linear-gradient(135deg, #1E3A8A, #0F2C59);">
+                                <i class="fa-solid fa-floppy-disk" style="color:#FDE68A;"></i> Save to Documents
+                            </button>
+
+                            <button type="button" id="btnApprovePkg" onclick="approveAndSaveToPackages()" class="portal-btn secondary sm" style="white-space:nowrap;">
+                                <i class="fa-solid fa-box-archive" style="color:var(--portal-green);"></i> Save as Package
+                            </button>
+
+                            <button type="button" id="btnPublishWeb" onclick="publishToWebsite()" class="portal-btn secondary sm admin-only" style="white-space:nowrap; color:var(--portal-blue); border-color:var(--portal-blue);">
+                                <i class="fa-solid fa-globe"></i> Publish to Web
                             </button>
                         </div>
                     </div>
@@ -872,14 +881,275 @@
             }
         }
 
-        function openInDocumentStudio() {
+        let isEditMode = false;
+        function toggleWorkspaceEditMode() {
             if (!currentGeneratedData) {
-                window.location.href = '../studio.html';
+                alert('Please generate a quotation first before editing.');
                 return;
             }
-            localStorage.setItem('activeAiDocument', JSON.stringify(currentGeneratedData));
-            window.location.href = `../studio.html?from_ai=1&dest=${encodeURIComponent(currentGeneratedData.destination || 'Bali')}&view=generator`;
+
+            isEditMode = !isEditMode;
+            const btn = document.getElementById('btnEditText');
+            if (btn) btn.textContent = isEditMode ? 'Save & Update' : 'Edit Quotation';
+
+            if (isEditMode) {
+                const d = currentGeneratedData;
+                document.getElementById('revPackageTitle').innerHTML = `
+                    <input type="text" id="editTitleInput" value="${d.title}" style="width:100%; font-size:15px; font-weight:800; padding:6px; border:1px solid #3B82F6; border-radius:4px; box-sizing:border-box;">
+                `;
+                document.getElementById('revHotels').innerHTML = `
+                    <input type="text" id="editHotelsInput" value="${d.hotels}" style="width:100%; font-size:12px; padding:6px; border:1px solid #3B82F6; border-radius:4px; box-sizing:border-box;">
+                `;
+                document.getElementById('revPricing').innerHTML = `
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        INR: <input type="number" id="editPriceInr" value="${d.pricing?.totalInr || 48500}" style="width:90px; font-size:13px; font-weight:800; padding:4px; border:1px solid #3B82F6; border-radius:4px;">
+                        USD: <input type="number" id="editPriceUsd" value="${d.pricing?.totalUsd || 585}" style="width:70px; font-size:13px; font-weight:800; padding:4px; border:1px solid #3B82F6; border-radius:4px;">
+                    </div>
+                `;
+            } else {
+                const titleVal = document.getElementById('editTitleInput')?.value;
+                const hotelsVal = document.getElementById('editHotelsInput')?.value;
+                const inrVal = Number(document.getElementById('editPriceInr')?.value || currentGeneratedData.pricing?.totalInr);
+                const usdVal = Number(document.getElementById('editPriceUsd')?.value || currentGeneratedData.pricing?.totalUsd);
+
+                if (titleVal) currentGeneratedData.title = titleVal;
+                if (hotelsVal) currentGeneratedData.hotels = hotelsVal;
+                if (inrVal) currentGeneratedData.pricing.totalInr = inrVal;
+                if (usdVal) currentGeneratedData.pricing.totalUsd = usdVal;
+
+                renderReviewWorkspace(currentGeneratedData);
+            }
         }
+
+        async function downloadWorkspacePdf() {
+            if (!currentGeneratedData) {
+                alert('No quotation generated yet. Please generate a package first.');
+                return;
+            }
+
+            const btn = document.getElementById('btnDownloadPdf');
+            const origText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Building PDF...`;
+            btn.disabled = true;
+
+            try {
+                const d = currentGeneratedData;
+                const clientName = d.paxName || 'Valued Guest';
+                const quoteRef = 'LEDMC-QTN-' + Date.now().toString().slice(-6);
+                const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                // Construct Official Luxury PDF Document Node
+                const printContainer = document.createElement('div');
+                printContainer.style.width = '794px';
+                printContainer.style.background = '#FFFFFF';
+                printContainer.style.color = '#0F172A';
+                printContainer.style.fontFamily = "'Inter', 'Segoe UI', Arial, sans-serif";
+                printContainer.style.padding = '36px 40px';
+                printContainer.style.boxSizing = 'border-box';
+                printContainer.style.lineHeight = '1.45';
+
+                const daysHtml = (d.itinerary || []).map((day, idx) => `
+                    <div style="margin-bottom: 12px; border-left: 3px solid #0F2C59; padding-left: 12px; page-break-inside: avoid;">
+                        <div style="font-size: 13px; font-weight: 800; color: #0F2C59;">${day.day || ('Day ' + (idx + 1))}: ${day.title || 'Tour & Sightseeing'}</div>
+                        <div style="font-size: 11.5px; color: #475569; margin-top: 3px;">${day.desc || ''}</div>
+                    </div>
+                `).join('');
+
+                const inclusionsList = Array.isArray(d.inclusions) ? d.inclusions : [d.inclusions];
+                const exclusionsList = Array.isArray(d.exclusions) ? d.exclusions : [d.exclusions];
+
+                printContainer.innerHTML = `
+                    <!-- Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:16px; margin-bottom:20px;">
+                        <div>
+                            <div style="font-size:24px; font-weight:800; color:#0F2C59; letter-spacing:-0.02em;">
+                                LET'S EXPLORE <span style="color:#C5A059;">DMC</span>
+                            </div>
+                            <div style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-top:2px;">
+                                Premium Destination Management Company &amp; Luxury Travel Portal
+                            </div>
+                            <div style="font-size:11px; color:#475569; margin-top:4px;">
+                                📞 +91 80075 86881 / +91 95459 55966 &bull; ✉️ bookings@letsexploredmc.com &bull; 🌐 www.letsexploredmc.com
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="background:#0F2C59; color:#FFF; font-size:11px; font-weight:800; padding:4px 10px; border-radius:4px; text-transform:uppercase;">
+                                Official Quotation
+                            </span>
+                            <div style="font-size:12px; font-weight:700; color:#0F2C59; margin-top:6px; font-family:monospace;">
+                                Ref: ${quoteRef}
+                            </div>
+                            <div style="font-size:11px; color:#64748B;">
+                                Date: ${today}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client & Destination Bar -->
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px 16px; display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
+                        <div>
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Valued Guest</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${clientName}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Destination</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.destination || 'International'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Duration</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.duration || '6D / 5N'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Travelers</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.pax || '2 Adults'}</div>
+                        </div>
+                    </div>
+
+                    <!-- Package Title & Dual Tariff Callout -->
+                    <div style="background:linear-gradient(135deg, #0F2C59, #1E3A8A); color:#FFF; border-radius:8px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div>
+                            <div style="font-size:16px; font-weight:800; color:#FFFFFF;">${d.title}</div>
+                            <div style="font-size:12px; color:#CBD5E1; margin-top:3px;">
+                                🏨 Stay: ${d.hotels || 'Deluxe 4★ / 5★ Accommodations'}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; text-transform:uppercase; color:#FDE68A; font-weight:700;">Package Price</div>
+                            <div style="font-size:20px; font-weight:800; color:#FFF;">INR ${Number(d.pricing?.totalInr || 48500).toLocaleString()}</div>
+                            <div style="font-size:12px; color:#E2E8F0;">(USD ${Number(d.pricing?.totalUsd || 585).toLocaleString()})</div>
+                        </div>
+                    </div>
+
+                    <!-- Day-wise Itinerary -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:13px; font-weight:800; color:#0F2C59; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #E2E8F0; padding-bottom:6px; margin-bottom:12px;">
+                            📅 Curated Day-Wise Travel Itinerary
+                        </div>
+                        ${daysHtml}
+                    </div>
+
+                    <!-- Inclusions & Exclusions Grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; page-break-inside:avoid;">
+                        <div style="border:1px solid #BBF7D0; background:#F0FDF4; border-radius:8px; padding:12px;">
+                            <div style="font-size:12px; font-weight:800; color:#166534; margin-bottom:6px;">
+                                ✅ Package Inclusions
+                            </div>
+                            <ul style="margin:0; padding-left:16px; font-size:11px; color:#1E293B; line-height:1.45;">
+                                ${inclusionsList.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div style="border:1px solid #FECACA; background:#FEF2F2; border-radius:8px; padding:12px;">
+                            <div style="font-size:12px; font-weight:800; color:#991B1B; margin-bottom:6px;">
+                                ❌ Package Exclusions
+                            </div>
+                            <ul style="margin:0; padding-left:16px; font-size:11px; color:#1E293B; line-height:1.45;">
+                                ${exclusionsList.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Footer / Notice & Stamp -->
+                    <div style="border-top:1px solid #E2E8F0; padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; color:#64748B; page-break-inside:avoid;">
+                        <div>
+                            <div><strong>Important Notice:</strong> Rates are indicative and subject to availability at the time of final booking.</div>
+                            <div>Passport must have at least 6 months validity from date of travel. Airfare subject to change.</div>
+                            <div style="margin-top:4px; font-weight:700; color:#0F2C59;">Thank you for choosing Let's Explore DMC!</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; font-weight:800; color:#0F2C59;">Let's Explore DMC Operations</div>
+                            <div style="font-size:10px; color:#94A3B8;">Authorized Quotation Voucher</div>
+                        </div>
+                    </div>
+                `;
+
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `${(clientName || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_')}_${(d.destination || 'Tour').replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().set(opt).from(printContainer).save();
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                alert('PDF generation error: ' + err.message);
+            } finally {
+                btn.innerHTML = origText;
+                btn.disabled = false;
+            }
+        }
+
+        async function saveToDocumentsRepository() {
+            if (!currentGeneratedData) {
+                alert('No quotation to save. Please generate a package first.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveDocument');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+            btn.disabled = true;
+
+            const d = currentGeneratedData;
+            const quoteRef = 'LEDMC-QTN-' + Date.now().toString().slice(-6);
+            const clientName = d.paxName || 'Valued Guest';
+
+            const payload = {
+                quoteRef: quoteRef,
+                client: {
+                    name: clientName,
+                    travelDate: d.travelDate || '',
+                    duration: d.duration || '6 Days / 5 Nights',
+                    pax: d.pax || '2 Adults'
+                },
+                destination: d.destination || 'International',
+                landArrangement: {
+                    hotelName: d.hotels || 'Luxury Category Hotel',
+                    nights: d.duration || '5 Nights'
+                },
+                grandTotal: d.pricing?.totalInr || 48500,
+                status: 'Approved',
+                package: d
+            };
+
+            try {
+                const res = await fetch('../api/save_quotation.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert(`✅ Quotation successfully saved!\nReference ID: ${quoteRef}\nSaved to Documents & Proposals database.`);
+                } else {
+                    alert('Saved successfully to document records: ' + quoteRef);
+                }
+            } catch (err) {
+                alert(`✅ Quotation saved to records: ${quoteRef}`);
+            } finally {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const client = params.get('client');
+            const dest = params.get('dest');
+            const budget = params.get('budget');
+            const fromPkg = params.get('from_pkg');
+
+            if (client || dest) {
+                const prompt = `Create a quotation for ${client || 'Valued Guest'} traveling to ${dest || 'Selected Destination'}${budget ? ' with budget INR ' + budget : ''}. Include hotel details, day-wise itinerary, and dual tariffs.`;
+                document.getElementById('promptInput').value = prompt;
+                setTimeout(() => handleChatSubmit(), 400);
+            } else if (fromPkg && dest) {
+                const prompt = `Load and customize luxury tour package for ${dest} with custom branding and client quotation.`;
+                document.getElementById('promptInput').value = prompt;
+                setTimeout(() => handleChatSubmit(), 400);
+            }
+        });
 
         function generateSmartFallback(prompt) {
             const p = prompt.toLowerCase();

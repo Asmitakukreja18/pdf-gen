@@ -426,19 +426,19 @@
                     <i class="fa-solid fa-desktop"></i>
                     <span>My Workspace</span>
                 </a>
-                <a href="leads.html" class="nav-link-item">
+                <a href="#myLeadsSection" class="nav-link-item" onclick="document.getElementById('myLeadsSection')?.scrollIntoView({behavior:'smooth'}); return false;">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Leads &amp; Inquiries</span>
                 </a>
-                <a href="../studio.html" class="nav-link-item" target="_blank">
+                <a href="ai-assistant.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>AI Quotation Studio</span>
                 </a>
-                <a href="packages.html" class="nav-link-item">
+                <a href="packages.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-box-open"></i>
                     <span>Tour Packages</span>
                 </a>
-                <a href="documents.html" class="nav-link-item">
+                <a href="documents.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-folder-open"></i>
                     <span>Documents &amp; PDFs</span>
                 </a>
@@ -479,7 +479,7 @@
                     <p>Here is your active inquiry queue and itinerary pipeline for today.</p>
                 </div>
                 <div>
-                    <a href="../studio.html" target="_blank" class="btn-create-quote">
+                    <a href="ai-assistant.html" class="btn-create-quote">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>Create AI Quotation</span>
                     </a>
@@ -514,14 +514,14 @@
             </section>
 
             <!-- Active Leads Table -->
-            <section class="content-body">
+            <section class="content-body" id="myLeadsSection">
                 <div class="panel-card">
                     <div class="panel-header">
                         <div class="panel-title">
                             <i class="fa-solid fa-list-check" style="color:var(--brand-blue);"></i>
                             <span>My Action Queue &amp; Leads</span>
                         </div>
-                        <a href="leads.html" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">View All Inquiries &rarr;</a>
+                        <span style="font-size:12.5px; font-weight:700; color:var(--brand-blue); background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:4px 12px;">Assigned to You</span>
                     </div>
 
                     <div class="table-responsive">
@@ -552,7 +552,7 @@
                                     <td><span class="status-badge followup">Follow-up</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="../studio.html" class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="ai-assistant.html?role=staff&client=Akash%20Dewani&dest=Dubai%20Luxury%206D&budget=140000" class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-bolt"></i> Quote</a>
                                             <a href="https://wa.me/919820011223" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
@@ -573,7 +573,7 @@
                                     <td><span class="status-badge fresh">Fresh Lead</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="../studio.html" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="ai-assistant.html?role=staff&client=Dipesh%20Batra&dest=Rajasthan%20Udaipur%204N&budget=65000" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
                                             <a href="https://wa.me/917020660318" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
@@ -594,7 +594,7 @@
                                     <td><span class="status-badge booking">In Review</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="../studio.html" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="ai-assistant.html?role=staff&client=Rohan%20Mehta&dest=Bali%20Honeymoon%20Package&budget=95000" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
                                             <a href="https://wa.me/919819922334" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
@@ -611,7 +611,7 @@
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444;"></i>
                             <span>Recent Client Quotations &amp; PDF Downloads</span>
                         </div>
-                        <a href="documents.html" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">Open Document Hub &rarr;</a>
+                        <a href="documents.html?role=staff" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">Open Document Hub &rarr;</a>
                     </div>
 
                     <div class="table-responsive">
