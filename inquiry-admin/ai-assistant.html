@@ -356,6 +356,8 @@
     </div>
 
     <!-- SCRIPTS -->
+    <!-- External Libraries: PDF.js for Instant Browser Client-Side Text Extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="js/portal.js?v=9.0"></script>
     <script src="js/idle-tracker.js?v=8.5"></script>
     <script>
@@ -404,50 +406,89 @@
             const nameEl = document.getElementById('attachedFileName');
             const sizeEl = document.getElementById('attachedFileSize');
 
-            nameEl.innerText = file.name + ' (Attaching...)';
+            nameEl.innerText = file.name + ' (Processing...)';
             sizeEl.innerText = '';
             chip.style.display = 'flex';
 
-            const fallbackToLocal = () => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    activeAttachment = {
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(1) + ' KB',
-                        base64: reader.result.split(',')[1],
-                        mimeType: file.type || 'application/pdf'
-                    };
-                    nameEl.innerText = activeAttachment.name;
-                    sizeEl.innerText = `(${activeAttachment.size})`;
-                };
-                reader.readAsDataURL(file);
+            // 1. Immediately create activeAttachment with base metadata
+            activeAttachment = {
+                name: file.name,
+                size: (file.size / 1024).toFixed(1) + ' KB',
+                mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
+                base64: '',
+                extractedText: '',
+                serverPath: '',
+                documentId: null,
+                ready: false
             };
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'quotation');
+            // 2. Read Base64 immediately in browser
+            const readBase64Promise = new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const raw = reader.result || '';
+                    activeAttachment.base64 = raw.includes(',') ? raw.split(',')[1] : raw;
+                    resolve();
+                };
+                reader.onerror = () => resolve();
+                reader.readAsDataURL(file);
+            });
 
-            try {
-                const res = await fetch('../api/upload_attachment.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success) {
-                    activeAttachment = {
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(1) + ' KB',
-                        serverPath: data.filePath,
-                        documentId: data.documentId || null
-                    };
-                    nameEl.innerText = activeAttachment.name;
-                    sizeEl.innerText = `(${activeAttachment.size})`;
-                } else {
-                    fallbackToLocal();
+            // 3. Extract text client-side via PDF.js if file is PDF
+            const extractTextPromise = (async () => {
+                if (file.name.toLowerCase().endsWith('.pdf') && typeof pdfjsLib !== 'undefined') {
+                    try {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        let extracted = '';
+                        const pageLimit = Math.min(pdfDoc.numPages || 1, 10);
+                        for (let p = 1; p <= pageLimit; p++) {
+                            const page = await pdfDoc.getPage(p);
+                            const textContent = await page.getTextContent();
+                            const pageString = textContent.items.map(item => item.str).join(' ');
+                            extracted += `[Page ${p}]\n` + pageString + '\n';
+                        }
+                        if (extracted.trim()) {
+                            activeAttachment.extractedText = extracted.trim();
+                        }
+                    } catch (pdfErr) {
+                        console.warn('PDF.js client extraction notice:', pdfErr);
+                    }
                 }
-            } catch (err) {
-                fallbackToLocal();
-            }
+            })();
+
+            // 4. Background upload to cPanel server storage
+            const uploadPromise = (async () => {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('type', 'quotation');
+                    const res = await fetch('../api/upload_attachment.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.success) {
+                            activeAttachment.serverPath = data.filePath || '';
+                            activeAttachment.documentId = data.documentId || null;
+                            if (data.extracted_text && !activeAttachment.extractedText) {
+                                activeAttachment.extractedText = data.extracted_text;
+                            }
+                        }
+                    }
+                } catch (upErr) {
+                    console.warn('Background server upload notice (offline or local preview):', upErr);
+                }
+            })();
+
+            // Wait for both in-memory Base64 & client extraction to guarantee AI readiness
+            await Promise.all([readBase64Promise, extractTextPromise]);
+            activeAttachment.ready = true;
+
+            nameEl.innerText = activeAttachment.name;
+            sizeEl.innerText = `(${activeAttachment.size} — Ready)`;
         }
 
         function removeAttachment() {
@@ -612,7 +653,8 @@
                 attachment: activeAttachment ? {
                     name: activeAttachment.name,
                     base64: activeAttachment.base64 || '',
-                    mimeType: activeAttachment.mimeType || 'application/pdf'
+                    mimeType: activeAttachment.mimeType || 'application/pdf',
+                    extractedText: activeAttachment.extractedText || ''
                 } : null
             };
 

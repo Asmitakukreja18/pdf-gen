@@ -17,6 +17,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/config.php';
 
+// Helper: Extract text streams directly from PDF binary buffer
+function extractPdfTextSimple($pdfContent) {
+    if (!$pdfContent) return '';
+    $textParts = [];
+    if (preg_match_all('/stream[\r\n]+(.*?)[\r\n]+endstream/s', $pdfContent, $streams)) {
+        foreach ($streams[1] as $st) {
+            $decomp = @gzuncompress($st);
+            if ($decomp) {
+                if (preg_match_all('/\((.*?)\)\s*Tj/s', $decomp, $matches)) {
+                    $textParts[] = implode(' ', $matches[1]);
+                }
+                if (preg_match_all('/\[(.*?)\]\s*TJ/s', $decomp, $matchesArray)) {
+                    foreach ($matchesArray[1] as $arr) {
+                        if (preg_match_all('/\((.*?)\)/', $arr, $subMatches)) {
+                            $textParts[] = implode(' ', $subMatches[1]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (preg_match_all('/\((.*?)\)\s*Tj/s', $pdfContent, $matches)) {
+        $textParts[] = implode(' ', $matches[1]);
+    }
+    if (!empty($textParts)) {
+        $rawText = implode(' ', $textParts);
+        $clean = preg_replace('/\\\\[0-9]{3}/', '', $rawText);
+        $clean = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $clean);
+        return substr(trim($clean), 0, 15000);
+    }
+    return '';
+}
+
 // Read incoming JSON body
 $rawInput = file_get_contents('php://input');
 $payload = json_decode($rawInput, true);
@@ -55,10 +88,21 @@ if (!empty($serverFilePath)) {
             $ext = strtolower(pathinfo($baseName, PATHINFO_EXTENSION));
             if ($ext === 'pdf') {
                 $attachment['mimeType'] = 'application/pdf';
+                if (empty($attachment['extractedText'])) {
+                    $attachment['extractedText'] = extractPdfTextSimple($fileBytes);
+                }
             } elseif (in_array($ext, ['png', 'jpg', 'jpeg', 'webp'])) {
                 $attachment['mimeType'] = ($ext === 'png') ? 'image/png' : 'image/jpeg';
             }
         }
+    }
+}
+
+// Guarantee extractedText from base64 if not already populated
+if ($attachment && is_array($attachment) && empty($attachment['extractedText']) && !empty($attachment['base64'])) {
+    $rawPdf = @base64_decode($attachment['base64']);
+    if ($rawPdf && strpos($rawPdf, '%PDF-') !== false) {
+        $attachment['extractedText'] = extractPdfTextSimple($rawPdf);
     }
 }
 
