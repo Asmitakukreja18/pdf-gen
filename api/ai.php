@@ -466,6 +466,64 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $priceInr = 48500;
     $priceUsd = 560;
 
+    // Universal Dynamic PDF & Text Document Interpreter
+    $hasExtractedText = !empty($attachment['extractedText']) && strlen(trim($attachment['extractedText'])) > 20;
+    if ($hasExtractedText) {
+        $rawDoc = $attachment['extractedText'];
+
+        // 1. Dynamic Destination & Country Detection
+        if (preg_match('/\b(pattaya|tomorrowland)\b/i', $rawDoc)) {
+            $dest = 'Pattaya & Tomorrowland Festival, Thailand';
+            $country = 'Thailand';
+            $numDays = 4;
+            $numNights = 3;
+            $duration = '4 Days / 3 Nights';
+            $usdRate = 87.0;
+        } elseif (preg_match('/\b(bali|ubud|seminyak|kuta|nusa penida)\b/i', $rawDoc)) {
+            $dest = 'Bali & Nusa Penida, Indonesia';
+            $country = 'Indonesia';
+        } elseif (preg_match('/\b(dubai|abu dhabi|uae)\b/i', $rawDoc)) {
+            $dest = 'Dubai & Abu Dhabi, UAE';
+            $country = 'UAE';
+        } elseif (preg_match('/\b(phuket|krabi|bangkok|thailand)\b/i', $rawDoc)) {
+            $dest = 'Phuket & Krabi, Thailand';
+            $country = 'Thailand';
+        } elseif (preg_match('/\b(singapore|sentosa)\b/i', $rawDoc)) {
+            $dest = 'Singapore City & Sentosa';
+            $country = 'Singapore';
+        } elseif (preg_match('/\b(kuala lumpur|genting|langkawi|malaysia)\b/i', $rawDoc)) {
+            $dest = 'Malaysia (Kuala Lumpur & Genting)';
+            $country = 'Malaysia';
+        } elseif (preg_match('/\b(cappadocia|istanbul|turkey)\b/i', $rawDoc)) {
+            $dest = 'Istanbul & Cappadocia, Turkey';
+            $country = 'Turkey';
+        } elseif (preg_match('/\b(kashmir|srinagar|gulmarg)\b/i', $rawDoc)) {
+            $dest = 'Srinagar & Gulmarg, Kashmir';
+            $country = 'India';
+        } elseif (preg_match('/\b(rajasthan|udaipur|jaipur)\b/i', $rawDoc)) {
+            $dest = 'Rajasthan & Udaipur Heritage';
+            $country = 'India';
+        }
+
+        // 2. Dynamic Price Detection
+        if (preg_match('/(?:total|cost|price|inr|rs\.?|₹)\s*[:\-]?\s*(?:rs\.?|inr|₹)?\s*([0-9,]{4,})/i', $rawDoc, $pMatch)) {
+            $parsedInr = intval(str_replace(',', '', $pMatch[1]));
+            if ($parsedInr > 5000) {
+                $priceInr = $parsedInr;
+                $priceUsd = round($priceInr / $usdRate);
+            }
+        }
+        if (preg_match('/usd\s*([0-9,.]+)/i', $rawDoc, $uMatch)) {
+            $parsedUsd = floatval(str_replace(',', '', $uMatch[1]));
+            if ($parsedUsd > 50) {
+                $priceUsd = round($parsedUsd);
+                if (empty($pMatch)) {
+                    $priceInr = round($priceUsd * $usdRate);
+                }
+            }
+        }
+    }
+
     // If an existing quotation is active in current state, preserve its destination & structure
     if ($currentQuotation && is_array($currentQuotation)) {
         $cPkg = $currentQuotation['package'] ?? [];

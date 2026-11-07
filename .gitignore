@@ -5,3 +5,5 @@ out.txt
 *.log
 in0ok.pdf
 inspect_pdf.py
+uploads/att_*
+
