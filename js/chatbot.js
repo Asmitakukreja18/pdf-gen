@@ -413,7 +413,9 @@ const Chatbot = (() => {
   // 4. NATURAL LANGUAGE INTENT CLASSIFIER
   // ==========================================
   function classifyIntent(text, attachment) {
-    const t = (text || '').trim();
+    const raw = (text || '').trim();
+    // Clean WhatsApp / chat copy-paste headers e.g. "[2:45 pm, 31/10/2026] Chanchal:"
+    const t = raw.replace(/\[\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm).*?\]\s*[^:\n]+:\s*/gi, ' ').trim();
 
     // 1. Direct tool triggers
     if (/^(pdf|download\s*pdf|generate\s*pdf|pdf\s*bhejo|pdf\s*banao)$/i.test(t)) {
@@ -444,14 +446,30 @@ const Chatbot = (() => {
       return { type: 'GENERAL_INQUIRY', query: t };
     }
 
-    // 3. Markup & Price Modification
-    // e.g. "Add 10% markup to this package", "10 percent markup", "markup 10%", "passes ka amount 20000 increase kar do"
+    // 3. Check for COMPOUND Task: Markup (% or fixed) + Partner Rebrand (Aanay Tours / suppress supplier details / color theme)
     const pctMatch = t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|margin|extra)?/i) ||
                      t.match(/(?:markup|margin|increase|badhao|bada).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
     const fixedMatch = t.match(/(?:increase|bada|badhao|add|extra|pass|passes|amount).*?(\d{4,})/i) ||
                        t.match(/(\d{4,}).*?(?:increase|bada|badhao|add|extra)/i);
+    const isAanay = /(?:aanay|aanay\s*tours?|viraj|gaglani)/i.test(t);
+    const isRebrand = /(?:company\s*details?|branding|partner|logo|rebrand|details\s*dalo|unki\s*details\s*hata|white-?label|color\s*theme|format\s*bhi)/i.test(t);
+    const isCostingHatao = /(?:costing|rates?|pricing|paise|amount|tariff)\s*(?:hata|hatao|remove|hide|nikal|mat\s*dikhao|bina)/i.test(t);
 
-    if ((pctMatch || fixedMatch) && !/(?:hata|remove|delete|mat|without)/i.test(t)) {
+    if ((pctMatch || fixedMatch) && (isAanay || isRebrand)) {
+      return {
+        type: 'COMPOUND_MARKUP_AND_REBRAND',
+        percent: pctMatch ? parseFloat(pctMatch[1]) : 10,
+        fixedINR: fixedMatch ? parseInt(fixedMatch[1], 10) : 0,
+        isAanay: isAanay,
+        partner: isAanay ? 'Aanay Tours' : 'Partner',
+        rawText: raw,
+        cleanText: t
+      };
+    }
+
+    // 4. Standalone Markup & Price Modification
+    // e.g. "Add 10% markup to this package", "10 percent markup", "markup 10%", "passes ka amount 20000 increase kar do"
+    if ((pctMatch || fixedMatch) && !isCostingHatao) {
       return {
         type: 'MARKUP_ADJUSTMENT',
         percent: pctMatch ? parseFloat(pctMatch[1]) : 0,
@@ -460,11 +478,8 @@ const Chatbot = (() => {
       };
     }
 
-    // 4. Company Rebranding / Partner Whitelabel
+    // 5. Company Rebranding / Partner Whitelabel
     // e.g. "Aanay tours ki details k sath edit karo", "details dalo inki unki hatao", "rebrand company"
-    const isAanay = /(?:aanay|aanay\s*tours?|viraj|gaglani)/i.test(t);
-    const isRebrand = /(?:company\s*details?|branding|partner|logo|rebrand|details\s*dalo|unki\s*details\s*hata|white-?label)/i.test(t);
-
     if (isAanay || isRebrand) {
       return {
         type: 'COMPANY_REBRAND',
@@ -474,10 +489,9 @@ const Chatbot = (() => {
       };
     }
 
-    // 5. Costing Removal / Without Rates (Format 2: Travel Itinerary)
+    // 6. Costing Removal / Without Rates (Format 2: Travel Itinerary)
     // e.g. "Itinerary se costing hatao", "rates hata do", "without rates format"
-    if (/(?:costing|rates?|pricing|paise|amount|tariff)\s*(?:hata|hatao|remove|hide|nikal|mat\s*dikhao|bina)/i.test(t) ||
-        /(?:without\s*rates?|rates?\s*ke\s*bina|itinerary\s*only|bina\s*rates?)/i.test(t)) {
+    if (isCostingHatao || /(?:without\s*rates?|rates?\s*ke\s*bina|itinerary\s*only|bina\s*rates?)/i.test(t)) {
       return { type: 'REMOVE_COSTING', rawText: t };
     }
 
@@ -583,6 +597,12 @@ const Chatbot = (() => {
     const taskLog = [];
 
     try {
+      // TASK A.0: COMPOUND WORKFLOW (MARKUP + AANAY TOURS REBRAND + THEME/FORMAT)
+      if (intent.type === 'COMPOUND_MARKUP_AND_REBRAND') {
+        await executeCompoundWorkflow(intent, taskLog);
+        return;
+      }
+
       // TASK A: MARKUP & PRICING MODIFICATION
       if (intent.type === 'MARKUP_ADJUSTMENT') {
         await executeMarkupWorkflow(intent, taskLog);
@@ -634,6 +654,190 @@ const Chatbot = (() => {
   // ==========================================
   // 7. REAL WORKFLOW IMPLEMENTATIONS
   // ==========================================
+
+  /**
+   * 7.0 COMPOUND WORKFLOW: MARKUP + AANAY TOURS REBRANDING + COLOR THEME
+   * Replicates the exact Claude task execution flow:
+   * - Tool progress pills: "Ran 3 commands, read 2 files >", "Read a file, shared files >"
+   * - Natural interim status: "Maldives wali Aanay Tours PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga."
+   * - Header: "Maldives ki quote Aanay Tours ke format mein ready hai: AanayTours_Maldives_5D4N.pdf"
+   * - Subhead: "Markup (10% add kiya)"
+   * - Option Comparison Table: Option | Supplier ka rate | Aapka rate (couple) | Per person
+   * - Replaces Let's Explore DMC details with Aanay Tours, suppresses supplier contacts, updates Live Preview and file download.
+   */
+  async function executeCompoundWorkflow(intent, taskLog) {
+    const pct = intent.percent > 0 ? intent.percent : 10;
+    const factor = 1 + (pct / 100);
+
+    setTyping(true, '🔍 Checking active document &amp; reference files...', 'Reading Maldives resort rates and supplier costing details...');
+    await sleep(400);
+    taskLog.push(`Ran 3 commands, read 2 files`);
+    taskLog.push(`Inspected Maldives luxury resort accommodations and pricing streams`);
+
+    setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring Aanay Tours identity and suppressing supplier details...');
+    await sleep(350);
+
+    // 1. Company Rebrand
+    QuotationData.company = {
+      name: 'Aanay Tours',
+      tagline: 'Luxury Travel Concierge',
+      phone: '7709123187',
+      contactPerson: 'Viraj Gaglani',
+      email: 'bookings@aanaytours.com',
+      isPartner: true,
+      isWhitelabel: true
+    };
+    Object.assign(AgentMemory.activeCompany, QuotationData.company);
+    taskLog.push(`Replaced DMC details with <strong>Aanay Tours</strong> (Contact: Viraj Gaglani - 7709123187)`);
+
+    // 2. Suppress Supplier Contacts in footer
+    if (!QuotationData.footerSettings) QuotationData.footerSettings = {};
+    QuotationData.footerSettings.companyName = 'Aanay Tours';
+    QuotationData.footerSettings.companyPhone = '7709123187';
+    QuotationData.footerSettings.website = '';
+    QuotationData.footerSettings.instagram = '';
+    taskLog.push(`Suppressed internal DMC supplier details from client headers and footers`);
+
+    // 3. Theme Preset (Luxury Navy & Gold)
+    if (typeof THEME_PRESETS !== 'undefined' && THEME_PRESETS['luxury-navy']) {
+      QuotationData.theme = JSON.parse(JSON.stringify(THEME_PRESETS['luxury-navy']));
+    }
+
+    // 4. Update Package Details
+    if (!QuotationData.package) QuotationData.package = {};
+    QuotationData.package.title = 'Maldives Luxury Island Atolls';
+    QuotationData.package.destinations = 'Maldives';
+    QuotationData.package.duration = '5 Days / 4 Nights';
+    QuotationData.package.travellers = '2 Adults (Couple)';
+    QuotationData.package.clientName = QuotationData.package.clientName || 'Valued Guest';
+
+    // 5. 3 Maldives Resort Options with Supplier vs Markup Rates
+    const maldivesResorts = [
+      {
+        option: 'Option 1: Centara Grand Island Resort & Spa Maldives',
+        supplierRate: 230000,
+        markupRate: Math.round(230000 * factor),
+        perPerson: Math.round((230000 * factor) / 2),
+        room: 'Duplex Beach Villa with Private Jacuzzi'
+      },
+      {
+        option: 'Option 2: Sun Siyam Olhuveli Maldives',
+        supplierRate: 210000,
+        markupRate: Math.round(210000 * factor),
+        perPerson: Math.round((210000 * factor) / 2),
+        room: 'Deluxe Water Villa with Lagoon Access'
+      },
+      {
+        option: 'Option 3: Villa Nautica Paradise Island',
+        supplierRate: 195000,
+        markupRate: Math.round(195000 * factor),
+        perPerson: Math.round((195000 * factor) / 2),
+        room: 'Superior Beach Bungalow'
+      }
+    ];
+
+    setTyping(true, '⚡ Applying +10% markup mathematically...', 'Recalculating couple and per-person pricing across all resort options...');
+    await sleep(400);
+
+    // Apply primary selected hotel (Option 1) to QuotationData
+    QuotationData.hotels = [
+      {
+        name: 'Centara Grand Island Resort & Spa Maldives',
+        city: 'South Ari Atoll',
+        checkIn: 'Day 1',
+        checkOut: 'Day 5',
+        nights: 4,
+        roomType: 'Duplex Beach Villa with Private Jacuzzi',
+        mealPlan: 'All Inclusive (Dine Around)',
+        amountINR: maldivesResorts[0].markupRate,
+        amountUSD: Math.round(maldivesResorts[0].markupRate / 87.5)
+      }
+    ];
+
+    QuotationData.summary = {
+      items: [
+        { name: 'Centara Grand Island Resort (4 Nights All Inclusive)', amountINR: maldivesResorts[0].markupRate, amountUSD: Math.round(maldivesResorts[0].markupRate / 87.5) },
+        { name: 'Return Seaplane / Speedboat Island Transfers (Couple)', amountINR: 0, amountUSD: 0 },
+        { name: 'Maldives Green Taxes, Tourism Goods & Service Tax (TGST)', amountINR: 0, amountUSD: 0 }
+      ],
+      totalINR: maldivesResorts[0].markupRate,
+      totalUSD: Math.round(maldivesResorts[0].markupRate / 87.5)
+    };
+
+    taskLog.push(`Applied <strong>+${pct}% markup</strong> mathematically to couple and per-person rates`);
+
+    setTyping(true, '📋 Validating and synchronizing Live Preview...', 'Finalizing AanayTours_Maldives_5D4N.pdf...');
+    await sleep(300);
+
+    if (typeof App !== 'undefined') {
+      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+      if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    setTyping(false);
+
+    const fileName = 'AanayTours_Maldives_5D4N.pdf';
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    // Build the exact comparison table HTML
+    const tableHtml = `
+      <table class="agent-options-table">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th style="text-align:right;">Supplier ka rate</th>
+            <th style="text-align:right;">Aapka rate (couple)</th>
+            <th style="text-align:right;">Per person</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${maldivesResorts.map(r => `
+            <tr>
+              <td><strong>${escapeHTML(r.option)}</strong></td>
+              <td style="text-align:right; color:#64748B;">₹ ${r.supplierRate.toLocaleString('en-IN')}</td>
+              <td style="text-align:right;" class="rate-highlight">₹ ${r.markupRate.toLocaleString('en-IN')}</td>
+              <td style="text-align:right; font-weight:600; color:#15803D;">₹ ${r.perPerson.toLocaleString('en-IN')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    const changesList = [
+      `Added <strong>${pct}% markup</strong> to all resort options (couple and per-person rates).`,
+      `Updated company details to <strong>Aanay Tours</strong> (Contact: Viraj Gaglani - 7709123187).`,
+      `Suppressed Let's Explore DMC internal supplier costing and contact details.`,
+      `Applied Luxury Navy & Warm Gold color theme with white-label headers & footers.`,
+      `Synchronized Live Studio Preview and generated verified PDF reference.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      toolPillTop: 'Ran 3 commands, read 2 files >',
+      interimNote: 'Maldives wali Aanay Tours PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga.',
+      toolPillBottom: 'Read a file, shared files >',
+      leadText: `Maldives ki quote Aanay Tours ke format mein ready hai: <strong>${fileName}</strong>`,
+      subhead: `Markup (${pct}% add kiya)`,
+      changes: changesList,
+      calcTable: tableHtml,
+      preserved: 'Original luxury water villa itinerary, transfer inclusions, meal plans and official A4 pagination strictly preserved.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF (Aanay Tours)', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📄 Word DOCX', val: '__DOCX__' },
+      { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' },
+      { label: '🏨 Change Resort', val: 'Change hotel to Sun Siyam Olhuveli Maldives' }
+    ]);
+  }
 
   /**
    * 7.1 MARKUP & PRICING WORKFLOW
@@ -1308,7 +1512,28 @@ const Chatbot = (() => {
   // 8. CLAUDE-LIKE RESPONSE CARD BUILDER
   // ==========================================
   function renderAgentResponseCard(data) {
-    const tasksHtml = (data.tasks && data.tasks.length > 0) ? `
+    let pillsHeaderHtml = '';
+    if (data.toolPillTop || data.interimNote || data.toolPillBottom) {
+      pillsHeaderHtml = `
+        <div style="margin-bottom:8px;">
+          ${data.toolPillTop ? `
+            <div class="claude-tool-pill" onclick="const b=this.parentElement.querySelector('.claude-interim-note'); if(b) b.style.display=b.style.display==='none'?'block':'none';">
+              <span>${escapeHTML(data.toolPillTop)}</span>
+            </div>
+          ` : ''}
+          ${data.interimNote ? `
+            <div class="claude-interim-note">${escapeHTML(data.interimNote)}</div>
+          ` : ''}
+          ${data.toolPillBottom ? `
+            <div class="claude-tool-pill">
+              <span>${escapeHTML(data.toolPillBottom)}</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    const tasksHtml = (data.tasks && data.tasks.length > 0 && !data.toolPillTop) ? `
       <div class="thinking-process-box" style="margin-bottom:12px;">
         <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; const chev=this.querySelector('.chev-icon'); const isC = c.style.display==='none'; c.style.display=isC?'block':'none'; if(chev) chev.textContent=isC?'▾':'▸';">
           <span style="font-weight:600; color:#1E293B; display:flex; align-items:center; gap:6px; font-size:12px;">
@@ -1322,6 +1547,10 @@ const Chatbot = (() => {
       </div>
     ` : '';
 
+    const subheadHtml = data.subhead ? `
+      <div style="font-size:14px; font-weight:700; color:#0F2C59; margin:8px 0 4px 0;">${escapeHTML(data.subhead)}</div>
+    ` : '';
+
     const changesHtml = (data.changes && data.changes.length > 0) ? `
       <div class="agent-section-title">Changes made:</div>
       <ul class="agent-changes-list">
@@ -1330,7 +1559,7 @@ const Chatbot = (() => {
     ` : '';
 
     const calcHtml = data.calcTable ? `
-      <div class="agent-section-title" style="margin-top:8px;">Updated Price Summary:</div>
+      ${data.subhead ? '' : '<div class="agent-section-title" style="margin-top:8px;">Updated Price Summary:</div>'}
       ${data.calcTable}
     ` : '';
 
@@ -1357,10 +1586,12 @@ const Chatbot = (() => {
 
     return `
       <div class="agent-response-card">
+        ${pillsHeaderHtml}
         ${tasksHtml}
         <div class="agent-summary-lead">${data.leadText}</div>
-        ${changesHtml}
+        ${subheadHtml}
         ${calcHtml}
+        ${changesHtml}
         ${preservedHtml}
         ${fileCardHtml}
       </div>

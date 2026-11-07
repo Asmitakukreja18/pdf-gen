@@ -914,9 +914,24 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ];
     }
 
+    $isAanay = (stripos($text, 'aanay') !== false || stripos($text, 'viraj') !== false);
+    $companyData = null;
+    if ($isAanay) {
+        $companyData = [
+            'name' => 'Aanay Tours',
+            'tagline' => 'Luxury Travel Concierge',
+            'phone' => '7709123187',
+            'contactPerson' => 'Viraj Gaglani',
+            'email' => 'bookings@aanaytours.com',
+            'isPartner' => true,
+            'isWhitelabel' => true
+        ];
+    }
+
     return [
         'detectedDocType' => 'quotation',
-        'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by Let's Explore DMC.",
+        'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by " . ($isAanay ? "Aanay Tours" : "Let's Explore DMC") . ".",
+        'company' => $companyData,
         'package' => [
             'title' => (strpos($dest, 'Tomorrowland') !== false ? "Pattaya Tomorrowland Thailand 4D3N Group Package" . ($passDelta > 0 ? " (+INR " . number_format($passDelta) . " Passes)" : "") : "{$duration} Luxury {$dest} Escape"),
             'destination' => $dest,
