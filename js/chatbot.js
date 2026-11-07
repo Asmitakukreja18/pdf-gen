@@ -46,6 +46,8 @@ const Chatbot = (() => {
     if (initialized) return;
     initialized = true;
     history = [];
+    const m = msgs();
+    if (m) m.innerHTML = '';
     renderWelcome();
     setupInputHandlers();
     setupAttachmentHandlers();
