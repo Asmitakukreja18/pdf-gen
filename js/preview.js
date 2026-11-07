@@ -75,16 +75,19 @@ const Preview = (() => {
    * Shared continuous page footer matching reference PDF
    */
   function renderContinuousFooter(footer = {}) {
+    const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {};
+    const compName = comp.name || footer.companyName || "Let's Explore DMC";
+    const compPhone = comp.phone || footer.phones || '+91 80075 86881 | +91 95459 55966';
+    const compWeb = comp.website || footer.website || (comp.isWhitelabel ? '' : 'www.letsexploredmc.com');
+    const compSocial = comp.social || footer.instagram || (comp.isWhitelabel ? '' : '@lets_exploredmc');
+
     return `
       <footer class="dmc-footer">
         <div class="dmc-footer-content">
-          <span class="footer-company">${escapeHTML(footer.companyName || "Let's Explore DMC")}</span>
-          <span class="footer-sep">|</span>
-          <span class="footer-phone">${escapeHTML(footer.phones || '+91 80075 86881 | +91 95459 55966')}</span>
-          <span class="footer-sep">|</span>
-          <span class="footer-web">${escapeHTML(footer.website || 'www.letsexploredmc.com')}</span>
-          <span class="footer-sep">|</span>
-          <span class="footer-social">${escapeHTML(footer.instagram || '@lets_exploredmc')}</span>
+          <span class="footer-company">${escapeHTML(compName)}</span>
+          ${compPhone ? `<span class="footer-sep">|</span><span class="footer-phone">${escapeHTML(compPhone)}</span>` : ''}
+          ${compWeb ? `<span class="footer-sep">|</span><span class="footer-web">${escapeHTML(compWeb)}</span>` : ''}
+          ${compSocial ? `<span class="footer-sep">|</span><span class="footer-social">${escapeHTML(compSocial)}</span>` : ''}
           <span class="footer-sep">|</span>
           <span class="footer-page-num">Official Travel Document</span>
         </div>
@@ -96,14 +99,20 @@ const Preview = (() => {
    * Shared Brand Header for official documents
    */
   function renderBrandHeader(pkg = {}, docTypeLabel = 'PACKAGE TOUR', quoteRef = '') {
+    const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : (pkg.company || {});
+    const brandName = comp.name || "LET'S EXPLORE DMC";
+    const brandTagline = comp.tagline || (comp.isWhitelabel ? '' : "Your Destination Management Specialist");
+    const brandLogo = comp.logo || "images/logo.png";
+    const showLogo = !comp.isWhitelabel || brandLogo !== 'images/logo.png';
+
     return `
       <header class="dmc-header">
         <div class="dmc-header-top">
           <div class="dmc-brand-box">
-            <img src="images/logo.png" alt="Let's Explore DMC" class="dmc-brand-logo" onerror="this.style.display='none'" />
+            ${showLogo ? `<img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" class="dmc-brand-logo" onerror="this.style.display='none'" />` : ''}
             <div class="dmc-brand-info">
-              <span class="dmc-brand-name">LET'S EXPLORE DMC</span>
-              <span class="dmc-brand-tagline">Your Destination Management Specialist</span>
+              <span class="dmc-brand-name">${escapeHTML(brandName)}</span>
+              ${brandTagline ? `<span class="dmc-brand-tagline">${escapeHTML(brandTagline)}</span>` : ''}
             </div>
           </div>
           <div class="dmc-quote-meta">

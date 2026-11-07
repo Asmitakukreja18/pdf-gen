@@ -209,28 +209,65 @@ if ($method === 'GET') {
     }
 }
 
-// POST: Update document metadata
+// POST: Update document metadata or approval status
 if ($method === 'POST') {
     requireAuth();
     $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
     
     $id = (int)($input['id'] ?? 0);
+    $status = trim($input['status'] ?? '');
+    $adminRemarks = trim($input['admin_remarks'] ?? $input['remarks'] ?? '');
     $title = trim($input['title'] ?? '');
     $description = trim($input['description'] ?? '');
     $categoryId = !empty($input['category_id']) ? (int)$input['category_id'] : null;
 
-    if ($id <= 0 || empty($title)) {
-        jsonError('Document ID and Title are required.', 400);
+    if ($id <= 0) {
+        jsonError('Valid Document ID is required.', 400);
     }
 
     try {
-        $stmt = $pdo->prepare("
-            UPDATE documents 
-            SET title = ?, description = ?, category_id = ?
-            WHERE id = ?
-        ");
-        $stmt->execute([$title, $description, $categoryId, $id]);
-        jsonSuccess(null, 'Document details updated successfully.');
+        $fields = [];
+        $params = [];
+
+        if (!empty($title)) {
+            $fields[] = "`title` = ?";
+            $params[] = $title;
+        }
+        if (!empty($description)) {
+            $fields[] = "`description` = ?";
+            $params[] = $description;
+        }
+        if ($categoryId !== null) {
+            $fields[] = "`category_id` = ?";
+            $params[] = $categoryId;
+        }
+        if (!empty($status)) {
+            $fields[] = "`status` = ?";
+            $params[] = $status;
+        }
+        if (!empty($adminRemarks)) {
+            $fields[] = "`admin_remarks` = ?";
+            $params[] = $adminRemarks;
+        }
+
+        $fields[] = "`updated_at` = CURRENT_TIMESTAMP";
+
+        $params[] = $id;
+        $stmt = $pdo->prepare("UPDATE `documents` SET " . implode(', ', $fields) . " WHERE `id` = ?");
+        $stmt->execute($params);
+
+        // Also sync status and admin_remarks into matching quotation if doc_no matches
+        if (!empty($status)) {
+            $docStmt = $pdo->prepare("SELECT doc_no FROM `documents` WHERE `id` = ?");
+            $docStmt->execute([$id]);
+            $docNo = $docStmt->fetchColumn();
+            if ($docNo) {
+                $qStmt = $pdo->prepare("UPDATE `quotations` SET `status` = ?, `admin_remarks` = ? WHERE `quote_ref` = ?");
+                $qStmt->execute([$status, $adminRemarks ?: null, $docNo]);
+            }
+        }
+
+        jsonSuccess(['id' => $id, 'status' => $status], 'Document details and approval status updated successfully.');
     } catch (\PDOException $e) {
         error_log('Document update error: ' . $e->getMessage());
         jsonError('Failed to update document details.', 500);

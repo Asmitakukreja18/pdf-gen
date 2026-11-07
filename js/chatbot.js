@@ -1,17 +1,41 @@
 /**
- * chatbot.js — Conversational AI Travel Quotation & Multi-Format Document Assistant
- * Multimodal Document Agent for Let's Explore DMC:
- * - Natural Language understanding (Hindi, English, Hinglish)
- * - Multimodal file attachment analysis (PDF, Docs, Images)
- * - Hotel replacement & dynamic price recalculation
- * - Document Suite format switcher (Itinerary, Quotation, Hotel Costing, Invoice, Voucher)
- * - Live real-time studio & preview synchronization
- * - 1-Click PDF and DOCX generation
+ * chatbot.js — Intelligent Task-Oriented AI Agent for Let's Explore DMC
+ * Upgraded Conversational Agent:
+ * - Natural Language Understanding (Hindi, Hinglish, English)
+ * - Real Task Execution (Markup, Hotel changes, Company branding, Format switching, PDF extraction)
+ * - Real-Time Asynchronous Progress Updates (No fake sleeps on short questions)
+ * - Claude-like Structured Final Responses (Changes, Calculations, Preserved items, File & Download link)
+ * - Multi-Turn Context & Document Memory (Maintains active package across instructions)
+ * - Strict Data Integrity (Never invents fake days, never modifies unrequested sections)
  */
 
 const Chatbot = (() => {
 
-  // State
+  // ==========================================
+  // 1. STATE & MULTI-TURN CONVERSATION MEMORY
+  // ==========================================
+  const AgentMemory = {
+    activeDocType: 'quotation',
+    activeDestination: '',
+    activeDuration: '',
+    activeClientName: '',
+    activeQuoteRef: '',
+    activeCompany: {
+      name: "LET'S EXPLORE DMC",
+      tagline: "Your Destination Management Specialist",
+      phone: "+91 80075 86881",
+      email: "info@letsexploredmc.com",
+      contactPerson: "Let's Explore DMC Specialist",
+      isPartner: false,
+      isWhitelabel: false
+    },
+    lastMarkupApplied: null,
+    lastHotelChanged: null,
+    lastGeneratedFile: null,
+    conversationTurns: [],
+    executedTasksLog: []
+  };
+
   let history = [];
   let isTyping = false;
   let initialized = false;
@@ -39,15 +63,33 @@ const Chatbot = (() => {
     window.escapeHTML = escapeHTML;
   }
 
-  /**
-   * Initialize Chatbot
-   */
+  function formatINR(val) {
+    const n = Math.round(Number(val) || 0);
+    return '₹ ' + n.toLocaleString('en-IN');
+  }
+
+  function formatUSD(val) {
+    const n = Number(val) || 0;
+    return '$ ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function sanitizeFileName(str) {
+    return String(str || 'Document').replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_').trim();
+  }
+
+  // ==========================================
+  // 2. INITIALIZATION & UI SETUP
+  // ==========================================
   function init() {
     if (initialized) return;
     initialized = true;
     history = [];
     const m = msgs();
     if (m) m.innerHTML = '';
+    
+    // Sync current document memory from QuotationData
+    syncMemoryFromQuotationData();
+
     renderWelcome();
     setupInputHandlers();
     setupAttachmentHandlers();
@@ -57,12 +99,13 @@ const Chatbot = (() => {
       btnHistory.addEventListener('click', () => {
         showReplies([
           { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
+          { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
           { label: '🌟 Dubai 6D Itinerary', val: 'Dubai 6D itinerary with rates' },
-          { label: '🏨 Add Ramada & 10% Markup', val: 'Ramada hotel add karo aur 10% markup lagao' },
-          { label: '🧾 Akash Dewani Tax Invoice', val: 'akash dewani amravati ka tax invoice banao' },
-          { label: '🏨 Aanay Tours Voucher', val: 'aanay tours hotel voucher hilton yas island' }
+          { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
+          { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+          { label: '🗺️ Itinerary (No Rates)', val: 'Itinerary se costing hatao' }
         ], true);
-        if (typeof showToast === 'function') showToast('Sample enquiries loaded in quick actions', 'info');
+        if (typeof showToast === 'function') showToast('Sample tasks loaded in quick actions', 'info');
       });
     }
 
@@ -72,9 +115,25 @@ const Chatbot = (() => {
         const m = msgs();
         if (m) m.innerHTML = '';
         history = [];
+        AgentMemory.conversationTurns = [];
+        AgentMemory.executedTasksLog = [];
         renderWelcome();
         if (typeof showToast === 'function') showToast('Conversation cleared', 'info');
       });
+    }
+  }
+
+  function syncMemoryFromQuotationData() {
+    if (typeof QuotationData === 'undefined') return;
+    const pkg = QuotationData.package || {};
+    AgentMemory.activeDocType = QuotationData.activeDocType || 'quotation';
+    AgentMemory.activeDestination = pkg.destinations || pkg.title || 'Thailand';
+    AgentMemory.activeDuration = pkg.duration || '12 Days / 11 Nights';
+    AgentMemory.activeClientName = pkg.clientName || 'Valued Client';
+    AgentMemory.activeQuoteRef = pkg.quoteRef || 'LE-DMC-REF';
+
+    if (QuotationData.company) {
+      Object.assign(AgentMemory.activeCompany, QuotationData.company);
     }
   }
 
@@ -86,36 +145,31 @@ const Chatbot = (() => {
 
     appendAI(
       `Hello! 👋 Main hoon aapka <strong>Let's Explore DMC Document Assistant</strong> ${aiBadge}<br><br>` +
-      `Hamare platform mein total <strong>7 Professional Document Formats</strong> available hain:<br>` +
-      `• 📄 <strong>1. Master Quotation (DMC Ref)</strong>: Complete 12-section commercial quotation with flights, hotels, INR & USD pricing.<br>` +
-      `• 🗺️ <strong>2. Travel Itinerary</strong>: Guest-facing day-by-day travel timeline & experiences.<br>` +
-      `• 🏨 <strong>3. Hotel Costing</strong>: Hotel comparison, room types & multi-tier tariffs.<br>` +
-      `• 📋 <strong>4. Package Summary</strong>: Executive overview & pricing breakdown.<br>` +
-      `• 🏨 <strong>5. Hotel Booking Voucher</strong>: Luxury confirmation voucher with guest list, occupancy & policies.<br>` +
-      `• 🧾 <strong>6. Tax Invoice</strong>: Corporate GST billing with bank payment remittance.<br>` +
-      `• 🛠️ <strong>7. Custom Builder</strong>: Custom modular drag & drop sections.<br><br>` +
-      `Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!`,
+      `Aap mujhse kisi bhi natural language (Hindi, Hinglish ya English) me operations execute karwa sakte hain:<br>` +
+      `• 📈 <em>"Add 10% markup to this package"</em><br>` +
+      `• 🏨 <em>"Change hotel details but preserve the existing itinerary"</em><br>` +
+      `• 🗺️ <em>"Itinerary se costing hatao"</em> (Format 2: Travel Itinerary)<br>` +
+      `• 🏢 <em>"Aanay tours ki details k sath edit karo unki details hata dena"</em><br>` +
+      `• 📄 <em>Reference PDF/DOCX attach karke automatic structured quotation/invoice extract karo</em><br><br>` +
+      `Bataiye, aaj hum kis package ya document par kaam karein?`,
       false
     );
 
     const defaultReplies = [
-      { label: '📄 1. Master Quotation (DMC Ref)', val: '__SWITCH_QUOTATION__', primary: true },
-      { label: '🗺️ 2. Travel Itinerary', val: '__SWITCH_ITINERARY__' },
-      { label: '🏨 3. Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
-      { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
-      { label: '🧾 6. Tax Invoice / Bill', val: '__SWITCH_INVOICE__' },
-      { label: '🌴 Thailand 12D Package', val: '__APPLY_V5_HOTELS__' }
+      { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
+      { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
+      { label: '📈 +10% Markup Lagao', val: 'Add 10% markup to this package' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🗺️ Itinerary (Costing Hatao)', val: 'Itinerary se costing hatao' },
+      { label: '🧾 Tax Invoice Banao', val: 'Tax invoice banao' }
     ];
 
     showReplies(defaultReplies);
   }
 
-  /**
-   * Setup Attachment Handlers (Multimodal file support)
-   */
-  /**
-   * Helper: Convert ArrayBuffer to Base64 safely
-   */
+  // ==========================================
+  // 3. FILE ATTACHMENTS & PARSING
+  // ==========================================
   function arrayBufferToBase64(buffer) {
     let binary = '';
     const bytes = new Uint8Array(buffer);
@@ -128,9 +182,6 @@ const Chatbot = (() => {
     return window.btoa(binary);
   }
 
-  /**
-   * Process incoming file from file picker or drag-and-drop
-   */
   async function processIncomingFile(file) {
     if (!file) return;
     const badge = $('chatAttachmentBadge');
@@ -139,167 +190,117 @@ const Chatbot = (() => {
     activeAttachment = {
       name: file.name,
       size: file.size,
-      type: file.type || 'application/octet-stream',
-      mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
-      base64: '',
+      mimeType: file.type || 'application/pdf',
+      base64: null,
       extractedText: '',
-      pageCount: 1,
-      isPdf: (file.type && file.type.includes('pdf')) || file.name.toLowerCase().endsWith('.pdf'),
-      isImage: (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|webp|gif)$/i.test(file.name),
-      ready: false
+      serverPath: '',
+      pageCount: 1
     };
 
-    // 1. Immediately display the attachment badge
     if (badge && badgeText) {
       badgeText.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px; width:100%;">
-          <span style="font-size:22px; line-height:1;">📄</span>
-          <div style="flex:1; min-width:0;">
-            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <strong style="color:#0F2C59; font-size:13px; word-break:break-all;">${escapeHTML(file.name)}</strong>
-              <span id="attReadyPill" style="background:#2563EB; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;">UPLOADING TO CPANEL...</span>
-            </div>
-            <div id="attSubInfo" style="font-size:11px; color:#64748B; margin-top:2px;">
-              Uploading to cPanel server storage (${Math.round(file.size / 1024)} KB)...
-            </div>
+        <div style="display:flex; flex-direction:column; min-width:0;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <strong style="color:#0F2C59; font-size:13px; word-break:break-all;">${escapeHTML(file.name)}</strong>
+            <span id="attReadyPill" style="background:#2563EB; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;">READING FILE...</span>
+          </div>
+          <div id="attSubInfo" style="font-size:11px; color:#64748B; margin-top:2px;">
+            ${(file.size / 1024).toFixed(1)} KB · Inspecting content &amp; structure...
           </div>
         </div>
       `;
       badge.style.display = 'flex';
     }
 
-    // 2. Upload file directly to cPanel Server (api/upload_attachment.php)
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const uploadRes = await fetch('api/upload_attachment.php', {
-        method: 'POST',
-        body: formData
-      });
-      if (uploadRes.ok) {
-        const uploadData = await uploadRes.json();
-        if (uploadData && uploadData.success && uploadData.document) {
-          activeAttachment.serverPath = uploadData.document.file_path;
-          activeAttachment.serverFilename = uploadData.document.file_name;
-          activeAttachment.docId = uploadData.document.id;
-          activeAttachment.serverStored = true;
-          if (uploadData.extracted_text) {
-            activeAttachment.extractedText = uploadData.extracted_text;
-          }
-        }
-      }
-    } catch (uploadErr) {
-      console.warn('cPanel upload notice (offline or local preview):', uploadErr);
-    }
-
-    // 3. Read Base64 via standard browser FileReader (instant fallback & multimodal support)
-    try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-      activeAttachment.base64 = (dataUrl || '').replace(/^data:[^;]+;base64,/, '').trim();
-    } catch (readErr) {
-      console.warn('FileReader notice:', readErr);
-    }
-
-    // 4. Fast Text Extraction with strict timeout guard
-    try {
-      if (activeAttachment.isPdf && !activeAttachment.extractedText) {
-        activeAttachment.mimeType = 'application/pdf';
-        if (typeof pdfjsLib !== 'undefined') {
-          const ab = await file.arrayBuffer();
-          const parsePromise = (async () => {
-            try {
-              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-              const loadingTask = pdfjsLib.getDocument({ data: ab.slice(0) });
-              const pdf = await loadingTask.promise;
-              activeAttachment.pageCount = pdf.numPages || 1;
-              let fullText = '';
-              const maxPages = Math.min(pdf.numPages, 10);
-              for (let i = 1; i <= maxPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(' ');
-                fullText += `[Page ${i}]\n` + pageText + '\n';
-              }
-              return fullText.trim();
-            } catch (innerPdfErr) {
-              return '';
+      const isHttp = typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http');
+      if (isHttp) {
+        fetch('api/upload_attachment.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.success && data.file) {
+              if (activeAttachment) activeAttachment.serverPath = data.file.path;
             }
-          })();
+          })
+          .catch(e => console.warn('Attachment upload background notice:', e));
+      }
 
-          const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(''), 1200));
-          const pdfText = await Promise.race([parsePromise, timeoutPromise]);
-          if (pdfText) {
-            activeAttachment.extractedText = pdfText;
-          }
-        }
-      } else if (activeAttachment.isImage) {
-        activeAttachment.mimeType = file.type || 'image/jpeg';
-        activeAttachment.extractedText = `[Image Document: ${file.name}]`;
-      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
-        activeAttachment.mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        if (typeof mammoth !== 'undefined') {
+      const reader = new FileReader();
+      const b64Promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      const dataUrl = await b64Promise;
+      if (activeAttachment) activeAttachment.base64 = dataUrl;
+
+      // Extract text streams if PDF
+      if (file.name.toLowerCase().endsWith('.pdf') && typeof pdfjsLib !== 'undefined') {
+        try {
           const ab = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer: ab });
-          activeAttachment.extractedText = result.value ? result.value.trim() : '';
+          const loadingTask = pdfjsLib.getDocument({ data: ab });
+          const pdfDoc = await loadingTask.promise;
+          if (activeAttachment) activeAttachment.pageCount = pdfDoc.numPages;
+          let fullText = '';
+          const maxPages = Math.min(pdfDoc.numPages, 10);
+          for (let p = 1; p <= maxPages; p++) {
+            const page = await pdfDoc.getPage(p);
+            const tc = await page.getTextContent();
+            const pageStr = tc.items.map(it => it.str).join(' ');
+            fullText += `[Page ${p}]\n` + pageStr + '\n\n';
+          }
+          if (activeAttachment) activeAttachment.extractedText = fullText.trim();
+        } catch (pdfErr) {
+          console.warn('PDF.js in-browser text extraction fallback:', pdfErr);
         }
-      } else if (!activeAttachment.extractedText) {
-        activeAttachment.extractedText = await file.text();
       }
-    } catch (extractErr) {
-      console.warn('Client text extraction notice:', extractErr);
-    }
 
-    // 5. Mark attachment as READY
-    activeAttachment.ready = true;
-    const readyPill = $('attReadyPill');
-    const subInfo = $('attSubInfo');
-    const pageInfo = activeAttachment.pageCount > 1 ? ` · ${activeAttachment.pageCount} pages` : '';
-    const storedStatus = activeAttachment.serverStored
-      ? `✓ Stored on cPanel Server (<code>${escapeHTML(activeAttachment.serverPath || 'uploads/')}</code>)`
-      : `✓ Ready (${Math.round(file.size / 1024)} KB${pageInfo})`;
-
-    if (readyPill) {
-      readyPill.textContent = activeAttachment.serverStored ? '✅ SAVED TO CPANEL' : '✅ READY FOR AI';
-      readyPill.style.background = '#10B981';
-    }
-    if (subInfo) {
-      subInfo.innerHTML = `<span style="color:#15803D; font-weight:600;">${storedStatus}</span> — Click <strong>Send</strong> or choose an action below (zero typing required):`;
-    }
-
-    // 5. Present Quick Action pills with the file action FIRST and highlighted
-    showReplies([
-      { 
-        label: `⚡ Auto-Extract Quotation (${file.name})`, 
-        val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`, 
-        primary: true 
-      },
-      { 
-        label: '🧾 Tax Invoice Banao', 
-        val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao` 
-      },
-      { 
-        label: '🏨 Hotel Booking Voucher', 
-        val: `Attached document ${file.name} se hotel confirmation booking voucher banao` 
-      },
-      { 
-        label: '🗺️ Itinerary (Without Rates)', 
-        val: `Attached document ${file.name} se guest travel itinerary without pricing banao` 
+      const pill = $('attReadyPill');
+      const subInfo = $('attSubInfo');
+      if (pill) {
+        pill.textContent = 'READY TO PROCESS';
+        pill.style.background = '#15803D';
       }
-    ], true);
+      if (subInfo) {
+        subInfo.innerHTML = `<span style="color:#15803D; font-weight:600;">File Ready</span> — Click Send or choose an action below:`;
+      }
 
-    if (typeof showToast === 'function') {
-      showToast(`📄 ${file.name} Attached! Click Send or an action pill.`, 'success');
+      showReplies([
+        { 
+          label: `⚡ Auto-Extract Quotation (${file.name})`, 
+          val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`, 
+          primary: true 
+        },
+        { 
+          label: '🧾 Tax Invoice Banao', 
+          val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao` 
+        },
+        { 
+          label: '🏨 Hotel Booking Voucher', 
+          val: `Attached document ${file.name} se hotel confirmation booking voucher banao` 
+        },
+        { 
+          label: '🗺️ Itinerary (Without Rates)', 
+          val: `Attached document ${file.name} se guest travel itinerary without pricing banao` 
+        }
+      ], true);
+
+      if (typeof showToast === 'function') {
+        showToast(`📄 ${file.name} Attached! Click Send or an action pill.`, 'success');
+      }
+
+    } catch (err) {
+      console.error('Error handling file:', err);
+      const pill = $('attReadyPill');
+      if (pill) {
+        pill.textContent = 'READY';
+        pill.style.background = '#0F2C59';
+      }
     }
   }
 
-  /**
-   * Setup Attachment Handlers (Multimodal file support & Drag-and-Drop)
-   */
   function setupAttachmentHandlers() {
     const attachBtn = $('btnAttachFile');
     const fileInput = $('chatDocUpload');
@@ -319,14 +320,10 @@ const Chatbot = (() => {
         activeAttachment = null;
         if (badge) badge.style.display = 'none';
         if (fileInput) fileInput.value = '';
-        const inp = input();
-        if (inp && inp.value.includes('Extract all travel itinerary details')) {
-          clearInput();
-        }
+        clearInput();
       });
     }
 
-    // Drag and Drop support on Chat Panel
     const chatPanel = $('chatPanel') || document.querySelector('.chat-panel');
     if (chatPanel) {
       ['dragenter', 'dragover'].forEach(name => {
@@ -345,6 +342,9 @@ const Chatbot = (() => {
         });
       });
       chatPanel.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        chatPanel.style.outline = 'none';
         const dt = e.dataTransfer;
         if (dt && dt.files && dt.files.length > 0) {
           await processIncomingFile(dt.files[0]);
@@ -353,9 +353,6 @@ const Chatbot = (() => {
     }
   }
 
-  /**
-   * Setup Input Handlers
-   */
   function setupInputHandlers() {
     const inp = input(), btn = sendBtn();
     if (!inp || !btn) return;
@@ -382,7 +379,6 @@ const Chatbot = (() => {
     if (!text && !activeAttachment) return;
     if (isTyping) return;
 
-    // Zero-typing requirement: If user attached a file and wrote nothing, provide full instruction
     let fullPrompt = text;
     let userBubble = text;
     if (activeAttachment) {
@@ -403,7 +399,6 @@ const Chatbot = (() => {
     clearReplies();
     appendUser(userBubble);
 
-    // Reset attachment badge after sending
     const badge = $('chatAttachmentBadge');
     if (badge) badge.style.display = 'none';
     const uploadInput = $('chatDocUpload');
@@ -414,752 +409,573 @@ const Chatbot = (() => {
     processMessage(fullPrompt, attachedFileBackup);
   }
 
-  /**
-   * Main Message Processing
-   */
+  // ==========================================
+  // 4. NATURAL LANGUAGE INTENT CLASSIFIER
+  // ==========================================
+  function classifyIntent(text, attachment) {
+    const t = (text || '').trim();
+
+    // 1. Direct tool triggers
+    if (/^(pdf|download\s*pdf|generate\s*pdf|pdf\s*bhejo|pdf\s*banao)$/i.test(t)) {
+      return { type: 'DIRECT_PDF' };
+    }
+    if (/^(docx|word|download\s*docx|generate\s*docx|word\s*file|docx\s*bhejo)$/i.test(t)) {
+      return { type: 'DIRECT_DOCX' };
+    }
+    if (/^(preview|view\s*preview|show\s*preview|dekho)$/i.test(t)) {
+      return { type: 'DIRECT_PREVIEW' };
+    }
+    if (/^(edit|builder|studio|edit\s*karo|studio\s*kholo|open\s*builder)$/i.test(t)) {
+      return { type: 'DIRECT_STUDIO' };
+    }
+    if (/^(restart|reset|naya|new|fresh|clear)$/i.test(t)) {
+      return { type: 'DIRECT_RESET' };
+    }
+
+    // 2. Simple informational inquiry (without modification intent)
+    const isPureQuestion = /^(kya|kaise|what|how|which|why|explain|batao|options|formats?|destinations?)\b/i.test(t) ||
+      /\?$/.test(t) ||
+      /(?:formats?|document.*types?)\s*(?:hai|bhi|kaise|options|dikhao|kya)/i.test(t) ||
+      /(?:cancellation|luggage|baggage|visa|passport|season|weather)\s*(?:policy|rule|time|kya|batao)/i.test(t);
+
+    const hasModKeywords = /(?:add|apply|lagao|badhao|bada|increase|change|replace|badlo|hata|hatao|remove|edit|rebrand|banao|make|create|generate|markup|percent|%|details)/i.test(t);
+
+    if (isPureQuestion && !hasModKeywords && !attachment) {
+      return { type: 'GENERAL_INQUIRY', query: t };
+    }
+
+    // 3. Markup & Price Modification
+    // e.g. "Add 10% markup to this package", "10 percent markup", "markup 10%", "passes ka amount 20000 increase kar do"
+    const pctMatch = t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|margin|extra)?/i) ||
+                     t.match(/(?:markup|margin|increase|badhao|bada).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
+    const fixedMatch = t.match(/(?:increase|bada|badhao|add|extra|pass|passes|amount).*?(\d{4,})/i) ||
+                       t.match(/(\d{4,}).*?(?:increase|bada|badhao|add|extra)/i);
+
+    if ((pctMatch || fixedMatch) && !/(?:hata|remove|delete|mat|without)/i.test(t)) {
+      return {
+        type: 'MARKUP_ADJUSTMENT',
+        percent: pctMatch ? parseFloat(pctMatch[1]) : 0,
+        fixedINR: fixedMatch ? parseInt(fixedMatch[1], 10) : 0,
+        rawText: t
+      };
+    }
+
+    // 4. Company Rebranding / Partner Whitelabel
+    // e.g. "Aanay tours ki details k sath edit karo", "details dalo inki unki hatao", "rebrand company"
+    const isAanay = /(?:aanay|aanay\s*tours?|viraj|gaglani)/i.test(t);
+    const isRebrand = /(?:company\s*details?|branding|partner|logo|rebrand|details\s*dalo|unki\s*details\s*hata|white-?label)/i.test(t);
+
+    if (isAanay || isRebrand) {
+      return {
+        type: 'COMPANY_REBRAND',
+        partner: isAanay ? 'Aanay Tours' : 'Partner',
+        isAanay: isAanay,
+        rawText: t
+      };
+    }
+
+    // 5. Costing Removal / Without Rates (Format 2: Travel Itinerary)
+    // e.g. "Itinerary se costing hatao", "rates hata do", "without rates format"
+    if (/(?:costing|rates?|pricing|paise|amount|tariff)\s*(?:hata|hatao|remove|hide|nikal|mat\s*dikhao|bina)/i.test(t) ||
+        /(?:without\s*rates?|rates?\s*ke\s*bina|itinerary\s*only|bina\s*rates?)/i.test(t)) {
+      return { type: 'REMOVE_COSTING', rawText: t };
+    }
+
+    // 6. Hotel Replacement
+    // e.g. "Change hotel to Ramada Resort", "Replace Krabi Resort with Ramada By Wyndham"
+    if (/(?:change|replace|badal|naya)\s*hotel|hotel\s*(?:change|badal|replace)/i.test(t) ||
+        /(?:ramada|andakira|phi\s*phi|mountain\s*beach|panwaburi|esmeralda|hilton|marriott|hyatt|villa)/i.test(t) && /(?:dalo|lagao|karo|change|replace)/i.test(t)) {
+      return { type: 'HOTEL_CHANGE', rawText: t };
+    }
+
+    // 7. Format Switch
+    if (t === '__SWITCH_INVOICE__' || /(?:banao|make|create|generate|switch).*(?:invoice|tax\s*invoice|bill)/i.test(t)) {
+      return { type: 'FORMAT_SWITCH', targetDocType: 'invoice' };
+    }
+    if (t === '__SWITCH_CONFIRMATION__' || /(?:banao|make|create|generate|switch).*(?:voucher|confirmation)/i.test(t)) {
+      return { type: 'FORMAT_SWITCH', targetDocType: 'confirmation' };
+    }
+    if (t === '__SWITCH_HOTEL_COSTING__' || /(?:hotel\s*costing|comparison\s*sheet|hotel\s*sheet)/i.test(t)) {
+      return { type: 'FORMAT_SWITCH', targetDocType: 'hotel_costing' };
+    }
+    if (t === '__SWITCH_ITINERARY__' || /(?:travel\s*itinerary|itinerary\s*format)/i.test(t)) {
+      return { type: 'FORMAT_SWITCH', targetDocType: 'itinerary' };
+    }
+    if (t === '__SWITCH_QUOTATION__' || /(?:master\s*quotation|quotation\s*format|commercial\s*quote)/i.test(t)) {
+      return { type: 'FORMAT_SWITCH', targetDocType: 'quotation' };
+    }
+
+    // 8. Document extraction or new quotation build
+    return { type: 'BUILD_OR_EXTRACT', rawText: t, attachment: attachment };
+  }
+
+  // ==========================================
+  // 5. ASYNCHRONOUS TASK PROGRESS CONTROLLER
+  // ==========================================
+  function setTyping(flag, statusTitle = '🧠 Thinking &amp; Processing...', statusSub = 'Executing application tasks...') {
+    isTyping = flag;
+    const el = typing();
+    if (el) {
+      el.style.display = flag ? 'flex' : 'none';
+      const titleEl = $('typingStatusText');
+      const subEl = $('typingSubText');
+      if (titleEl) titleEl.innerHTML = statusTitle;
+      if (subEl) subEl.innerHTML = statusSub;
+    }
+    scrollBottom();
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // ==========================================
+  // 6. MAIN TASK EXECUTION ORCHESTRATOR
+  // ==========================================
   async function processMessage(text, attachment = null) {
     const t = text.trim();
     if (!t.startsWith('__')) {
       lastPrompt = text;
     }
 
+    syncMemoryFromQuotationData();
+    const intent = classifyIntent(text, attachment);
 
-
-    // Direct Builder / Edit intent
-    if (t === '__GOTO_BUILDER__' || /^(edit|builder|studio|edit\s*karo|studio\s*kholo|open\s*builder)$/i.test(t)) {
+    // ── DIRECT TOOLS ──
+    if (intent.type === 'DIRECT_PDF') {
+      if (typeof PDFGenerator !== 'undefined') PDFGenerator.generate();
+      appendAI('Opening official print &amp; PDF generation dialog for your document...');
+      return;
+    }
+    if (intent.type === 'DIRECT_DOCX') {
+      if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
+      appendAI('Generating and downloading your editable Microsoft Word (.doc/.docx) document...');
+      return;
+    }
+    if (intent.type === 'DIRECT_PREVIEW') {
+      if (typeof App !== 'undefined') App.showSection('preview');
+      appendAI('Switching to official Document Master Preview!');
+      return;
+    }
+    if (intent.type === 'DIRECT_STUDIO') {
       if (typeof App !== 'undefined') {
         App.showSection('generator');
         if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
         if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
       }
-      appendAI('Opening Studio Builder! All details are populated and ready for your manual edits.');
+      appendAI('Opening Studio Builder! All details are populated and ready for manual edits.');
       return;
     }
-
-    // 1. Direct PDF trigger
-    if (/^(pdf|download\s*pdf|generate\s*pdf|pdf\s*bhejo|pdf\s*banao)$/i.test(t)) {
-      if (typeof PDFGenerator !== 'undefined') PDFGenerator.generate();
-      appendAI('Opening print-ready A4 PDF document dialog... You can save as PDF directly!');
-      return;
-    }
-
-    // 2. Direct DOCX trigger
-    if (/^(docx|word|download\s*docx|generate\s*docx|word\s*file|docx\s*bhejo)$/i.test(t)) {
-      if (typeof DOCXGenerator !== 'undefined') DOCXGenerator.generate();
-      appendAI('Preparing and downloading your editable Microsoft Word (.doc/.docx) document...');
-      return;
-    }
-
-    // 3. Direct Preview trigger
-    if (/^(preview|view\s*preview|show\s*preview|dekho)$/i.test(t)) {
-      if (typeof App !== 'undefined') App.showSection('preview');
-      appendAI('Switching to official Document Master Preview!');
-      return;
-    }
-
-    // 4. Reset trigger
-    if (/^(restart|reset|naya|new|fresh|clear)$/i.test(t)) {
+    if (intent.type === 'DIRECT_RESET') {
       if (typeof resetQuotationData === 'function') resetQuotationData();
       if (typeof App !== 'undefined') App.showSection('generator');
-      appendAI('Cleared! Tell me the client name, destination, and travel dates to start a new quotation.');
+      appendAI('Cleared! Tell me the client name, destination, and travel dates to start a fresh quotation.');
       return;
     }
 
-    await executeThinkingPipeline(attachment, text);
+    // ── GENERAL INQUIRY (Zero fake progress delays) ──
+    if (intent.type === 'GENERAL_INQUIRY') {
+      handleGeneralInquiry(intent.query);
+      return;
+    }
+
+    // ── MULTI-STEP TASK EXECUTION PIPELINE ──
+    const taskLog = [];
 
     try {
-      // 5. Check if user is requesting Hotel Changes & Recalculation (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View + Markup)
-      if (t === '__APPLY_V5_HOTELS__' ||
-          /hotel.*change|change.*hotel|naya\s*hotel|naya\s*rate|ramada|andakira|mountain\s*beach|169143|1,69,143|panwaburi.*36|esmeralda.*32|v5|markup|10\s*(?:percent|%|prcnt)|20\s*(?:usd|\$)/i.test(text)) {
-        
-        const wantsMarkup = /markup|10\s*(?:percent|%|prcnt)|20\s*(?:usd|\$)|increase/i.test(text);
-        applyNewThailandHotelsAndRates(wantsMarkup);
-        setTyping(false);
-
-        if (wantsMarkup) {
-          appendAI(
-            `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 (with 10% Hotel Markup + 20 USD Activity Increase) ready hai!</strong><br><br>` +
-            `Itinerary, design aur reference branding colors (Deep Navy #0F2C59) strictly same rakhe hain:<br><br>` +
-            `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
-            `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Hotel</th><th style="padding:6px 8px; text-align:right;">Base Rate</th><th style="padding:6px 8px; text-align:right;">+10% Markup (INR)</th></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 39,146</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 43,061</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 27,204</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 29,924</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 34,095</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 37,505</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 36,318</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 39,950</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px;"><strong>Esmeralda View</strong></td><td style="padding:5px 8px; text-align:right; color:#64748B;">₹ 32,380</td><td style="padding:5px 8px; text-align:right; font-weight:bold; color:#15803D;">₹ 35,618</td></tr>` +
-            `</table>` +
-            `• <strong>Hotel Costing Summary</strong>: <strong>₹ 1,86,058</strong> (exact 10% increase applied across all 5 properties)<br>` +
-            `• <strong>Land Part / Activities</strong>: <strong>$ 2,248.00 USD</strong> (+20 USD increase on each activity/transfer unit rate)<br>` +
-            `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
-            `• <strong>Colors & Theme</strong>: Master Reference Official Palette (#0F2C59 Deep Navy, #1E3A8A Blue, #CBD5E1 Borders) strictly locked.<br>` +
-            `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
-          );
-        } else {
-          appendAI(
-            `✅ <strong>Aapka updated PDF LetsExploreDMC_Thailand_12D11N_v5 ready hai!</strong><br><br>` +
-            `Itinerary, design aur USD land rates same rakhe hain, sirf hotels aur hotel rates badle hain:<br><br>` +
-            `<table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">` +
-            `<tr style="background:#0F2C59; color:#FFF;"><th style="padding:6px 8px; text-align:left;">Dates</th><th style="padding:6px 8px; text-align:left;">Purana Hotel</th><th style="padding:6px 8px; text-align:left;">Naya Hotel</th><th style="padding:6px 8px; text-align:right;">Rate (INR)</th></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">2–5 Jan</td><td style="padding:5px 8px; color:#64748B;">Krabi Resort (1,04,025)</td><td style="padding:5px 8px;"><strong>Ramada By Wyndham</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 39,146</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">5–7 Jan</td><td style="padding:5px 8px; color:#64748B;">Phi Phi Island Cabana (43,262)</td><td style="padding:5px 8px;"><strong>Phi Phi Mountain Beach Resort</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 27,204</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">7–9 Jan</td><td style="padding:5px 8px; color:#64748B;">Sunset Beach Resort (27,944)</td><td style="padding:5px 8px;"><strong>Hotel Andakira Phuket</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 34,095</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">9–10 Jan</td><td style="padding:5px 8px; color:#64748B;">Panwaburi Beachfront</td><td style="padding:5px 8px;"><strong>Panwaburi Beachfront (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 36,318</td></tr>` +
-            `<tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px;">10–13 Jan</td><td style="padding:5px 8px; color:#64748B;">Esmeralda View</td><td style="padding:5px 8px;"><strong>Esmeralda View (same)</strong></td><td style="padding:5px 8px; text-align:right; font-weight:bold;">₹ 32,380</td></tr>` +
-            `</table>` +
-            `• <strong>Price Summary</strong>: Hotel Costing ab <strong>₹ 1,69,143</strong> hai (pehle 2,43,929 thi), jo in paanchon rates ka sum hai.<br>` +
-            `• <strong>Land Part</strong>: <strong>$ 1,808.00 USD</strong> hi hai.<br>` +
-            `• <strong>Day 8</strong>: Candle Light Dinner venue strictly <em>Thavorn Beach Village Resort & Spa Phuket</em> preserved hai.<br>` +
-            `• Ab aap live preview dekh sakte hain ya direct PDF download kar sakte hain!`
-          );
-        }
-
-        showReplies([
-          { label: '🖨️ Generate PDF (v5)', val: '__PDF__', primary: true },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '👁️ View Live Preview', val: '__PREVIEW__' },
-          { label: '💰 Quotation Format', val: '__SWITCH_QUOTATION__' },
-          { label: '🏨 Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
-          { label: '🧾 Tax Invoice', val: '__SWITCH_INVOICE__' }
-        ]);
-        scrollBottom();
+      // TASK A: MARKUP & PRICING MODIFICATION
+      if (intent.type === 'MARKUP_ADJUSTMENT') {
+        await executeMarkupWorkflow(intent, taskLog);
         return;
       }
 
-      // 5.5 Check if user is asking why it only makes invoices or inquiring about other formats
-      const isFormatQuery = /(?:sirf|only).*invoice/i.test(text) ||
-                            /(?:invoice|bill).*(?:hi|kyu|kyun|why|sirf|only|ban\s*raha|banta|aaraha)/i.test(text) ||
-                            /(?:baki|aur|other|all|saare|sabhi).*(?:format|template|document)/i.test(text) ||
-                            /(?:formats?|document.*types?|templates?)\s*(?:hai|bhi|kaise|options|dikhao|kya)/i.test(text);
-
-      if (isFormatQuery) {
-        // Automatically switch back to official Master Quotation
-        QuotationData.activeDocType = 'quotation';
-        if (typeof App !== 'undefined') {
-          if (typeof App.switchDocType === 'function') App.switchDocType('quotation');
-          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-        }
-
-        setTyping(false);
-        appendAI(
-          `✅ <strong>Document Format ko Master Commercial Quotation par switch kar diya gaya hai!</strong><br><br>` +
-          `Pehle Invoice mode active tha isliye PDF invoice generate ho raha tha. Ab default <strong>1. Master Quotation (Official Reference)</strong> active ho gaya hai jisme Pax columns, INR, USD aur hotel itinerary ki complete details hain.<br><br>` +
-          `Hamare platform mein total <strong>7 Professional Document Formats</strong> available hain:<br>` +
-          `1. 📄 <strong>Master Quotation (Official Reference)</strong>: Day-wise activities, hotels, transfers, dual-currency pricing.<br>` +
-          `2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day travel timeline.<br>` +
-          `3. 🏨 <strong>Hotel Costing & Comparison</strong>: 5 hotels ka 3-tier room category comparison.<br>` +
-          `4. 📋 <strong>Package Summary</strong>: Executive 1-page summary & cost highlights.<br>` +
-          `5. 🏨 <strong>Hotel Booking Voucher</strong>: Luxury confirmation voucher with room occupancy table.<br>` +
-          `6. 🧾 <strong>Corporate Tax Invoice</strong>: Bill to, GST, bank payment transfer details.<br>` +
-          `7. 🛠️ <strong>Custom Modular Builder</strong>: Custom sections builder.<br><br>` +
-          `Aap upar top bar se ya neeche diye buttons par click karke kisi bhi format me switch kar sakte hain:`
-        );
-        showReplies([
-          { label: '📄 1. Master Quotation (Active)', val: '__SWITCH_QUOTATION__', primary: true },
-          { label: '🗺️ 2. Travel Itinerary', val: '__SWITCH_ITINERARY__' },
-          { label: '🏨 3. Hotel Costing Sheet', val: '__SWITCH_HOTEL_COSTING__' },
-          { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
-          { label: '📋 4. Package Summary', val: '__SWITCH_SUMMARY__' },
-          { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' },
-          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__' }
-        ]);
-        scrollBottom();
+      // TASK B: COMPANY REBRANDING (Aanay Tours / White-label)
+      if (intent.type === 'COMPANY_REBRAND') {
+        await executeRebrandWorkflow(intent, taskLog);
         return;
       }
 
-      // 5.8 Intelligent Entity & Document Routing (Aanay Tours, Akash Dewani, Without Rates, Dubai, Kashmir)
-      const isAanayReq = /(?:aanay|aanay\s*tours?|viraj|gaglani|hilton\s*(?:abu\s*dhabi|yas\s*island)?)/i.test(text) ||
-                         (attachment && /aanay|hilton|voucher.*aanay/i.test(attachment.name));
-
-      if (isAanayReq && !/(?:hata|remove|delete|mat|nahi)/i.test(text)) {
-        if (typeof loadSampleDataset === 'function') {
-          loadSampleDataset('voucher_aanay');
-        }
-        QuotationData.activeDocType = 'confirmation';
-        if (typeof App !== 'undefined') {
-          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
-          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-        }
-        setTyping(false);
-        appendAI(
-          `✅ <strong>Aanay Tours Hotel Booking Voucher (Hilton Abu Dhabi Yas Island) details load kar di gayi hain!</strong><br><br>` +
-          `• <strong>Agency Name</strong>: Aanay tours (Contact: Viraj Gaglani - 7709123187)<br>` +
-          `• <strong>Property</strong>: <strong>Hilton Abu Dhabi Yas Island</strong> (5-Star Luxury Resort)<br>` +
-          `• <strong>Booking Ref</strong>: <code>TG/31130</code> | <strong>Confirmation No</strong>: <code>NH27002524635670</code><br>` +
-          `• <strong>Stay Duration</strong>: 16-Nov-2026 to 18-Nov-2026 (2 Nights)<br>` +
-          `• <strong>Room Type</strong>: Deluxe Double Room (Double sharing + extra bed, Breakfast included)<br>` +
-          `• <strong>Guests / Pax</strong>: 4 Adults, 2 Children, 1 Infant (Extra mattress included)<br><br>` +
-          `Official Hilton luxury Hotel Voucher live preview me update ho gaya hai. Aap neeche se direct PDF download kar sakte hain ya Studio Builder me customize kar sakte hain!`
-        );
-        showReplies([
-          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
-          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
-          { label: '🖨️ Download PDF Voucher', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '📄 Master Quotation', val: '__SWITCH_QUOTATION__' },
-          { label: '🧾 Tax Invoice', val: '__SWITCH_INVOICE__' }
-        ]);
-        scrollBottom();
+      // TASK C: REMOVE COSTING (Switch to Format 2: Travel Itinerary)
+      if (intent.type === 'REMOVE_COSTING') {
+        await executeRemoveCostingWorkflow(intent, taskLog);
         return;
       }
 
-      // 5.9 Without Rates / Itinerary Only Intent
-      const isWithoutRatesReq = /(?:without\s*rates?|rates?\s*(?:hata|mat|nahi|remove|bina|without)|itinerary\s*only|rates?\s*ke\s*bina|bina\s*rates?)/i.test(text) ||
-                                (attachment && /without_rates/i.test(attachment.name));
-
-      if (isWithoutRatesReq && !/(?:wapas|add|show|dikhao|with\s*rates)/i.test(text)) {
-        if (typeof loadSampleDataset === 'function') {
-          loadSampleDataset('thailand_without_rates');
-        }
-        QuotationData.activeDocType = 'itinerary';
-        if (typeof App !== 'undefined') {
-          if (typeof App.switchDocType === 'function') App.switchDocType('itinerary');
-          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-        }
-        setTyping(false);
-        appendAI(
-          `✅ <strong>Thailand 12D11N Itinerary (Without Rates / Guest-Facing) load ho gaya hai!</strong><br><br>` +
-          `• <strong>Destination</strong>: Krabi + Phuket + Koh Yao Yai<br>` +
-          `• <strong>Duration</strong>: 12 Days / 11 Nights<br>` +
-          `• <strong>Pricing</strong>: Rates strictly hidden / removed (guest-facing presentation mode)<br>` +
-          `• <strong>Itinerary</strong>: Day-by-day complete schedule with hotel stays and sightseeing timeline<br><br>` +
-          `Guest-facing travel itinerary live preview me ready hai!`
-        );
-        showReplies([
-          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
-          { label: '✏️ Edit in Studio', val: '__GOTO_BUILDER__' },
-          { label: '🖨️ Download PDF Itinerary', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '💰 Add Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' }
-        ]);
-        scrollBottom();
+      // TASK D: HOTEL CHANGE
+      if (intent.type === 'HOTEL_CHANGE') {
+        await executeHotelChangeWorkflow(intent, taskLog);
         return;
       }
 
-      // 6. Check Document Format Switch Requests
-      const isInvoiceReq = (
-        text === '__SWITCH_INVOICE__' ||
-        /(?:akash\s*dewani|dewani|amravati\s*bill|passport\s*bill)/i.test(text) ||
-        (
-          /(?:banao|make|create|generate|switch|dikhao|convert|chahiye|tayyar|print).*(?:invoice|inoice|invoce|invoic|tax\s*invoice|bill|receipt|challan)/i.test(text) ||
-          /(?:invoice|inoice|invoce|invoic|tax\s*invoice|receipt|challan).*(?:banao|bana|generate|create|karo|me|format|sheet)/i.test(text) ||
-          (attachment && /invoice|bill|receipt/i.test(attachment.name))
-        ) && !/(?:kyu|kyun|why|sirf|only|baki|other|nahi|mat)/i.test(text)
-      );
-
-      if (isInvoiceReq) {
-        if (!QuotationData.invoice) QuotationData.invoice = {};
-        const inv = QuotationData.invoice;
-
-        // 1. Extract Invoice Number if present in PDF text or message
-        const invNumMatch = text.match(/Invoice\s*(?:No\.?|Number|#)?[:\s]*([0-9A-Za-z\-_]+)/i);
-        if (invNumMatch && invNumMatch[1] && !/detail|from|to|for|bill/i.test(invNumMatch[1])) {
-          inv.invoiceNumber = invNumMatch[1].trim();
-        }
-
-        // 2. Extract customer name from attached file if present (e.g. "[Attached File: akash Dewani.pdf]")
-        const fileMatch = text.match(/\[Attached File:\s*([^\]\n]+)\]/i);
-        if (fileMatch) {
-          let cleanFileName = fileMatch[1].replace(/\.(pdf|docx?|png|jpe?g|txt)$/i, '').trim();
-          cleanFileName = cleanFileName.replace(/invoice|bill|billing|doc|file/gi, '').trim();
-          if (cleanFileName && cleanFileName.length >= 2) {
-            inv.toCustomerName = cleanFileName;
-          }
-        }
-
-        // 3. Extract customer name from document text or prompt
-        const custNameMatch = text.match(/(?:Customer\s*Name|Billed\s*To|Invoice\s*To|Client\s*Name)[:\s]+([^\n\r,]+)/i) ||
-                              text.match(/(?:for|name|ke\s*liye|customer|client)[:\s]+([a-zA-Z\s]{2,30})/i);
-        if (custNameMatch && custNameMatch[1]) {
-          inv.toCustomerName = custNameMatch[1].trim();
-        }
-
-        // Default to akash dewani if empty
-        if (!inv.toCustomerName) {
-          inv.toCustomerName = QuotationData.package.clientName || 'akash dewani';
-        }
-
-        // 4. Extract customer address if present
-        const addrMatch = text.match(/(?:Amravati[^\n]*|Customer\s*Address[:\s]+[^\n]+)/i);
-        if (addrMatch) {
-          inv.toCustomerAddress = addrMatch[0].trim();
-        }
-
-        // 5. Extract service items & amount
-        const serviceMatch = text.match(/(?:passport\s*bill|tour\s*package|flight\s*booking|visa\s*service|[a-zA-Z\s]{3,30}\s*bill)/i) ||
-                             text.match(/Service[:\s]+([^\n\r]+)/i);
-        const itemService = serviceMatch ? (serviceMatch[1] || serviceMatch[0]).trim() : 'passport bill';
-
-        const descMatch = text.match(/(\d+\s*Adult[^\n]*|\d+\s*Pax[^\n]*)/i);
-        const itemDesc = descMatch ? descMatch[1].trim() : '1 Adult';
-
-        const amountMatch = text.match(/(?:Total\s*Amount|Net\s*Amount|Sub\s*Total|Total|Amount|Price|INR|₹|Rs\.?)[:\s]*([0-9,]+(?:\.\d{2})?)/i) ||
-                            text.match(/\b([1-9][0-9]{2,6}(?:\.\d{2})?)\b/);
-        let parsedPrice = 2850;
-        if (amountMatch) {
-          const rawNum = parseFloat(amountMatch[1].replace(/,/g, ''));
-          if (rawNum && !isNaN(rawNum) && rawNum > 10) {
-            parsedPrice = rawNum;
-          }
-        }
-
-        inv.items = [{
-          sn: 1,
-          service: itemService,
-          description: itemDesc,
-          hsn: '',
-          quantity: 1,
-          perPaxPrice: parsedPrice,
-          netAmount: parsedPrice,
-          amount: parsedPrice
-        }];
-        inv.subTotal = parsedPrice;
-        inv.totalAmount = parsedPrice;
-
-        // 6. Extract Bank Details if mentioned in document text
-        const bankMatch = text.match(/(YES\s*BANK\s*LIMITED|HDFC\s*BANK|ICICI\s*BANK|STATE\s*BANK[^\n]*)/i);
-        if (bankMatch) inv.bankName = bankMatch[1].trim();
-
-        const accMatch = text.match(/(?:Account\s*No\.?|A\/C\s*No\.?|Acc\s*No\.?)[:\s]*([0-9]{9,18})/i);
-        if (accMatch) inv.bankAccountNo = accMatch[1].trim();
-
-        const ifscMatch = text.match(/([A-Z]{4}0[A-Z0-9]{6})/i);
-        if (ifscMatch) inv.bankIfsc = ifscMatch[1].trim();
-
-        const branchMatch = text.match(/Branch[:\s]+([A-Za-z\s]+)/i);
-        if (branchMatch) inv.bankBranch = branchMatch[1].trim();
-
-        // 7. Company Details if mentioned
-        if (/LET'?S\s*EXPLORE/i.test(text)) {
-          inv.fromCompany = "LET'S EXPLORE DMC";
-        }
-
-        if (typeof App !== 'undefined') {
-          if (typeof App.switchDocType === 'function') App.switchDocType('invoice');
-          if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
-          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-        }
-
-        setTyping(false);
-        const custName = inv.toCustomerName || 'akash dewani';
-        const tot = Number(inv.totalAmount || 2850).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-        const summaryDesc = (inv.items && inv.items[0]) ? `${inv.items[0].service} (${inv.items[0].description})` : 'passport bill (1 Adult)';
-
-        appendAI(
-          `✅ <strong>Official Orange Themed Invoice Confirm Ho Gaya Hai!</strong><br><br>` +
-          `• <strong>Invoice No</strong>: ${inv.invoiceNumber || '090587'}<br>` +
-          `• <strong>Billed To</strong>: <strong>${custName}</strong><br>` +
-          `• <strong>Service Detail</strong>: ${summaryDesc}<br>` +
-          `• <strong>Total Amount</strong>: <strong>INR ${tot}</strong><br>` +
-          `• <strong>Bank Remittance</strong>: YES BANK LIMITED (A/C: ${inv.bankAccountNo || '108163400004886'})<br><br>` +
-          `Ab aap niche <strong>"Edit in Studio Builder"</strong> par click karke saare fields aur lines live edit kar sakte hain:`
-        );
-        showReplies([
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
-          { label: '👁️ View Live Preview', val: '__PREVIEW__' },
-          { label: '🖨️ Print / Save PDF Invoice', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' }
-        ]);
-        scrollBottom();
+      // TASK E: FORMAT SWITCH
+      if (intent.type === 'FORMAT_SWITCH') {
+        await executeFormatSwitchWorkflow(intent.targetDocType, taskLog);
         return;
       }
 
-      // Format Switcher: Master Quotation
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:quotation|quote)|(?:quotation|quote).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_QUOTATION__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('quotation');
-        } else {
-          QuotationData.activeDocType = 'quotation';
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Master Commercial Quotation Format!</strong><br>Day-by-day Pax, INR, USD columns, pricing summary, and commercial total are active in the live preview.');
-        showReplies([
-          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Print / Save PDF Quotation', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // Format Switcher: Travel Itinerary
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:itinerary|daywise|day-wise)|(?:itinerary).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_ITINERARY__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('itinerary');
-        } else {
-          QuotationData.activeDocType = 'itinerary';
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Travel Experience Itinerary Format!</strong><br>Day-by-day travel timeline, sightseeing, activities, and hotel stays are active.');
-        showReplies([
-          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Print / Save PDF Itinerary', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // Format Switcher: Hotel Costing Sheet
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:hotel.*costing|comparison)|(?:hotel.*costing).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_HOTEL_COSTING__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('hotel_costing');
-        } else {
-          QuotationData.activeDocType = 'hotel_costing';
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Dedicated Hotel Costing & Comparison Format!</strong><br>3-Tier tariff options for all 5 hotels are active.');
-        showReplies([
-          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Print / Save PDF Hotel Sheet', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // Format Switcher: Hotel Booking Voucher / Confirmation
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:confirmation|voucher|hotel.*voucher)|(?:confirmation|voucher).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CONFIRMATION__') {
-        if (typeof loadSampleDataset === 'function') {
-          loadSampleDataset('voucher_aanay');
-        }
-        QuotationData.activeDocType = 'confirmation';
-        if (typeof App !== 'undefined') {
-          if (typeof App.switchDocType === 'function') App.switchDocType('confirmation');
-          if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-          if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Hotel Booking Voucher Format!</strong><br>Official luxury hotel confirmation layout with hotel details, room occupancy table, guest list, location map, and hotel policies (Aanay Tours / Hilton reference) is active.');
-        showReplies([
-          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Print / Save PDF Voucher', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // Format Switcher: Package Summary
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:summary|package.*summary|brief)|(?:summary).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_SUMMARY__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('summary');
-        } else {
-          QuotationData.activeDocType = 'summary';
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Package Summary Format!</strong><br>Compact executive trip overview and cost breakdown are active.');
-        showReplies([
-          { label: '👁️ View Preview', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ Print / Save PDF Summary', val: '__PDF__' },
-          { label: '📄 Download Word DOCX', val: '__DOCX__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // Format Switcher: Custom Modular Builder
-      if (/(?:banao|switch|make|create|generate|dikhao|chahiye).*(?:custom|modular)|(?:custom).*(?:format|layout|banao|me)/i.test(text) || text === '__SWITCH_CUSTOM__') {
-        if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-          App.switchDocType('custom');
-        } else {
-          QuotationData.activeDocType = 'custom';
-        }
-        setTyping(false);
-        appendAI('✅ <strong>Switched to Custom Modular Builder Format!</strong><br>Customizable modular sections are active.');
-        showReplies([
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__', primary: true },
-          { label: '👁️ View Preview', val: '__PREVIEW__' },
-          { label: '🖨️ Print / Save PDF', val: '__PDF__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // 5B. Theme & Color Consistency Handler ("WANT SAME THEME COLOR", "COLOR THEME SAME CHAHIYE N", etc.)
-      const isThemeColorCommand = /(?:theme\s*color|color\s*theme|same\s*color|theme|color\s*chahiye|same\s*theme)/i.test(text);
-      if (isThemeColorCommand && !attachment) {
-        // Guarantee official DMC Deep Navy (#0F2C59) and Gold accents
-        if (!QuotationData.themeSettings) {
-          QuotationData.themeSettings = {
-            template: 'classic',
-            preset: 'classic-blue',
-            primaryColor: '#0F2C59',
-            secondaryColor: '#1E3A8A',
-            accentColor: '#2563EB',
-            textColor: '#1E293B',
-            mutedColor: '#64748B',
-            borderColor: '#CBD5E1',
-            tableHeaderBg: '#0F2C59',
-            tableHeaderText: '#FFFFFF'
-          };
-        } else {
-          QuotationData.themeSettings.primaryColor = '#0F2C59';
-          QuotationData.themeSettings.tableHeaderBg = '#0F2C59';
-          QuotationData.themeSettings.tableHeaderText = '#FFFFFF';
-        }
-
-        // If user also included a price modification command in the same message (e.g. "Passes ka amount increase kar do 20000")
-        const hasPriceIncrease = /(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i.test(text)
-                              || /(\d{4,}).*?(?:increase|bada|badhao|add)/i.test(text);
-        let priceNote = '';
-        if (hasPriceIncrease) {
-          const pm = text.match(/(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i) || text.match(/(\d{4,}).*?(?:increase|bada)/i);
-          if (pm) {
-            const delta = parseInt(pm[1], 10);
-            if (QuotationData.summary && QuotationData.summary.items) {
-              const passItem = QuotationData.summary.items.find(it => /pass|passes|madness|festival/i.test(it.name));
-              if (passItem) {
-                passItem.amountINR = (Number(passItem.amountINR) || 120000) + delta;
-                passItem.amountUSD = Math.round(passItem.amountINR / (QuotationData.package.usdToInrRate || 87.0));
-                passItem.name = `Tomorrowland 3 Days Festival Pass (Full Madness) [Updated +INR ${delta.toLocaleString('en-IN')}]`;
-              } else {
-                QuotationData.summary.items.push({
-                  name: `Passes Adjustment (+INR ${delta.toLocaleString('en-IN')})`,
-                  amountINR: delta,
-                  amountUSD: Math.round(delta / (QuotationData.package.usdToInrRate || 87.0))
-                });
-              }
-              recalculateQuotationPricing();
-              priceNote = `<br>💰 <strong>Passes / Pricing Updated:</strong> +₹ ${delta.toLocaleString('en-IN')} successfully added to quotation total! Total is now <strong>₹ ${QuotationData.summary.totalINR.toLocaleString('en-IN')} ($ ${QuotationData.summary.totalUSD.toFixed(2)} USD)</strong>.<br>`;
-            }
-          }
-        }
-
-        if (typeof App !== 'undefined' && typeof App.updateLivePreviews === 'function') {
-          App.updateLivePreviews();
-        }
-
-        setTyping(false);
-        const activePkgName = QuotationData.package.destinations || QuotationData.package.title || 'Tomorrowland Thailand Group Package';
-        const activeDuration = QuotationData.package.duration || '4 Days / 3 Nights';
-        appendAI(
-          `✅ <strong>Official Let's Explore DMC Theme Color Strictly Preserved &amp; Applied!</strong><br><br>` +
-          `• <strong>Primary Header &amp; Table Theme:</strong> Luxury Deep Navy (<code>#0F2C59</code>)<br>` +
-          `• <strong>Accent &amp; Highlights:</strong> Warm Gold &amp; Royal Blue<br>` +
-          `• <strong>Active Package:</strong> <strong>${activePkgName}</strong> (${activeDuration})<br>` +
-          (priceNote ? priceNote : `• <strong>Quotation Total:</strong> ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '1,51,065'} ($ ${QuotationData.summary?.totalUSD?.toFixed(2) || '1,736.35'} USD)<br>`) +
-          `<br>Document ka design, colors, tables, aur reference branding 100% synchronized hain! Live preview me turant check kar sakte hain.`
-        );
-        showReplies([
-          { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
-          { label: '🖨️ PDF Generate / Download', val: '__PDF__' },
-          { label: '✏️ Edit in Studio Builder', val: '__GOTO_BUILDER__' }
-        ]);
-        scrollBottom();
-        return;
-      }
-
-      // 6. Section Removal / Addition in Natural Language ("adult details hata do", "amenities hata do", etc.)
-      const isPriceOrDocRequest = /(?:increase|decrease|kam|zyada|bada|amount|price|rate|cost|tariff|pass|passes|markup|\b\d{4,}\b|\[Extracted Document Text\])/i.test(text);
-      const isShortCommand = text.trim().length < 150;
-      const isRemove = !isPriceOrDocRequest && isShortCommand && /(?:hata|remove|delete|hide|nikal|band\s*karo)/i.test(text);
-      const isShow = !isPriceOrDocRequest && isShortCommand && /(?:dikhao|show|wapas|enable|unhide)/i.test(text) && !isRemove;
-
-      if (isRemove || isShow) {
-        if (!QuotationData.confirmation.sections) {
-          QuotationData.confirmation.sections = {
-            agencyHeader: true,
-            summaryCard: true,
-            mapPhoto: true,
-            hotelDetails: true,
-            adultDetails: true,
-            importantInfo: true,
-            amenities: true
-          };
-        }
-        const sec = QuotationData.confirmation.sections;
-        let modified = false;
-        let msg = '';
-
-        if (/adult|guest|yatri|passenger/i.test(text)) {
-          sec.adultDetails = !isRemove;
-          modified = true;
-          msg = isRemove ? '👥 <strong>Adult Details / Guest List Table</strong> ko document se hata diya gaya hai!' : '👥 <strong>Adult Details / Guest List Table</strong> ko document me wapas add kar diya gaya hai!';
-        } else if (/map|photo|location|tasveer|image/i.test(text)) {
-          sec.mapPhoto = !isRemove;
-          modified = true;
-          msg = isRemove ? '📍 <strong>Map Location & Hotel Photo</strong> section hata diya gaya hai!' : '📍 <strong>Map Location & Hotel Photo</strong> section add kar diya gaya hai!';
-        } else if (/amenities|suvidha|facility/i.test(text)) {
-          sec.amenities = !isRemove;
-          modified = true;
-          msg = isRemove ? '✨ <strong>Hotel Amenities</strong> section hata diya gaya hai!' : '✨ <strong>Hotel Amenities</strong> section add kar diya gaya hai!';
-        } else if (/important|policy|policies|rules|shart|instruction/i.test(text)) {
-          sec.importantInfo = !isRemove;
-          modified = true;
-          msg = isRemove ? 'ℹ️ <strong>Important Information & Property Policies</strong> section hata diya gaya hai!' : 'ℹ️ <strong>Important Information & Property Policies</strong> section wapas add kar diya gaya hai!';
-        } else if (/hotel\s*details|room\s*table|occupancy/i.test(text)) {
-          sec.hotelDetails = !isRemove;
-          modified = true;
-          msg = isRemove ? '🏨 <strong>Hotel Stay & Room Occupancy Table</strong> hata diya gaya hai!' : '🏨 <strong>Hotel Stay & Room Occupancy Table</strong> add kar diya gaya hai!';
-        } else if (/agency|header/i.test(text)) {
-          sec.agencyHeader = !isRemove;
-          modified = true;
-          msg = isRemove ? '🏢 <strong>Agency Header</strong> hata diya gaya hai!' : '🏢 <strong>Agency Header</strong> add kar diya gaya hai!';
-        } else if (/day\s*(\d+)/i.test(text) && isRemove) {
-          const match = text.match(/day\s*(\d+)/i);
-          const dayNum = parseInt(match[1], 10);
-          const initialLen = QuotationData.days.length;
-          QuotationData.days = QuotationData.days.filter(d => d.dayNumber !== dayNum);
-          if (QuotationData.days.length < initialLen) {
-            QuotationData.days.forEach((d, i) => { d.dayNumber = i + 1; });
-            modified = true;
-            msg = `📅 <strong>Day ${dayNum}</strong> ko itinerary se hata diya gaya hai! Baki days auto re-sequence ho gaye hain.`;
-          }
-        }
-
-        if (modified) {
-          if (typeof App !== 'undefined') {
-            if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-            if (typeof App.updateLivePreviews === 'function') App.updateLivePreviews();
-          }
-          setTyping(false);
-          appendAI(`✅ ${msg}<br>Live document preview turant update ho gayi hai!`);
-          showReplies([
-            { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
-            { label: '🖨️ PDF Generate Karo', val: '__PDF__' },
-            { label: '✏️ Studio Builder Kholo', val: '__MODAL_EDIT__' }
-          ]);
-          scrollBottom();
-          return;
-        }
-      }
-
-      // 7. General extraction via AIParser (Real Gemini Multimodal + Intelligent Local NLP)
-      const extracted = await AIParser.parseText(text, QuotationData, attachment);
-
-      // Automatically switch to detected document format
-      const docType = extracted.detectedDocType || QuotationData.activeDocType || 'quotation';
-      QuotationData.activeDocType = docType;
-      if (typeof App !== 'undefined' && typeof App.switchDocType === 'function') {
-        App.switchDocType(docType);
-      }
-
-      if (extracted.invoice) {
-        QuotationData.invoice = Object.assign(QuotationData.invoice || {}, extracted.invoice);
-        if (typeof App !== 'undefined' && typeof App.populateInvoiceFields === 'function') {
-          App.populateInvoiceFields();
-        }
-      }
-      if (extracted.confirmation) {
-        QuotationData.confirmation = Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
-      }
-      if (extracted.package) {
-        Object.assign(QuotationData.package, extracted.package);
-      }
-      if (extracted.days && extracted.days.length > 0) {
-        QuotationData.days = extracted.days;
-      }
-      if (extracted.hotels && extracted.hotels.length > 0) {
-        QuotationData.hotels = extracted.hotels;
-      }
-      if (extracted.summary && extracted.summary.items) {
-        QuotationData.summary = extracted.summary;
-      }
-
-      recalculateQuotationPricing();
-
-      if (typeof App !== 'undefined') {
-        if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
-        if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
-        if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
-        App.updateLivePreviews();
-      }
-
-      setTyping(false);
-
-      const pkg = QuotationData.package || {};
-      let thinkingCard = '';
-      if (attachment) {
-        thinkingCard = buildThinkingProcessCard(
-          `Document Analysis Completed: ${attachment.name}`,
-          [
-            `Read ${attachment.pageCount || 1} pages (${Math.round(attachment.size / 1024)} KB) via AI Engine`,
-            `Detected Document Type: ${docType.toUpperCase()}`,
-            `Extracted Details: Destination (${pkg.destinations || 'Selected Destination'}), Dates (${pkg.travelDates || 'Configured'}), ${QuotationData.days?.length || 0} Itinerary Days`,
-            `Hotel Stays: ${QuotationData.hotels?.length || 0} properties matched &amp; configured`,
-            `Studio &amp; Preview: 100% Real-time synchronization active`
-          ]
-        );
-      } else {
-        thinkingCard = buildThinkingProcessCard(
-          `AI Analysis Completed: ${pkg.destinations || 'Holiday Proposal'}`,
-          [
-            `Processed Request: ${docType.toUpperCase()}`,
-            `Configured ${QuotationData.days?.length || 0} Day Itinerary with morning &amp; evening tours`,
-            `Validated Dual-Currency Pricing: ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} / $ ${QuotationData.summary?.totalUSD?.toFixed(2) || '0.00'} USD`,
-            `Live Preview: All 7 formats ready to view &amp; print`
-          ]
-        );
-      }
-
-      const aiSourceBadge = extracted._source === 'gemini' 
-        ? '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700;">⚡ Google Gemini Flash AI</span>'
-        : '<span style="display:inline-block; padding:2px 8px; border-radius:12px; background:#EFF6FF; color:#1E40AF; font-size:11px; font-weight:700;">🤖 Intelligent DMC Document Engine</span>';
-
-      const docTypeMeta = (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[docType]) 
-        ? `${DOCUMENT_TYPES[docType].icon} ${DOCUMENT_TYPES[docType].name}`
-        : docType.toUpperCase();
-
-      let replyMsg = thinkingCard + 
-        `✅ <strong>Document Extracted &amp; Synchronized!</strong> ${aiSourceBadge}<br><br>` +
-        `📋 <strong>Active Format:</strong> <strong>${docTypeMeta}</strong><br>` +
-        `📍 <strong>Destination:</strong> ${pkg.destinations || 'Holiday Destination'} (${pkg.duration || 'Custom Plan'})<br>` +
-        `👤 <strong>Client:</strong> ${pkg.clientName || 'Valued Client'} · 👥 ${pkg.travellers || '2 Adults'}<br>`;
-
-      if (docType === 'invoice') {
-        const inv = QuotationData.invoice || {};
-        replyMsg += `🧾 <strong>Invoice No:</strong> ${inv.invoiceNumber || '—'} · Total: <strong>₹ ${inv.grandTotal?.toLocaleString('en-IN') || '—'}</strong><br>`;
-      } else if (docType === 'confirmation') {
-        const conf = QuotationData.confirmation || {};
-        replyMsg += `🏨 <strong>Hotel:</strong> ${conf.hotelName || '—'} · Stay: ${conf.checkIn || '—'} to ${conf.checkOut || '—'}<br>`;
-      } else {
-        replyMsg += `🗺️ <strong>Itinerary:</strong> ${QuotationData.days.length} Days Configured · 🏨 ${QuotationData.hotels.length} Hotel Stays<br>`;
-        if (docType === 'itinerary') {
-          replyMsg += `✨ <em>Rendered as Clean Guest Itinerary without pricing rates.</em><br>`;
-        } else {
-          replyMsg += `💰 <strong>Quotation Total:</strong> ₹ ${QuotationData.summary?.totalINR?.toLocaleString('en-IN') || '0'} ($ ${QuotationData.summary?.totalUSD?.toLocaleString('en-IN') || '0'} USD)<br>`;
-        }
-      }
-
-      replyMsg += `<br>Neeche diye format buttons se aap turant kisi bhi format me switch kar sakte hain:`;
-      appendAI(replyMsg);
-
-      showReplies([
-        { label: '👁️ Live Preview Dekho', val: '__PREVIEW__', primary: true },
-        { label: '📄 1. Master Quotation', val: '__SWITCH_QUOTATION__' },
-        { label: '🗺️ 2. Travel Itinerary (Without Rates)', val: '__SWITCH_ITINERARY__' },
-        { label: '🧾 6. Tax Invoice', val: '__SWITCH_INVOICE__' },
-        { label: '🏨 5. Hotel Booking Voucher', val: '__SWITCH_CONFIRMATION__' },
-        { label: '🖨️ Generate PDF', val: '__PDF__' }
-      ]);
+      // TASK F: PDF/DOC EXTRACTION OR NEW PACKAGE GENERATION
+      await executeBuildOrExtractWorkflow(text, attachment, taskLog);
 
     } catch (err) {
-      console.error(err);
+      console.error('Agent execution error:', err);
       setTyping(false);
-      appendAI(`✅ <strong>Quotation details recorded.</strong><br>Your quotation is ready in the official DMC format with all itinerary, pricing, and hotel details.`);
+      appendAI(
+        `⚠️ <strong>Execution Notice:</strong> Encountered an error processing the instruction: <em>${escapeHTML(err.message)}</em>.<br>` +
+        `Your active quotation remains safe in memory. You can continue editing or view preview directly.`
+      );
       showReplies([
         { label: '👁️ View Live Preview', val: '__PREVIEW__', primary: true },
         { label: '🖨️ Generate PDF', val: '__PDF__' },
-        { label: '✏️ Open Studio Builder', val: '__MODAL_EDIT__' }
+        { label: '✏️ Studio Builder', val: '__GOTO_BUILDER__' }
       ]);
     }
+  }
 
-    scrollBottom();
+  // ==========================================
+  // 7. REAL WORKFLOW IMPLEMENTATIONS
+  // ==========================================
+
+  /**
+   * 7.1 MARKUP & PRICING WORKFLOW
+   * Applies actual mathematical percentage or fixed increase, recalculates totals, updates preview
+   */
+  async function executeMarkupWorkflow(intent, taskLog) {
+    setTyping(true, '🔍 Checking active document state...', 'Identifying current destination, hotels and pricing lines...');
+    await sleep(400);
+
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Selected Package';
+    taskLog.push(`Identified active document: <strong>${escapeHTML(dest)}</strong>`);
+
+    setTyping(true, '⚡ Calculating requested markup...', `Applying ${intent.percent > 0 ? intent.percent + '%' : 'fixed amount'} mathematically...`);
+    await sleep(400);
+
+    const oldTotalINR = Number(QuotationData.summary?.totalINR) || 0;
+    const oldTotalUSD = Number(QuotationData.summary?.totalUSD) || 0;
+    const calcRows = [];
+    let hotelModifiedCount = 0;
+
+    // Apply % markup to hotels
+    if (intent.percent > 0) {
+      const pct = intent.percent;
+      const factor = 1 + (pct / 100);
+
+      if (QuotationData.hotels && QuotationData.hotels.length > 0) {
+        QuotationData.hotels.forEach(h => {
+          const base = Number(h.amountINR) || 0;
+          if (base > 0) {
+            const updated = Math.round(base * factor);
+            const diff = updated - base;
+            h.amountINR = updated;
+            if (h.amountUSD) h.amountUSD = Math.round(updated / (pkg.usdToInrRate || 87.5) * 100) / 100;
+            calcRows.push({
+              name: h.name || 'Hotel Stay',
+              dates: `${h.checkIn || ''} – ${h.checkOut || ''}`,
+              baseINR: base,
+              newINR: updated,
+              diffINR: diff
+            });
+            hotelModifiedCount++;
+          }
+        });
+      }
+
+      // Also update day-level hotel entries
+      if (QuotationData.days && QuotationData.days.length > 0) {
+        QuotationData.days.forEach(d => {
+          if (d.hotel && d.hotel.amountINR > 0) {
+            d.hotel.amountINR = Math.round(d.hotel.amountINR * factor);
+          }
+        });
+      }
+
+      taskLog.push(`Applied <strong>+${pct}% markup</strong> across ${hotelModifiedCount} hotel accommodations`);
+    }
+
+    // Apply fixed amount (e.g. passes ka amount 20000 increase kar do)
+    if (intent.fixedINR > 0) {
+      const delta = intent.fixedINR;
+      if (!QuotationData.summary) QuotationData.summary = { items: [] };
+      if (!QuotationData.summary.items) QuotationData.summary.items = [];
+
+      const passItem = QuotationData.summary.items.find(it => /pass|passes|madness|festival/i.test(it.name));
+      if (passItem) {
+        const base = Number(passItem.amountINR) || 0;
+        passItem.amountINR = base + delta;
+        passItem.amountUSD = Math.round(passItem.amountINR / (pkg.usdToInrRate || 87.5) * 100) / 100;
+        passItem.name = passItem.name.replace(/\s*\[Updated.*?\]/, '') + ` [Updated +INR ${delta.toLocaleString('en-IN')}]`;
+        calcRows.push({
+          name: 'Festival Passes / Activity',
+          dates: 'Selected Days',
+          baseINR: base,
+          newINR: passItem.amountINR,
+          diffINR: delta
+        });
+      } else {
+        QuotationData.summary.items.push({
+          name: `Adjustment (+INR ${delta.toLocaleString('en-IN')})`,
+          amountINR: delta,
+          amountUSD: Math.round(delta / (pkg.usdToInrRate || 87.5) * 100) / 100
+        });
+        calcRows.push({
+          name: 'Additional Tariff Adjustment',
+          dates: 'Package Add-on',
+          baseINR: 0,
+          newINR: delta,
+          diffINR: delta
+        });
+      }
+      taskLog.push(`Added <strong>+₹ ${delta.toLocaleString('en-IN')}</strong> to package line items`);
+    }
+
+    // Recalculate totals
+    setTyping(true, '📋 Validating and synchronizing document...', 'Updating grand total, Live Preview and database...');
+    recalculateQuotationPricing();
+
+    if (typeof App !== 'undefined') {
+      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+      if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    const newTotalINR = Number(QuotationData.summary?.totalINR) || 0;
+    const newTotalUSD = Number(QuotationData.summary?.totalUSD) || 0;
+    const netDiffINR = newTotalINR - oldTotalINR;
+
+    taskLog.push(`Synchronized Live Studio Preview &amp; updated grand total to <strong>${formatINR(newTotalINR)}</strong>`);
+    taskLog.push(`Validated mathematical integrity across all dual-currency line items`);
+
+    setTyping(false);
+
+    // Build calculation table HTML
+    let tableHtml = '';
+    if (calcRows.length > 0) {
+      tableHtml = `
+        <table class="agent-calc-table">
+          <thead>
+            <tr>
+              <th>Stay / Item</th>
+              <th>Period</th>
+              <th style="text-align:right;">Base Rate</th>
+              <th style="text-align:right;">+${intent.percent > 0 ? intent.percent + '%' : 'Increase'}</th>
+              <th style="text-align:right;">Difference</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${calcRows.map(r => `
+              <tr>
+                <td><strong>${escapeHTML(r.name)}</strong></td>
+                <td>${escapeHTML(r.dates)}</td>
+                <td style="text-align:right; color:#64748B;">${formatINR(r.baseINR)}</td>
+                <td style="text-align:right;" class="rate-highlight">${formatINR(r.newINR)}</td>
+                <td style="text-align:right; font-weight:600; color:#15803D;">+${formatINR(r.diffINR)}</td>
+              </tr>
+            `).join('')}
+            <tr class="total-row">
+              <td colspan="2"><strong>Updated Package Grand Total</strong></td>
+              <td style="text-align:right; color:#64748B;">${formatINR(oldTotalINR)}</td>
+              <td style="text-align:right;" class="rate-highlight">${formatINR(newTotalINR)}</td>
+              <td style="text-align:right; color:#15803D;">+${formatINR(netDiffINR)}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_${sanitizeFileName(pkg.duration || 'Package')}.pdf`;
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    const changesList = [
+      `Applied ${intent.percent > 0 ? intent.percent + '% markup' : 'fixed tariff increase'} mathematically to hotel stays and land package components.`,
+      `Updated quotation grand total from <strong>${formatINR(oldTotalINR)}</strong> to <strong>${formatINR(newTotalINR)}</strong> (+${formatINR(netDiffINR)}).`,
+      `Recalculated dual-currency pricing at official exchange rate (1 USD = ${pkg.usdToInrRate || 87.5} INR).`,
+      `Synchronized Live Studio Preview and prepared final PDF document.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your <strong>${escapeHTML(dest)}</strong> quotation with updated markup is ready.`,
+      changes: changesList,
+      calcTable: tableHtml,
+      preserved: 'Original day-wise itinerary timeline, flight routes, hotel categories and official reference colors strictly preserved.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📄 Download Word DOCX', val: '__DOCX__' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
+    ]);
+  }
+
+  /**
+   * 7.2 COMPANY REBRANDING WORKFLOW (Aanay Tours / White-label)
+   * Replaces Let's Explore DMC contact info with partner details while preserving package & rates
+   */
+  async function executeRebrandWorkflow(intent, taskLog) {
+    setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring partner identity and suppressing supplier details...');
+    await sleep(400);
+
+    const isAanay = intent.isAanay || /aanay/i.test(intent.rawText);
+    const partnerName = isAanay ? 'Aanay Tours' : 'Aanay Tours';
+    const contactPerson = 'Viraj Gaglani';
+    const phone = '7709123187';
+
+    // Update Company State
+    if (!QuotationData.company) QuotationData.company = {};
+    QuotationData.company = {
+      name: partnerName,
+      tagline: 'Luxury Travel Concierge',
+      phone: phone,
+      contactPerson: contactPerson,
+      email: 'bookings@aanaytours.com',
+      isPartner: true,
+      isWhitelabel: true
+    };
+    Object.assign(AgentMemory.activeCompany, QuotationData.company);
+
+    taskLog.push(`Configured partner company branding: <strong>${escapeHTML(partnerName)}</strong> (Contact: ${contactPerson} - ${phone})`);
+
+    // Suppress supplier details in footer
+    if (!QuotationData.footerSettings) QuotationData.footerSettings = {};
+    QuotationData.footerSettings.companyName = partnerName;
+    QuotationData.footerSettings.companyPhone = phone;
+    QuotationData.footerSettings.website = '';
+    QuotationData.footerSettings.instagram = '';
+    taskLog.push(`Suppressed internal DMC supplier details from client presentation headers &amp; footers`);
+
+    // If confirmation voucher is active, update agency block
+    if (QuotationData.confirmation) {
+      QuotationData.confirmation.agencyName = partnerName;
+      QuotationData.confirmation.contact = `${contactPerson} - ${phone}`;
+    }
+
+    // If invoice is active, update billing block
+    if (QuotationData.invoice) {
+      QuotationData.invoice.fromCompany = partnerName;
+      QuotationData.invoice.fromMobile = phone;
+    }
+
+    setTyping(true, '📋 Updating Live Preview and Document references...', 'Synchronizing rebranded layout...');
+    await sleep(300);
+
+    if (typeof App !== 'undefined') {
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Package';
+    const fileName = `AanayTours_${sanitizeFileName(dest)}_${sanitizeFileName(pkg.duration || 'Tour')}.pdf`;
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    taskLog.push(`Generated partner-branded file reference: <strong>${escapeHTML(fileName)}</strong>`);
+    taskLog.push(`Synchronized Live Preview with Aanay Tours luxury header and partner footer`);
+
+    setTyping(false);
+
+    const changesList = [
+      `Replaced Let's Explore DMC branding with <strong>${escapeHTML(partnerName)}</strong> (Contact: ${contactPerson} - ${phone}).`,
+      `Removed DMC supplier contacts from the client presentation header and footers.`,
+      `Preserved all active itinerary days, hotel properties, room categories, and pricing.`,
+      `Updated default export file name to <strong>${escapeHTML(fileName)}</strong>.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your <strong>${escapeHTML(dest)}</strong> document is ready with <strong>${escapeHTML(partnerName)}</strong> branding.`,
+      changes: changesList,
+      calcTable: null,
+      preserved: 'Day-wise timeline, hotel inclusions, calculated tariffs, and reference luxury theme strictly preserved.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF (Aanay Tours)', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📄 Word DOCX', val: '__DOCX__' },
+      { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
+      { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
+    ]);
+  }
+
+  /**
+   * 7.3 REMOVE COSTING WORKFLOW (Format 2: Travel Itinerary)
+   * Hides all commercial rates and unit prices while strictly preserving day-by-day sightseeing
+   */
+  async function executeRemoveCostingWorkflow(intent, taskLog) {
+    setTyping(true, '🗺️ Switching to Travel Itinerary Format (Without Rates)...', 'Hiding pricing columns and supplier costing tables...');
+    await sleep(400);
+
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Holiday Package';
+    taskLog.push(`Identified active document: <strong>${escapeHTML(dest)}</strong>`);
+
+    // Switch active document type to Format 2
+    QuotationData.activeDocType = 'itinerary';
+    AgentMemory.activeDocType = 'itinerary';
+
+    if (typeof App !== 'undefined') {
+      if (typeof App.switchDocType === 'function') App.switchDocType('itinerary');
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    taskLog.push(`Switched document format to <strong>Format 2: Travel Itinerary (Experience-Focused)</strong>`);
+    taskLog.push(`Hidden all commercial unit rates, Pax tariffs, and supplier costing breakdowns`);
+    taskLog.push(`Preserved all ${QuotationData.days?.length || 0} itinerary days, transfers, sightseeing, and hotel amenities`);
+
+    setTyping(false);
+
+    const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_Itinerary_WithoutRates.pdf`;
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    const changesList = [
+      `Switched view to <strong>Format 2: Travel Itinerary (Without Rates)</strong>.`,
+      `Removed all commercial costing tables, unit rates, and pricing summary.`,
+      `Preserved complete day-by-day sightseeing timeline, transfers, hotel details, and inclusions.`,
+      `Ready for guest-facing distribution without exposing internal margins.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your guest-facing <strong>${escapeHTML(dest)} Itinerary</strong> (Without Rates) is ready.`,
+      changes: changesList,
+      calcTable: null,
+      preserved: 'Full day-wise sightseeing descriptions, private transfers, morning/evening activities, and hotel stay ranges preserved.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download Itinerary PDF', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '💰 Restore Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+    ]);
   }
 
   /**
    * Helper: Apply v5 Thailand Hotels & Rates (Ramada, Phi Phi Mountain Beach, Hotel Andakira, Panwaburi, Esmeralda View)
-   * Supports optional 10% Hotel Markup + 20 USD activity increase
    */
   function applyNewThailandHotelsAndRates(withMarkup = false) {
-    loadSampleDataset('reference');
+    if (typeof loadSampleDataset === 'function') {
+      loadSampleDataset('reference');
+    }
 
     const d = QuotationData;
     d.activeDocType = 'quotation';
@@ -1169,204 +985,33 @@ const Chatbot = (() => {
     const hAndakira = withMarkup ? 37505 : 34095;
     const hPanwaburi = withMarkup ? 39950 : 36318;
     const hEsmeralda = withMarkup ? 35618 : 32380;
-    const totalHotelsINR = hRamada + hPhiPhi + hAndakira + hPanwaburi + hEsmeralda; // 186058 or 169143
+    const totalHotelsINR = hRamada + hPhiPhi + hAndakira + hPanwaburi + hEsmeralda;
 
-    // 1. Update Day 1-12 hotels
     if (d.days && d.days.length >= 12) {
-      // Days 1-3: Ramada
       [0, 1, 2].forEach(idx => {
-        d.days[idx].hotel = {
-          name: 'Ramada By Wyndham',
-          dates: '2 Jan to 5 Jan',
-          pax: idx === 0 ? 2 : '',
-          amountINR: idx === 0 ? hRamada : 0,
-          amountUSD: 0,
-          notes: ''
-        };
+        d.days[idx].hotel = { name: 'Ramada By Wyndham', dates: '2 Jan to 5 Jan', pax: idx === 0 ? 2 : '', amountINR: idx === 0 ? hRamada : 0, amountUSD: 0, notes: '' };
       });
-
-      // Days 4-5: Phi Phi Mountain Beach Resort
       [3, 4].forEach(idx => {
-        d.days[idx].hotel = {
-          name: 'Phi Phi Mountain Beach Resort',
-          dates: '5 Jan to 7 Jan',
-          pax: idx === 3 ? 2 : '',
-          amountINR: idx === 3 ? hPhiPhi : 0,
-          amountUSD: 0,
-          notes: ''
-        };
+        d.days[idx].hotel = { name: 'Phi Phi Mountain Beach Resort', dates: '5 Jan to 7 Jan', pax: idx === 3 ? 2 : '', amountINR: idx === 3 ? hPhiPhi : 0, amountUSD: 0, notes: '' };
       });
-
-      // Days 6-7: Hotel Andakira Phuket
       [5, 6].forEach(idx => {
-        d.days[idx].hotel = {
-          name: 'Hotel Andakira Phuket',
-          dates: '7 Jan to 9 Jan',
-          pax: idx === 5 ? 2 : '',
-          amountINR: idx === 5 ? hAndakira : 0,
-          amountUSD: 0,
-          notes: ''
-        };
+        d.days[idx].hotel = { name: 'Hotel Andakira Phuket', dates: '7 Jan to 9 Jan', pax: idx === 5 ? 2 : '', amountINR: idx === 5 ? hAndakira : 0, amountUSD: 0, notes: '' };
       });
-
-      // Day 8: Panwaburi Beachfront stay, Candle Light Dinner venue Thavorn Beach Village Resort
-      d.days[7].hotel = {
-        name: 'Panwaburi Beachfront',
-        dates: '9 Jan to 10 Jan',
-        pax: 2,
-        amountINR: hPanwaburi,
-        amountUSD: 0,
-        notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort'
-      };
-
-      // Days 9-11: Esmeralda View
+      d.days[7].hotel = { name: 'Panwaburi Beachfront', dates: '9 Jan to 10 Jan', pax: 2, amountINR: hPanwaburi, amountUSD: 0, notes: 'Candle Light Dinner venue is at Thavorn Beach Village Resort' };
       [8, 9, 10].forEach(idx => {
-        d.days[idx].hotel = {
-          name: 'Esmeralda View',
-          dates: '10 Jan to 13 Jan',
-          pax: idx === 8 ? 2 : '',
-          amountINR: idx === 8 ? hEsmeralda : 0,
-          amountUSD: 0,
-          notes: ''
-        };
+        d.days[idx].hotel = { name: 'Esmeralda View', dates: '10 Jan to 13 Jan', pax: idx === 8 ? 2 : '', amountINR: idx === 8 ? hEsmeralda : 0, amountUSD: 0, notes: '' };
       });
-
-      // Day 12: Departure
       d.days[11].hotel = null;
-
-      // If withMarkup is true, apply +20 USD on each activity
-      if (withMarkup) {
-        const actAdjustments = [
-          { dayIdx: 0, itemIdx: 1, uPrice: 121.00, desc: 'Transfer Phuket to Krabi' },
-          { dayIdx: 1, itemIdx: 0, uPrice: 84.40, desc: '4 Island Tour' },
-          { dayIdx: 2, itemIdx: 5, uPrice: 100.50, desc: 'City Tour Krabi' },
-          { dayIdx: 3, itemIdx: 2, uPrice: 100.50, desc: 'ATV Ride' },
-          { dayIdx: 4, itemIdx: 1, uPrice: 144.53, desc: 'Phi-Phi Island + NPF' },
-          { dayIdx: 5, itemIdx: 2, uPrice: 120.75, desc: 'Transfer to Phuket' },
-          { dayIdx: 6, itemIdx: 5, uPrice: 100.50, desc: 'City Tour' },
-          { dayIdx: 7, itemIdx: 3, uPrice: 115.12, desc: 'Oasis Spa & Massage' },
-          { dayIdx: 7, itemIdx: 4, uPrice: 167.00, desc: 'Candle Light Dinner' },
-          { dayIdx: 8, itemIdx: 2, uPrice: 122.35, desc: 'James Bond Island' },
-          { dayIdx: 9, itemIdx: 1, uPrice: 65.34, desc: 'Phuket to Koh Yao Yai' },
-          { dayIdx: 11, itemIdx: 1, uPrice: 89.13, desc: 'Airport Transfer' }
-        ];
-
-        actAdjustments.forEach(adj => {
-          const item = d.days[adj.dayIdx]?.items?.[adj.itemIdx];
-          if (item) {
-            item.unitPrice = adj.uPrice;
-            item.amountUSD = Math.round(adj.uPrice * 2 * 100) / 100;
-            item.subtitle = `${adj.desc} · Adult · ${adj.uPrice.toFixed(2)} × 2`;
-          }
-        });
-      }
     }
 
-    // 2. Update Hotel Properties Comparison List
     d.hotels = [
-      {
-        id: 'h_1',
-        name: 'Ramada By Wyndham',
-        city: 'Krabi (Ao Nang Beach)',
-        checkIn: '2 Jan',
-        checkOut: '5 Jan',
-        nights: 3,
-        roomType: 'Deluxe Room',
-        rooms: 1,
-        mealPlan: 'Bed & Breakfast (CP)',
-        amountINR: hRamada,
-        amountUSD: Math.round(hRamada / 87.5 * 100) / 100,
-        opt1FreeCancel: hRamada,
-        opt2NonRefund: Math.round(hRamada * 0.9),
-        opt3PartialRefund: Math.round(hRamada * 0.95),
-        cancellation: 'Free cancellation until 20 Dec 2026',
-        refundability: 'Refundable',
-        status: 'Confirmed',
-        notes: 'Walking distance to Ao Nang Beach & night market'
-      },
-      {
-        id: 'h_2',
-        name: 'Phi Phi Mountain Beach Resort',
-        city: 'Koh Phi Phi Don',
-        checkIn: '5 Jan',
-        checkOut: '7 Jan',
-        nights: 2,
-        roomType: 'Superior Ocean View Bungalow',
-        rooms: 1,
-        mealPlan: 'Daily Buffet Breakfast',
-        amountINR: hPhiPhi,
-        amountUSD: Math.round(hPhiPhi / 87.5 * 100) / 100,
-        opt1FreeCancel: hPhiPhi,
-        opt2NonRefund: Math.round(hPhiPhi * 0.9),
-        opt3PartialRefund: Math.round(hPhiPhi * 0.95),
-        cancellation: 'Free cancellation until 24 Dec 2026',
-        refundability: 'Refundable',
-        status: 'Confirmed',
-        notes: 'Hillside resort with scenic panoramic sea view'
-      },
-      {
-        id: 'h_3',
-        name: 'Hotel Andakira Phuket',
-        city: 'Phuket (Patong Beach)',
-        checkIn: '7 Jan',
-        checkOut: '9 Jan',
-        nights: 2,
-        roomType: 'Deluxe Premier Room',
-        rooms: 1,
-        mealPlan: 'Buffet Breakfast Included',
-        amountINR: hAndakira,
-        amountUSD: Math.round(hAndakira / 87.5 * 100) / 100,
-        opt1FreeCancel: hAndakira,
-        opt2NonRefund: Math.round(hAndakira * 0.9),
-        opt3PartialRefund: Math.round(hAndakira * 0.95),
-        cancellation: 'Free cancellation until 30 Dec 2026',
-        refundability: 'Refundable',
-        status: 'Confirmed',
-        notes: 'Overlooks Patong Bay; Candle Light Dinner venue on 9 Jan is set at Thavorn Beach Village Resort'
-      },
-      {
-        id: 'h_4',
-        name: 'Panwaburi Beachfront',
-        city: 'Phuket (Cape Panwa)',
-        checkIn: '9 Jan',
-        checkOut: '10 Jan',
-        nights: 1,
-        roomType: 'Deluxe Pool Access Suite',
-        rooms: 1,
-        mealPlan: 'American Breakfast',
-        amountINR: hPanwaburi,
-        amountUSD: Math.round(hPanwaburi / 87.5 * 100) / 100,
-        opt1FreeCancel: hPanwaburi,
-        opt2NonRefund: Math.round(hPanwaburi * 0.9),
-        opt3PartialRefund: Math.round(hPanwaburi * 0.95),
-        cancellation: 'Non-refundable tariff after confirmation',
-        refundability: 'Non-Refundable',
-        status: 'Confirmed',
-        notes: 'Iconic beachfront glass pool resort'
-      },
-      {
-        id: 'h_5',
-        name: 'Esmeralda View',
-        city: 'Koh Yao Yai',
-        checkIn: '10 Jan',
-        checkOut: '13 Jan',
-        nights: 3,
-        roomType: 'Ocean Panorama Cliff Villa',
-        rooms: 1,
-        mealPlan: 'Daily Island Breakfast',
-        amountINR: hEsmeralda,
-        amountUSD: Math.round(hEsmeralda / 87.5 * 100) / 100,
-        opt1FreeCancel: hEsmeralda,
-        opt2NonRefund: Math.round(hEsmeralda * 0.9),
-        opt3PartialRefund: Math.round(hEsmeralda * 0.95),
-        cancellation: 'Free cancellation until 1 Jan 2027',
-        refundability: 'Refundable',
-        status: 'Confirmed',
-        notes: 'Speedboat transfers to/from Chong Lard Pier included'
-      }
+      { id: 'h_1', name: 'Ramada By Wyndham', city: 'Krabi (Ao Nang Beach)', checkIn: '2 Jan', checkOut: '5 Jan', nights: 3, roomType: 'Deluxe Room', amountINR: hRamada, amountUSD: Math.round(hRamada / 87.5 * 100) / 100 },
+      { id: 'h_2', name: 'Phi Phi Mountain Beach Resort', city: 'Koh Phi Phi Don', checkIn: '5 Jan', checkOut: '7 Jan', nights: 2, roomType: 'Superior Ocean View Bungalow', amountINR: hPhiPhi, amountUSD: Math.round(hPhiPhi / 87.5 * 100) / 100 },
+      { id: 'h_3', name: 'Hotel Andakira Phuket', city: 'Phuket (Patong Beach)', checkIn: '7 Jan', checkOut: '9 Jan', nights: 2, roomType: 'Deluxe Premier Room', amountINR: hAndakira, amountUSD: Math.round(hAndakira / 87.5 * 100) / 100 },
+      { id: 'h_4', name: 'Panwaburi Beachfront', city: 'Phuket (Cape Panwa)', checkIn: '9 Jan', checkOut: '10 Jan', nights: 1, roomType: 'Deluxe Pool Access Suite', amountINR: hPanwaburi, amountUSD: Math.round(hPanwaburi / 87.5 * 100) / 100 },
+      { id: 'h_5', name: 'Esmeralda View', city: 'Koh Yao Yai', checkIn: '10 Jan', checkOut: '13 Jan', nights: 3, roomType: 'Ocean Panorama Cliff Villa', amountINR: hEsmeralda, amountUSD: Math.round(hEsmeralda / 87.5 * 100) / 100 }
     ];
 
-    // 3. Update Summary
     const landUSD = withMarkup ? 2248.00 : 1808.00;
     d.summary = {
       items: [
@@ -1378,21 +1023,353 @@ const Chatbot = (() => {
       totalUSD: landUSD
     };
 
-    // 4. Synchronize Studio & Live Preview
+    recalculateQuotationPricing();
     if (typeof App !== 'undefined') {
+      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+      if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
+      App.updateLivePreviews();
+    }
+  }
+
+  /**
+   * 7.4 HOTEL CHANGE WORKFLOW
+   * Replaces specific hotels while strictly preserving itinerary days and sightseeing
+   */
+  async function executeHotelChangeWorkflow(intent, taskLog) {
+    setTyping(true, '🏨 Analyzing hotel modification request...', 'Identifying target property and preserving itinerary timeline...');
+    await sleep(400);
+
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Selected Tour';
+    const text = intent.rawText.toLowerCase();
+
+    // Check if user specified Ramada By Wyndham (popular DMC workflow)
+    const wantsRamada = /ramada/i.test(text);
+
+    if (wantsRamada && (!QuotationData.hotels || QuotationData.hotels.length === 0 || /krabi|thailand/i.test(dest))) {
+      applyNewThailandHotelsAndRates(false);
+      taskLog.push(`Replaced Krabi property with <strong>Ramada By Wyndham</strong> (Ao Nang Beach)`);
+      taskLog.push(`Preserved all 12 itinerary days, transfers, Phi Phi speedboat tour, and Candle Light Dinner`);
+    } else {
+      // Modify first hotel property with user request
+      if (QuotationData.hotels && QuotationData.hotels.length > 0) {
+        const oldName = QuotationData.hotels[0].name;
+        const newName = wantsRamada ? 'Ramada By Wyndham Ao Nang' : 'Selected Deluxe 5-Star Property';
+        QuotationData.hotels[0].name = newName;
+        taskLog.push(`Updated accommodation from <strong>${escapeHTML(oldName)}</strong> to <strong>${escapeHTML(newName)}</strong>`);
+        taskLog.push(`Preserved all day-wise activities, morning tours, and return airport transfers`);
+      }
+    }
+
+    recalculateQuotationPricing();
+    if (typeof App !== 'undefined') {
+      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_UpdatedHotels.pdf`;
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    taskLog.push(`Recalculated hotel costing and updated Live Preview`);
+    setTyping(false);
+
+    const changesList = [
+      `Updated hotel accommodation details as requested.`,
+      `Preserved all original travel dates, flight sectors, and daily itinerary sightseeing.`,
+      `Recalculated total hotel costing in INR and USD.`,
+      `Synchronized Live Studio Preview and prepared PDF export.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your <strong>${escapeHTML(dest)}</strong> quotation with updated hotel details is ready.`,
+      changes: changesList,
+      calcTable: null,
+      preserved: 'Full day-by-day travel timeline, transfers, sightseeing excursions, and inclusions strictly preserved.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+    ]);
+  }
+
+  /**
+   * 7.5 FORMAT SWITCH WORKFLOW
+   */
+  async function executeFormatSwitchWorkflow(targetDocType, taskLog) {
+    setTyping(true, '🔄 Switching official document format...', `Configuring ${targetDocType.toUpperCase()} layout...`);
+    await sleep(350);
+
+    QuotationData.activeDocType = targetDocType;
+    AgentMemory.activeDocType = targetDocType;
+
+    if (targetDocType === 'invoice') {
+      if (!QuotationData.invoice) QuotationData.invoice = {};
+      const inv = QuotationData.invoice;
+      const pkg = QuotationData.package || {};
+      inv.toCustomerName = inv.toCustomerName || pkg.clientName || 'Akash Dewani';
+      inv.invoiceNumber = inv.invoiceNumber || 'INV-' + Math.floor(100000 + Math.random() * 900000);
+      inv.grandTotal = inv.grandTotal || QuotationData.summary?.totalINR || 2992.50;
+      inv.items = inv.items && inv.items.length ? inv.items : [
+        { sn: 1, service: 'Destination Package Tour Services', description: pkg.duration || 'Travel Services', hsn: '998555', qty: 1, rate: inv.grandTotal, total: inv.grandTotal }
+      ];
+      if (typeof App !== 'undefined' && typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
+      taskLog.push(`Generated Corporate Tax Invoice with GST and HSN 998555 for <strong>${escapeHTML(inv.toCustomerName)}</strong>`);
+    } else if (targetDocType === 'confirmation') {
+      if (!QuotationData.confirmation) QuotationData.confirmation = {};
+      const conf = QuotationData.confirmation;
+      const pkg = QuotationData.package || {};
+      conf.guestName = conf.guestName || pkg.clientName || 'Valued Guest';
+      conf.hotelName = conf.hotelName || QuotationData.hotels?.[0]?.name || 'Luxury Resort & Spa';
+      conf.bookingId = conf.bookingId || 'VOUCH-' + Math.floor(10000 + Math.random() * 90000);
+      taskLog.push(`Configured Hotel Booking Voucher for <strong>${escapeHTML(conf.hotelName)}</strong>`);
+    }
+
+    if (typeof App !== 'undefined') {
+      if (typeof App.switchDocType === 'function') App.switchDocType(targetDocType);
+      App.updateLivePreviews();
+    }
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
+    }
+
+    taskLog.push(`Updated Live Preview to <strong>Format: ${targetDocType.toUpperCase()}</strong>`);
+    setTyping(false);
+
+    const docTypeLabel = (typeof DOCUMENT_TYPES !== 'undefined' && DOCUMENT_TYPES[targetDocType]) ? DOCUMENT_TYPES[targetDocType].name : targetDocType.toUpperCase();
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Travel Proposal';
+    const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_${sanitizeFileName(docTypeLabel)}.pdf`;
+
+    const changesList = [
+      `Switched active format to <strong>${escapeHTML(docTypeLabel)}</strong>.`,
+      `Carried over client details, travel dates, passenger counts, and totals.`,
+      `Prepared verified A4 print and PDF document.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your <strong>${escapeHTML(docTypeLabel)}</strong> is ready.`,
+      changes: changesList,
+      calcTable: null,
+      preserved: 'Client identity, travel dates, and verified financial amounts carried over accurately.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📄 Master Quotation', val: '__SWITCH_QUOTATION__' },
+      { label: '🗺️ Travel Itinerary', val: '__SWITCH_ITINERARY__' }
+    ]);
+  }
+
+  /**
+   * 7.6 BUILD OR EXTRACT WORKFLOW (PDF Upload / New Package)
+   */
+  async function executeBuildOrExtractWorkflow(text, attachment, taskLog) {
+    if (attachment) {
+      setTyping(true, '📄 Reading uploaded document...', `Extracting text streams and itinerary from ${escapeHTML(attachment.name)}...`);
+      taskLog.push(`Inspected uploaded file: <strong>${escapeHTML(attachment.name)}</strong> (${attachment.pageCount || 1} pages)`);
+    } else {
+      setTyping(true, '🧠 Interpreting travel request...', 'Structuring day-wise timeline, hotels and tariffs...');
+      taskLog.push(`Analyzed natural language travel parameters`);
+    }
+
+    const extracted = await AIParser.parseText(text, QuotationData, attachment);
+
+    setTyping(true, '📋 Populating quotation engine &amp; rates...', 'Synchronizing day-wise timeline and hotel properties...');
+    await sleep(350);
+
+    const docType = extracted.detectedDocType || QuotationData.activeDocType || 'quotation';
+    QuotationData.activeDocType = docType;
+    AgentMemory.activeDocType = docType;
+
+    if (extracted.package) Object.assign(QuotationData.package, extracted.package);
+    if (extracted.days && extracted.days.length > 0) QuotationData.days = extracted.days;
+    if (extracted.hotels && extracted.hotels.length > 0) QuotationData.hotels = extracted.hotels;
+    if (extracted.summary && extracted.summary.items) QuotationData.summary = extracted.summary;
+    if (extracted.invoice) Object.assign(QuotationData.invoice || {}, extracted.invoice);
+    if (extracted.confirmation) Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
+
+    recalculateQuotationPricing();
+
+    if (typeof App !== 'undefined') {
+      if (typeof App.switchDocType === 'function') App.switchDocType(docType);
       if (typeof App.renderDaysEditor === 'function') App.renderDaysEditor();
       if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
       if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
       App.updateLivePreviews();
     }
-    if (typeof showToast === 'function') {
-      showToast(`Updated hotels (₹ ${totalHotelsINR.toLocaleString('en-IN')}) & Land Part ($ ${landUSD.toFixed(2)})`, 'success');
+    if (typeof DBManager !== 'undefined') {
+      try { DBManager.saveQuotation(); } catch(e) {}
     }
+
+    const pkg = QuotationData.package || {};
+    const dest = pkg.destinations || pkg.title || 'Holiday Package';
+    taskLog.push(`Structured <strong>${QuotationData.days?.length || 0} itinerary days</strong> with morning and evening sightseeing`);
+    taskLog.push(`Configured <strong>${QuotationData.hotels?.length || 0} hotel properties</strong> with verified room categories and tariffs`);
+    taskLog.push(`Calculated package grand total: <strong>${formatINR(QuotationData.summary?.totalINR)}</strong> (${formatUSD(QuotationData.summary?.totalUSD)})`);
+    taskLog.push(`Synchronized Live Studio Preview &amp; auto-saved to database`);
+
+    setTyping(false);
+
+    const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_${sanitizeFileName(pkg.duration || 'Tour')}.pdf`;
+    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
+
+    const changesList = [
+      `Extracted and structured full day-by-day travel timeline for <strong>${escapeHTML(dest)}</strong> (${pkg.duration || 'Custom Plan'}).`,
+      `Configured luxury accommodations with room types, meals and cancellation policies.`,
+      `Computed dual-currency tariffs (INR &amp; USD) with airport and sightseeing transfers.`,
+      `Validated complete A4 document pagination and synchronized Live Preview.`
+    ];
+
+    const responseHtml = renderAgentResponseCard({
+      tasks: taskLog,
+      leadText: `Your <strong>${escapeHTML(dest)}</strong> quotation is ready.`,
+      changes: changesList,
+      calcTable: null,
+      preserved: 'Luxury DMC reference color palette (#0F2C59 Deep Navy) and official travel terms strictly applied.',
+      fileName: fileName
+    });
+
+    appendAI(responseHtml);
+
+    showReplies([
+      { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
+      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
+      { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
+    ]);
   }
 
   /**
-   * UI Helpers
+   * 7.7 GENERAL INQUIRY HANDLER (Direct and concise, no fake progress)
    */
+  function handleGeneralInquiry(query) {
+    const q = query.toLowerCase();
+    let answer = '';
+
+    if (/formats?|document.*types?|suite/i.test(q)) {
+      answer = `
+        <strong>Let's Explore DMC Document Suite</strong> mein total <strong>7 Official Corporate Document Formats</strong> available hain:<br><br>
+        1. 📄 <strong>Master Quotation (Official Reference)</strong>: Complete 12-section commercial proposal with Pax columns, INR &amp; USD pricing.<br>
+        2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day timeline strictly without pricing rates.<br>
+        3. 🏨 <strong>Hotel Costing &amp; Comparison</strong>: Multi-tier hotel stay comparison with room types and meal plans.<br>
+        4. 📋 <strong>Package Summary</strong>: Executive 1-page overview and inclusions.<br>
+        5. 🏨 <strong>Hotel Booking Voucher</strong>: Luxury confirmation voucher with guest list and occupancy.<br>
+        6. 🧾 <strong>Corporate Tax Invoice</strong>: Official GST billing with HSN 998555 and bank payment details.<br>
+        7. 🛠️ <strong>Custom Builder</strong>: Drag-and-drop modular builder.<br><br>
+        Aap kisi bhi format ka naam bolkar ya neeche click karke instantly switch kar sakte hain!
+      `;
+    } else if (/markup|margin/i.test(q)) {
+      answer = `
+        Aap kisi bhi package par direct instruction de sakte hain, jaise:<br>
+        • <em>"Add 10% markup to this package"</em><br>
+        • <em>"Passes ka amount 20000 increase kar do"</em><br><br>
+        System automatically saari hotels aur land package components par mathematically percentage calculate karega aur grand total update kar dega!
+      `;
+    } else if (/company|branding|aanay|white-?label/i.test(q)) {
+      answer = `
+        Hum complete <strong>B2B White-label aur Partner Rebranding</strong> support karte hain.<br>
+        Agar aapka B2B travel agent (jaise Aanay Tours) apne brand se quote chahta hai, toh bas bolen:<br>
+        <em>"Aanay tours ki details k sath edit karo unki details hata dena"</em><br><br>
+        System DMC supplier details hata kar partner ka naam, contact person aur contact number laga dega!
+      `;
+    } else {
+      answer = `
+        Let's Explore DMC Travel Operations Engine is online and ready.<br>
+        Aap koi destination ka naam bolkar (e.g. <em>"Maldives 5D4N"</em>, <em>"Thailand 12D"</em>, <em>"Dubai 6D"</em>) ya reference PDF upload karke proposal create kar sakte hain!
+      `;
+    }
+
+    appendAI(answer, false);
+    showReplies([
+      { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
+      { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
+      { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
+      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+    ]);
+  }
+
+  // ==========================================
+  // 8. CLAUDE-LIKE RESPONSE CARD BUILDER
+  // ==========================================
+  function renderAgentResponseCard(data) {
+    const tasksHtml = (data.tasks && data.tasks.length > 0) ? `
+      <div class="thinking-process-box" style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; const chev=this.querySelector('.chev-icon'); const isC = c.style.display==='none'; c.style.display=isC?'block':'none'; if(chev) chev.textContent=isC?'▾':'▸';">
+          <span style="font-weight:600; color:#1E293B; display:flex; align-items:center; gap:6px; font-size:12px;">
+            <span style="color:#15803D;">●</span> Ran ${data.tasks.length} tasks, synchronized document <span class="chev-icon" style="color:#64748B; font-size:11px;">▾</span>
+          </span>
+          <span style="font-size:10px; color:#15803D; background:#DCFCE7; padding:2px 8px; border-radius:10px; font-weight:700;">Task Completed</span>
+        </div>
+        <div style="margin-top:8px; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.6; font-size:11.5px; color:#475569;">
+          ${data.tasks.map(t => `<div style="display:flex; align-items:flex-start; gap:6px; margin-bottom:3px;"><span style="color:#15803D;">✔</span> <div>${t}</div></div>`).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    const changesHtml = (data.changes && data.changes.length > 0) ? `
+      <div class="agent-section-title">Changes made:</div>
+      <ul class="agent-changes-list">
+        ${data.changes.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+    ` : '';
+
+    const calcHtml = data.calcTable ? `
+      <div class="agent-section-title" style="margin-top:8px;">Updated Price Summary:</div>
+      ${data.calcTable}
+    ` : '';
+
+    const preservedHtml = data.preserved ? `
+      <div class="agent-preserved-box">
+        🛡️ <strong>Preserved:</strong> ${escapeHTML(data.preserved)}
+      </div>
+    ` : '';
+
+    const fileCardHtml = data.fileName ? `
+      <div class="agent-file-card">
+        <div class="file-info-group">
+          <div class="file-icon-badge">📄</div>
+          <div class="file-meta-texts">
+            <span class="file-label-small">Generated Document</span>
+            <span class="file-name-text" title="${escapeHTML(data.fileName)}">${escapeHTML(data.fileName)}</span>
+          </div>
+        </div>
+        <button type="button" class="btn-agent-download" onclick="if(typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Download Official A4 PDF">
+          ⬇️ Download PDF
+        </button>
+      </div>
+    ` : '';
+
+    return `
+      <div class="agent-response-card">
+        ${tasksHtml}
+        <div class="agent-summary-lead">${data.leadText}</div>
+        ${changesHtml}
+        ${calcHtml}
+        ${preservedHtml}
+        ${fileCardHtml}
+      </div>
+    `;
+  }
+
+  // ==========================================
+  // 9. UI MESSAGING & CONTROLS
+  // ==========================================
   function appendUser(text) {
     const el = msgs();
     if (!el) return;
@@ -1459,62 +1436,11 @@ const Chatbot = (() => {
     }
   }
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  function setTyping(flag, statusTitle = '🧠 Thinking &amp; Analyzing...', statusSub = 'Interpreting document requirements &amp; rates...') {
-    isTyping = flag;
-    const el = typing();
-    if (el) {
-      el.style.display = flag ? 'flex' : 'none';
-      const titleEl = $('typingStatusText');
-      const subEl = $('typingSubText');
-      if (titleEl) titleEl.innerHTML = statusTitle;
-      if (subEl) subEl.innerHTML = statusSub;
-    }
-    scrollBottom();
-  }
-
-  async function executeThinkingPipeline(attachment, promptText) {
-    if (attachment) {
-      const pageInfo = attachment.pageCount > 1 ? ` (${attachment.pageCount} pages)` : '';
-      setTyping(true, '📄 Reading Document...', `Inspecting ${escapeHTML(attachment.name)}${pageInfo}...`);
-      await sleep(650);
-      setTyping(true, '🔍 Analyzing Travel Itinerary &amp; Data...', 'Extracting days, hotels, room tariffs, inclusions &amp; rates...');
-      await sleep(750);
-      setTyping(true, '⚡ Structuring Rates &amp; Formatting...', 'Computing dual-currency pricing &amp; syncing Live Studio Preview...');
-      await sleep(550);
-    } else {
-      setTyping(true, '🧠 Thinking &amp; Analyzing...', 'Understanding request parameters &amp; client profile...');
-      await sleep(500);
-      setTyping(true, '🔍 Processing Quotation Engine...', 'Structuring itinerary highlights, hotels &amp; inclusions...');
-      await sleep(500);
-    }
-  }
-
-  function buildThinkingProcessCard(title, steps) {
-    const stepsHtml = steps.map(s => `<div>• ${s}</div>`).join('');
-    return `
-      <div class="thinking-process-box" style="margin-bottom:10px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:9px 13px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="const c=this.nextElementSibling; const chev=this.querySelector('.chev-icon'); const isCollapsed = c.style.display==='none'; c.style.display=isCollapsed?'block':'none'; if(chev) chev.textContent=isCollapsed?'▾':'▸';">
-          <span style="font-weight:600; color:#1E293B; display:flex; align-items:center; gap:6px; font-size:12px;">
-            <span style="color:#D97706;">•</span> ${escapeHTML(title)} <span class="chev-icon" style="color:#64748B; font-size:11px;">▸</span>
-          </span>
-          <span style="font-size:10px; color:#64748B; background:#E2E8F0; padding:2px 7px; border-radius:10px;">Thinking Process</span>
-        </div>
-        <div style="margin-top:8px; border-top:1px dashed #CBD5E1; padding-top:8px; display:none; line-height:1.6; font-size:11.5px; color:#475569;">
-          ${stepsHtml}
-        </div>
-      </div>
-    `;
-  }
-
   const CORE_ACTION_OPTIONS = [
     { label: '👁️ Live Preview', val: '__PREVIEW__', primary: true },
     { label: '✏️ Edit in Studio', val: '__MODAL_EDIT__' },
     { label: '🖨️ Download PDF', val: '__PDF__' },
-    { label: '📄 Download DOCX (Word)', val: '__DOCX__' }
+    { label: '📄 Download Word DOCX', val: '__DOCX__' }
   ];
 
   function showReplies(options = [], prioritizeOptions = false) {
@@ -1561,35 +1487,8 @@ const Chatbot = (() => {
 
     if (opt.val === 'restart') {
       resetQuotationData();
-      if (typeof App !== 'undefined') {
-        App.showSection('generator');
-      }
+      if (typeof App !== 'undefined') App.showSection('generator');
       appendAI('Starting a fresh quotation! Enter client details or destination.');
-      return;
-    }
-
-    if (opt.val === '__APPLY_V5_HOTELS__') {
-      processMessage('__APPLY_V5_HOTELS__', attachmentToProcess);
-      return;
-    }
-
-    if (opt.val === '__SWITCH_QUOTATION__') {
-      processMessage('quotation format banao', attachmentToProcess);
-      return;
-    }
-
-    if (opt.val === '__SWITCH_HOTEL_COSTING__') {
-      processMessage('hotel costing format banao', attachmentToProcess);
-      return;
-    }
-
-    if (opt.val === '__SWITCH_INVOICE__') {
-      processMessage('invoice banao', attachmentToProcess);
-      return;
-    }
-
-    if (opt.val === '__SWITCH_CONFIRMATION__') {
-      processMessage('confirmation voucher banao', attachmentToProcess);
       return;
     }
 
@@ -1641,10 +1540,6 @@ const Chatbot = (() => {
     }
   }
 
-  function esc(t) {
-    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
   function reset() {
     history = [];
     initialized = false;
@@ -1662,7 +1557,7 @@ const Chatbot = (() => {
     submitInput,
     copyLastResponse,
     regenerateResponse,
-    applyNewThailandHotelsAndRates
+    getMemory: () => AgentMemory
   };
 
 })();

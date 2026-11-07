@@ -3648,3 +3648,222 @@ p { color: var(--text-sec); line-height: 1.6; }
   .studio-stepper-wrap { display: none; }
   .studio-luxury-subbar { padding: 12px 20px; }
 }
+
+/* ========================================================
+   TASK-ORIENTED AGENT RESPONSE & CLAUDE-LIKE EXECUTION CARDS
+   ======================================================== */
+.agent-response-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agent-summary-lead {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0F2C59;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.agent-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+.agent-changes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-changes-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 12.5px;
+  color: #1E293B;
+  line-height: 1.45;
+}
+
+.agent-changes-list li::before {
+  content: '✔';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #15803D;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.agent-calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 6px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.agent-calc-table th {
+  background: #0F2C59;
+  color: #FFFFFF;
+  padding: 7px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.agent-calc-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #E2E8F0;
+  color: #334155;
+}
+
+.agent-calc-table tr:last-child td {
+  border-bottom: none;
+}
+
+.agent-calc-table tr.total-row {
+  background: #F8FAFC;
+  font-weight: 700;
+}
+
+.agent-calc-table tr.total-row td {
+  color: #0F2C59;
+}
+
+.agent-calc-table .rate-highlight {
+  color: #15803D;
+  font-weight: 700;
+}
+
+.agent-preserved-box {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #166534;
+  line-height: 1.45;
+}
+
+.agent-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
+
+.agent-file-card .file-info-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.agent-file-card .file-icon-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #1D4ED8;
+  flex-shrink: 0;
+}
+
+.agent-file-card .file-meta-texts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.agent-file-card .file-label-small {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.5px;
+}
+
+.agent-file-card .file-name-text {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F2C59;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-agent-download {
+  padding: 7px 16px;
+  background: #0F2C59;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(15, 44, 89, 0.2);
+}
+
+.btn-agent-download:hover {
+  background: #1E3A8A;
+  transform: translateY(-1px);
+}
+
+.agent-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.btn-agent-action {
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-agent-action:hover {
+  background: #F8FAFC;
+  border-color: #0F2C59;
+  color: #0F2C59;
+}
