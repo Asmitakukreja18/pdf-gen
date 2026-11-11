@@ -40,10 +40,12 @@ defined('ALLOWED_MIMES') or define('ALLOWED_MIMES', serialize([
     'text/x-pdf'
 ]));
 
-// Session Security Configuration
+// Session Security Configuration & Persistent Lifetime
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
+    ini_set('session.gc_maxlifetime', 86400 * 30); // 30 days
+    ini_set('session.cookie_lifetime', 86400 * 30);
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
         ini_set('session.cookie_secure', 1);
     }

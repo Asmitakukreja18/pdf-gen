@@ -14,14 +14,21 @@ function isAuthenticated() {
         return false;
     }
 
-    // 15-minute inactivity check (900 seconds)
-    $lastActive = $_SESSION['last_activity_time'] ?? time();
-    if ((time() - $lastActive) > 900) {
-        $_SESSION = [];
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_destroy();
+    // Check if user is Admin: Admin NEVER times out due to inactivity!
+    $userRole = strtolower($user['role'] ?? '');
+    $userName = strtolower($user['username'] ?? '');
+    $isAdmin = ($userRole === 'admin' || $userName === 'admin');
+
+    if (!$isAdmin) {
+        // 15-minute inactivity check (900 seconds) for non-admin staff
+        $lastActive = $_SESSION['last_activity_time'] ?? time();
+        if ((time() - $lastActive) > 900) {
+            $_SESSION = [];
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_destroy();
+            }
+            return false;
         }
-        return false;
     }
 
     // Update active timestamp
