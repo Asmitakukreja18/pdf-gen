@@ -5596,3 +5596,206 @@ p {
   color: #15803D;
   font-weight: 700;
 }
+
+/* ─── CLAUDE-STYLE ATTACHMENT CARDS (COMPOSER & MESSAGES) ─── */
+.claude-cards-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.claude-file-card {
+  position: relative;
+  width: 120px;
+  height: 125px;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  user-select: none;
+}
+
+.claude-file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.claude-file-card.docx-card {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.claude-file-card.pdf-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.claude-card-remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.15s ease;
+}
+
+.claude-card-remove-btn:hover {
+  background: #EF4444;
+  border-color: #EF4444;
+}
+
+.file-card-preview-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.docx-big-icon {
+  width: 38px;
+  height: 38px;
+  background: #2563EB;
+  color: #FFFFFF;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+}
+
+.pdf-page-miniature {
+  width: 38px;
+  height: 48px;
+  background: #FFFFFF;
+  border-radius: 3px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.pdf-mini-header {
+  height: 10px;
+  background: linear-gradient(90deg, #F97316, #3B82F6);
+  border-radius: 2px;
+}
+
+.pdf-mini-line {
+  height: 3px;
+  background: #CBD5E1;
+  border-radius: 1px;
+}
+
+.pdf-mini-line.short {
+  width: 60%;
+}
+
+.file-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-card-name {
+  color: #F8FAFC;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.file-card-badge {
+  align-self: flex-start;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.file-card-badge.docx-badge {
+  background: #1E3A8A;
+  color: #93C5FD;
+}
+
+.file-card-badge.pdf-badge {
+  background: #334155;
+  color: #E2E8F0;
+}
+
+/* ─── CLAUDE-STYLE COLLAPSIBLE SIDEBAR IN STUDIO ─── */
+.claude-studio-layout {
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - 65px);
+  position: relative;
+}
+
+.claude-sidebar {
+  width: 250px;
+  background: #0B1325;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #CBD5E1;
+  transition: width 0.25s ease, padding 0.25s ease;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.claude-sidebar.collapsed {
+  width: 64px;
+}
+
+.claude-sidebar.collapsed .sidebar-text,
+.claude-sidebar.collapsed .recents-section,
+.claude-sidebar.collapsed .user-profile-details {
+  display: none !important;
+}
+
+.claude-sidebar.collapsed .sidebar-item {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}

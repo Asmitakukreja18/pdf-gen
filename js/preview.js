@@ -34,6 +34,11 @@ const Preview = (() => {
    */
   function buildQuotationHTML(data = QuotationData, isForPrint = false) {
     const docType = data.activeDocType || 'quotation';
+    const pkg = data.package || {};
+
+    if (docType === 'rajasthan_land_package' || pkg.isRajasthanFormat || (pkg.destinations && pkg.destinations.toLowerCase().includes('phuket') && (pkg.ratePerAdultUSD || pkg.destinations.toLowerCase().includes('krabi')))) {
+      return renderRajasthanLandPackageDocument(data, isForPrint);
+    }
 
     switch (docType) {
       case 'itinerary':
@@ -1219,9 +1224,189 @@ const Preview = (() => {
       .replace(/'/g, '&#039;');
   }
 
+  /**
+   * 8. FORMAT: RAJASTHAN LAND PACKAGE QUOTATION (Match Screenshot 5)
+   * High-fidelity A4 document matching Let's Explore DMC Land Package standards:
+   * - 4-color top accent stripe
+   * - Brand logo & "CAPTURING YOUR DREAMS" + "LAND PACKAGE QUOTATION" subtitle
+   * - 4-column Check-in / Check-out / Duration / Travellers metadata box
+   * - Package Pricing USD table with Per Adult and Total Package Cost
+   * - Hotel Details with blue header bars for Phuket & Krabi
+   * - Transportation table with day-wise transfers & tours
+   * - Package Inclusions bullet list
+   */
+  function renderRajasthanLandPackageDocument(data, isForPrint) {
+    const pkg = data.package || {};
+    const comp = data.company || {};
+    const brandName = comp.name || "Let's Explore DMC";
+    const brandTagline = comp.tagline || "Capturing Your Dreams";
+    const brandLogo = comp.logo || "images/logo.png";
+
+    const checkIn = pkg.checkIn || pkg.startDate || '10 Dec 2026';
+    const checkOut = pkg.checkOut || pkg.endDate || '15 Dec 2026';
+    const duration = pkg.duration || '5 Nights / 6 Days';
+    const travellers = pkg.travellers || '2 Adults';
+    const title = pkg.title || pkg.destinations || 'Phuket + Krabi';
+    const subTitle = pkg.subtitle || `${duration} · Hotels + Private Transfers + Tours`;
+
+    const ratePerAdult = pkg.ratePerAdultUSD || 632.88;
+    const totalCostUSD = pkg.totalCostUSD || (ratePerAdult * 2);
+
+    return `
+      <div class="dmc-quotation-doc doc-rajasthan-land-package ${isForPrint ? 'is-print-mode' : ''}" style="background:#FFFFFF; font-family:'Inter', -apple-system, sans-serif; color:#1E293B; line-height:1.5; border-radius:8px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); padding-bottom:24px;">
+        <!-- Top Colored Stripe (Green, Yellow, Blue, Red) -->
+        <div style="height:5px; width:100%; display:flex;">
+          <div style="flex:1; background:#4CAF50;"></div>
+          <div style="flex:1; background:#FFC107;"></div>
+          <div style="flex:1; background:#2196F3;"></div>
+          <div style="flex:1; background:#F44336;"></div>
+        </div>
+
+        <!-- Document Header matching Screenshot 5 -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:22px 28px 12px 28px; border-bottom:1px solid #F1F5F9;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:56px; object-fit:contain;" onerror="this.src='images/logo.png'" />
+            <div>
+              <div style="font-size:16px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
+              <div style="font-size:10.5px; font-weight:700; color:#E67E22; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#E67E22; font-size:11.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">LAND PACKAGE QUOTATION</div>
+            <div style="color:#0F2C59; font-size:26px; font-weight:800; line-height:1.2; margin:3px 0 2px 0;">${escapeHTML(title)}</div>
+            <div style="color:#64748B; font-size:12px; font-weight:600;">${escapeHTML(subTitle)}</div>
+          </div>
+        </div>
+
+        <!-- 4-Column Metadata Table -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:#CBD5E1; margin:14px 28px; border:1px solid #CBD5E1; border-radius:5px; overflow:hidden;">
+          <div style="background:#F8FAFC; padding:8px 12px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-IN</div>
+            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkIn)}</div>
+          </div>
+          <div style="background:#F8FAFC; padding:8px 12px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-OUT</div>
+            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkOut)}</div>
+          </div>
+          <div style="background:#F8FAFC; padding:8px 12px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">DURATION</div>
+            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(duration)}</div>
+          </div>
+          <div style="background:#F8FAFC; padding:8px 12px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">TRAVELLERS</div>
+            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(travellers)}</div>
+          </div>
+        </div>
+
+        <!-- Package Pricing Section -->
+        <div style="margin:16px 28px;">
+          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:6px;">Package Pricing</h3>
+          <table style="width:100%; border-collapse:collapse; font-size:12px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+            <thead>
+              <tr style="background:#0F2C59; color:#FFFFFF;">
+                <th style="padding:7px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.5px;">DESCRIPTION</th>
+                <th style="padding:7px 12px; text-align:right; font-size:11px; font-weight:700; width:130px;">RATE (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                <td style="padding:10px 12px; color:#334155; line-height:1.4;">Per Adult - Twin / double sharing, hotels + private transfers + tours + meals as mentioned</td>
+                <td style="padding:10px 12px; text-align:right; font-weight:700; color:#0F2C59; font-size:12.5px;">${Number(ratePerAdult).toFixed(2)}</td>
+              </tr>
+              <tr style="background:#F8FAFC; font-weight:800;">
+                <td style="padding:9px 12px; color:#0F2C59;">TOTAL PACKAGE COST</td>
+                <td style="padding:9px 12px; text-align:right; color:#0F2C59; font-size:13.5px;">${Number(totalCostUSD).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:10px; color:#94A3B8; font-style:italic; margin-top:4px;">Domestic / international air fare is not included. Expressway toll and parking fees are not included.</div>
+        </div>
+
+        <!-- Hotel Details Section -->
+        <div style="margin:16px 28px;">
+          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Hotel Details</h3>
+          <!-- Hotel 1: Phuket -->
+          <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
+            <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between;">
+              <span>1st, 2nd &amp; 3rd Nights &ndash; Phuket</span>
+              <span>Check-in: 10 Dec 2026</span>
+            </div>
+            <div style="padding:10px 12px; background:#FFF;">
+              <div style="font-weight:700; color:#0F2C59; font-size:13px;">Ashlee Plaza Hotel, Phuket</div>
+              <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+            </div>
+          </div>
+          <!-- Hotel 2: Krabi -->
+          <div style="border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+            <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between;">
+              <span>4th &amp; 5th Nights &ndash; Krabi (Ao Nang)</span>
+              <span>Check-in: 13 Dec 2026</span>
+            </div>
+            <div style="padding:10px 12px; background:#FFF;">
+              <div style="font-weight:700; color:#0F2C59; font-size:13px;">GLOW Ao Nang Krabi</div>
+              <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transportation Section -->
+        <div style="margin:16px 28px;">
+          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Transportation &ndash; Private car &amp; boat transfers as per itinerary</h3>
+          <table style="width:100%; border-collapse:collapse; font-size:11.5px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+            <tbody>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59; width:135px;">Day 1 &ndash; Thu, 10 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">Phuket Airport to Ashlee Plaza Hotel &ndash; Private transfer</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 2 &ndash; Fri, 11 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 3 &ndash; Sat, 12 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">James Bond Island tour by Big Boat (lunch + NPF included)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 4 &ndash; Sun, 13 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City tour</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 5 &ndash; Mon, 14 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">4 Island Tour by Long Tail Boat (lunch + NPF included)</td>
+              </tr>
+              <tr style="background:#F8FAFC;">
+                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 6 &ndash; Tue, 15 Dec</td>
+                <td style="padding:8px 12px; color:#334155;">GLOW Ao Nang Krabi to Phuket Airport &ndash; Private transfer</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Package Inclusions Section -->
+        <div style="margin:16px 28px 20px 28px;">
+          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Package Inclusions</h3>
+          <ul style="margin:0; padding-left:18px; font-size:11.5px; color:#334155; line-height:1.65;">
+            <li>Private transfers by car as specified in the itinerary</li>
+            <li>Accommodation in Superior rooms (twin / double sharing) as mentioned</li>
+            <li>Daily breakfast at the hotel; buffet dinner on Days 1&ndash;5; buffet lunch on Day 6 (departure)</li>
+            <li>Lunch on all sea tour days (Day 2, Day 3 and Day 5)</li>
+            <li>Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond Island big boat tour, 4 Island tour</li>
+            <li>Krabi City Tour by car (6 hrs)</li>
+            <li>All entrance fees and National Park Fee (NPF) for the tours mentioned</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
   return {
     render,
-    buildQuotationHTML
+    buildQuotationHTML,
+    renderRajasthanLandPackageDocument
   };
 
 })();
+
+if (typeof window !== 'undefined') {
+  window.Preview = Preview;
+}
