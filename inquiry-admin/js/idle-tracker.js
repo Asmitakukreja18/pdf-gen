@@ -1,4 +1,4 @@
-﻿/**
+/**
  * idle-tracker.js — Sub-User Session & Inactivity OTP Lock Guard
  * Implements:
  * 1. Timestamp tracking for User-1 / Sub-Users (11:00 AM, 12:00 PM session log)
@@ -6,9 +6,19 @@
  */
 
 (() => {
-  const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
-  let idleTimer = null;
-  let isLocked = false;
+  // Check user role & settings: Admin NEVER times out!
+  const role = (localStorage.getItem('dmc_role') || '').toLowerCase();
+  let storedUser = null;
+  try { storedUser = JSON.parse(localStorage.getItem('dmc_user') || '{}'); } catch(e) {}
+  const userRole = (storedUser?.role || role || '').toLowerCase();
+  const username = (storedUser?.username || '').toLowerCase();
+
+  const isAdmin = (userRole === 'admin' || role === 'admin' || username === 'admin');
+  let isLockEnabled = localStorage.getItem('dmc_idle_lock_enabled') !== 'false';
+  try {
+    const portalSettings = JSON.parse(localStorage.getItem('portal_settings') || '{}');
+    if (portalSettings.idleLock === false) isLockEnabled = false;
+  } catch(e) {}
 
   // Initialize or retrieve session login time
   let loginTime = sessionStorage.getItem('dmc_login_timestamp');
@@ -23,6 +33,16 @@
     const el = document.getElementById('userLoginTime');
     if (el) el.textContent = loginTime;
   }
+
+  // Admin NEVER times out! Screen lock & idle timeout completely disabled for Admin
+  if (isAdmin || !isLockEnabled) {
+    document.addEventListener('DOMContentLoaded', updateTimestampDisplay);
+    return;
+  }
+
+  const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes for sub-users only
+  let idleTimer = null;
+  let isLocked = false;
 
   // Reset idle timer on active interaction
   function resetIdleTimer() {

@@ -15,10 +15,12 @@ if (file_exists($rootConfig)) {
     defined('DB_CHARSET') or define('DB_CHARSET', 'utf8mb4');
 }
 
-// Session security
+// Session security & Persistent Lifetime (Admin sessions do not expire)
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
+    ini_set('session.gc_maxlifetime', 86400 * 30); // 30 days
+    ini_set('session.cookie_lifetime', 86400 * 30);
     session_start();
 }
 
