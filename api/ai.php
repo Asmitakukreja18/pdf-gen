@@ -98,12 +98,28 @@ if (!empty($serverFilePath)) {
     }
 }
 
-// Guarantee extractedText from base64 if not already populated
-if ($attachment && is_array($attachment) && empty($attachment['extractedText']) && !empty($attachment['base64'])) {
-    $rawPdf = @base64_decode($attachment['base64']);
-    if ($rawPdf && strpos($rawPdf, '%PDF-') !== false) {
-        $attachment['extractedText'] = extractPdfTextSimple($rawPdf);
+// Build normalized array of attachments (supports single or multi-PDF)
+$attachments = [];
+if (!empty($payload['attachments']) && is_array($payload['attachments'])) {
+    $attachments = $payload['attachments'];
+} elseif ($attachment && is_array($attachment)) {
+    $attachments = [$attachment];
+}
+
+// Guarantee extractedText from base64 for each attachment if not already populated
+foreach ($attachments as &$attItem) {
+    if (is_array($attItem) && empty($attItem['extractedText']) && !empty($attItem['base64'])) {
+        $rawPdf = @base64_decode($attItem['base64']);
+        if ($rawPdf && strpos($rawPdf, '%PDF-') !== false) {
+            $attItem['extractedText'] = extractPdfTextSimple($rawPdf);
+        }
     }
+}
+unset($attItem);
+
+// Guarantee single $attachment points to the first attachment for backward compatibility
+if (empty($attachment) && !empty($attachments)) {
+    $attachment = $attachments[0];
 }
 
 // Context string
@@ -150,7 +166,7 @@ foreach ($providersToTry as $prov) {
     if ($prov === 'claude') {
         $claudeKey = !empty($payload['claudeApiKey']) ? trim($payload['claudeApiKey']) : (defined('CLAUDE_API_KEY') ? CLAUDE_API_KEY : '');
         if ($claudeKey && strpos($claudeKey, 'YOUR_') === false) {
-            $res = callClaude($systemPrompt, $contextText, $prompt, $attachment, $claudeKey);
+            $res = callClaude($systemPrompt, $contextText, $prompt, $attachments, $claudeKey);
             if ($res['success']) {
                 $finalResult = $res['data'];
                 $successfulProvider = 'claude';
@@ -165,7 +181,7 @@ foreach ($providersToTry as $prov) {
     if ($prov === 'gemini') {
         $geminiKey = !empty($payload['geminiApiKey']) ? trim($payload['geminiApiKey']) : (defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '');
         if ($geminiKey && strpos($geminiKey, 'YOUR_') === false) {
-            $res = callGemini($systemPrompt, $contextText, $prompt, $attachment, $geminiKey);
+            $res = callGemini($systemPrompt, $contextText, $prompt, $attachments, $geminiKey);
             if ($res['success']) {
                 $finalResult = $res['data'];
                 $successfulProvider = 'gemini';
@@ -180,7 +196,7 @@ foreach ($providersToTry as $prov) {
     if ($prov === 'openai') {
         $openaiKey = !empty($payload['openaiApiKey']) ? trim($payload['openaiApiKey']) : (defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '');
         if ($openaiKey && strpos($openaiKey, 'YOUR_') === false) {
-            $res = callOpenAI($systemPrompt, $contextText, $prompt, $attachment, $openaiKey);
+            $res = callOpenAI($systemPrompt, $contextText, $prompt, $attachments, $openaiKey);
             if ($res['success']) {
                 $finalResult = $res['data'];
                 $successfulProvider = 'openai';
@@ -203,7 +219,7 @@ if ($finalResult !== null) {
     ]);
 } else {
     // Graceful Intelligent Local Generation: Never 502 crash
-    $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachment);
+    $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachments);
     echo json_encode([
         'success' => true,
         'provider' => 'local-intelligence',
@@ -217,46 +233,51 @@ if ($finalResult !== null) {
 // Provider Callers
 // ==========================================
 
-function callClaude($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
     $models = ['claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'];
     $lastError = null;
 
     $userContent = [];
-    $rawB64 = $attachment['base64'] ?? '';
-    $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
-    $b64 = trim($b64);
+    $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
 
-    if ($attachment && !empty($b64)) {
-        $mime = $attachment['mimeType'] ?? 'application/pdf';
-        if (strpos($mime, 'pdf') !== false) {
+    foreach ($attList as $attachment) {
+        if (!is_array($attachment)) continue;
+        $rawB64 = $attachment['base64'] ?? '';
+        $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
+        $b64 = trim($b64);
+
+        if (!empty($b64)) {
+            $mime = $attachment['mimeType'] ?? 'application/pdf';
+            if (strpos($mime, 'pdf') !== false) {
+                $userContent[] = [
+                    'type' => 'document',
+                    'source' => [
+                        'type' => 'base64',
+                        'media_type' => 'application/pdf',
+                        'data' => $b64
+                    ]
+                ];
+            } else {
+                $validImageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if ($mime === 'image/jpg') $mime = 'image/jpeg';
+                if (!in_array($mime, $validImageMimes)) $mime = 'image/jpeg';
+                $userContent[] = [
+                    'type' => 'image',
+                    'source' => [
+                        'type' => 'base64',
+                        'media_type' => $mime,
+                        'data' => $b64
+                    ]
+                ];
+            }
+        }
+
+        if (!empty($attachment['extractedText'])) {
             $userContent[] = [
-                'type' => 'document',
-                'source' => [
-                    'type' => 'base64',
-                    'media_type' => 'application/pdf',
-                    'data' => $b64
-                ]
-            ];
-        } else {
-            $validImageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if ($mime === 'image/jpg') $mime = 'image/jpeg';
-            if (!in_array($mime, $validImageMimes)) $mime = 'image/jpeg';
-            $userContent[] = [
-                'type' => 'image',
-                'source' => [
-                    'type' => 'base64',
-                    'media_type' => $mime,
-                    'data' => $b64
-                ]
+                'type' => 'text',
+                'text' => "[EXTRACTED DOCUMENT TEXT - " . ($attachment['name'] ?? 'File') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT]\n"
             ];
         }
-    }
-
-    if ($attachment && !empty($attachment['extractedText'])) {
-        $userContent[] = [
-            'type' => 'text',
-            'text' => "[EXTRACTED DOCUMENT TEXT - " . ($attachment['name'] ?? 'File') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT]\n"
-        ];
     }
 
     $userContent[] = [
@@ -331,7 +352,7 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachment, $apiK
     return ['success' => false, 'error' => $lastError ?: 'Claude request failed.'];
 }
 
-function callGemini($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+function callGemini($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
     $models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
     $lastError = null;
 
@@ -340,24 +361,28 @@ function callGemini($systemPrompt, $contextText, $userPrompt, $attachment, $apiK
         ['text' => ($contextText ? $contextText . "\n" : '') . "User Instructions:\n" . ($userPrompt ?: 'Extract document structure')]
     ];
 
-    $rawB64 = $attachment['base64'] ?? '';
-    $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
-    $b64 = trim($b64);
+    $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
+    foreach ($attList as $attachment) {
+        if (!is_array($attachment)) continue;
+        $rawB64 = $attachment['base64'] ?? '';
+        $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
+        $b64 = trim($b64);
 
-    if ($attachment && !empty($b64)) {
-        $mime = $attachment['mimeType'] ?? 'application/pdf';
-        $parts[] = [
-            'inlineData' => [
-                'mimeType' => $mime,
-                'data' => $b64
-            ]
-        ];
-    }
+        if (!empty($b64)) {
+            $mime = $attachment['mimeType'] ?? 'application/pdf';
+            $parts[] = [
+                'inlineData' => [
+                    'mimeType' => $mime,
+                    'data' => $b64
+                ]
+            ];
+        }
 
-    if ($attachment && !empty($attachment['extractedText'])) {
-        $parts[] = [
-            'text' => "\n[DOCUMENT TEXT LAYER - " . ($attachment['name'] ?? 'PDF') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT LAYER]\n"
-        ];
+        if (!empty($attachment['extractedText'])) {
+            $parts[] = [
+                'text' => "\n[DOCUMENT TEXT LAYER - " . ($attachment['name'] ?? 'PDF') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT LAYER]\n"
+            ];
+        }
     }
 
     $payload = [
@@ -453,8 +478,17 @@ function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachment, $apiK
 // Intelligent Local Generation Fallback
 // ==========================================
 
-function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment = null) {
-    $text = strtolower($prompt . ' ' . ($attachment['name'] ?? '') . ' ' . ($attachment['extractedText'] ?? ''));
+function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachments = null) {
+    $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
+    $allAttText = '';
+    $allAttNames = '';
+    foreach ($attList as $att) {
+        if (is_array($att)) {
+            $allAttNames .= ' ' . ($att['name'] ?? '');
+            $allAttText .= ' ' . ($att['extractedText'] ?? '');
+        }
+    }
+    $text = strtolower($prompt . ' ' . $allAttNames . ' ' . $allAttText);
     
     $dest = 'Bali, Indonesia';
     $country = 'Indonesia';
@@ -467,7 +501,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $priceUsd = 560;
 
     // Universal Dynamic PDF & Text Document Interpreter
-    $hasExtractedText = !empty($attachment['extractedText']) && strlen(trim($attachment['extractedText'])) > 20;
+    $hasExtractedText = strlen(trim($allAttText)) > 20;
     if ($hasExtractedText) {
         $rawDoc = $attachment['extractedText'];
 

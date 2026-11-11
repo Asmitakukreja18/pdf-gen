@@ -1325,21 +1325,19 @@
 
             <!-- Fixed Composer at Bottom -->
             <div class="chat-ws-composer">
-              <!-- Selected Attachment Preview Chip -->
-              <div id="chatAttachmentBadge" class="composer-attachment-chip" style="display:none;">
-                <div id="chatAttachmentText" style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
-                  📄 Reference file attached
+              <!-- Selected Attachment Preview Chips Container (Supports Multi-PDF) -->
+              <div id="chatAttachmentBadge" class="composer-attachments-wrapper" style="display:none; flex-direction:column; gap:6px; margin-bottom:8px;">
+                <div id="chatAttachmentText" style="display:flex; flex-direction:column; gap:6px; width:100%;">
+                  <!-- Dynamically populated with individual PDF chips & remove buttons -->
                 </div>
-                <button type="button" id="btnRemoveChatAttachment" title="Remove file"
-                  style="background:none; border:none; color:#DC2626; cursor:pointer; font-size:16px; font-weight:bold; padding:2px 8px; line-height:1;">✕</button>
               </div>
 
               <!-- Input Row with Paperclip, Textarea and Solid Navy Circular Send Button -->
               <div class="composer-input-row">
                 <input type="file" id="chatDocUpload" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                  style="display:none;" />
+                  multiple style="display:none;" />
                 <button type="button" class="composer-attach-btn" id="btnAttachFile"
-                  title="Attach PDF, Word DOCX, or Image (📎)"
+                  title="Attach Multiple PDFs, Word DOCX, or Images (📎)"
                   onclick="const inp=document.getElementById('chatDocUpload'); if(inp) inp.click();">📎</button>
                 <textarea id="chatInput" class="composer-textarea"
                   placeholder="Describe the document you want to create..." rows="1"></textarea>
@@ -1647,7 +1645,7 @@ Please find your official customized travel proposal attached. We look forward t
   <script src="js/pdf-generator.js?v=7.3"></script>
   <script src="js/docx-generator.js?v=7.3"></script>
   <script src="js/db-manager.js?v=7.3"></script>
-  <script src="js/chatbot.js?v=7.3"></script>
+  <script src="js/chatbot.js?v=7.4"></script>
   <script src="js/app.js?v=7.3"></script>
 </body>
 

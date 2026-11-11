@@ -19,10 +19,12 @@ const AIParser = (() => {
    * @param {string} text Raw text input from user
    * @param {Object|null} currentQuotation Optional current quotation state for modifications
    * @param {Object|null} attachment Optional attachment with base64/extractedText
+   * @param {Array|null} attachments Optional array of attachments for multi-PDF workflows
    * @returns {Promise<Object>} Extracted structured data
    */
-  async function parseText(text, currentQuotation = null, attachment = null) {
-    if ((!text || !text.trim()) && (!attachment || (!attachment.base64 && !attachment.extractedText))) {
+  async function parseText(text, currentQuotation = null, attachment = null, attachments = null) {
+    const allAttachments = (attachments && attachments.length > 0) ? attachments : (attachment ? [attachment] : []);
+    if ((!text || !text.trim()) && allAttachments.length === 0) {
       throw new Error('Please enter quotation details or attach a reference document.');
     }
 
@@ -55,6 +57,13 @@ const AIParser = (() => {
               extractedText: attachment.extractedText || '',
               serverPath: attachment.serverPath || ''
             } : null,
+            attachments: allAttachments.map(a => ({
+              name: a.name,
+              mimeType: a.mimeType || 'application/pdf',
+              base64: (a.base64 || '').replace(/^data:[^;]+;base64,/, '').trim(),
+              extractedText: a.extractedText || '',
+              serverPath: a.serverPath || ''
+            })),
             provider: 'auto'
           })
         });
