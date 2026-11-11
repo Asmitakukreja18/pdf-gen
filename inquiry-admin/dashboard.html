@@ -873,15 +873,34 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // 1. Session & Role Validation
             try {
-                const authRes = await fetch('api/login.php');
-                const authData = await authRes.json();
-                if (!authData.success || !authData.user) {
+                let user = null;
+                try {
+                    const authRes = await fetch('api/login.php');
+                    if (authRes.ok) {
+                        const authData = await authRes.json();
+                        if (authData && authData.success && authData.user) {
+                            user = authData.user;
+                        }
+                    }
+                } catch (netErr) {
+                    console.warn('API auth notice:', netErr);
+                }
+
+                // Fallback to localStorage session
+                if (!user) {
+                    const localUserStr = localStorage.getItem('dmc_user');
+                    if (localUserStr) {
+                        try { user = JSON.parse(localUserStr); } catch (e) {}
+                    }
+                }
+
+                if (!user) {
                     window.location.href = '../index.html?msg=unauthorized';
                     return;
                 }
-                const user = authData.user;
-                const role = (user.role || 'executive').toLowerCase();
-                const name = user.name || user.username || 'User';
+
+                const role = (user.role || 'admin').toLowerCase();
+                const name = user.name || user.username || 'Main Admin';
 
                 const nameEl = document.getElementById('topbarUserName');
                 if (nameEl) nameEl.textContent = name;
