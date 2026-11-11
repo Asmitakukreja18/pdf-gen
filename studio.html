@@ -108,11 +108,13 @@
     <!-- Luxury AI Studio Subbar matching Reference Image -->
     <div class="studio-luxury-subbar">
       <div style="display:flex; align-items:center; gap:16px;">
-        <a href="inquiry-admin/dashboard.html" style="text-decoration:none; color:#0F172A; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; background:#F1F5F9; border-radius:9999px;">
+        <a href="inquiry-admin/dashboard.html"
+          style="text-decoration:none; color:#0F172A; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; background:#F1F5F9; border-radius:9999px;">
           <span>&larr;</span> Back to Dashboard
         </a>
         <div>
-          <h2 style="font-size:16px; font-weight:800; color:#0F172A; margin:0; line-height:1.2;">AI Quotation Studio</h2>
+          <h2 style="font-size:16px; font-weight:800; color:#0F172A; margin:0; line-height:1.2;">AI Quotation Studio
+          </h2>
           <span style="font-size:11.5px; color:#64748B;">Create stunning travel quotations in minutes</span>
         </div>
       </div>
@@ -145,7 +147,8 @@
         <button type="button" class="btn-pill-draft" onclick="document.getElementById('btnSaveManual')?.click()">
           Save Draft
         </button>
-        <button type="button" class="btn-pill-generate" onclick="document.getElementById('btnPrintDirect')?.click() || document.getElementById('btnDownloadPDF')?.click()">
+        <button type="button" class="btn-pill-generate"
+          onclick="document.getElementById('btnPrintDirect')?.click() || document.getElementById('btnDownloadPDF')?.click()">
           <span>Generate PDF</span> <span>✨</span>
         </button>
       </div>
@@ -157,24 +160,32 @@
       <!-- ==========================================
            SECTION: EXECUTIVE ITINERARY & PRICING CARDS (MATCHING REFERENCE IMAGE 3)
            ========================================== -->
-      <section class="section-executive-cards" id="sectionExecutiveCards" style="padding: 24px 32px 36px; max-width: 1360px; margin: 0 auto; width: 100%;">
-        
+      <section class="section-executive-cards" id="sectionExecutiveCards"
+        style="padding: 24px 32px 36px; max-width: 1360px; margin: 0 auto; width: 100%;">
+
         <div style="display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 28px; align-items: start;">
-          
+
           <!-- Left Card: Itinerary Details with Destination Photo -->
-          <div class="exec-card" style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0;">
-            
+          <div class="exec-card"
+            style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0;">
+
             <!-- Destination Featured Image -->
-            <div style="width:100%; height:260px; border-radius:18px; overflow:hidden; margin-bottom:24px; position:relative; box-shadow:0 6px 20px -4px rgba(0,0,0,0.1);">
-              <img id="execDestImg" src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop" alt="Destination View" style="width:100%; height:100%; object-fit:cover; display:block;">
-              <div style="position:absolute; bottom:14px; left:16px; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); color:#FFF; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700;">
+            <div
+              style="width:100%; height:260px; border-radius:18px; overflow:hidden; margin-bottom:24px; position:relative; box-shadow:0 6px 20px -4px rgba(0,0,0,0.1);">
+              <img id="execDestImg"
+                src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop"
+                alt="Destination View" style="width:100%; height:100%; object-fit:cover; display:block;">
+              <div
+                style="position:absolute; bottom:14px; left:16px; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); color:#FFF; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700;">
                 <span id="execDestBadge">📍 Dubai &amp; Emirates Luxury Tour</span>
               </div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
               <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin:0;">Your Itinerary</h3>
-              <button type="button" class="btn btn-sm btn-outline" onclick="App.showSection('generator'); setTimeout(() => document.querySelector('[data-tab=tabDays]')?.click(), 50);" style="border-radius:99px; font-weight:700; padding:6px 16px; font-size:12.5px; border:1px solid #CBD5E1; cursor:pointer;">
+              <button type="button" class="btn btn-sm btn-outline"
+                onclick="App.showSection('generator'); setTimeout(() => document.querySelector('[data-tab=tabDays]')?.click(), 50);"
+                style="border-radius:99px; font-weight:700; padding:6px 16px; font-size:12.5px; border:1px solid #CBD5E1; cursor:pointer;">
                 ✏️ Edit
               </button>
             </div>
@@ -185,21 +196,24 @@
                 <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 1</div>
                 <div>
                   <div style="font-weight:700; color:#0F172A; font-size:14px;">Arrival in Dubai</div>
-                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Welcome to Dubai! Private luxury transfer to hotel &amp; evening marina dhow cruise.</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Welcome to Dubai! Private luxury transfer
+                    to hotel &amp; evening marina dhow cruise.</div>
                 </div>
               </div>
               <div style="display:flex; gap:14px; align-items:flex-start;">
                 <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 2</div>
                 <div>
                   <div style="font-weight:700; color:#0F172A; font-size:14px;">City Tour &amp; Burj Khalifa</div>
-                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Explore Burj Khalifa 124th floor, Dubai Mall, and famous Dubai Fountain show.</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Explore Burj Khalifa 124th floor, Dubai
+                    Mall, and famous Dubai Fountain show.</div>
                 </div>
               </div>
               <div style="display:flex; gap:14px; align-items:flex-start;">
                 <div style="font-weight:800; color:#2563EB; font-size:13.5px; min-width:65px;">Day 3</div>
                 <div>
                   <div style="font-weight:700; color:#0F172A; font-size:14px;">Desert Safari with BBQ Dinner</div>
-                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Experience dune bashing, camel riding, belly dance and 5-star Arabian BBQ.</div>
+                  <div style="font-size:13px; color:#64748B; margin-top:2px;">Experience dune bashing, camel riding,
+                    belly dance and 5-star Arabian BBQ.</div>
                 </div>
               </div>
             </div>
@@ -207,24 +221,28 @@
           </div>
 
           <!-- Right Card: Pricing Summary -->
-          <div class="exec-card" style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:22px;">
-            
+          <div class="exec-card"
+            style="background:#FFFFFF; border-radius:24px; padding:28px; box-shadow:0 12px 35px -8px rgba(15,23,42,0.06); border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:22px;">
+
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin:0;">Pricing Summary</h3>
-              <select id="execCurrencySelect" onchange="toggleExecCurrency(this.value)" style="border:1.5px solid #CBD5E1; border-radius:99px; padding:6px 14px; font-size:12.5px; font-weight:700; color:#0F172A; background:#F8FAFC; outline:none; cursor:pointer;">
+              <select id="execCurrencySelect" onchange="toggleExecCurrency(this.value)"
+                style="border:1.5px solid #CBD5E1; border-radius:99px; padding:6px 14px; font-size:12.5px; font-weight:700; color:#0F172A; background:#F8FAFC; outline:none; cursor:pointer;">
                 <option value="INR">INR (₹)</option>
                 <option value="USD">USD ($)</option>
               </select>
             </div>
 
             <!-- Pricing Breakdown -->
-            <div style="display:flex; flex-direction:column; gap:14px; padding-bottom:14px; border-bottom:1px solid #F1F5F9;">
+            <div
+              style="display:flex; flex-direction:column; gap:14px; padding-bottom:14px; border-bottom:1px solid #F1F5F9;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13.5px; color:#64748B; font-weight:600;">Base Package</span>
                 <span id="execBasePrice" style="font-size:15px; font-weight:700; color:#0F172A;">₹ 75,000</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:13.5px; color:#64748B; font-weight:600;">Markup (<span id="execMarkupPct">15%</span>)</span>
+                <span style="font-size:13.5px; color:#64748B; font-weight:600;">Markup (<span
+                    id="execMarkupPct">15%</span>)</span>
                 <span id="execMarkupVal" style="font-size:15px; font-weight:700; color:#10B981;">+ ₹ 11,250</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -234,10 +252,14 @@
             </div>
 
             <!-- Total Price Card Highlight -->
-            <div style="background:linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius:18px; padding:20px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(197,160,89,0.3);">
+            <div
+              style="background:linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius:18px; padding:20px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(197,160,89,0.3);">
               <div>
-                <div style="font-size:12px; font-weight:700; color:#92400E; text-transform:uppercase; letter-spacing:0.05em;">Total Price</div>
-                <div style="font-size:11.5px; color:#78350F; margin-top:2px;">Inclusive of all services &amp; transfers</div>
+                <div
+                  style="font-size:12px; font-weight:700; color:#92400E; text-transform:uppercase; letter-spacing:0.05em;">
+                  Total Price</div>
+                <div style="font-size:11.5px; color:#78350F; margin-top:2px;">Inclusive of all services &amp; transfers
+                </div>
               </div>
               <div id="execTotalPrice" style="font-size:24px; font-weight:800; color:#0F172A; letter-spacing:-0.02em;">
                 ₹ 86,250
@@ -247,18 +269,22 @@
             <!-- Currency Switcher Pill + Preview & Download Button -->
             <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:8px;">
               <div style="display:flex; background:#F1F5F9; border-radius:99px; padding:3px;">
-                <button type="button" id="btnPillInr" onclick="toggleExecCurrency('INR')" style="border:none; background:#FFFFFF; color:#0F172A; font-weight:800; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.08);">INR</button>
-                <button type="button" id="btnPillUsd" onclick="toggleExecCurrency('USD')" style="border:none; background:transparent; color:#64748B; font-weight:700; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer;">USD</button>
+                <button type="button" id="btnPillInr" onclick="toggleExecCurrency('INR')"
+                  style="border:none; background:#FFFFFF; color:#0F172A; font-weight:800; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.08);">INR</button>
+                <button type="button" id="btnPillUsd" onclick="toggleExecCurrency('USD')"
+                  style="border:none; background:transparent; color:#64748B; font-weight:700; font-size:12px; padding:6px 14px; border-radius:99px; cursor:pointer;">USD</button>
               </div>
 
-              <button type="button" onclick="App.showSection('preview')" style="background:#0F172A; color:#FFFFFF; border:none; padding:12px 22px; border-radius:99px; font-weight:700; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 8px 20px -4px rgba(15,23,42,0.3); transition:all 0.2s ease;">
+              <button type="button" onclick="App.showSection('preview')"
+                style="background:#0F172A; color:#FFFFFF; border:none; padding:12px 22px; border-radius:99px; font-weight:700; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 8px 20px -4px rgba(15,23,42,0.3); transition:all 0.2s ease;">
                 <span>Preview &amp; Download</span>
                 <span>&rarr;</span>
               </button>
             </div>
 
             <!-- Quick AI Assistant Banner Button -->
-            <button type="button" onclick="App.showSection('chat')" style="width:100%; background:#EFF6FF; border:1.5px dashed #2563EB; color:#2563EB; padding:12px; border-radius:14px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <button type="button" onclick="App.showSection('chat')"
+              style="width:100%; background:#EFF6FF; border:1.5px dashed #2563EB; color:#2563EB; padding:12px; border-radius:14px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
               <span>✨</span> Open AI Document Assistant
             </button>
 
@@ -1285,61 +1311,93 @@
           <aside class="claude-sidebar collapsed" id="claudeSidebar">
             <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px; height:100%;">
               <div style="display:flex; align-items:center; justify-content:space-between;">
-                <button type="button" class="sidebar-toggle-btn" id="btnToggleSidebar" onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')" title="Toggle Sidebar">
+                <button type="button" class="sidebar-toggle-btn" id="btnToggleSidebar"
+                  onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')"
+                  title="Toggle Sidebar">
                   <i class="fa-solid fa-bars"></i>
                 </button>
-                <button type="button" class="btn-ws-icon sidebar-text" onclick="document.getElementById('btnChatClear')?.click()" title="New Chat" style="background:#1E293B; color:#F8FAFC; border:1px solid #334155; border-radius:6px; font-size:12px; padding:4px 8px;">
+                <button type="button" class="btn-ws-icon sidebar-text"
+                  onclick="document.getElementById('btnChatClear')?.click()" title="New Chat"
+                  style="background:#1E293B; color:#F8FAFC; border:1px solid #334155; border-radius:6px; font-size:12px; padding:4px 8px;">
                   <i class="fa-solid fa-plus"></i> <span class="sidebar-text" style="margin-left:4px;">New</span>
                 </button>
               </div>
 
               <!-- Top Nav Icons -->
               <div style="display:flex; flex-direction:column; gap:4px;">
-                <div class="sidebar-item" onclick="document.getElementById('chatInput')?.focus()" title="Search or Chat" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                <div class="sidebar-item" onclick="document.getElementById('chatInput')?.focus()" title="Search or Chat"
+                  style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
                   <i class="fa-solid fa-magnifying-glass" style="font-size:14px; width:18px; text-align:center;"></i>
                   <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Search</span>
                 </div>
-                <div class="sidebar-item" onclick="document.getElementById('unifiedDocFormatSection')?.scrollIntoView({behavior:'smooth'})" title="Projects & Formats" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                <div class="sidebar-item"
+                  onclick="document.getElementById('unifiedDocFormatSection')?.scrollIntoView({behavior:'smooth'})"
+                  title="Projects & Formats"
+                  style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
                   <i class="fa-solid fa-folder" style="font-size:14px; width:18px; text-align:center;"></i>
                   <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Projects</span>
                 </div>
-                <div class="sidebar-item" onclick="document.getElementById('previewPanel')?.scrollIntoView({behavior:'smooth'})" title="Artifacts / Documents" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                <div class="sidebar-item"
+                  onclick="document.getElementById('previewPanel')?.scrollIntoView({behavior:'smooth'})"
+                  title="Artifacts / Documents"
+                  style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
                   <i class="fa-solid fa-file-lines" style="font-size:14px; width:18px; text-align:center;"></i>
                   <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Artifacts</span>
                 </div>
-                <div class="sidebar-item" onclick="document.getElementById('btnOpenApiKeyModal')?.click()" title="Customize Settings" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                <div class="sidebar-item" onclick="document.getElementById('btnOpenApiKeyModal')?.click()"
+                  title="Customize Settings"
+                  style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
                   <i class="fa-solid fa-sliders" style="font-size:14px; width:18px; text-align:center;"></i>
                   <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Customize</span>
                 </div>
               </div>
 
               <!-- Recents Section matching Screenshot -->
-              <div class="recents-section" style="flex:1; overflow-y:auto; margin-top:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-                <div style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Recents</div>
+              <div class="recents-section"
+                style="flex:1; overflow-y:auto; margin-top:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
+                <div
+                  style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">
+                  Recents</div>
                 <div style="display:flex; flex-direction:column; gap:2px;">
-                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Humari company details k sath edit karo 15 percent ka Markup SECOND PDF MAI HAI HUMARI COMPANY KI KA DETAILS AND only addd company details and format third pdf ka chahiye mujhe ok')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#E2E8F0; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Company details PDF markup">
+                  <div class="sidebar-recent-item"
+                    onclick="Chatbot.submitInput('Humari company details k sath edit karo 15 percent ka Markup SECOND PDF MAI HAI HUMARI COMPANY KI KA DETAILS AND only addd company details and format third pdf ka chahiye mujhe ok')"
+                    style="padding:6px 8px; border-radius:6px; font-size:12px; color:#E2E8F0; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    title="Company details PDF markup">
                     Company details PDF markup
                   </div>
-                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Passes ka amount 20000 increase kar do')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Increase passes amount">
+                  <div class="sidebar-recent-item"
+                    onclick="Chatbot.submitInput('Passes ka amount 20000 increase kar do')"
+                    style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    title="Increase passes amount">
                     Increase passes amount
                   </div>
-                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Aanay tours PDF invoice')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Aanay tours PDF invoice">
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Aanay tours PDF invoice')"
+                    style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    title="Aanay tours PDF invoice">
                     Aanay tours PDF invoice
                   </div>
-                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Rajasthan trip package quote')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Rajasthan trip package quote">
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Rajasthan trip package quote')"
+                    style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    title="Rajasthan trip package quote">
                     Rajasthan trip package quote
                   </div>
-                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Hotel costing update')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Hotel costing update">
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Hotel costing update')"
+                    style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                    title="Hotel costing update">
                     Hotel costing update
                   </div>
                 </div>
               </div>
 
               <!-- User Profile Bottom matching Screenshot -->
-              <div class="user-profile-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; display:flex; align-items:center; gap:8px;">
-                <div style="width:28px; height:28px; border-radius:50%; background:#2563EB; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">A</div>
+              <div class="user-profile-row"
+                style="border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; display:flex; align-items:center; gap:8px;">
+                <div
+                  style="width:28px; height:28px; border-radius:50%; background:#2563EB; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">
+                  A</div>
                 <div class="user-profile-details" style="display:flex; flex-direction:column; min-width:0; flex:1;">
-                  <span style="font-size:12px; font-weight:700; color:#F8FAFC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Asmita</span>
+                  <span
+                    style="font-size:12px; font-weight:700; color:#F8FAFC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Asmita</span>
                   <span style="font-size:10px; color:#64748B;">Let's Explore DMC</span>
                 </div>
               </div>
@@ -1350,7 +1408,9 @@
           <div class="chat-workspace-card" id="chatPanel">
             <div class="chat-ws-header">
               <div class="chat-ws-title-group">
-                <button type="button" class="sidebar-toggle-btn" onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')" title="Toggle Sidebar" style="margin-right:2px; font-size:14px; padding:4px 8px;">
+                <button type="button" class="sidebar-toggle-btn"
+                  onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')"
+                  title="Toggle Sidebar" style="margin-right:2px; font-size:14px; padding:4px 8px;">
                   <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="chat-bot-icon">✈</div>
@@ -1394,7 +1454,8 @@
             <!-- Fixed Composer at Bottom -->
             <div class="chat-ws-composer">
               <!-- Selected Attachment Preview Chips Container (Supports Multi-PDF) -->
-              <div id="chatAttachmentBadge" class="composer-attachments-wrapper" style="display:none; flex-direction:column; gap:6px; margin-bottom:8px;">
+              <div id="chatAttachmentBadge" class="composer-attachments-wrapper"
+                style="display:none; flex-direction:column; gap:6px; margin-bottom:8px;">
                 <div id="chatAttachmentText" style="display:flex; flex-direction:column; gap:6px; width:100%;">
                   <!-- Dynamically populated with individual PDF chips & remove buttons -->
                 </div>
@@ -1402,8 +1463,8 @@
 
               <!-- Input Row with Paperclip, Textarea and Solid Navy Circular Send Button -->
               <div class="composer-input-row">
-                <input type="file" id="chatDocUpload" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt"
-                  multiple style="display:none;" />
+                <input type="file" id="chatDocUpload" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt" multiple
+                  style="display:none;" />
                 <button type="button" class="composer-attach-btn" id="btnAttachFile"
                   title="Attach Multiple PDFs, Word DOCX, or Images (📎)"
                   onclick="const inp=document.getElementById('chatDocUpload'); if(inp) inp.click();">📎</button>
@@ -1448,7 +1509,8 @@
                   title="Download Official PDF">⬇️ Download PDF</button>
                 <button type="button" class="btn-preview-tool" id="btnDownloadDocxFromChat"
                   title="Download Word DOCX">📄 Download DOCX</button>
-                <button type="button" class="btn-preview-tool" id="btnSendNowChat" style="background:#0F2C59; color:#FFF; font-weight:700; border:none; margin-left:4px; padding:6px 14px; border-radius:6px; cursor:pointer;"
+                <button type="button" class="btn-preview-tool" id="btnSendNowChat"
+                  style="background:#0F2C59; color:#FFF; font-weight:700; border:none; margin-left:4px; padding:6px 14px; border-radius:6px; cursor:pointer;"
                   title="Send to Customer via Email / WhatsApp" onclick="openSendNowStudioModal()">🚀 SEND NOW</button>
               </div>
             </div>
@@ -1555,26 +1617,35 @@
   <!-- ============================================================
        SEND NOW MODAL (SECTION 4 OF MASTER PROMPT)
        ============================================================ -->
-  <div id="studioSendNowModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:99999; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#FFFFFF; border-radius:12px; width:100%; max-width:600px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif;">
-      <div style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+  <div id="studioSendNowModal"
+    style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div
+      style="background:#FFFFFF; border-radius:12px; width:100%; max-width:600px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif;">
+      <div
+        style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:10px;">
           <span style="font-size:18px;">🚀</span>
           <h3 style="margin:0; font-size:16px; font-weight:700;">SEND NOW — Customer Document Dispatch</h3>
         </div>
-        <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'" style="background:none; border:none; color:#FFF; font-size:20px; cursor:pointer;">&times;</button>
+        <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'"
+          style="background:none; border:none; color:#FFF; font-size:20px; cursor:pointer;">&times;</button>
       </div>
 
-      <form id="studioSendForm" onsubmit="handleStudioSendSubmit(event)" style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+      <form id="studioSendForm" onsubmit="handleStudioSendSubmit(event)"
+        style="padding:20px; display:flex; flex-direction:column; gap:14px;">
         <!-- Channel Selector -->
         <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Dispatch Channel</label>
+          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Dispatch
+            Channel</label>
           <div style="display:flex; gap:10px;">
-            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#EFF6FF; padding:8px 14px; border-radius:6px; border:1px solid #BFDBFE;">
-              <input type="radio" name="studioSendChannel" value="email" checked onchange="toggleStudioChannel(this.value)">
+            <label
+              style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#EFF6FF; padding:8px 14px; border-radius:6px; border:1px solid #BFDBFE;">
+              <input type="radio" name="studioSendChannel" value="email" checked
+                onchange="toggleStudioChannel(this.value)">
               <span>📧</span> Email (Branded Template)
             </label>
-            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#F0FDF4; padding:8px 14px; border-radius:6px; border:1px solid #BBF7D0;">
+            <label
+              style="display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#1E293B; cursor:pointer; background:#F0FDF4; padding:8px 14px; border-radius:6px; border:1px solid #BBF7D0;">
               <input type="radio" name="studioSendChannel" value="whatsapp" onchange="toggleStudioChannel(this.value)">
               <span>💬</span> WhatsApp Click-to-Send
             </label>
@@ -1583,27 +1654,39 @@
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           <div>
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Customer / Recipient Name</label>
-            <input type="text" id="studioSendCustName" placeholder="Recipient Name" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;" required>
+            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Customer
+              / Recipient Name</label>
+            <input type="text" id="studioSendCustName" placeholder="Recipient Name"
+              style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;"
+              required>
           </div>
           <div id="studioEmailWrap">
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Recipient Email Address</label>
-            <input type="email" id="studioSendEmail" placeholder="client@example.com" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
+            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Recipient
+              Email Address</label>
+            <input type="email" id="studioSendEmail" placeholder="client@example.com"
+              style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
           </div>
           <div id="studioPhoneWrap" style="display:none;">
-            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">WhatsApp Number</label>
-            <input type="tel" id="studioSendPhone" placeholder="e.g. 919876543210" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
+            <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">WhatsApp
+              Number</label>
+            <input type="tel" id="studioSendPhone" placeholder="e.g. 919876543210"
+              style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px;">
           </div>
         </div>
 
         <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Email Subject</label>
-          <input type="text" id="studioSendSubject" value="Let's Explore DMC — Your Customized Travel Proposal" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px; font-weight:600; color:#0F2C59;" required>
+          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Email
+            Subject</label>
+          <input type="text" id="studioSendSubject" value="Let's Explore DMC — Your Customized Travel Proposal"
+            style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12.5px; font-weight:600; color:#0F2C59;"
+            required>
         </div>
 
         <div>
-          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Cover Message</label>
-          <textarea id="studioSendMessage" rows="3" style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; font-family:inherit;">Dear Valued Client,
+          <label style="font-size:11.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Cover
+            Message</label>
+          <textarea id="studioSendMessage" rows="3"
+            style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; font-family:inherit;">Dear Valued Client,
 
 Greetings from Let's Explore DMC!
 
@@ -1611,20 +1694,25 @@ Please find your official customized travel proposal attached. We look forward t
         </div>
 
         <!-- Attachment info -->
-        <div style="background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:6px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
+        <div
+          style="background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:6px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:20px;">📄</span>
             <div>
-              <div style="font-size:12px; font-weight:700; color:#1E293B;" id="studioAttachTitle">Active_Travel_Document.pdf</div>
+              <div style="font-size:12px; font-weight:700; color:#1E293B;" id="studioAttachTitle">
+                Active_Travel_Document.pdf</div>
               <div style="font-size:10.5px; color:#64748B;">Auto-attached from Live Document Preview</div>
             </div>
           </div>
-          <span style="font-size:11px; font-weight:700; color:#10B981; background:#ECFDF5; padding:3px 8px; border-radius:4px;">Verified</span>
+          <span
+            style="font-size:11px; font-weight:700; color:#10B981; background:#ECFDF5; padding:3px 8px; border-radius:4px;">Verified</span>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
-          <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; padding:8px 16px; border-radius:6px; font-size:12.5px; font-weight:600; cursor:pointer;">Cancel</button>
-          <button type="submit" id="studioSendBtn" style="background:#2563EB; color:#FFF; border:none; padding:8px 22px; border-radius:6px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+          <button type="button" onclick="document.getElementById('studioSendNowModal').style.display='none'"
+            style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; padding:8px 16px; border-radius:6px; font-size:12.5px; font-weight:600; cursor:pointer;">Cancel</button>
+          <button type="submit" id="studioSendBtn"
+            style="background:#2563EB; color:#FFF; border:none; padding:8px 22px; border-radius:6px; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
             <span>🚀</span> Send Immediately
           </button>
         </div>
@@ -1637,7 +1725,7 @@ Please find your official customized travel proposal attached. We look forward t
       const client = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.clientName : '';
       const docNo = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.quotationNo : 'LEDMC-DOC-' + Math.floor(1000 + Math.random() * 9000);
       const title = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package.packageName : 'Travel Proposal';
-      
+
       document.getElementById('studioSendCustName').value = client || '';
       document.getElementById('studioAttachTitle').innerText = (title || 'Proposal') + '.pdf';
       document.getElementById('studioSendSubject').value = `Let's Explore DMC — ${title} (${docNo})`;
