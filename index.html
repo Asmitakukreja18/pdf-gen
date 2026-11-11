@@ -903,7 +903,11 @@
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
 
-            const uLower = username.toLowerCase();
+            let uLower = username.toLowerCase();
+            // Smart alias: If user typed password or company name into username field, map to 'admin'
+            if (['admin@123', 'admin', 'letsexploredmc', 'admin@letsexploredmc.com'].includes(uLower)) {
+                uLower = 'admin';
+            }
             const isMasterPass = ['Admin@123', 'admin@123', 'LETSEXPLOREDMC', 'letsexploredmc', 'admin'].includes(password);
             const knownAccounts = {
                 'admin': { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' },
