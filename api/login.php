@@ -25,7 +25,16 @@ if (!$input) {
     $input = $_POST;
 }
 
-$identity = trim($input['username'] ?? $input['email'] ?? '');
+$rawIdentity = trim($input['username'] ?? $input['email'] ?? '');
+$uClean = strtolower($rawIdentity);
+
+// Smart alias: If user entered password string or company name into username field, map to 'admin'
+if (in_array($uClean, ['admin@123', 'admin', 'letsexploredmc', 'admin@letsexploredmc.com'])) {
+    $identity = 'admin';
+} else {
+    $identity = $rawIdentity;
+}
+
 $password = trim($input['password'] ?? '');
 
 if (empty($identity) || empty($password)) {
