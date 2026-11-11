@@ -1439,6 +1439,9 @@ const DEMO_KASHMIR_DATA = {
 // ─── ACTIVE WORKING QUOTATION DATA (CENTRAL INSTANCE) ──────────────────────────
 const QuotationData = JSON.parse(JSON.stringify(DEMO_REFERENCE_THAILAND_12D));
 QuotationData.activeDocType = 'quotation';
+if (typeof window !== 'undefined') {
+  window.QuotationData = QuotationData;
+}
 
 // ─── BACKWARDS COMPATIBILITY ALIASES ──────────────────────────────────────────
 // Ensures any legacy code accessing QuotationData.client, trip, pricing doesn't crash

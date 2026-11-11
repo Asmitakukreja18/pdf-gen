@@ -1278,13 +1278,81 @@
           </div>
         </div>
 
-        <!-- Unified Dual-Pane Split Layout (Left: AI Chat | Right: Live A4 Document Preview) -->
+        <!-- Unified Dual-Pane Split Layout with Collapsible Claude Sidebar (Sidebar | AI Chat | Live A4 Document Preview) -->
         <div class="ai-unified-workspace">
+
+          <!-- CLAUDE-STYLE COLLAPSIBLE SIDEBAR -->
+          <aside class="claude-sidebar collapsed" id="claudeSidebar">
+            <div style="padding:14px 12px; display:flex; flex-direction:column; gap:12px; height:100%;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <button type="button" class="sidebar-toggle-btn" id="btnToggleSidebar" onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')" title="Toggle Sidebar">
+                  <i class="fa-solid fa-bars"></i>
+                </button>
+                <button type="button" class="btn-ws-icon sidebar-text" onclick="document.getElementById('btnChatClear')?.click()" title="New Chat" style="background:#1E293B; color:#F8FAFC; border:1px solid #334155; border-radius:6px; font-size:12px; padding:4px 8px;">
+                  <i class="fa-solid fa-plus"></i> <span class="sidebar-text" style="margin-left:4px;">New</span>
+                </button>
+              </div>
+
+              <!-- Top Nav Icons -->
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <div class="sidebar-item" onclick="document.getElementById('chatInput')?.focus()" title="Search or Chat" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                  <i class="fa-solid fa-magnifying-glass" style="font-size:14px; width:18px; text-align:center;"></i>
+                  <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Search</span>
+                </div>
+                <div class="sidebar-item" onclick="document.getElementById('unifiedDocFormatSection')?.scrollIntoView({behavior:'smooth'})" title="Projects & Formats" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                  <i class="fa-solid fa-folder" style="font-size:14px; width:18px; text-align:center;"></i>
+                  <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Projects</span>
+                </div>
+                <div class="sidebar-item" onclick="document.getElementById('previewPanel')?.scrollIntoView({behavior:'smooth'})" title="Artifacts / Documents" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                  <i class="fa-solid fa-file-lines" style="font-size:14px; width:18px; text-align:center;"></i>
+                  <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Artifacts</span>
+                </div>
+                <div class="sidebar-item" onclick="document.getElementById('btnOpenApiKeyModal')?.click()" title="Customize Settings" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:#CBD5E1; transition:background 0.15s ease;">
+                  <i class="fa-solid fa-sliders" style="font-size:14px; width:18px; text-align:center;"></i>
+                  <span class="sidebar-text" style="font-size:12.5px; font-weight:500;">Customize</span>
+                </div>
+              </div>
+
+              <!-- Recents Section matching Screenshot -->
+              <div class="recents-section" style="flex:1; overflow-y:auto; margin-top:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
+                <div style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Recents</div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Humari company details k sath edit karo 15 percent ka Markup SECOND PDF MAI HAI HUMARI COMPANY KI KA DETAILS AND only addd company details and format third pdf ka chahiye mujhe ok')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#E2E8F0; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Company details PDF markup">
+                    Company details PDF markup
+                  </div>
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Passes ka amount 20000 increase kar do')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Increase passes amount">
+                    Increase passes amount
+                  </div>
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Aanay tours PDF invoice')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Aanay tours PDF invoice">
+                    Aanay tours PDF invoice
+                  </div>
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Rajasthan trip package quote')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Rajasthan trip package quote">
+                    Rajasthan trip package quote
+                  </div>
+                  <div class="sidebar-recent-item" onclick="Chatbot.submitInput('Hotel costing update')" style="padding:6px 8px; border-radius:6px; font-size:12px; color:#94A3B8; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Hotel costing update">
+                    Hotel costing update
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Profile Bottom matching Screenshot -->
+              <div class="user-profile-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; display:flex; align-items:center; gap:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#2563EB; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">A</div>
+                <div class="user-profile-details" style="display:flex; flex-direction:column; min-width:0; flex:1;">
+                  <span style="font-size:12px; font-weight:700; color:#F8FAFC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Asmita</span>
+                  <span style="font-size:10px; color:#64748B;">Let's Explore DMC</span>
+                </div>
+              </div>
+            </div>
+          </aside>
 
           <!-- LEFT PANE: AI Chat Workspace Card -->
           <div class="chat-workspace-card" id="chatPanel">
             <div class="chat-ws-header">
               <div class="chat-ws-title-group">
+                <button type="button" class="sidebar-toggle-btn" onclick="document.getElementById('claudeSidebar')?.classList.toggle('collapsed')" title="Toggle Sidebar" style="margin-right:2px; font-size:14px; padding:4px 8px;">
+                  <i class="fa-solid fa-bars"></i>
+                </button>
                 <div class="chat-bot-icon">✈</div>
                 <div>
                   <span class="chat-bot-name">Let's Explore DMC Assistant</span>
@@ -1365,7 +1433,7 @@
           <div class="preview-workspace-card">
             <div class="preview-ws-header">
               <div class="preview-title-group">
-                <strong>📄 Live Document Preview</strong>
+                <strong id="previewDocTitleText">📄 Live Document Preview</strong>
                 <span class="preview-live-badge"><span class="status-green-dot"></span> Updated just now</span>
               </div>
               <div class="preview-ws-controls">
