@@ -19,6 +19,12 @@
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
                     window.location.replace('index.html?auth=required&dest=analytics.html');
+                    return;
+                }
+                var u = JSON.parse(stored);
+                if (u && u.role && u.role !== 'admin' && u.role !== 'superadmin' && u.role !== 'owner') {
+                    window.location.replace('staff.html');
+                    return;
                 }
             } catch (e) {
                 window.location.replace('index.html?auth=required');
