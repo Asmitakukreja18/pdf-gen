@@ -24,14 +24,17 @@ if (in_array($action, ['create', 'toggle_status', 'revoke_session', 'update'])) 
     $activeUser = checkSessionActivity(); // Any authenticated user can view members & status
 }
 
-// 1. LIST ALL MEMBERS
-if ($method === 'GET' || $action === 'list') {
+// 1. LIST ALL MEMBERS / STAFF MONITORING
+if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
+    $excludeAdmin = isset($_GET['exclude_admin']) || ($action === 'staff_monitoring');
+
     if (!$pdo) {
         $fallbackMembers = [
             [
                 'id' => 1,
+                'sub_user_id' => 'ADMIN',
                 'username' => 'admin',
-                'name' => 'Admin (Administrator)',
+                'name' => 'Main Admin',
                 'email' => 'admin@letsexploredmc.com',
                 'phone' => '+91 98765 00001',
                 'role' => 'admin',
@@ -41,7 +44,7 @@ if ($method === 'GET' || $action === 'list') {
                 'logout_time' => '— (Session Active)',
                 'last_login' => date('Y-m-d 09:15:00'),
                 'last_activity' => date('Y-m-d H:i:s', time() - 120),
-                'session_duration' => '1h 40m',
+                'session_duration' => '2h 15m',
                 'total_leads' => 45,
                 'total_quotes' => 38,
                 'followups_pending' => 3,
@@ -49,6 +52,7 @@ if ($method === 'GET' || $action === 'list') {
             ],
             [
                 'id' => 2,
+                'sub_user_id' => 'SU-1',
                 'username' => 'chanchal',
                 'name' => 'Chanchal Sharma',
                 'email' => 'chanchal@letsexploredmc.com',
@@ -56,11 +60,11 @@ if ($method === 'GET' || $action === 'list') {
                 'role' => 'executive',
                 'status' => 'active',
                 'session_status' => 'Active',
-                'login_time' => '09:32 AM Today',
+                'login_time' => '11:00 AM Today',
                 'logout_time' => '— (Session Active)',
-                'last_login' => date('Y-m-d 09:32:00'),
-                'last_activity' => date('Y-m-d H:i:s', time() - 300),
-                'session_duration' => '1h 23m',
+                'last_login' => date('Y-m-d 11:00:00'),
+                'last_activity' => date('Y-m-d H:i:s', time() - 180),
+                'session_duration' => '1h 45m',
                 'total_leads' => 28,
                 'total_quotes' => 24,
                 'followups_pending' => 5,
@@ -68,6 +72,7 @@ if ($method === 'GET' || $action === 'list') {
             ],
             [
                 'id' => 3,
+                'sub_user_id' => 'SU-2',
                 'username' => 'ritesh',
                 'name' => 'Ritesh Verma',
                 'email' => 'ritesh@letsexploredmc.com',
@@ -75,11 +80,11 @@ if ($method === 'GET' || $action === 'list') {
                 'role' => 'executive',
                 'status' => 'active',
                 'session_status' => 'Active',
-                'login_time' => '09:40 AM Today',
+                'login_time' => '11:15 AM Today',
                 'logout_time' => '— (Session Active)',
-                'last_login' => date('Y-m-d 09:40:00'),
-                'last_activity' => date('Y-m-d H:i:s', time() - 720),
-                'session_duration' => '1h 15m',
+                'last_login' => date('Y-m-d 11:15:00'),
+                'last_activity' => date('Y-m-d H:i:s', time() - 420),
+                'session_duration' => '1h 30m',
                 'total_leads' => 19,
                 'total_quotes' => 15,
                 'followups_pending' => 2,
@@ -87,6 +92,7 @@ if ($method === 'GET' || $action === 'list') {
             ],
             [
                 'id' => 4,
+                'sub_user_id' => 'SU-3',
                 'username' => 'operations',
                 'name' => 'Operations Team',
                 'email' => 'operations@letsexploredmc.com',
@@ -94,21 +100,29 @@ if ($method === 'GET' || $action === 'list') {
                 'role' => 'agent',
                 'status' => 'active',
                 'session_status' => 'Active',
-                'login_time' => '09:50 AM Today',
+                'login_time' => '12:00 PM Today',
                 'logout_time' => '— (Session Active)',
-                'last_login' => date('Y-m-d 09:50:00'),
-                'last_activity' => date('Y-m-d H:i:s', time() - 1200),
-                'session_duration' => '1h 05m',
+                'last_login' => date('Y-m-d 12:00:00'),
+                'last_activity' => date('Y-m-d H:i:s', time() - 600),
+                'session_duration' => '45m',
                 'total_leads' => 12,
                 'total_quotes' => 9,
                 'followups_pending' => 1,
                 'tasks_completed' => 5
             ]
         ];
+
+        if ($excludeAdmin) {
+            $fallbackMembers = array_values(array_filter($fallbackMembers, function($m) {
+                return $m['role'] !== 'admin' && $m['username'] !== 'admin';
+            }));
+        }
+
         jsonSuccess(['members' => $fallbackMembers, 'source' => 'fallback']);
     }
 
     try {
+        $whereClause = $excludeAdmin ? "WHERE u.role != 'admin' AND u.username != 'admin'" : "";
         $stmt = $pdo->query("
             SELECT 
                 u.id, 
@@ -124,16 +138,28 @@ if ($method === 'GET' || $action === 'list') {
                 (SELECT COUNT(*) FROM `leads` l WHERE l.assigned_employee = u.name OR l.assigned_employee = u.username) AS total_leads,
                 (SELECT COUNT(*) FROM `user_activity_logs` a WHERE a.user_id = u.id AND a.action LIKE '%quotation%') AS total_quotes
             FROM `users` u
+            $whereClause
             ORDER BY u.id ASC
         ");
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Compute runtime activity deltas
+        $suIndex = 1;
         foreach ($members as &$m) {
+            $m['sub_user_id'] = ($m['role'] === 'admin') ? 'ADMIN' : ('SU-' . $suIndex++);
             $lastAct = $m['last_activity'] ? strtotime($m['last_activity']) : 0;
             $diffMins = $lastAct > 0 ? round((time() - $lastAct) / 60) : 999;
-            $m['session_status'] = ($m['status'] === 'inactive') ? 'Inactive' : (($diffMins <= 15) ? 'Active' : 'Logged Out');
-            $m['login_time'] = $m['last_login'] ? date('h:i A \T\o\d\a\y', strtotime($m['last_login'])) : '09:30 AM Today';
+            
+            if ($m['status'] === 'inactive') {
+                $m['session_status'] = 'Inactive';
+            } elseif ($diffMins <= 15) {
+                $m['session_status'] = 'Active';
+            } elseif ($diffMins <= 30) {
+                $m['session_status'] = 'Screen Locked (15m Idle)';
+            } else {
+                $m['session_status'] = 'Logged Out';
+            }
+
+            $m['login_time'] = $m['last_login'] ? date('h:i A \T\o\d\a\y', strtotime($m['last_login'])) : '11:00 AM Today';
             $m['logout_time'] = ($m['session_status'] === 'Active') ? '— (Session Active)' : '06:00 PM';
             $m['session_duration'] = ($lastAct > 0 && $m['last_login']) ? max(1, round((time() - strtotime($m['last_login'])) / 60)) . 'm' : '45m';
             $m['followups_pending'] = rand(1, 4);

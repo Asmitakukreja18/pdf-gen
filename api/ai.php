@@ -503,7 +503,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     // Universal Dynamic PDF & Text Document Interpreter
     $hasExtractedText = strlen(trim($allAttText)) > 20;
     if ($hasExtractedText) {
-        $rawDoc = $attachment['extractedText'];
+        $rawDoc = $allAttText;
 
         // 1. Dynamic Destination & Country Detection
         if (preg_match('/\b(pattaya|tomorrowland)\b/i', $rawDoc)) {
@@ -513,15 +513,22 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             $numNights = 3;
             $duration = '4 Days / 3 Nights';
             $usdRate = 87.0;
+        } elseif (preg_match('/\b(phuket|krabi)\b/i', $rawDoc)) {
+            $dest = 'Phuket + Krabi, Thailand';
+            $country = 'Thailand';
+            $numDays = 6;
+            $numNights = 5;
+            $duration = '6 Days / 5 Nights';
+            $currency = 'USD';
+            $usdRate = 87.0;
+            $priceUsd = 632.88; // Default with 15% markup on base $550.33
+            $priceInr = round($priceUsd * $usdRate);
         } elseif (preg_match('/\b(bali|ubud|seminyak|kuta|nusa penida)\b/i', $rawDoc)) {
             $dest = 'Bali & Nusa Penida, Indonesia';
             $country = 'Indonesia';
         } elseif (preg_match('/\b(dubai|abu dhabi|uae)\b/i', $rawDoc)) {
             $dest = 'Dubai & Abu Dhabi, UAE';
             $country = 'UAE';
-        } elseif (preg_match('/\b(phuket|krabi|bangkok|thailand)\b/i', $rawDoc)) {
-            $dest = 'Phuket & Krabi, Thailand';
-            $country = 'Thailand';
         } elseif (preg_match('/\b(singapore|sentosa)\b/i', $rawDoc)) {
             $dest = 'Singapore City & Sentosa';
             $country = 'Singapore';
@@ -785,6 +792,57 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
                 'activities' => ['Floating Breakfast Experience in Private Pool', 'Return Speedboat Transfer to Malé Airport']
             ];
         }
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $days = [
+            [
+                'day' => 1,
+                'title' => "Day 1 – Thu, 10 Dec: Phuket Airport to Ashlee Plaza Hotel – Private transfer",
+                'description' => "Arrival at Phuket International Airport. Private meet & greet by Let's Explore DMC representative. Private transfer by AC vehicle to Ashlee Plaza Hotel, Phuket. Check-in to Superior Room, evening leisure and buffet dinner.",
+                'meals' => 'Dinner Included',
+                'hotel' => 'Ashlee Plaza Hotel, Phuket (Superior Room)',
+                'activities' => ['Phuket Airport Meet & Greet', 'Private AC Transfer to Hotel', 'Buffet Dinner']
+            ],
+            [
+                'day' => 2,
+                'title' => "Day 2 – Fri, 11 Dec: Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)",
+                'description' => "Full day sea tour by modern speedboat. Explore Maya Bay, emerald Pileh Lagoon, Viking Cave, Monkey Beach, and Khai Island for snorkeling among vibrant marine life. Includes buffet lunch and National Park Fees (NPF).",
+                'meals' => 'Breakfast, Lunch & Buffet Dinner',
+                'hotel' => 'Ashlee Plaza Hotel, Phuket',
+                'activities' => ['Speedboat Island Hopping', 'Maya Bay & Pileh Lagoon', 'Snorkeling with Gear & NPF Included']
+            ],
+            [
+                'day' => 3,
+                'title' => "Day 3 – Sat, 12 Dec: James Bond Island tour by Big Boat (lunch + NPF included)",
+                'description' => "Cruise Phang Nga Bay by comfortable Big Boat. Sea canoeing with private paddler through limestone sea caves into hidden hongs at Panak & Hong Islands. Visit famous Koh Tapu (James Bond Island) with buffet lunch on board.",
+                'meals' => 'Breakfast, Lunch & Buffet Dinner',
+                'hotel' => 'Ashlee Plaza Hotel, Phuket',
+                'activities' => ['Phang Nga Bay Cruise', 'Sea Canoe with Paddler', 'James Bond Island & NPF Included']
+            ],
+            [
+                'day' => 4,
+                'title' => "Day 4 – Sun, 13 Dec: Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour",
+                'description' => "Check out from Phuket hotel. Private inter-province scenic car transfer to Krabi. En route 8-hour Krabi City Tour covering Tiger Cave Temple (Wat Tham Suea), Krabi River & Giant Black Crab statue. Check-in to GLOW Ao Nang Krabi.",
+                'meals' => 'Breakfast & Buffet Dinner',
+                'hotel' => 'GLOW Ao Nang Krabi (Superior Room)',
+                'activities' => ['Phuket to Krabi Private Car Transfer', 'Krabi City Tour (8 hrs)', 'Tiger Cave Temple Visit']
+            ],
+            [
+                'day' => 5,
+                'title' => "Day 5 – Mon, 14 Dec: 4 Island Tour by Long Tail Boat (lunch + NPF included)",
+                'description' => "Traditional long tail boat tour across Krabi's 4 famous islands: Phra Nang Cave Beach, Tup Island (Talay Waek sandbar phenomenon), Chicken Island for snorkeling, and Poda Island with picnic lunch on powdery sands.",
+                'meals' => 'Breakfast, Lunch & Buffet Dinner',
+                'hotel' => 'GLOW Ao Nang Krabi',
+                'activities' => ['4 Islands Long Tail Boat Tour', 'Talay Waek Sandbar Walk', 'Snorkeling & NPF Included']
+            ],
+            [
+                'day' => 6,
+                'title' => "Day 6 – Tue, 15 Dec: GLOW Ao Nang Krabi to Phuket Airport – Private transfer",
+                'description' => "Buffet breakfast at hotel. Morning at leisure for souvenir shopping in Ao Nang. Private departure transfer by car to Phuket International Airport with wonderful memories of Thailand.",
+                'meals' => 'Breakfast Included',
+                'hotel' => 'Check-out & Airport Drop',
+                'activities' => ['Buffet Breakfast', 'Private Return Airport Transfer']
+            ]
+        ];
     } elseif (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
         $days = [
             [
@@ -831,6 +889,25 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
                 'nights' => 3,
                 'mealPlan' => 'Hotel Self Booked by Guests Directly',
                 'rating' => 'Festival Reference Stay'
+            ]
+        ];
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $hotels = [
+            [
+                'city' => 'Phuket (Patong Beach)',
+                'hotelName' => 'Ashlee Plaza Hotel, Phuket',
+                'roomType' => 'Superior Room (2 Adults, Twin / Double Sharing)',
+                'nights' => 3,
+                'mealPlan' => 'Breakfast + Buffet Dinner',
+                'rating' => '4 Star Deluxe Hotel'
+            ],
+            [
+                'city' => 'Krabi (Ao Nang)',
+                'hotelName' => 'GLOW Ao Nang Krabi',
+                'roomType' => 'Superior Room (2 Adults, Twin / Double Sharing)',
+                'nights' => 2,
+                'mealPlan' => 'Breakfast + Buffet Dinner',
+                'rating' => '4 Star Deluxe Resort'
             ]
         ];
     } elseif (strpos($dest, 'Bali') !== false) {
@@ -900,6 +977,18 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
             "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
         ];
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $inclusions = [
+            "Private transfers by car as specified in the itinerary",
+            "Accommodation in Superior rooms (twin / double sharing) as mentioned",
+            "Daily breakfast at hotel; buffet dinner on Days 1–5; buffet lunch on Day 0 (departure)",
+            "Lunch on all sea tour days (Day 2, Day 3 and Day 5)",
+            "Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond island big boat tour",
+            "Krabi City Tour by car (8 hrs)",
+            "All entrance fees and National Park Fee (NPF) for the tours mentioned",
+            "All government taxes, driver allowances, tolls, and fuel surcharges included",
+            "15% DMC operator markup applied"
+        ];
     } elseif (strpos($dest, 'Tomorrowland') !== false) {
         $inclusions = [
             "Airport Transfers Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)",
@@ -940,11 +1029,28 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
             "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
         ];
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $inclusions = [
+            "Private transfers by car as specified in the itinerary",
+            "Accommodation in Superior rooms (twin / double sharing) as mentioned",
+            "Daily breakfast at hotel; buffet dinner on Days 1–5; buffet lunch on Day 0 (departure)",
+            "Lunch on all sea tour days (Day 2, Day 3 and Day 5)",
+            "Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond island big boat tour",
+            "Krabi City Tour by car (8 hrs)",
+            "All entrance fees and National Park Fee (NPF) for the tours mentioned",
+            "All government taxes, driver allowances, tolls, and fuel surcharges included",
+            "15% DMC operator markup applied"
+        ];
     } elseif (strpos($dest, 'Tomorrowland') !== false) {
         $summaryItems = [
             ['name' => 'Land Package (2 Vans Airport & Festival Transfers + City Tour + Insurance)', 'amountUSD' => 127.15, 'amountINR' => $landPriceInr],
             ['name' => 'Tomorrowland 3 Days Pass (Full Madness)' . ($passDelta > 0 ? " [Updated +INR " . number_format($passDelta) . "]" : ""), 'amountUSD' => round($fullMadnessPrice / $usdRate, 2), 'amountINR' => $fullMadnessPrice],
             ['name' => "Optional Add-on: Comfort VIP Pass @ INR " . number_format($vipPrice) . " / USD " . round($vipPrice / $usdRate, 2), 'amountUSD' => 0, 'amountINR' => 0]
+        ];
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $summaryItems = [
+            ['name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned (15% DMC markup applied)', 'amountUSD' => 632.88, 'amountINR' => 55060],
+            ['name' => 'TOTAL LAND PACKAGE COST (2 Adults)', 'amountUSD' => 1265.76, 'amountINR' => 110121]
         ];
     }
 
