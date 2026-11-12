@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's Explore DMC — Master Gateway Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -450,8 +453,15 @@
         }
 
         @keyframes floatPlane {
-            0%, 100% { transform: translateY(0px) rotate(-2deg); }
-            50% { transform: translateY(-8px) rotate(1deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(-2deg);
+            }
+
+            50% {
+                transform: translateY(-8px) rotate(1deg);
+            }
         }
 
         /* ============================================================
@@ -628,29 +638,72 @@
 
         /* Responsive Breakpoints */
         @media (max-width: 1024px) {
-            .hero-title { font-size: 40px; }
-            .gateway-hero { grid-template-columns: 1fr; gap: 30px; }
-            .hero-right { display: none; }
-            .login-cards-grid { max-width: 100%; }
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .gateway-hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-right {
+                display: none;
+            }
+
+            .login-cards-grid {
+                max-width: 100%;
+            }
         }
 
         @media (max-width: 768px) {
-            .gateway-header { padding: 18px 20px; }
-            .header-nav-tags { display: none; }
-            .gateway-hero { padding: 10px 20px 30px; }
-            .hero-title { font-size: 32px; }
-            .hero-subtitle { font-size: 15px; }
-            .login-cards-grid { grid-template-columns: 1fr; }
-            .trust-stats-bar { flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+            .gateway-header {
+                padding: 18px 20px;
+            }
+
+            .header-nav-tags {
+                display: none;
+            }
+
+            .gateway-hero {
+                padding: 10px 20px 30px;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 15px;
+            }
+
+            .login-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trust-stats-bar {
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: space-between;
+            }
         }
 
         @media (max-width: 480px) {
-            .hero-title { font-size: 28px; }
-            .portal-card { padding: 24px 20px; }
-            .auth-modal-box { padding: 28px 20px; }
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .portal-card {
+                padding: 24px 20px;
+            }
+
+            .auth-modal-box {
+                padding: 28px 20px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- Decorative Top Leaves -->
@@ -660,7 +713,8 @@
     <!-- Header Navigation -->
     <header class="gateway-header">
         <a href="index.html" class="brand-link">
-            <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo-img" onerror="this.style.display='none'">
+            <img src="../images/logo.png" alt="Let's Explore DMC" class="brand-logo-img"
+                onerror="this.style.display='none'">
             <div class="brand-title-wrap">
                 <span class="brand-title"><i class="fa-solid fa-plane-departure"></i> Let's Explore DMC</span>
                 <span class="brand-badge-tag">Travel Operations & AI Studio</span>
@@ -675,7 +729,8 @@
                 <span class="dot">&bull;</span>
                 <span>Experience</span>
             </div>
-            <a href="ai-assistant.html" style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
+            <a href="ai-assistant.html"
+                style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
             </a>
         </div>
@@ -748,12 +803,16 @@
         <div class="hero-right">
             <!-- Floating Decorative Airplane -->
             <svg class="airplane-float" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 50 L45 42 L65 15 L72 17 L58 40 L88 36 L94 28 L98 29 L94 40 L98 44 L94 45 L98 56 L94 57 L88 49 L58 45 L72 68 L65 70 L45 43 Z" fill="#0F172A" />
+                <path
+                    d="M10 50 L45 42 L65 15 L72 17 L58 40 L88 36 L94 28 L98 29 L94 40 L98 44 L94 45 L98 56 L94 57 L88 49 L58 45 L72 68 L65 70 L45 43 Z"
+                    fill="#0F172A" />
                 <path d="M48 42 L64 18 L70 20 L56 41 Z" fill="#C5A059" opacity="0.8" />
             </svg>
 
             <div class="scenic-card-wrapper">
-                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop" alt="Dubai Luxury Destination" class="scenic-bg-img" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&auto=format&fit=crop'">
+                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1000&auto=format&fit=crop"
+                    alt="Dubai Luxury Destination" class="scenic-bg-img"
+                    onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&auto=format&fit=crop'">
                 <div class="scenic-overlay-gradient"></div>
                 <div class="scenic-float-caption">
                     <div class="caption-left">
@@ -787,8 +846,11 @@
             </div>
 
             <div style="text-align:center; margin-bottom: 20px;">
-                <h3 id="modalTitle" style="font-size:22px; font-weight:800; color:var(--brand-navy); margin-bottom:4px;">Admin Sign In</h3>
-                <p id="modalSubtitle" style="font-size:13px; color:var(--text-secondary);">Enter your administrator credentials to continue</p>
+                <h3 id="modalTitle"
+                    style="font-size:22px; font-weight:800; color:var(--brand-navy); margin-bottom:4px;">Admin Sign In
+                </h3>
+                <p id="modalSubtitle" style="font-size:13px; color:var(--text-secondary);">Enter your administrator
+                    credentials to continue</p>
             </div>
 
             <div class="auth-alert" id="authAlert"></div>
@@ -804,15 +866,19 @@
                 <div class="form-group">
                     <label>Password</label>
                     <div style="position:relative; width:100%;">
-                        <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required style="padding-right:42px;">
-                        <button type="button" onclick="togglePasswordVisibility('passwordInput', this)" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94A3B8; cursor:pointer; font-size:15px;" title="Show/Hide Password">
+                        <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required
+                            style="padding-right:42px;">
+                        <button type="button" onclick="togglePasswordVisibility('passwordInput', this)"
+                            style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94A3B8; cursor:pointer; font-size:15px;"
+                            title="Show/Hide Password">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Staff-Only 6-Digit OTP Verification Field (15-Minute Validity) -->
-                <div class="form-group" id="otpGroup" style="display:none; background:#F8FAFC; border:1px solid #BFDBFE; border-radius:8px; padding:12px 14px; margin-top:4px;">
+                <div class="form-group" id="otpGroup"
+                    style="display:none; background:#F8FAFC; border:1px solid #BFDBFE; border-radius:8px; padding:12px 14px; margin-top:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <label style="font-size:12px; font-weight:700; color:var(--brand-navy); margin:0;">
                             <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> 6-Digit Staff OTP
@@ -823,9 +889,11 @@
                     </div>
                     <input type="text" id="otpInput" class="form-input" placeholder="e.g. 123456" maxlength="6"
                         style="letter-spacing:6px; font-size:16px; font-weight:700; text-align:center; background:#FFF;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--text-muted);">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--text-muted);">
                         <span>Code sent to registered contact</span>
-                        <a href="javascript:void(0)" onclick="resendStaffOtp()" style="color:var(--brand-navy); font-weight:700; text-decoration:none;">Resend OTP</a>
+                        <a href="javascript:void(0)" onclick="resendStaffOtp()"
+                            style="color:var(--brand-navy); font-weight:700; text-decoration:none;">Resend OTP</a>
                     </div>
                 </div>
 
@@ -836,13 +904,14 @@
             </form>
 
             <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px;">
-                <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> Secured by Let's Explore DMC Multi-Role Auth
+                <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> Secured by Let's Explore DMC
+                Multi-Role Auth
             </p>
         </div>
     </div>
 
     <script>
-        
+
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
             const icon = btn.querySelector('i');
@@ -916,12 +985,12 @@
         }
 
         // Close on backdrop click
-        document.getElementById('authModalBackdrop').addEventListener('click', function(e) {
+        document.getElementById('authModalBackdrop').addEventListener('click', function (e) {
             if (e.target === this) closeAuthModal();
         });
 
         // Close on Escape key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeAuthModal();
         });
 
@@ -1062,7 +1131,7 @@
                             localStorage.setItem('dmc_user', JSON.stringify(data.user));
                             localStorage.setItem('dmc_role', data.user.role || currentRole || 'admin');
                         }
-                    } catch (e) {}
+                    } catch (e) { }
 
                     // Redirect to Admin Dashboard or Staff Workspace
                     setTimeout(() => {
@@ -1088,84 +1157,84 @@
             }
         }
 
-                try {
-                    const response = await fetch('api/login.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    if (response.ok) {
-                        data = await response.json();
-                        if (data && data.success) success = true;
-                    }
-                } catch (netErr) {
-                    console.warn('Backend API notice:', netErr);
-                }
-
-                // If API didn't authenticate but matches universal seeded credentials (e.g. on static Vercel host or offline standby)
-                if (!success && (isMasterAdminMatch || knownAccounts[uLower] || currentRole === 'admin' || isAdminUserAlias) && (isMasterPass || isAdminUserAlias || isMasterAdminMatch)) {
-                    const userObj = knownAccounts[uLower] || {
-                        id: 1,
-                        username: username || 'admin',
-                        name: 'Main Admin',
-                        role: currentRole || 'admin',
-                        email: 'admin@letsexploredmc.com'
-                    };
-                    data = {
-                        success: true,
-                        user: userObj,
-                        redirect: userObj.role === 'admin' ? 'dashboard.html' : 'staff.html'
-                    };
-                    success = true;
-                }
-
-                if (success && data) {
-                    alertBox.className = 'auth-alert success';
-                    alertBox.textContent = 'Login successful! Redirecting to workspace...';
-                    alertBox.style.display = 'block';
-
-                    try {
-                        if (data.user) {
-                            localStorage.setItem('dmc_user', JSON.stringify(data.user));
-                            localStorage.setItem('dmc_role', data.user.role || currentRole || 'admin');
-                        }
-                    } catch (e) {}
-
-                    // Redirect to Admin Dashboard or Staff Workspace
-                    setTimeout(() => {
-                        let dest = data.redirect || 'dashboard.html';
-                        if (data.user && data.user.role && data.user.role !== 'admin') {
-                            dest = 'staff.html';
-                        }
-                        window.location.href = dest;
-                    }, 500);
-                } else {
-                    alertBox.className = 'auth-alert error';
-                    alertBox.textContent = (data && data.message) ? data.message : 'Invalid username or password.';
-                    alertBox.style.display = 'block';
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
-                }
-            } catch (err) {
-                // Client-side fallback check
-                if ((knownAccounts[uLower] || currentRole === 'admin' || isAdminUserAlias) && (isMasterPass || isAdminUserAlias)) {
-                    const userObj = knownAccounts[uLower] || { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' };
-                    localStorage.setItem('dmc_user', JSON.stringify(userObj));
-                    localStorage.setItem('dmc_role', userObj.role);
-                    alertBox.className = 'auth-alert success';
-                    alertBox.textContent = 'Login successful! Redirecting...';
-                    alertBox.style.display = 'block';
-                    setTimeout(() => {
-                        window.location.href = (userObj.role === 'admin' ? 'dashboard.html' : 'staff.html');
-                    }, 500);
-                    return;
-                }
-                alertBox.className = 'auth-alert error';
-                alertBox.textContent = 'Invalid username or password.';
-                alertBox.style.display = 'block';
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+        try {
+            const response = await fetch('api/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (response.ok) {
+                data = await response.json();
+                if (data && data.success) success = true;
             }
+        } catch (netErr) {
+            console.warn('Backend API notice:', netErr);
+        }
+
+        // If API didn't authenticate but matches universal seeded credentials (e.g. on static Vercel host or offline standby)
+        if (!success && (isMasterAdminMatch || knownAccounts[uLower] || currentRole === 'admin' || isAdminUserAlias) && (isMasterPass || isAdminUserAlias || isMasterAdminMatch)) {
+            const userObj = knownAccounts[uLower] || {
+                id: 1,
+                username: username || 'admin',
+                name: 'Main Admin',
+                role: currentRole || 'admin',
+                email: 'admin@letsexploredmc.com'
+            };
+            data = {
+                success: true,
+                user: userObj,
+                redirect: userObj.role === 'admin' ? 'dashboard.html' : 'staff.html'
+            };
+            success = true;
+        }
+
+        if (success && data) {
+            alertBox.className = 'auth-alert success';
+            alertBox.textContent = 'Login successful! Redirecting to workspace...';
+            alertBox.style.display = 'block';
+
+            try {
+                if (data.user) {
+                    localStorage.setItem('dmc_user', JSON.stringify(data.user));
+                    localStorage.setItem('dmc_role', data.user.role || currentRole || 'admin');
+                }
+            } catch (e) { }
+
+            // Redirect to Admin Dashboard or Staff Workspace
+            setTimeout(() => {
+                let dest = data.redirect || 'dashboard.html';
+                if (data.user && data.user.role && data.user.role !== 'admin') {
+                    dest = 'staff.html';
+                }
+                window.location.href = dest;
+            }, 500);
+        } else {
+            alertBox.className = 'auth-alert error';
+            alertBox.textContent = (data && data.message) ? data.message : 'Invalid username or password.';
+            alertBox.style.display = 'block';
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+        }
+            } catch (err) {
+            // Client-side fallback check
+            if ((knownAccounts[uLower] || currentRole === 'admin' || isAdminUserAlias) && (isMasterPass || isAdminUserAlias)) {
+                const userObj = knownAccounts[uLower] || { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' };
+                localStorage.setItem('dmc_user', JSON.stringify(userObj));
+                localStorage.setItem('dmc_role', userObj.role);
+                alertBox.className = 'auth-alert success';
+                alertBox.textContent = 'Login successful! Redirecting...';
+                alertBox.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = (userObj.role === 'admin' ? 'dashboard.html' : 'staff.html');
+                }, 500);
+                return;
+            }
+            alertBox.className = 'auth-alert error';
+            alertBox.textContent = 'Invalid username or password.';
+            alertBox.style.display = 'block';
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
+        }
         }
 
         // Auto-open modal if URL specifies ?role=user / ?role=admin / ?auth=required (Resolves Issue I-1 & I-2)
@@ -1181,5 +1250,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

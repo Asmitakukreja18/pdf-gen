@@ -736,12 +736,14 @@
             <div class="header-nav-tags">
                 <a href="website/index.html#packages" class="nav-tag-link" title="Explore Tour Packages">Travel</a>
                 <span class="dot">&bull;</span>
-                <a href="website/index.html#destinations" class="nav-tag-link" title="Discover DMC Destinations">Explore</a>
+                <a href="website/index.html#destinations" class="nav-tag-link"
+                    title="Discover DMC Destinations">Explore</a>
                 <span class="dot">&bull;</span>
                 <a href="website/index.html#about" class="nav-tag-link" title="About Let's Explore DMC">Experience</a>
             </div>
             <a href="javascript:void(0)" onclick="handlePublicAiStudioClick()"
-                style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);" title="Open AI Studio">
+                style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);"
+                title="Open AI Studio">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
             </a>
         </div>
@@ -888,7 +890,8 @@
                 </div>
 
                 <!-- Staff-Only 6-Digit OTP Verification Field (15-Minute Validity) -->
-                <div class="form-group" id="otpGroup" style="display:none; background:#F8FAFC; border:1px solid #BFDBFE; border-radius:8px; padding:12px 14px; margin-top:4px;">
+                <div class="form-group" id="otpGroup"
+                    style="display:none; background:#F8FAFC; border:1px solid #BFDBFE; border-radius:8px; padding:12px 14px; margin-top:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <label style="font-size:12px; font-weight:700; color:var(--brand-navy); margin:0;">
                             <i class="fa-solid fa-shield-halved" style="color:var(--brand-gold);"></i> 6-Digit Staff OTP
@@ -899,9 +902,11 @@
                     </div>
                     <input type="text" id="otpInput" class="form-input" placeholder="e.g. 123456" maxlength="6"
                         style="letter-spacing:6px; font-size:16px; font-weight:700; text-align:center; background:#FFF;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--text-muted);">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--text-muted);">
                         <span>Code sent to registered contact</span>
-                        <a href="javascript:void(0)" onclick="resendStaffOtp()" style="color:var(--brand-navy); font-weight:700; text-decoration:none;">Resend OTP</a>
+                        <a href="javascript:void(0)" onclick="resendStaffOtp()"
+                            style="color:var(--brand-navy); font-weight:700; text-decoration:none;">Resend OTP</a>
                     </div>
                 </div>
 
@@ -944,7 +949,7 @@
                     window.location.href = 'inquiry-admin/ai-assistant.html';
                     return;
                 }
-            } catch(e) {}
+            } catch (e) { }
             openAuthModal('admin');
         }
 
