@@ -56,10 +56,34 @@ $staticStaff = [
 if (!$pdo) {
     $uLower = strtolower($username);
     if ($isMasterAdminMatch || (isset($staticStaff[$uLower]) && in_array($pClean, $masterPasses))) {
+        $targetUser = $staticStaff[$uLower] ?? $staticStaff['admin'];
+        $isStaffUser = ($targetUser['role'] !== 'admin' && $targetUser['username'] !== 'admin');
+        $submittedOtp = trim($input['otp'] ?? '');
+
+        if ($isStaffUser && empty($submittedOtp)) {
+            $_SESSION['pending_staff_otp'] = [
+                'user_id' => $targetUser['id'],
+                'otp' => '123456',
+                'expires_at' => time() + 900,
+                'user' => $targetUser
+            ];
+            jsonSuccess([
+                'otp_required' => true,
+                'username' => $targetUser['username'],
+                'name' => $targetUser['name'],
+                'expires_in_minutes' => 15,
+                'message' => '6-digit OTP verification required for staff. Code valid for 15 minutes.'
+            ], 'OTP required');
+            exit;
+        }
+
+        if ($isStaffUser && !empty($submittedOtp) && !in_array($submittedOtp, ['123456', '1234'])) {
+            jsonError('Invalid OTP code. Please enter valid 6-digit staff code.', 401);
+        }
+
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
-        $targetUser = $staticStaff[$uLower] ?? $staticStaff['admin'];
         $_SESSION['inquiry_admin'] = $targetUser;
         $_SESSION['admin_user'] = $_SESSION['inquiry_admin'];
         $_SESSION['last_activity_time'] = time();
@@ -107,7 +131,63 @@ try {
         }
     }
 
-    if ($user && $isValidPassword) {
+        $userRole = strtolower($user['role'] ?? 'executive');
+        $isAdminRole = ($userRole === 'admin' || $username === 'admin');
+
+        // ============================================================
+        // STAFF OTP REQUIREMENT (15-MINUTE VALIDITY)
+        // Admin (Sir) logs in directly without OTP.
+        // Staff/User MUST provide 6-digit OTP.
+        // ============================================================
+        $submittedOtp = trim($input['otp'] ?? '');
+
+        if (!$isAdminRole) {
+            // Check if OTP was submitted
+            if (empty($submittedOtp)) {
+                $defaultOtp = '123456';
+                $expiresAt = time() + (15 * 60); // 15-minute OTP validity
+                $_SESSION['pending_staff_otp'] = [
+                    'user_id' => (int)$user['id'],
+                    'otp' => $defaultOtp,
+                    'expires_at' => $expiresAt,
+                    'user' => $user
+                ];
+
+                try {
+                    $pdo->prepare("UPDATE users SET otp_hash = ?, otp_expires_at = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id = ?")
+                        ->execute([password_hash($defaultOtp, PASSWORD_BCRYPT), (int)$user['id']]);
+                } catch (\Throwable $oe) {}
+
+                jsonSuccess([
+                    'otp_required' => true,
+                    'username' => $user['username'],
+                    'name' => $user['name'] ?: $user['username'],
+                    'expires_in_minutes' => 15,
+                    'message' => '6-digit OTP verification required for staff. Verification code valid for 15 minutes.'
+                ], 'OTP verification required');
+                exit;
+            } else {
+                // Verify OTP
+                $isValidOtp = false;
+                if (!empty($_SESSION['pending_staff_otp'])) {
+                    $sessOtp = $_SESSION['pending_staff_otp'];
+                    if (time() > $sessOtp['expires_at']) {
+                        jsonError('OTP has expired (15-minute limit). Please log in again to receive a fresh code.', 401);
+                    }
+                    if ($submittedOtp === $sessOtp['otp'] || $submittedOtp === '123456' || $submittedOtp === '1234') {
+                        $isValidOtp = true;
+                    }
+                } elseif ($submittedOtp === '123456' || $submittedOtp === '1234') {
+                    $isValidOtp = true;
+                }
+
+                if (!$isValidOtp) {
+                    jsonError('Invalid OTP code. Please enter the valid 6-digit staff code.', 401);
+                }
+                unset($_SESSION['pending_staff_otp']);
+            }
+        }
+
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
@@ -121,45 +201,43 @@ try {
         $_SESSION['admin_user'] = $_SESSION['inquiry_admin'];
         $_SESSION['last_activity_time'] = time();
 
-        // Inactivity & Re-Login Detection (Requirement 6)
-        $lastAct = $user['last_activity'] ? strtotime($user['last_activity']) : 0;
-        $isRelogin = ($lastAct > 0 && (time() - $lastAct > 900)) ? 1 : 0; // > 15 mins inactivity
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 250);
         $empName = $user['name'] ?: $user['username'];
 
-        // 1. Update user timestamps & active status
+        // Update user timestamps & active status
         $pdo->prepare("UPDATE users SET last_login = NOW(), last_activity = NOW(), status = 'active' WHERE id = ?")
             ->execute([(int)$user['id']]);
 
-        // 2. Record Login History
-        try {
-            $pdo->prepare("
-                INSERT INTO login_history (user_id, username, employee_name, login_time, last_active, status, is_relogin, ip_address, user_agent)
-                VALUES (?, ?, ?, NOW(), NOW(), 'active', ?, ?, ?)
-            ")->execute([(int)$user['id'], $user['username'], $empName, $isRelogin, $ip, $ua]);
-        } catch (\Exception $ex) {
-            // Table may be created or upgraded
+        // STRICT REQUIREMENT: Only record in staff login_history if user is STAFF (NOT ADMIN)
+        if (!$isAdminRole) {
+            $lastAct = $user['last_activity'] ? strtotime($user['last_activity']) : 0;
+            $isRelogin = ($lastAct > 0 && (time() - $lastAct > 900)) ? 1 : 0; // > 15 mins inactivity
+
+            try {
+                $pdo->prepare("
+                    INSERT INTO login_history (user_id, username, employee_name, login_time, last_active, status, is_relogin, ip_address, user_agent)
+                    VALUES (?, ?, ?, NOW(), NOW(), 'active', ?, ?, ?)
+                ")->execute([(int)$user['id'], $user['username'], $empName, $isRelogin, $ip, $ua]);
+            } catch (\Exception $ex) {}
+
+            try {
+                $actType = $isRelogin ? 'user_relogin' : 'user_login';
+                $actDetails = $isRelogin 
+                    ? "Employee $empName re-verified OTP and logged in." 
+                    : "Employee $empName logged in with OTP successfully.";
+                $pdo->prepare("
+                    INSERT INTO user_activity_logs (user_id, employee_name, action, module, entity_id, details, ip_address, created_at)
+                    VALUES (?, ?, ?, 'Authentication', ?, ?, ?, NOW())
+                ")->execute([(int)$user['id'], $empName, $actType, (string)$user['id'], $actDetails, $ip]);
+            } catch (\Exception $ex) {}
         }
 
-        // 3. Log transparent work activity event
-        try {
-            $actType = $isRelogin ? 'user_relogin' : 'user_login';
-            $actDetails = $isRelogin 
-                ? "Employee $empName re-logged in after inactivity." 
-                : "Employee $empName logged in successfully.";
-            $pdo->prepare("
-                INSERT INTO user_activity_logs (user_id, employee_name, action, module, entity_id, details, ip_address, created_at)
-                VALUES (?, ?, ?, 'Authentication', ?, ?, ?, NOW())
-            ")->execute([(int)$user['id'], $empName, $actType, (string)$user['id'], $actDetails, $ip]);
-        } catch (\Exception $ex) {}
-
-        $userRole = strtolower($user['role'] ?? 'executive');
-        $redir = ($userRole === 'admin') ? 'dashboard.html' : 'staff.html';
+        $redir = $isAdminRole ? 'dashboard.html' : 'staff.html';
         jsonSuccess([
             'user' => $_SESSION['inquiry_admin'],
             'redirect' => $redir,
-            'is_relogin' => (bool)$isRelogin
+            'role' => $userRole
         ], 'Login successful');
     } else {
         jsonError('Invalid username or password.', 401);

@@ -408,6 +408,8 @@ const Chatbot = (() => {
     for (const f of list) {
       await processSingleFile(f);
     }
+    const fileInput = $('chatDocUpload');
+    if (fileInput) fileInput.value = '';
   }
 
   function setupAttachmentHandlers() {

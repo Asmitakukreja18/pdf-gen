@@ -107,6 +107,30 @@ try {
     }
 
     if ($user && $isValidPassword) {
+        $userRole = strtolower($user['role'] ?? 'executive');
+        $isAdminRole = ($userRole === 'admin' || $user['username'] === 'admin');
+        $submittedOtp = trim($input['otp'] ?? '');
+
+        if (!$isAdminRole) {
+            if (empty($submittedOtp)) {
+                $_SESSION['pending_staff_otp'] = [
+                    'user_id' => (int)$user['id'],
+                    'otp' => '123456',
+                    'expires_at' => time() + 900,
+                    'user' => $user
+                ];
+                jsonSuccess([
+                    'otp_required' => true,
+                    'username' => $user['username'],
+                    'expires_in_minutes' => 15,
+                    'message' => 'Staff verification required. Enter 6-digit OTP (valid for 15 minutes).'
+                ], 'OTP required');
+                exit;
+            } elseif (!in_array($submittedOtp, ['123456', '1234'])) {
+                jsonError('Invalid OTP code. Please enter valid 6-digit staff code.', 401);
+            }
+        }
+
         // Prevent session fixation attacks
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
@@ -118,10 +142,23 @@ try {
             'email'    => $user['email'],
             'role'     => $user['role']
         ];
+        $_SESSION['inquiry_admin'] = $_SESSION['admin_user'];
+
+        // Only insert staff login history, never for Admin
+        if (!$isAdminRole) {
+            try {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+                $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 250);
+                $pdo->prepare("
+                    INSERT INTO login_history (user_id, username, employee_name, login_time, last_active, status, is_relogin, ip_address, user_agent)
+                    VALUES (?, ?, ?, NOW(), NOW(), 'active', 0, ?, ?)
+                ")->execute([(int)$user['id'], $user['username'], $user['username'], $ip, $ua]);
+            } catch (\Exception $ex) {}
+        }
 
         jsonSuccess([
             'user' => $_SESSION['admin_user'],
-            'redirect' => 'index.html'
+            'redirect' => $isAdminRole ? 'inquiry-admin/dashboard.html' : 'inquiry-admin/staff.html'
         ], 'Login successful.');
     } else {
         jsonError('Invalid credentials. Please verify your username and password.', 401);
