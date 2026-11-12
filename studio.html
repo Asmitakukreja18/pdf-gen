@@ -13,6 +13,19 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <!-- Strict Authentication Guard (Resolves Issue I-1) -->
+  <script>
+    (function() {
+      try {
+        var stored = localStorage.getItem('dmc_user');
+        if (!stored) {
+          window.location.replace('index.html?auth=required&dest=studio.html');
+        }
+      } catch(e) {
+        window.location.replace('index.html?auth=required&dest=studio.html');
+      }
+    })();
+  </script>
 </head>
 
 <body>

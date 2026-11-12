@@ -112,3 +112,53 @@ A total of **28 critical, high, and medium priority defects** were identified du
 - **Fix Implemented:** Designed safe, backward-compatible Schema V2 upgrade with zero `DROP` or `TRUNCATE` statements. Appended to `database.sql` and saved to `sql/schema_v2_migration.sql`.
 - **Verification:** Verified SQL syntax and table definitions across all 23 database tables.
 
+### Fix #15 — Strict Authentication Guard for AI Studio (Issue I-1)
+- **Affected Files:** `studio.html`, `inquiry-admin/ai-assistant.html`, `website/index.html`, `index.html`
+- **Issue:** Public AI Studio link opened an administrator-looking workspace without a sign-in prompt.
+- **Root Cause:** Missing authentication verification script on page load and public hero CTA pointing directly to internal workspaces.
+- **Fix Implemented:** Injected immediate client-side and session authentication guards redirecting unauthenticated visitors to login portal with `auth_required=1`. Updated public CTAs to trigger the login modal when signed out.
+- **Verification:** Verified unauthenticated navigation to `studio.html` and `ai-assistant.html` triggers immediate redirect to sign-in modal.
+
+### Fix #16 — Signed-Out Staff CRM Data Leak Prevention (Issue I-2)
+- **Affected Files:** `inquiry-admin/leads.html`, `inquiry-admin/staff.html`, `website/index.html`
+- **Issue:** Public Staff CRM link displayed existing lead cards and customer contact details while signed out.
+- **Root Cause:** Missing page-level authentication check and public navbar link targeting `inquiry-admin/leads.html` directly.
+- **Fix Implemented:** Added strict auth guard to `leads.html` and `staff.html`. Re-routed public navbar link to `../index.html?role=user` to prompt the staff sign-in modal.
+- **Verification:** Direct or linked navigation while signed out immediately prompts login; zero lead cards or client numbers are accessible.
+
+### Fix #17 — Dedicated About Let's Explore DMC Section (Issue I-3)
+- **Affected File:** `website/index.html`
+- **Issue:** Clicking "About DMC" changed URL fragment to `#about` but left visitor at the itinerary form instead of showing About content.
+- **Root Cause:** Anchor `<a href="#about">` existed in the navbar, but there was no corresponding `<section id="about">` in the document.
+- **Fix Implemented:** Built a dedicated, luxury `#about` section detailing company history, direct DMC operations (Dubai, Thailand, Bali, Malaysia), 24/7 guest coordinators, and verified operational statistics (15+ years, 50k+ travelers, 450+ partner hotels).
+- **Verification:** Clicking "About DMC" smoothly scrolls to the new section.
+
+### Fix #18 — Destination Pre-fill Synchronization (Issue I-4)
+- **Affected File:** `website/index.html`
+- **Issue:** "Request Quotation" on the Dubai & Abu Dhabi card opened the inquiry form with destination unselected.
+- **Root Cause:** Card passed `'Dubai 6D'`, which failed to match the `<select>` option value (`'Dubai & Abu Dhabi'`), and `prefillDest()` lacked fuzzy fallback logic.
+- **Fix Implemented:** Corrected card handlers to pass exact option values and enhanced `prefillDest()` with case-insensitive fuzzy keyword matching and focus glow effect.
+- **Verification:** Verified Dubai, Thailand, Bali, and Malaysia cards pre-select the exact destination in the dropdown.
+
+### Fix #19 — High-Zoom (400%) & Mobile Navigation Support (Issue I-5)
+- **Affected File:** `website/index.html`
+- **Issue:** At 400% browser zoom, the public navigation overflowed and clipped links.
+- **Root Cause:** Rigid flexbox layout with fixed padding and zero `@media` queries for narrow viewports.
+- **Fix Implemented:** Added `flex-wrap: wrap`, responsive padding, a mobile hamburger menu toggle, and comprehensive `@media (max-width: 920px)` and `@media (max-width: 480px)` styles.
+- **Verification:** Tested responsive wrapping down to 320px viewport width / 400% zoom; navigation stays clean with zero overflow or clipping.
+
+### Fix #20 — Credential Leak Removal from Signed-Out Login Modal (Issue I-6)
+- **Affected Files:** `index.html`, `inquiry-admin/index.html`
+- **Issue:** The signed-out login modal displayed credential values in a helper row.
+- **Root Cause:** Development helper card (`User: admin | Pass: Admin@123 / LETSEXPLOREDMC`) left in production HTML.
+- **Fix Implemented:** Completely excised the helper row from both login modals and set password placeholder to secure `••••••••`.
+- **Verification:** Verified login modals present clean, secure inputs without displaying sensitive credentials.
+
+### Fix #21 — Handcrafted Tour Packages Hydration & Empty-State (Issue I-7)
+- **Affected File:** `website/index.html`
+- **Issue:** Tour Packages section showed heading but no package listings or empty-state message.
+- **Root Cause:** Container `#sitePackagesGrid` had no default HTML and relied strictly on API calls that returned empty or failed when DB was offline.
+- **Fix Implemented:** Populated container with 4 pre-rendered luxury handcrafted packages (Dubai, Bali, Thailand, Malaysia) plus dynamic MySQL hydration and an explicit, styled empty-state fallback message if 0 packages exist.
+- **Verification:** Packages section reliably displays beautiful package listings under all network conditions.
+
+

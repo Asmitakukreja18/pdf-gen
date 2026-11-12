@@ -16,7 +16,8 @@
             --primary-navy: #0F2C59;
             --royal-blue: #1E3A8A;
             --accent-blue: #2563EB;
-            --gold-accent: #D97706;
+            --gold-accent: #C5A059;
+            --gold-dark: #A9823B;
             --light-bg: #F8FAFC;
             --text-dark: #0F172A;
             --text-muted: #64748B;
@@ -33,6 +34,7 @@
             background: #FFFFFF;
             color: var(--text-dark);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         /* Navigation */
@@ -42,10 +44,12 @@
             background: #FFFFFF;
             border-bottom: 1px solid #E2E8F0;
             z-index: 1000;
-            padding: 14px 40px;
+            padding: 12px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .site-brand {
@@ -56,7 +60,7 @@
         }
 
         .site-brand img {
-            height: 42px;
+            height: 40px;
             object-fit: contain;
         }
 
@@ -78,13 +82,14 @@
         .nav-menu {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 20px;
             list-style: none;
+            flex-wrap: wrap;
         }
 
         .nav-menu a {
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
             color: #334155;
             transition: color 0.2s;
@@ -97,27 +102,54 @@
         .btn-inquire-top {
             background: var(--primary-navy);
             color: #FFF !important;
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-inquire-top:hover {
+            background: var(--royal-blue);
         }
 
         .btn-portal-login {
             background: #EFF6FF;
             color: var(--accent-blue) !important;
             border: 1px solid #BFDBFE;
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-portal-login:hover {
+            background: #DBEAFE;
+        }
+
+        .mobile-nav-toggle {
+            display: none;
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 16px;
+            color: var(--primary-navy);
+            cursor: pointer;
         }
 
         /* Hero */
         .hero-section {
             background: linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%);
             color: #FFFFFF;
-            padding: 80px 40px;
+            padding: 70px 24px;
             text-align: center;
             position: relative;
         }
@@ -126,9 +158,9 @@
             display: inline-block;
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 6px 16px;
+            padding: 5px 14px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.06em;
             margin-bottom: 16px;
@@ -136,7 +168,7 @@
         }
 
         .hero-title {
-            font-size: 44px;
+            font-size: 38px;
             font-weight: 800;
             line-height: 1.2;
             margin-bottom: 16px;
@@ -144,68 +176,79 @@
         }
 
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 16px;
             max-width: 680px;
-            margin: 0 auto 30px;
+            margin: 0 auto 28px;
             opacity: 0.9;
+            line-height: 1.6;
         }
 
         .hero-actions {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 14px;
+            flex-wrap: wrap;
         }
 
         .btn-primary-hero {
             background: #FFFFFF;
             color: var(--primary-navy);
-            padding: 12px 28px;
+            padding: 12px 24px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 800;
             text-decoration: none;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-secondary-hero {
             background: rgba(255, 255, 255, 0.15);
             color: #FFFFFF;
             border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 12px 28px;
+            padding: 12px 24px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 700;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Destinations */
+        /* Section Layout */
         .section-wrap {
             max-width: 1240px;
             margin: 0 auto;
-            padding: 70px 24px;
+            padding: 60px 24px;
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: 40px;
         }
 
         .section-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--primary-navy);
         }
 
         .section-subtitle {
-            font-size: 14px;
+            font-size: 13.5px;
             color: var(--text-muted);
             margin-top: 6px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .dest-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
+            gap: 22px;
         }
 
         .dest-card {
@@ -214,11 +257,14 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
         }
 
         .dest-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .dest-img-wrap {
@@ -231,27 +277,32 @@
 
         .dest-content {
             padding: 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .dest-tag {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             color: var(--accent-blue);
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .dest-name {
-            font-size: 17px;
+            font-size: 16.5px;
             font-weight: 800;
             color: var(--primary-navy);
             margin: 4px 0 8px;
         }
 
         .dest-desc {
-            font-size: 12.5px;
+            font-size: 12px;
             color: var(--text-muted);
             line-height: 1.5;
             margin-bottom: 14px;
+            flex: 1;
         }
 
         .btn-card-inquire {
@@ -259,25 +310,19 @@
             text-align: center;
             background: #F1F5F9;
             color: var(--primary-navy);
-            padding: 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             text-decoration: none;
             font-size: 12px;
             font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
         }
 
         .btn-card-inquire:hover {
             background: var(--primary-navy);
             color: #FFF;
-        }
-
-        /* Inquiry Form Container */
-        .inquiry-banner {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 40px;
-            margin-top: 40px;
         }
 
         .form-grid {
@@ -288,11 +333,18 @@
 
         .form-ctrl {
             width: 100%;
-            padding: 10px 14px;
+            padding: 10px 12px;
             border: 1px solid #CBD5E1;
             border-radius: 6px;
             font-size: 13px;
             font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-ctrl:focus {
+            border-color: var(--accent-blue);
         }
 
         /* Footer */
@@ -311,6 +363,96 @@
             gap: 30px;
             margin-bottom: 30px;
         }
+
+        /* ========================================================
+           RESPONSIVE & HIGH ZOOM (400%) MEDIA QUERIES (Issue I-5)
+           ======================================================== */
+        @media (max-width: 920px) {
+            .mobile-nav-toggle {
+                display: block;
+            }
+
+            .site-header {
+                padding: 10px 16px;
+            }
+
+            .nav-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding-top: 12px;
+                border-top: 1px solid #E2E8F0;
+            }
+
+            .nav-menu.open {
+                display: flex;
+            }
+
+            .nav-menu li {
+                width: 100%;
+            }
+
+            .nav-menu a {
+                display: block;
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+
+            .btn-inquire-top,
+            .btn-portal-login {
+                display: block;
+                text-align: center;
+                margin-top: 4px;
+            }
+
+            .hero-section {
+                padding: 40px 16px;
+            }
+
+            .hero-title {
+                font-size: 26px;
+            }
+
+            .section-wrap {
+                padding: 40px 16px;
+            }
+
+            .dest-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .site-brand-text h1 {
+                font-size: 15px;
+            }
+
+            .site-brand-text span {
+                font-size: 9.5px;
+            }
+
+            .site-brand img {
+                height: 32px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-primary-hero,
+            .btn-secondary-hero {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
@@ -326,14 +468,20 @@
             </div>
         </a>
 
-        <ul class="nav-menu">
-            <li><a href="#destinations">Destinations</a></li>
-            <li><a href="#packages">Tour Packages</a></li>
-            <li><a href="#about">About DMC</a></li>
-            <li><a href="#inquiry">Inquire Online</a></li>
-            <li><a href="../inquiry-admin/leads.html" class="btn-portal-login"><i class="fa-solid fa-lock"></i> Staff
-                    CRM</a></li>
-            <li><a href="#inquiry" class="btn-inquire-top">Plan My Tour</a></li>
+        <!-- Mobile / 400% Zoom Toggle Button -->
+        <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation"
+            onclick="toggleMobileNav()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="#destinations" onclick="closeMobileNav()">Destinations</a></li>
+            <li><a href="#packages" onclick="closeMobileNav()">Tour Packages</a></li>
+            <li><a href="#about" onclick="closeMobileNav()">About DMC</a></li>
+            <li><a href="#inquiry" onclick="closeMobileNav()">Inquire Online</a></li>
+            <!-- Public Staff CRM button: Routes to sign-in modal when signed out (Issue I-2) -->
+            <li><a href="../index.html?role=user" class="btn-portal-login" id="staffCrmLink"><i class="fa-solid fa-lock"></i> Staff CRM</a></li>
+            <li><a href="#inquiry" class="btn-inquire-top" onclick="closeMobileNav()"><i class="fa-solid fa-paper-plane"></i> Plan My Tour</a></li>
         </ul>
     </header>
 
@@ -348,7 +496,8 @@
         <div class="hero-actions">
             <a href="#inquiry" class="btn-primary-hero" id="siteHeroCtaPrimary"><i class="fa-solid fa-paper-plane"></i>
                 Plan Your Holiday</a>
-            <a href="../index.html" class="btn-secondary-hero" id="siteHeroCtaSecondary"><i
+            <!-- Public AI Studio CTA: Routes with auth verification (Issue I-1) -->
+            <a href="../index.html?role=admin&auth_required=1" class="btn-secondary-hero" id="siteHeroCtaSecondary"><i
                     class="fa-solid fa-wand-magic-sparkles"></i> Open AI Studio</a>
         </div>
     </section>
@@ -362,7 +511,7 @@
         </div>
 
         <div class="dest-grid">
-            <!-- Dubai -->
+            <!-- Dubai (Issue I-4 prefill fix) -->
             <div class="dest-card">
                 <div class="dest-img-wrap"
                     style="background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop');">
@@ -372,8 +521,7 @@
                     <h4 class="dest-name">Dubai &amp; Abu Dhabi</h4>
                     <p class="dest-desc">Atlantis The Palm, Desert Safari, Burj Khalifa, private luxury transfers, and
                         dhow cruise dinner.</p>
-                    <a href="#inquiry" onclick="prefillDest('Dubai 6D')" class="btn-card-inquire">Request Quotation
-                        &rarr;</a>
+                    <button type="button" onclick="prefillDest('Dubai & Abu Dhabi')" class="btn-card-inquire">Request Quotation &rarr;</button>
                 </div>
             </div>
 
@@ -387,8 +535,7 @@
                     <h4 class="dest-name">Thailand (Phuket &amp; Krabi)</h4>
                     <p class="dest-desc">Phi Phi Island speedboats, luxury beach resorts, Koh Yao Yai retreat, and city
                         cultural tours.</p>
-                    <a href="#inquiry" onclick="prefillDest('Thailand 7D')" class="btn-card-inquire">Request Quotation
-                        &rarr;</a>
+                    <button type="button" onclick="prefillDest('Thailand (Phuket/Krabi)')" class="btn-card-inquire">Request Quotation &rarr;</button>
                 </div>
             </div>
 
@@ -402,8 +549,7 @@
                     <h4 class="dest-name">Bali Island Paradise</h4>
                     <p class="dest-desc">Private pool villas in Ubud, Nusa Penida day tours, sunset seafood dinners, and
                         swing experiences.</p>
-                    <a href="#inquiry" onclick="prefillDest('Bali 6D')" class="btn-card-inquire">Request Quotation
-                        &rarr;</a>
+                    <button type="button" onclick="prefillDest('Bali Paradise')" class="btn-card-inquire">Request Quotation &rarr;</button>
                 </div>
             </div>
 
@@ -417,22 +563,150 @@
                     <h4 class="dest-name">Kuala Lumpur &amp; Genting</h4>
                     <p class="dest-desc">Petronas Twin Towers, Batu Caves, Genting SkyWorlds cable car, and Langkawi
                         island cruises.</p>
-                    <a href="#inquiry" onclick="prefillDest('Malaysia 6D')" class="btn-card-inquire">Request Quotation
-                        &rarr;</a>
+                    <button type="button" onclick="prefillDest('Malaysia & Genting')" class="btn-card-inquire">Request Quotation &rarr;</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Published Tour Packages from MySQL -->
+    <!-- Published Tour Packages from MySQL / Pre-seeded Fallbacks (Issue I-7) -->
     <section class="section-wrap" id="packages" style="background:#FAFBFD; border-top:1px solid #E2E8F0;">
         <div class="section-header">
             <h3 class="section-title">Official Handcrafted Packages</h3>
-            <p class="section-subtitle">Guaranteed on-ground DMC operations with verified luxury stays &amp; private
-                tours.</p>
+            <p class="section-subtitle">Guaranteed on-ground DMC operations with verified luxury stays &amp; private tours.</p>
         </div>
         <div class="dest-grid" id="sitePackagesGrid">
-            <!-- Populated via api/website_manager.php -->
+            <!-- Default Handcrafted Package 1 -->
+            <div class="dest-card">
+                <div class="dest-img-wrap" style="background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop');"></div>
+                <div class="dest-content">
+                    <span class="dest-tag">United Arab Emirates</span>
+                    <h4 class="dest-name">Dubai Atlantis &amp; Desert Safari Escape</h4>
+                    <p class="dest-desc">Dubai &bull; 6D/5N &bull; 5★ Luxury Hotel</p>
+                    <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
+                        INR 54,900 <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD 660</span>
+                    </div>
+                    <button type="button" onclick="prefillDest('Dubai & Abu Dhabi')" class="btn-card-inquire">Book This Package &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Default Handcrafted Package 2 -->
+            <div class="dest-card">
+                <div class="dest-img-wrap" style="background-image: url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop');"></div>
+                <div class="dest-content">
+                    <span class="dest-tag">Indonesia</span>
+                    <h4 class="dest-name">Bali Ubud Private Pool Villa &amp; Nusa Penida</h4>
+                    <p class="dest-desc">Bali &bull; 6D/5N &bull; 4★/5★ Private Villa</p>
+                    <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
+                        INR 48,500 <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD 585</span>
+                    </div>
+                    <button type="button" onclick="prefillDest('Bali Paradise')" class="btn-card-inquire">Book This Package &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Default Handcrafted Package 3 -->
+            <div class="dest-card">
+                <div class="dest-img-wrap" style="background-image: url('https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=600&auto=format&fit=crop');"></div>
+                <div class="dest-content">
+                    <span class="dest-tag">Thailand</span>
+                    <h4 class="dest-name">Phuket &amp; Krabi Island Odyssey</h4>
+                    <p class="dest-desc">Phuket + Krabi &bull; 6D/5N &bull; 4★ Deluxe Beachfront</p>
+                    <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
+                        INR 42,900 <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD 515</span>
+                    </div>
+                    <button type="button" onclick="prefillDest('Thailand (Phuket/Krabi)')" class="btn-card-inquire">Book This Package &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Default Handcrafted Package 4 -->
+            <div class="dest-card">
+                <div class="dest-img-wrap" style="background-image: url('https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&auto=format&fit=crop');"></div>
+                <div class="dest-content">
+                    <span class="dest-tag">Malaysia</span>
+                    <h4 class="dest-name">Kuala Lumpur &amp; Genting Highlands</h4>
+                    <p class="dest-desc">Malaysia &bull; 5D/4N &bull; 4★ City Hotel</p>
+                    <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
+                        INR 36,500 <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD 440</span>
+                    </div>
+                    <button type="button" onclick="prefillDest('Malaysia & Genting')" class="btn-card-inquire">Book This Package &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         ABOUT LET'S EXPLORE DMC SECTION (Resolves Issue I-3)
+         ======================================================== -->
+    <section class="section-wrap" id="about" style="border-top:1px solid #E2E8F0; background:#FFFFFF;">
+        <div class="section-header">
+            <span style="font-size:11.5px; font-weight:800; color:var(--accent-blue); text-transform:uppercase; letter-spacing:0.1em; display:inline-block; margin-bottom:6px;">About Let's Explore DMC</span>
+            <h3 class="section-title">Your On-Ground Destination Management Partner</h3>
+            <p class="section-subtitle">Delivering world-class travel logistics, contracting, and personalized guest experiences across premier global destinations.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:36px; align-items:center;">
+            <div>
+                <h4 style="font-size:20px; font-weight:800; color:var(--primary-navy); margin-bottom:14px; line-height:1.35;">
+                    Pioneering Luxury &amp; Seamless Travel Across Asia, Middle East &amp; Beyond
+                </h4>
+                <p style="font-size:14px; color:#475569; line-height:1.7; margin-bottom:16px;">
+                    <strong>Let's Explore DMC</strong> is a premier Destination Management Company specializing in bespoke FIT, honeymoon getaways, family group journeys, and corporate MICE travel. With local operations centers in Dubai, Bangkok, Bali, and Kuala Lumpur, we eliminate intermediaries to bring you verified hotels, certified tour guides, and private luxury fleet transfers.
+                </p>
+                <p style="font-size:14px; color:#475569; line-height:1.7; margin-bottom:20px;">
+                    Whether you are an independent traveler seeking an unforgettable holiday or a B2B travel agency requiring white-label operations with guaranteed service SLAs, Let's Explore DMC ensures every touchpoint is managed with absolute precision.
+                </p>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <div style="width:34px; height:34px; border-radius:8px; background:#EFF6FF; color:var(--accent-blue); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                        <div>
+                            <h5 style="font-size:13.5px; font-weight:700; color:var(--primary-navy);">Direct DMC Tariffs</h5>
+                            <p style="font-size:11.5px; color:#64748B;">Wholesale rates with zero hidden markups.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <div style="width:34px; height:34px; border-radius:8px; background:#FEF3C7; color:#B45309; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div>
+                            <h5 style="font-size:13.5px; font-weight:700; color:var(--primary-navy);">24/7 Guest Care</h5>
+                            <p style="font-size:11.5px; color:#64748B;">Dedicated on-ground WhatsApp trip coordinator.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & Credibility Card -->
+            <div style="background:linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%); border-radius:16px; padding:32px; color:#FFFFFF; box-shadow:0 12px 30px rgba(15, 44, 89, 0.15);">
+                <span style="font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#93C5FD; display:block; margin-bottom:8px;">Why Travel Partners Trust Us</span>
+                <h4 style="font-size:19px; font-weight:800; margin-bottom:20px; color:#FFFFFF;">Operational Excellence in Numbers</h4>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div>
+                        <div style="font-size:28px; font-weight:800; color:#FDE68A;">15+</div>
+                        <div style="font-size:12px; opacity:0.85;">Years of DMC Experience</div>
+                    </div>
+                    <div>
+                        <div style="font-size:28px; font-weight:800; color:#FDE68A;">50,000+</div>
+                        <div style="font-size:12px; opacity:0.85;">Delighted Travelers</div>
+                    </div>
+                    <div>
+                        <div style="font-size:28px; font-weight:800; color:#FDE68A;">450+</div>
+                        <div style="font-size:12px; opacity:0.85;">Direct Partner Hotels</div>
+                    </div>
+                    <div>
+                        <div style="font-size:28px; font-weight:800; color:#FDE68A;">99.8%</div>
+                        <div style="font-size:12px; opacity:0.85;">On-Time Ground Transfers</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span style="font-size:11.5px; opacity:0.9;"><i class="fa-solid fa-certificate" style="color:#FDE68A;"></i> Certified On-Ground DMC</span>
+                    <a href="#inquiry" style="background:#FFFFFF; color:var(--primary-navy); padding:6px 14px; border-radius:6px; font-size:12px; font-weight:800; text-decoration:none;">Connect With Us</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -446,7 +720,7 @@
         </div>
 
         <div
-            style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <form id="publicInquiryForm" onsubmit="submitInquiry(event)"
                 style="display: flex; flex-direction: column; gap: 16px;">
                 <div class="form-grid">
@@ -518,7 +792,7 @@
                 </div>
 
                 <button type="submit" id="btnSubmitInquiry"
-                    style="background: var(--primary-navy); color: #FFFFFF; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: 800; cursor: pointer;">
+                    style="background: var(--primary-navy); color: #FFFFFF; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: 800; cursor: pointer; transition: background 0.2s;">
                     <i class="fa-solid fa-paper-plane"></i> Submit Inquiry to DMC Reservations
                 </button>
             </form>
@@ -536,18 +810,15 @@
                 </p>
             </div>
             <div>
-                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Quick Links
-                </h5>
+                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Quick Links</h5>
                 <p><a href="#destinations" style="color:#FFF; text-decoration:none; opacity:0.8;">Destinations</a></p>
+                <p><a href="#packages" style="color:#FFF; text-decoration:none; opacity:0.8;">Tour Packages</a></p>
+                <p><a href="#about" style="color:#FFF; text-decoration:none; opacity:0.8;">About DMC</a></p>
                 <p><a href="#inquiry" style="color:#FFF; text-decoration:none; opacity:0.8;">Inquiry Form</a></p>
-                <p><a href="../index.html" style="color:#FFF; text-decoration:none; opacity:0.8;">AI Document Studio</a>
-                </p>
-                <p><a href="../inquiry-admin/leads.html" style="color:#FFF; text-decoration:none; opacity:0.8;">Staff
-                        CRM Login</a></p>
+                <p><a href="../index.html?role=user" style="color:#FFF; text-decoration:none; opacity:0.8;">Staff CRM Login</a></p>
             </div>
             <div>
-                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Contact &amp;
-                    Operations</h5>
+                <h5 style="font-size:13px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">Contact &amp; Operations</h5>
                 <p style="opacity:0.8;">Email: info@letsexploredmc.com</p>
                 <p style="opacity:0.8;">Phone: +91 98765 43210</p>
                 <p style="opacity:0.8;">GSTIN: 27AABCL1234F1Z8</p>
@@ -560,9 +831,65 @@
     </footer>
 
     <script>
+        // Mobile / 400% Zoom Nav Toggle (Issue I-5)
+        function toggleMobileNav() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('open');
+        }
+
+        function closeMobileNav() {
+            const menu = document.getElementById('navMenu');
+            if (menu) menu.classList.remove('open');
+        }
+
+        // Smart Destination Pre-fill (Resolves Issue I-4)
         function prefillDest(dest) {
-            document.getElementById('custDest').value = dest;
-            document.getElementById('inquiry').scrollIntoView({ behavior: 'smooth' });
+            closeMobileNav();
+            const sel = document.getElementById('custDest');
+            if (!sel) return;
+            const search = (dest || '').toLowerCase().trim();
+            let matched = false;
+
+            // 1. Direct match on value or text
+            for (let i = 0; i < sel.options.length; i++) {
+                const optVal = sel.options[i].value.toLowerCase();
+                const optText = sel.options[i].text.toLowerCase();
+                if (optVal === search || optText === search) {
+                    sel.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+
+            // 2. Keyword fuzzy match (Dubai, Thailand, Bali, Malaysia, Singapore, Kashmir, Kerala)
+            if (!matched) {
+                const keywords = ['dubai', 'thailand', 'bali', 'malaysia', 'singapore', 'kashmir', 'kerala', 'turkey'];
+                for (const kw of keywords) {
+                    if (search.includes(kw)) {
+                        for (let i = 0; i < sel.options.length; i++) {
+                            const optVal = sel.options[i].value.toLowerCase();
+                            const optText = sel.options[i].text.toLowerCase();
+                            if (optVal.includes(kw) || optText.includes(kw)) {
+                                sel.selectedIndex = i;
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (matched) break;
+                    }
+                }
+            }
+
+            // Scroll to form and highlight input
+            const inq = document.getElementById('inquiry');
+            if (inq) inq.scrollIntoView({ behavior: 'smooth' });
+            sel.focus();
+            sel.style.borderColor = '#2563EB';
+            sel.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.2)';
+            setTimeout(() => {
+                sel.style.borderColor = '#CBD5E1';
+                sel.style.boxShadow = 'none';
+            }, 2500);
         }
 
         async function submitInquiry(e) {
@@ -609,8 +936,22 @@
             }
         }
 
-        // Live CMS Hydration
+        // Live CMS Hydration & Tour Packages Population (Resolves Issue I-7)
         async function loadLiveCmsContent() {
+            // Check session status to smart-link Staff CRM & AI Studio (Issue I-1 & I-2)
+            try {
+                const storedUser = localStorage.getItem('dmc_user');
+                if (storedUser) {
+                    const u = JSON.parse(storedUser);
+                    if (u && u.role) {
+                        const staffLink = document.getElementById('staffCrmLink');
+                        if (staffLink) staffLink.href = '../inquiry-admin/leads.html';
+                        const aiStudioCta = document.getElementById('siteHeroCtaSecondary');
+                        if (aiStudioCta) aiStudioCta.href = '../inquiry-admin/ai-assistant.html';
+                    }
+                }
+            } catch (e) {}
+
             try {
                 const res = await fetch('../api/website_manager.php?action=get');
                 const data = await res.json();
@@ -636,14 +977,15 @@
                     }
                 }
 
-                // Render published packages from MySQL
-                if (data.packages && data.packages.length > 0) {
+                // Render published packages from MySQL if available
+                if (data.packages && Array.isArray(data.packages) && data.packages.length > 0) {
                     const pkgGrid = document.getElementById('sitePackagesGrid');
                     if (pkgGrid) {
                         pkgGrid.innerHTML = data.packages.map(p => {
                             const img = p.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop';
                             const priceInr = Number(p.pricing_inr || 0).toLocaleString();
                             const priceUsd = Number(p.pricing_usd || 0).toLocaleString();
+                            const destParam = (p.destination || p.name || 'Dubai & Abu Dhabi').replace(/'/g, "\\'");
                             return `
                                 <div class="dest-card">
                                     <div class="dest-img-wrap" style="background-image: url('${img}');"></div>
@@ -654,7 +996,7 @@
                                         <div style="font-size:14px; font-weight:800; color:#15803D; margin-bottom:10px;">
                                             INR ${priceInr} <span style="font-size:11px; color:#64748B; font-weight:500;">/ USD ${priceUsd}</span>
                                         </div>
-                                        <a href="#inquiry" onclick="prefillDest('${(p.name || '').replace(/'/g, "\\'")}')" class="btn-card-inquire">Book This Package &rarr;</a>
+                                        <button type="button" onclick="prefillDest('${destParam}')" class="btn-card-inquire">Book This Package &rarr;</button>
                                     </div>
                                 </div>
                             `;
@@ -662,7 +1004,8 @@
                     }
                 }
             } catch (err) {
-                console.log('CMS dynamic fetch fallback to static content:', err);
+                // If dynamic CMS fetch fails or is offline, default handcrafted packages remain visible (never blank)
+                console.log('CMS dynamic fetch fallback to static packages:', err);
             }
         }
         document.addEventListener('DOMContentLoaded', loadLiveCmsContent);

@@ -729,8 +729,8 @@
                 <span class="dot">&bull;</span>
                 <span>Experience</span>
             </div>
-            <a href="inquiry-admin/ai-assistant.html"
-                style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
+            <a href="javascript:void(0)" onclick="handlePublicAiStudioClick()"
+                style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);" title="Open AI Studio">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
             </a>
         </div>
@@ -866,17 +866,13 @@
                 <div class="form-group">
                     <label>Password</label>
                     <div style="position:relative; width:100%;">
-                        <input type="password" id="passwordInput" class="form-input" placeholder="Admin@123" required
+                        <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required
                             style="padding-right:42px;">
                         <button type="button" onclick="togglePasswordVisibility('passwordInput', this)"
                             style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94A3B8; cursor:pointer; font-size:15px;"
                             title="Show/Hide Password">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                    </div>
-                    <div style="font-size:11.5px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:6px 10px; margin-top:8px; display:flex; align-items:center; justify-content:space-between; color:#475569;">
-                        <span><i class="fa-solid fa-user-shield" style="color:#C5A059; margin-right:4px;"></i> User: <strong>admin</strong></span>
-                        <span><i class="fa-solid fa-key" style="color:#C5A059; margin-right:4px;"></i> Pass: <strong>Admin@123</strong> / <strong>LETSEXPLOREDMC</strong></span>
                     </div>
                 </div>
 
@@ -911,6 +907,17 @@
         }
 
         let currentRole = 'admin';
+
+        function handlePublicAiStudioClick() {
+            try {
+                const stored = localStorage.getItem('dmc_user');
+                if (stored) {
+                    window.location.href = 'inquiry-admin/ai-assistant.html';
+                    return;
+                }
+            } catch(e) {}
+            openAuthModal('admin');
+        }
 
         function openAuthModal(role) {
             setRole(role);
@@ -1080,6 +1087,18 @@
                 btnSubmit.innerHTML = '<span>Sign In to Dashboard</span> <i class="fa-solid fa-arrow-right"></i>';
             }
         }
+
+        // Auto-open modal if URL specifies ?role=user / ?role=admin / ?auth=required (Resolves Issue I-1 & I-2)
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            const role = params.get('role');
+            const authRequired = params.get('auth') || params.get('auth_required');
+            if (role === 'user' || role === 'staff') {
+                openAuthModal('user');
+            } else if (role === 'admin' || authRequired) {
+                openAuthModal('admin');
+            }
+        });
     </script>
 </body>
 
