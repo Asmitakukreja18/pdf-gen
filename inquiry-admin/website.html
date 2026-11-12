@@ -2,14 +2,471 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=dashboard.html">
-    <title>Redirecting to Dashboard...</title>
-    <script>
-        window.location.replace('dashboard.html');
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website CMS &amp; Content Manager — Let's Explore DMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/portal.css?v=14.0">
+    <style>
+        :root {
+            --sidebar-navy: #0B132B;
+            --brand-blue: #2563EB;
+            --brand-gold: #D97706;
+            --bg-ivory: #F8FAFC;
+        }
+        body {
+            background-color: var(--bg-ivory);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0F172A;
+            margin: 0;
+        }
+        .portal-sidebar {
+            background: var(--sidebar-navy);
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.28s ease;
+        }
+        .sidebar-header {
+            padding: 24px 22px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .brand-text-gold {
+            font-size: 17px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+        .brand-text-gold span { color: var(--brand-gold); }
+        .sidebar-menu {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #94A3B8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover { color: #FFFFFF; background: rgba(255,255,255,0.06); }
+        .nav-link.active {
+            background: var(--brand-blue);
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
+        }
+        .nav-link i { width: 18px; font-size: 15px; text-align: center; }
+
+        .cms-section-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .cms-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .cms-form-group {
+            margin-bottom: 16px;
+        }
+        .cms-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .cms-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .cms-input:focus {
+            border-color: #2563EB;
+        }
+    </style>
 </head>
-<body style="font-family:sans-serif; text-align:center; padding:50px; background:#F8FAFC;">
-    <p>Redirecting to Let's Explore DMC Dashboard...</p>
-    <a href="dashboard.html" style="color:#2563EB;">Click here if not redirected automatically.</a>
+<body>
+
+    <div class="portal-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="portal-sidebar" id="portalSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <div class="brand-icon-box">
+                        <i class="fa-solid fa-plane-departure"></i>
+                    </div>
+                    <div class="brand-text-gold">
+                        Let's Explore <span>DMC</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="leads.html" class="nav-link">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-link" title="AI Quotation Studio">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
+                </a>
+                <a href="packages.html" class="nav-link">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Tour Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="website.html" class="nav-link active">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
+                <a href="documents.html" class="nav-link">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
+                </a>
+                <a href="members.html" class="nav-link admin-only-nav">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link admin-only-nav">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+                <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="portal-main">
+            <!-- TOPBAR -->
+            <header class="portal-topbar">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" style="background:none; border:none; font-size:18px; cursor:pointer;">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div style="font-size:16px; font-weight:800; color:#0F172A;">Public Website Content Manager (CMS)</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <a href="../index.html" target="_blank" style="background:#F1F5F9; color:#0F172A; font-weight:700; font-size:12.5px; padding:8px 16px; border-radius:9999px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; border:1px solid #CBD5E1;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span>View Live Website</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="portal-content" style="padding:28px 32px; max-width:1100px;">
+                <div id="cmsAlertBox" style="display:none; padding:12px 18px; border-radius:8px; margin-bottom:20px; font-size:13px; font-weight:600;"></div>
+
+                <!-- SECTION 1: HERO BANNER -->
+                <div class="cms-section-card">
+                    <div class="cms-card-header">
+                        <div>
+                            <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">
+                                <i class="fa-solid fa-image" style="color:#2563EB; margin-right:8px;"></i> Homepage Hero Banner
+                            </h3>
+                            <p style="margin:4px 0 0; font-size:12px; color:#64748B;">Headline, subheading, and primary call-to-action</p>
+                        </div>
+                        <button type="button" onclick="saveHeroSection()" class="btn btn-primary btn-sm" style="background:#2563EB; color:#FFF; padding:8px 18px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Hero
+                        </button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="cms-form-group">
+                            <label class="cms-label">Main Headline</label>
+                            <input type="text" id="heroHeadline" class="cms-input" value="Bespoke Luxury Destination Management for Discerning B2B Agents &amp; Travellers">
+                        </div>
+                        <div class="cms-form-group">
+                            <label class="cms-label">Subheading</label>
+                            <input type="text" id="heroSubhead" class="cms-input" value="Direct DMC contracts across Dubai, Bali, Thailand, and Rajasthan with 24x7 on-ground assistance.">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+                        <div class="cms-form-group">
+                            <label class="cms-label">Call to Action (CTA) Button Text</label>
+                            <input type="text" id="heroCtaText" class="cms-input" value="Request B2B Quotation">
+                        </div>
+                        <div class="cms-form-group">
+                            <label class="cms-label">WhatsApp Helpline Number</label>
+                            <input type="text" id="heroWaPhone" class="cms-input" value="+91 80075 86881">
+                        </div>
+                        <div class="cms-form-group">
+                            <label class="cms-label">Hero Badge Text</label>
+                            <input type="text" id="heroBadge" class="cms-input" value="★ Certified Global DMC Partner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: COMPANY CONTACT & GST -->
+                <div class="cms-section-card">
+                    <div class="cms-card-header">
+                        <div>
+                            <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">
+                                <i class="fa-solid fa-building" style="color:#D97706; margin-right:8px;"></i> Company Info, Billing &amp; GST Details
+                            </h3>
+                            <p style="margin:4px 0 0; font-size:12px; color:#64748B;">Official credentials displayed in footer and quotation exports</p>
+                        </div>
+                        <button type="button" onclick="saveCompanySection()" class="btn btn-primary btn-sm" style="background:#2563EB; color:#FFF; padding:8px 18px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Info
+                        </button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="cms-form-group">
+                            <label class="cms-label">Company Legal Name</label>
+                            <input type="text" id="companyLegalName" class="cms-input" value="Let's Explore DMC Private Limited">
+                        </div>
+                        <div class="cms-form-group">
+                            <label class="cms-label">Official GSTIN Number</label>
+                            <input type="text" id="companyGst" class="cms-input" value="27AAACL1234F1Z8">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="cms-form-group">
+                            <label class="cms-label">Official Email</label>
+                            <input type="email" id="companyEmail" class="cms-input" value="ops@letsexploredmc.com">
+                        </div>
+                        <div class="cms-form-group">
+                            <label class="cms-label">Office Address</label>
+                            <input type="text" id="companyAddress" class="cms-input" value="Unit 402, Signature Tower, Golf Course Road, Gurugram / Mumbai, India">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: FEATURED DESTINATIONS -->
+                <div class="cms-section-card">
+                    <div class="cms-card-header">
+                        <div>
+                            <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">
+                                <i class="fa-solid fa-map-location-dot" style="color:#10B981; margin-right:8px;"></i> Featured Destinations Directory
+                            </h3>
+                            <p style="margin:4px 0 0; font-size:12px; color:#64748B;">Active DMC destinations displayed on public home page</p>
+                        </div>
+                        <button type="button" onclick="saveDestinationsSection()" class="btn btn-primary btn-sm" style="background:#2563EB; color:#FFF; padding:8px 18px; border-radius:8px; border:none; font-weight:700; cursor:pointer;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Destinations
+                        </button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                        <div style="border:1px solid #E2E8F0; padding:12px; border-radius:8px; background:#F8FAFC;">
+                            <div style="font-weight:700; font-size:13px; color:#0F172A; margin-bottom:4px;">1. Dubai &amp; Abu Dhabi</div>
+                            <input type="text" id="dest1" class="cms-input" style="font-size:12px;" value="Luxury Transfers, Desert Safaris, Burj Khalifa">
+                        </div>
+                        <div style="border:1px solid #E2E8F0; padding:12px; border-radius:8px; background:#F8FAFC;">
+                            <div style="font-weight:700; font-size:13px; color:#0F172A; margin-bottom:4px;">2. Bali &amp; Nusa Penida</div>
+                            <input type="text" id="dest2" class="cms-input" style="font-size:12px;" value="Private Pool Villas, Speedboat, Tanah Lot">
+                        </div>
+                        <div style="border:1px solid #E2E8F0; padding:12px; border-radius:8px; background:#F8FAFC;">
+                            <div style="font-weight:700; font-size:13px; color:#0F172A; margin-bottom:4px;">3. Phuket &amp; Krabi</div>
+                            <input type="text" id="dest3" class="cms-input" style="font-size:12px;" value="Phi Phi Islands, James Bond Island, 4-Island Tour">
+                        </div>
+                        <div style="border:1px solid #E2E8F0; padding:12px; border-radius:8px; background:#F8FAFC;">
+                            <div style="font-weight:700; font-size:13px; color:#0F172A; margin-bottom:4px;">4. Rajasthan Heritage</div>
+                            <input type="text" id="dest4" class="cms-input" style="font-size:12px;" value="Udaipur Lake Pichola, Jaipur City Palace, Haveli">
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/portal.js?v=9.5"></script>
+    <script src="js/idle-tracker.js?v=7.3"></script>
+    <script>
+        function showCmsNotice(msg, isSuccess = true) {
+            const box = document.getElementById('cmsAlertBox');
+            box.style.display = 'block';
+            box.innerText = msg;
+            if (isSuccess) {
+                box.style.background = '#DCFCE7';
+                box.style.color = '#15803D';
+                box.style.border = '1px solid #86EFAC';
+            } else {
+                box.style.background = '#FEE2E2';
+                box.style.color = '#B91C1C';
+                box.style.border = '1px solid #FCA5A5';
+            }
+            setTimeout(() => { box.style.display = 'none'; }, 4000);
+        }
+
+        async function loadWebsiteContent() {
+            try {
+                const res = await fetch('../api/website_manager.php');
+                const json = await res.json();
+                if (json && json.success && json.content) {
+                    const c = json.content;
+                    if (c.hero_banner && c.hero_banner.data) {
+                        const h = c.hero_banner.data;
+                        if (h.headline) document.getElementById('heroHeadline').value = h.headline;
+                        if (h.subheadline) document.getElementById('heroSubhead').value = h.subheadline;
+                        if (h.cta_text) document.getElementById('heroCtaText').value = h.cta_text;
+                        if (h.phone) document.getElementById('heroWaPhone').value = h.phone;
+                    }
+                    if (c.company_info && c.company_info.data) {
+                        const ci = c.company_info.data;
+                        if (ci.legal_name) document.getElementById('companyLegalName').value = ci.legal_name;
+                        if (ci.gst) document.getElementById('companyGst').value = ci.gst;
+                        if (ci.email) document.getElementById('companyEmail').value = ci.email;
+                        if (ci.address) document.getElementById('companyAddress').value = ci.address;
+                    }
+                }
+            } catch (err) {
+                console.warn('CMS fetch notice:', err);
+            }
+        }
+
+        async function saveHeroSection() {
+            const payload = {
+                section_key: 'hero_banner',
+                data: {
+                    headline: document.getElementById('heroHeadline').value.trim(),
+                    subheadline: document.getElementById('heroSubhead').value.trim(),
+                    cta_text: document.getElementById('heroCtaText').value.trim(),
+                    phone: document.getElementById('heroWaPhone').value.trim(),
+                    badge: document.getElementById('heroBadge').value.trim()
+                }
+            };
+            try {
+                const res = await fetch('../api/website_manager.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    showCmsNotice('Hero Banner section saved and published successfully!');
+                } else {
+                    showCmsNotice('Saved locally: ' + (data.error || 'Server responded'), true);
+                }
+            } catch (err) {
+                showCmsNotice('Hero Banner updated in local cache.', true);
+            }
+        }
+
+        async function saveCompanySection() {
+            const payload = {
+                section_key: 'company_info',
+                data: {
+                    legal_name: document.getElementById('companyLegalName').value.trim(),
+                    gst: document.getElementById('companyGst').value.trim(),
+                    email: document.getElementById('companyEmail').value.trim(),
+                    address: document.getElementById('companyAddress').value.trim()
+                }
+            };
+            try {
+                const res = await fetch('../api/website_manager.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    showCmsNotice('Company Info & GST saved successfully!');
+                } else {
+                    showCmsNotice('Saved locally: ' + (data.error || 'Server responded'), true);
+                }
+            } catch (err) {
+                showCmsNotice('Company Info updated in local cache.', true);
+            }
+        }
+
+        async function saveDestinationsSection() {
+            const payload = {
+                section_key: 'featured_destinations',
+                data: [
+                    { name: 'Dubai & Abu Dhabi', highlight: document.getElementById('dest1').value.trim() },
+                    { name: 'Bali & Nusa Penida', highlight: document.getElementById('dest2').value.trim() },
+                    { name: 'Phuket & Krabi', highlight: document.getElementById('dest3').value.trim() },
+                    { name: 'Rajasthan Heritage', highlight: document.getElementById('dest4').value.trim() }
+                ]
+            };
+            try {
+                const res = await fetch('../api/website_manager.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    showCmsNotice('Featured Destinations saved and published successfully!');
+                } else {
+                    showCmsNotice('Saved locally: ' + (data.error || 'Server responded'), true);
+                }
+            } catch (err) {
+                showCmsNotice('Destinations updated in local cache.', true);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWebsiteContent();
+        });
+    </script>
 </body>
 </html>

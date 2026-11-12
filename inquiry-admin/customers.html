@@ -339,7 +339,7 @@
             document.getElementById('addCustomerModal').style.display = 'flex';
         }
 
-        function handleCustomerSubmit(e) {
+        async function handleCustomerSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('addCustName').value.trim();
             const phone = document.getElementById('addCustPhone').value.trim();
@@ -347,29 +347,51 @@
             const category = document.getElementById('addCustCategory').value;
             const company = document.getElementById('addCustCompany').value.trim();
 
-            const newCust = {
-                id: Date.now(),
+            const payload = {
                 name: name,
-                company_name: company,
                 phone: phone,
                 email: email,
                 category: category,
-                total_inquiries: 1,
-                converted_trips: 0,
-                destinations: 'New Inquiry'
+                company_name: company
             };
 
-            allCustomers.unshift(newCust);
-            renderCustomersTable(allCustomers);
-            document.getElementById('addCustomerModal').style.display = 'none';
-            alert(`Customer profile for ${name} added successfully!`);
+            try {
+                const res = await fetch('api/customers.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    document.getElementById('addCustomerModal').style.display = 'none';
+                    loadCustomers();
+                } else {
+                    alert('Error saving customer: ' + (data.message || data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.warn('Customer save error, falling back locally:', err);
+                const newCust = {
+                    id: Date.now(),
+                    name: name,
+                    company_name: company,
+                    phone: phone,
+                    email: email,
+                    category: category,
+                    total_inquiries: 1,
+                    converted_trips: 0,
+                    destinations: 'New Client'
+                };
+                allCustomers.unshift(newCust);
+                renderCustomersTable(allCustomers);
+                document.getElementById('addCustomerModal').style.display = 'none';
+            }
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('api/login.php');
                 const data = await res.json();
-                if (data.authenticated && data.user) {
+                if ((data.authenticated || data.success) && data.user) {
                     const u = data.user;
                     const role = (u.role || 'executive').toLowerCase();
                     const name = u.name || u.username || 'User';

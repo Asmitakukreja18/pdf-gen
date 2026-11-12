@@ -8,6 +8,9 @@ require_once __DIR__ . '/auth.php';
 
 $activeUser = checkSessionActivity(); // Ensure authenticated & within 15-minute activity window
 $pdo = getDbConnection();
+if (!$pdo) {
+    jsonError('Database connection unavailable', 503);
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
@@ -86,7 +89,7 @@ if ($action === 'upload' && !empty($_FILES['pdf_file'])) {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'application/pdf', ?, 'Final', NOW())
         ");
         $stmt->execute([
-            $docNo, $title, "Uploaded by $createdByName", $docType, $customerName, $destination, $file['name'], $dbFilePath, $fileSize, $createdByName
+            $docNo, $title, "Uploaded by $createdByName", $docType, $customerName, $destination, $safeName, $dbFilePath, $fileSize, $createdByName
         ]);
         $docId = $pdo->lastInsertId();
 

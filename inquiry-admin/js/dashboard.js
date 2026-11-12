@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Let's Explore DMC — Inquiry Admin Dashboard Controller
  */
 
@@ -141,7 +141,7 @@ function renderRecentTable(inquiries) {
             <td style="color:var(--text-muted); font-size:12.5px;">${timeAgo}</td>
             <td>
                 <div class="table-btn-group">
-                    <a href="../index.html?client=${encodeURIComponent(inq.name)}&dest=${encodeURIComponent(inq.destination || '')}" class="btn-tbl quote" title="Generate Travel Quote / Invoice in Studio">
+                    <a href="../studio.html?client=${encodeURIComponent(inq.name)}&dest=${encodeURIComponent(inq.destination || '')}" class="btn-tbl quote" title="Generate Travel Quote / Invoice in Studio">
                         <i class="fa-solid fa-file-invoice"></i>
                     </a>
                     <a href="inquiries.html" class="btn-tbl" title="View Full Details">
