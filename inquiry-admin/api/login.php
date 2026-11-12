@@ -7,7 +7,7 @@ require_once __DIR__ . '/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!empty($_SESSION['inquiry_admin'])) {
-        jsonSuccess(['user' => $_SESSION['inquiry_admin']], 'Authenticated');
+        jsonSuccess(['user' => $_SESSION['inquiry_admin'], 'authenticated' => true], 'Authenticated');
     } else {
         jsonError('Not authenticated', 401);
     }

@@ -1067,7 +1067,7 @@
                             <td><strong>${inq.destination || 'Dubai Special'}</strong></td>
                             <td><span class="status-pill-active">${inq.status || 'Proposal Sent'}</span></td>
                             <td>
-                                <a href="ai-assistant.html"')}" style="padding:6px 12px; background:#F1F5F9; border-radius:99px; text-decoration:none; color:#0F172A; font-weight:700; font-size:12px;">
+                                <a href="ai-assistant.html?client=${encodeURIComponent(inq.name || inq.client_name || '')}&dest=${encodeURIComponent(inq.destination || '')}" style="padding:6px 12px; background:#F1F5F9; border-radius:99px; text-decoration:none; color:#0F172A; font-weight:700; font-size:12px;">
                                     Quote &rarr;
                                 </a>
                             </td>

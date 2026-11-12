@@ -583,7 +583,7 @@ function filterAndRenderDocuments(searchTerm = '') {
                 <a href="${viewUrl}" download="${doc.title}.pdf" class="btn-card-act" title="Download PDF Document">
                     <i class="fa-solid fa-download"></i> Download
                 </a>
-                <a href="../index.html?load=${encodeURIComponent(doc.ref)}" class="btn-card-act" title="Edit in Document Studio">
+                <a href="../studio.html?load=${encodeURIComponent(doc.ref)}" class="btn-card-act" title="Edit in Document Studio">
                     <i class="fa-solid fa-pen"></i> Edit
                 </a>
                 <button class="btn-card-act btn-notes-doc" data-id="${doc.id}" data-title="${escapeHtml(doc.title)}" title="Internal Notes">

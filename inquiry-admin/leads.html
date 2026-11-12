@@ -451,7 +451,7 @@
         }
 
         function createQuotationForLead(leadNo, name, phone, email, dest, adults) {
-            const url = `../index.html?lead_id=${encodeURIComponent(leadNo)}&client_name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&dest=${encodeURIComponent(dest)}&pax=${encodeURIComponent(adults + ' Adults')}&from_lead=1`;
+            const url = `../studio.html?lead_id=${encodeURIComponent(leadNo)}&client_name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&dest=${encodeURIComponent(dest)}&pax=${encodeURIComponent(adults + ' Adults')}&from_lead=1`;
             window.location.href = url;
         }
 
@@ -543,7 +543,7 @@
             try {
                 const res = await fetch('api/login.php');
                 const data = await res.json();
-                if (data.authenticated && data.user) {
+                if ((data.authenticated || data.success) && data.user) {
                     const u = data.user;
                     const role = (u.role || 'executive').toLowerCase();
                     const name = u.name || u.username || 'User';

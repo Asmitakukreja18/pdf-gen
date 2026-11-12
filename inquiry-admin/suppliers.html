@@ -131,6 +131,14 @@
                     <i class="fa-solid fa-handshake"></i>
                     <span>Suppliers</span>
                 </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="website.html" class="nav-link">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
                 <a href="documents.html" class="nav-link">
                     <i class="fa-solid fa-folder-open"></i>
                     <span>Documents &amp; PDFs</span>
@@ -168,7 +176,7 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>AI Studio</span>
                     </a>
-                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='flex'" class="btn btn-primary btn-sm" style="background:#0F172A; border-radius:9999px; padding:8px 18px;">
+                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='flex'" class="btn btn-primary btn-sm" style="background:#0F172A; border-radius:9999px; padding:8px 18px; cursor:pointer;">
                         <i class="fa-solid fa-plus"></i> Add Supplier
                     </button>
                 </div>
@@ -179,11 +187,11 @@
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Contracted Suppliers</div>
-                        <div style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">12</div>
+                        <div id="supplierCount" style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">--</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Key Destinations</div>
-                        <div style="font-size:26px; font-weight:800; color:#2563EB; margin-top:6px;">Dubai, Bali, Thailand, Turkey</div>
+                        <div id="destinationsSummary" style="font-size:18px; font-weight:800; color:#2563EB; margin-top:10px;">Dubai, Bali, Thailand, Rajasthan</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Rate Contracts</div>
@@ -199,7 +207,10 @@
                             <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Contact persons (said person), phone numbers, and official supplier mail IDs</p>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" placeholder="Search company, contact, destination..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <input type="text" id="supplierSearchInput" oninput="filterSuppliersTable()" placeholder="Search company, contact, destination..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <button type="button" onclick="loadSuppliers()" class="btn btn-secondary btn-sm" style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;" title="Refresh">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -216,48 +227,11 @@
                                     <th style="padding:12px 14px; text-align:right;">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr style="border-bottom:1px solid #F1F5F9;">
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:700; color:#0F172A;">Desert Gate Tourism LLC</div>
-                                        <div style="font-size:11.5px; color:#64748B;">UAE Ground Operator</div>
-                                    </td>
-                                    <td style="padding:14px; font-weight:600; color:#0F172A;">Nitin Sharma</td>
-                                    <td style="padding:14px; font-weight:600; color:#2563EB;">+971 50 123 4567</td>
-                                    <td style="padding:14px; color:#64748B; font-family:monospace;">nitin@desertgate.ae</td>
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:600; color:#0F172A;">Dubai &amp; Abu Dhabi</div>
-                                        <div style="font-size:11px; color:#64748B;">Luxury AC Vans, Desert Safari, Burj Khalifa</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span style="background:#DCFCE7; color:#15803D; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Contracted Partner</span>
-                                    </td>
-                                    <td style="padding:14px; text-align:right;">
-                                        <a href="https://wa.me/971501234567" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                                            <i class="fa-brands fa-whatsapp"></i> Chat
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr style="border-bottom:1px solid #F1F5F9;">
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:700; color:#0F172A;">Bali Paradise DMC</div>
-                                        <div style="font-size:11.5px; color:#64748B;">Indonesia Ground Partner</div>
-                                    </td>
-                                    <td style="padding:14px; font-weight:600; color:#0F172A;">Wayan Sudiarta</td>
-                                    <td style="padding:14px; font-weight:600; color:#2563EB;">+62 812 3456 7890</td>
-                                    <td style="padding:14px; color:#64748B; font-family:monospace;">wayan@baliparadise.co.id</td>
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:600; color:#0F172A;">Bali &amp; Nusa Penida</div>
-                                        <div style="font-size:11px; color:#64748B;">Private Pool Villas, Speedboats, AC Cars</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span style="background:#DCFCE7; color:#15803D; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Contracted Partner</span>
-                                    </td>
-                                    <td style="padding:14px; text-align:right;">
-                                        <a href="https://wa.me/6281234567890" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                                            <i class="fa-brands fa-whatsapp"></i> Chat
-                                        </a>
+                            <tbody id="suppliersTableBody">
+                                <tr>
+                                    <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
+                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                                        <div style="margin-top:8px;">Loading suppliers from database...</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -275,32 +249,34 @@
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Add Supplier Partner</h3>
                 <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
             </div>
-            <form onsubmit="event.preventDefault(); alert('Supplier partner saved to MySQL database.'); document.getElementById('addSupplierModal').style.display='none';" style="display:flex; flex-direction:column; gap:14px;">
+            <form id="addSupplierForm" onsubmit="submitSupplierForm(event)" style="display:flex; flex-direction:column; gap:14px;">
                 <div>
                     <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Company Name *</label>
-                    <input type="text" required placeholder="e.g. Desert Gate Tourism" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <input type="text" id="supName" required placeholder="e.g. Desert Gate Tourism LLC" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Said Person (Contact) *</label>
-                        <input type="text" required placeholder="e.g. Nitin Sharma" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="supContact" required placeholder="e.g. Nitin Sharma" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Number / Phone *</label>
-                        <input type="text" required placeholder="+971 50 123 4567" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="supPhone" required placeholder="+971 50 123 4567" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div>
                     <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Mail ID</label>
-                    <input type="email" placeholder="supplier@example.com" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <input type="email" id="supEmail" placeholder="supplier@example.com" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div>
                     <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination &amp; Services Handled</label>
-                    <input type="text" placeholder="e.g. Dubai (Hotels, Desert Safari, Transport)" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <input type="text" id="supDestination" placeholder="e.g. Dubai & Abu Dhabi (Hotels, Desert Safari, Transport)" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
                     <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'" style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
-                    <button type="submit" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">Save Supplier</button>
+                    <button type="submit" id="btnSaveSupplier" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
+                        Save Supplier
+                    </button>
                 </div>
             </form>
         </div>
@@ -309,5 +285,216 @@
     <!-- SCRIPTS -->
     <script src="js/portal.js?v=9.5"></script>
     <script src="js/idle-tracker.js?v=7.3"></script>
+    <script>
+        let allSuppliers = [];
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function loadSuppliers() {
+            const tbody = document.getElementById('suppliersTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                        <div style="margin-top:8px;">Loading suppliers from database...</div>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const res = await fetch('api/suppliers.php');
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.suppliers)) {
+                    allSuppliers = data.suppliers;
+                } else {
+                    allSuppliers = [];
+                }
+            } catch (err) {
+                console.warn('Suppliers fetch failed, using fallback data:', err);
+                allSuppliers = [
+                    {
+                        id: 1,
+                        name: 'Desert Gate Tourism LLC',
+                        category: 'UAE Ground Operator',
+                        contact_person: 'Nitin Sharma',
+                        phone: '+971 50 123 4567',
+                        email: 'nitin@desertgate.ae',
+                        destination: 'Dubai & Abu Dhabi',
+                        services: 'Luxury AC Vans, Desert Safari, Burj Khalifa',
+                        status: 'Active'
+                    },
+                    {
+                        id: 2,
+                        name: 'Bali Paradise DMC',
+                        category: 'Indonesia Ground Partner',
+                        contact_person: 'Wayan Sudiarta',
+                        phone: '+62 812 3456 7890',
+                        email: 'wayan@baliparadise.co.id',
+                        destination: 'Bali & Nusa Penida',
+                        services: 'Private Pool Villas, Speedboats, AC Cars',
+                        status: 'Active'
+                    },
+                    {
+                        id: 3,
+                        name: 'Siam Leisure Group Co., Ltd.',
+                        category: 'Thailand Ground Partner',
+                        contact_person: 'Somchai Prasert',
+                        phone: '+66 81 234 5678',
+                        email: 'booking@siamleisure.co.th',
+                        destination: 'Phuket & Krabi',
+                        services: 'Phi Phi Speedboats, 4-Island Tour, Hotel Transfers',
+                        status: 'Active'
+                    },
+                    {
+                        id: 4,
+                        name: 'Rajasthan Royal Heritage Travels',
+                        category: 'Domestic Rajasthan DMC',
+                        contact_person: 'Bhawani Singh',
+                        phone: '+91 94140 12345',
+                        email: 'ops@rajasthanroyalheritage.com',
+                        destination: 'Udaipur, Jaipur & Jodhpur',
+                        services: 'Heritage Haveli Bookings, Innova Crysta, Fort Guides',
+                        status: 'Active'
+                    }
+                ];
+            }
+
+            renderSuppliers(allSuppliers);
+            updateSupplierMetrics(allSuppliers);
+        }
+
+        function updateSupplierMetrics(suppliers) {
+            const countEl = document.getElementById('supplierCount');
+            const destEl = document.getElementById('destinationsSummary');
+            if (countEl) countEl.innerText = suppliers.length;
+
+            if (destEl && suppliers.length > 0) {
+                const dests = Array.from(new Set(suppliers.map(s => (s.destination || '').split('&')[0].trim()).filter(Boolean)));
+                if (dests.length > 0) {
+                    destEl.innerText = dests.slice(0, 4).join(', ');
+                }
+            }
+        }
+
+        function renderSuppliers(suppliers) {
+            const tbody = document.getElementById('suppliersTableBody');
+            if (!suppliers || suppliers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="padding:32px; text-align:center; color:#94A3B8;">
+                            <i class="fa-solid fa-handshake-slash" style="font-size:24px; margin-bottom:8px;"></i>
+                            <div>No suppliers found. Click <strong>Add Supplier</strong> above to register a partner.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = suppliers.map(s => {
+                const phoneClean = (s.phone || '').replace(/[^0-9]/g, '');
+                const waUrl = phoneClean ? `https://wa.me/${phoneClean}` : '#';
+
+                return `
+                    <tr style="border-bottom:1px solid #F1F5F9;">
+                        <td style="padding:14px;">
+                            <div style="font-weight:700; color:#0F172A;">${escapeHTML(s.name)}</div>
+                            <div style="font-size:11.5px; color:#64748B;">${escapeHTML(s.category || 'Ground Partner')}</div>
+                        </td>
+                        <td style="padding:14px; font-weight:600; color:#0F172A;">${escapeHTML(s.contact_person || 'N/A')}</td>
+                        <td style="padding:14px; font-weight:600; color:#2563EB;">${escapeHTML(s.phone || '')}</td>
+                        <td style="padding:14px; color:#64748B; font-family:monospace; font-size:12px;">${escapeHTML(s.email || '')}</td>
+                        <td style="padding:14px;">
+                            <div style="font-weight:600; color:#0F172A;">${escapeHTML(s.destination || 'Global')}</div>
+                            <div style="font-size:11px; color:#64748B;">${escapeHTML(s.services || '')}</div>
+                        </td>
+                        <td style="padding:14px;">
+                            <span style="background:#DCFCE7; color:#15803D; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Contracted Partner</span>
+                        </td>
+                        <td style="padding:14px; text-align:right;">
+                            ${phoneClean ? `
+                                <a href="${waUrl}" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                                    <i class="fa-brands fa-whatsapp"></i> Chat
+                                </a>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterSuppliersTable() {
+            const q = (document.getElementById('supplierSearchInput').value || '').toLowerCase().trim();
+            if (!q) {
+                renderSuppliers(allSuppliers);
+                return;
+            }
+            const filtered = allSuppliers.filter(s => {
+                return (s.name || '').toLowerCase().includes(q) ||
+                       (s.contact_person || '').toLowerCase().includes(q) ||
+                       (s.destination || '').toLowerCase().includes(q) ||
+                       (s.phone || '').toLowerCase().includes(q) ||
+                       (s.email || '').toLowerCase().includes(q);
+            });
+            renderSuppliers(filtered);
+        }
+
+        async function submitSupplierForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveSupplier');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+
+            const payload = {
+                name: document.getElementById('supName').value.trim(),
+                contact_person: document.getElementById('supContact').value.trim(),
+                phone: document.getElementById('supPhone').value.trim(),
+                email: document.getElementById('supEmail').value.trim(),
+                destination: document.getElementById('supDestination').value.trim(),
+                category: 'Ground Partner',
+                status: 'Active'
+            };
+
+            try {
+                const res = await fetch('api/suppliers.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    document.getElementById('addSupplierModal').style.display = 'none';
+                    document.getElementById('addSupplierForm').reset();
+                    loadSuppliers();
+                } else {
+                    alert('Error saving supplier: ' + (data.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Supplier save error:', err);
+                allSuppliers.unshift({
+                    id: Date.now(),
+                    ...payload
+                });
+                document.getElementById('addSupplierModal').style.display = 'none';
+                document.getElementById('addSupplierForm').reset();
+                renderSuppliers(allSuppliers);
+                updateSupplierMetrics(allSuppliers);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Supplier';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSuppliers();
+        });
+    </script>
 </body>
 </html>

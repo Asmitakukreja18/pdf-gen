@@ -20,15 +20,33 @@ if (!$payload || !is_array($payload)) {
     exit;
 }
 
-// Extract primary quotation attributes
-$quoteRef     = !empty($payload['quoteRef']) ? trim($payload['quoteRef']) : ('LEDMC-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8)));
-$clientName   = !empty($payload['client']['name']) ? trim($payload['client']['name']) : (!empty($payload['clientName']) ? trim($payload['clientName']) : 'Guest Traveller');
-$clientPhone  = !empty($payload['client']['phone']) ? trim($payload['client']['phone']) : '';
-$clientEmail  = !empty($payload['client']['email']) ? trim($payload['client']['email']) : '';
-$destination  = !empty($payload['destination']) ? trim($payload['destination']) : 'Custom Destination';
-$travelDate   = !empty($payload['client']['travelDate']) ? trim($payload['client']['travelDate']) : '';
-$duration     = !empty($payload['client']['duration']) ? trim($payload['client']['duration']) : '';
-$paxCount     = !empty($payload['client']['pax']) ? trim($payload['client']['pax']) : '2 Adults';
+// Extract primary quotation attributes (handles both db-manager format and QuotationData format)
+$quoteRef     = !empty($payload['quoteRef']) ? trim($payload['quoteRef']) : (!empty($payload['quote_ref']) ? trim($payload['quote_ref']) : ('LEDMC-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8))));
+$clientName   = !empty($payload['client']['name']) ? trim($payload['client']['name']) :
+                (!empty($payload['package']['clientName']) ? trim($payload['package']['clientName']) :
+                (!empty($payload['clientName']) ? trim($payload['clientName']) : 'Guest Traveller'));
+
+$clientPhone  = !empty($payload['client']['phone']) ? trim($payload['client']['phone']) :
+                (!empty($payload['package']['clientPhone']) ? trim($payload['package']['clientPhone']) :
+                (!empty($payload['clientPhone']) ? trim($payload['clientPhone']) : ''));
+
+$clientEmail  = !empty($payload['client']['email']) ? trim($payload['client']['email']) :
+                (!empty($payload['package']['clientEmail']) ? trim($payload['package']['clientEmail']) :
+                (!empty($payload['clientEmail']) ? trim($payload['clientEmail']) : ''));
+
+$destination  = !empty($payload['destination']) ? trim($payload['destination']) :
+                (!empty($payload['package']['destinations']) ? trim($payload['package']['destinations']) :
+                (!empty($payload['package']['destination']) ? trim($payload['package']['destination']) : 'Custom Destination'));
+
+$travelDate   = !empty($payload['client']['travelDate']) ? trim($payload['client']['travelDate']) :
+                (!empty($payload['package']['travelDate']) ? trim($payload['package']['travelDate']) : '');
+
+$duration     = !empty($payload['client']['duration']) ? trim($payload['client']['duration']) :
+                (!empty($payload['package']['duration']) ? trim($payload['package']['duration']) : '');
+
+$paxCount     = !empty($payload['client']['pax']) ? trim($payload['client']['pax']) :
+                (!empty($payload['package']['paxCount']) ? trim($payload['package']['paxCount']) : '2 Adults');
+
 $hotelName    = !empty($payload['landArrangement']['hotelName']) ? trim($payload['landArrangement']['hotelName']) : '';
 $hotelNights  = !empty($payload['landArrangement']['nights']) ? trim($payload['landArrangement']['nights']) : '';
 $flightAirline= !empty($payload['flightDetails']['airline']) ? trim($payload['flightDetails']['airline']) : '';
@@ -37,7 +55,9 @@ $flightSector = (!empty($payload['flightDetails']['origin']) && !empty($payload[
 
 $flightsTotal = isset($payload['flightsTotal']) ? floatval($payload['flightsTotal']) : 0.00;
 $landTotal    = isset($payload['landTotal']) ? floatval($payload['landTotal']) : 0.00;
-$grandTotal   = isset($payload['grandTotal']) ? floatval($payload['grandTotal']) : ($flightsTotal + $landTotal);
+$grandTotal   = isset($payload['grandTotal']) ? floatval($payload['grandTotal']) :
+                (isset($payload['summary']['totalINR']) ? floatval($payload['summary']['totalINR']) :
+                ($flightsTotal + $landTotal));
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

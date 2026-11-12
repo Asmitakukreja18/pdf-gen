@@ -74,21 +74,36 @@ const DBManager = (() => {
     }
 
     // Ensure quotation reference exists
-    if (!data.quoteRef) {
-      const destCode = (data.destination || 'GEN').substring(0, 3).toUpperCase();
-      data.quoteRef = `LEDMC-${destCode}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    }
+    const qRef = data.quoteRef || data.quote_ref || `LEDMC-${(data.destination || data.package?.destinations || 'GEN').substring(0, 3).toUpperCase()}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    data.quoteRef = qRef;
+
+    const clientName = data.client?.name || data.package?.clientName || data.clientName || 'Rohit Sharma';
+    const clientPhone = data.client?.phone || data.package?.clientPhone || data.phone || '';
+    const clientEmail = data.client?.email || data.package?.clientEmail || data.email || '';
+    const destination = data.destination || data.package?.destinations || data.package?.destination || 'Custom Destination';
+    const travelDate = data.client?.travelDate || data.package?.travelDate || '';
+    const duration = data.client?.duration || data.package?.duration || '5 Days / 4 Nights';
+    const paxCount = data.client?.pax || data.package?.paxCount || '2 Adults';
+    const grandTotal = data.grandTotal || data.summary?.totalINR || (data.flightsTotal + data.landTotal) || 103000;
 
     const payload = {
-      quoteRef: data.quoteRef,
-      clientName: data.client?.name || 'Rohit Sharma',
-      client: data.client,
-      destination: data.destination,
+      quoteRef: qRef,
+      clientName: clientName,
+      client: {
+        name: clientName,
+        phone: clientPhone,
+        email: clientEmail,
+        travelDate: travelDate,
+        duration: duration,
+        pax: paxCount
+      },
+      package: data.package,
+      destination: destination,
       flightDetails: data.flightDetails,
       landArrangement: data.landArrangement,
       flightsTotal: data.flightsTotal || 55000,
       landTotal: data.landTotal || 48000,
-      grandTotal: data.grandTotal || (data.flightsTotal + data.landTotal) || 103000,
+      grandTotal: grandTotal,
       status: 'Confirmed'
     };
 
@@ -96,11 +111,11 @@ const DBManager = (() => {
     const localRecord = {
       quote_ref: payload.quoteRef,
       client_name: payload.clientName,
-      client_phone: payload.client?.phone || '',
+      client_phone: clientPhone,
       destination: payload.destination,
-      travel_date: payload.client?.travelDate || '',
-      duration: payload.client?.duration || '',
-      pax_count: payload.client?.pax || '2 Adults',
+      travel_date: travelDate,
+      duration: duration,
+      pax_count: paxCount,
       hotel_name: payload.landArrangement?.hotelName || '',
       flight_airline: payload.flightDetails?.airline || '',
       flights_total: payload.flightsTotal,

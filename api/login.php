@@ -9,7 +9,7 @@ require_once __DIR__ . '/auth.php';
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Check current session status
     if (isAuthenticated()) {
-        jsonSuccess(['user' => getCurrentUser()], 'Authenticated');
+        jsonSuccess(['user' => getCurrentUser(), 'authenticated' => true], 'Authenticated');
     } else {
         jsonError('Not authenticated', 401);
     }

@@ -207,7 +207,7 @@
       <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as Vector PDF">
         <i class="fa-solid fa-print"></i> Print / Save
       </button>
-      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="index.html" title="Open this document in AI Studio">
+      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="studio.html" title="Open this document in AI Studio">
         <i class="fa-solid fa-pen-to-square"></i> Edit in Studio
       </a>
     </div>
@@ -245,7 +245,7 @@
       const autoPrint = urlParams.get('print') === '1';
 
       document.getElementById('refBadge').textContent = quoteRef;
-      document.getElementById('btnEditStudio').href = `index.html?load_client=${encodeURIComponent(clientName)}&dest=${encodeURIComponent(destination)}&lead_id=${encodeURIComponent(quoteRef)}&phone=${encodeURIComponent(clientPhone)}&email=${encodeURIComponent(clientEmail)}&pax=${encodeURIComponent(paxCount)}`;
+      document.getElementById('btnEditStudio').href = `studio.html?load_client=${encodeURIComponent(clientName)}&dest=${encodeURIComponent(destination)}&lead_id=${encodeURIComponent(quoteRef)}&phone=${encodeURIComponent(clientPhone)}&email=${encodeURIComponent(clientEmail)}&pax=${encodeURIComponent(paxCount)}`;
 
       let quotation = null;
 

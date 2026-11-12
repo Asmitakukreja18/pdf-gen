@@ -143,6 +143,14 @@
                     <i class="fa-solid fa-handshake"></i>
                     <span>Suppliers</span>
                 </a>
+                <a href="invoices.html" class="nav-link">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="website.html" class="nav-link">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
                 <a href="documents.html" class="nav-link">
                     <i class="fa-solid fa-folder-open"></i>
                     <span>Documents &amp; PDFs</span>
@@ -180,7 +188,7 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>AI Studio</span>
                     </a>
-                    <button type="button" onclick="document.getElementById('addTripModal').style.display='flex'" class="btn btn-primary btn-sm" style="background:#0F172A; border-radius:9999px; padding:8px 18px;">
+                    <button type="button" onclick="document.getElementById('addTripModal').style.display='flex'" class="btn btn-primary btn-sm" style="background:#0F172A; border-radius:9999px; padding:8px 18px; cursor:pointer;">
                         <i class="fa-solid fa-plus"></i> Add Running Trip
                     </button>
                 </div>
@@ -191,15 +199,15 @@
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Active On-Ground Trips</div>
-                        <div style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">4</div>
+                        <div id="activeTripsCount" style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">--</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Upcoming Departures</div>
-                        <div style="font-size:26px; font-weight:800; color:#2563EB; margin-top:6px;">7</div>
+                        <div id="upcomingTripsCount" style="font-size:26px; font-weight:800; color:#2563EB; margin-top:6px;">--</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">On-Ground Coordinators</div>
-                        <div style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">Nitin + 3 Local</div>
+                        <div id="coordinatorsCount" style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">Nitin + Local Team</div>
                     </div>
                 </div>
 
@@ -211,7 +219,10 @@
                             <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Flight sectors, hotel vouchers, and 24x7 coordinator support tracking</p>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" placeholder="Search client, sector, coordinator..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <input type="text" id="tripSearchInput" oninput="filterTripsTable()" placeholder="Search client, sector, coordinator..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <button type="button" onclick="loadTrips()" class="btn btn-secondary btn-sm" style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;" title="Refresh">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -228,62 +239,11 @@
                                     <th style="padding:12px 14px; text-align:right;">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr style="border-bottom:1px solid #F1F5F9;">
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:700; color:#0F172A;">Akash Dewani</div>
-                                        <div style="font-size:11.5px; color:#64748B;">2 Adults, 1 Child &bull; Dewani Travels B2B</div>
-                                    </td>
-                                    <td style="padding:14px; font-weight:600; color:#2563EB;">Dubai &amp; Abu Dhabi</td>
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:600; color:#0F172A;">Mum - Mum (BOM-DXB-BOM)</div>
-                                        <div style="font-size:11px; color:#64748B;">Emirates EK-501 &bull; Direct Return</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#EFF6FF; color:#1D4ED8; padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:700;">
-                                            <i class="fa-solid fa-user-tie"></i> Nitin
-                                        </span>
-                                    </td>
-                                    <td style="padding:14px; color:#475569;">
-                                        <div>05 Nov 2026 - 10 Nov 2026</div>
-                                        <div style="font-size:11px; color:#94A3B8;">6 Days / 5 Nights</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span class="status-pill status-confirmed" style="background:#DCFCE7; color:#15803D; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">On-Ground Running</span>
-                                    </td>
-                                    <td style="padding:14px; text-align:right;">
-                                        <a href="https://wa.me/918007586881?text=Hi%20Nitin,%20guest%20Akash%20Dewani%20Dubai%20trip%20update" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                                            <i class="fa-brands fa-whatsapp"></i> Coordinator
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr style="border-bottom:1px solid #F1F5F9;">
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:700; color:#0F172A;">Dipesh Batra</div>
-                                        <div style="font-size:11.5px; color:#64748B;">2 Adults &bull; Direct B2C</div>
-                                    </td>
-                                    <td style="padding:14px; font-weight:600; color:#2563EB;">Rajasthan Heritage (Udaipur + Jaipur)</td>
-                                    <td style="padding:14px;">
-                                        <div style="font-weight:600; color:#0F172A;">Del - Del (DEL-UDR-DEL)</div>
-                                        <div style="font-size:11px; color:#64748B;">IndiGo 6E-241</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#EFF6FF; color:#1D4ED8; padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:700;">
-                                            <i class="fa-solid fa-user-tie"></i> Nitin
-                                        </span>
-                                    </td>
-                                    <td style="padding:14px; color:#475569;">
-                                        <div>08 Nov 2026 - 12 Nov 2026</div>
-                                        <div style="font-size:11px; color:#94A3B8;">5 Days / 4 Nights</div>
-                                    </td>
-                                    <td style="padding:14px;">
-                                        <span class="status-pill status-in-review" style="background:#FEF3C7; color:#B45309; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Departing Soon</span>
-                                    </td>
-                                    <td style="padding:14px; text-align:right;">
-                                        <a href="https://wa.me/918007586881?text=Hi%20Nitin,%20guest%20Dipesh%20Batra%20Udaipur%20trip%20update" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
-                                            <i class="fa-brands fa-whatsapp"></i> Coordinator
-                                        </a>
+                            <tbody id="tripsTableBody">
+                                <tr>
+                                    <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
+                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                                        <div style="margin-top:8px;">Loading running trips from database...</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -301,30 +261,46 @@
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Add Running Tour Trip</h3>
                 <button type="button" onclick="document.getElementById('addTripModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
             </div>
-            <form onsubmit="event.preventDefault(); alert('Running trip record created and assigned to on-ground coordinator Nitin.'); document.getElementById('addTripModal').style.display='none';" style="display:flex; flex-direction:column; gap:14px;">
+            <form id="addTripForm" onsubmit="submitTripForm(event)" style="display:flex; flex-direction:column; gap:14px;">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Client Name *</label>
-                        <input type="text" class="form-control" required placeholder="e.g. Akash Dewani" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripClientName" class="form-control" required placeholder="e.g. Akash Dewani" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination *</label>
-                        <input type="text" class="form-control" required placeholder="e.g. Dubai" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripDestination" class="form-control" required placeholder="e.g. Dubai &amp; Abu Dhabi" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Flight Details (Sector)</label>
-                        <input type="text" class="form-control" placeholder="Mum - Mum" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripSector" class="form-control" placeholder="Mum - Mum (BOM-DXB-BOM)" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Coordinator *</label>
-                        <input type="text" class="form-control" value="Nitin" required style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripCoordinator" class="form-control" value="Nitin" required style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Start Date</label>
+                        <input type="date" id="tripStartDate" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">End Date</label>
+                        <input type="date" id="tripEndDate" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Guest / Group Details</label>
+                    <input type="text" id="tripGuestInfo" placeholder="e.g. 2 Adults, 1 Child &bull; Dewani Travels B2B" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
                     <button type="button" onclick="document.getElementById('addTripModal').style.display='none'" class="btn btn-secondary btn-sm" style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">Save Trip</button>
+                    <button type="submit" id="btnSaveTrip" class="btn btn-primary btn-sm" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
+                        Save Trip
+                    </button>
                 </div>
             </form>
         </div>
@@ -333,5 +309,215 @@
     <!-- SCRIPTS -->
     <script src="js/portal.js?v=9.5"></script>
     <script src="js/idle-tracker.js?v=7.3"></script>
+    <script>
+        let allTrips = [];
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function loadTrips() {
+            const tbody = document.getElementById('tripsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                        <div style="margin-top:8px;">Loading running trips from database...</div>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const res = await fetch('api/trips.php');
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.trips)) {
+                    allTrips = data.trips;
+                } else {
+                    allTrips = [];
+                }
+            } catch (err) {
+                console.warn('Trips fetch failed, using fallback data:', err);
+                allTrips = [
+                    {
+                        id: 1,
+                        client_name: 'Akash Dewani',
+                        guest_info: '2 Adults, 1 Child • Dewani Travels B2B',
+                        destination: 'Dubai & Abu Dhabi',
+                        flight_details: 'Mum - Mum (BOM-DXB-BOM)\nEmirates EK-501 • Direct Return',
+                        coordinator: 'Nitin',
+                        coordinator_phone: '918007586881',
+                        start_date: '2026-11-05',
+                        end_date: '2026-11-10',
+                        duration_text: '6 Days / 5 Nights',
+                        status: 'running'
+                    },
+                    {
+                        id: 2,
+                        client_name: 'Dipesh Batra',
+                        guest_info: '2 Adults • Direct B2C',
+                        destination: 'Rajasthan Heritage (Udaipur + Jaipur)',
+                        flight_details: 'Del - Del (DEL-UDR-DEL)\nIndiGo 6E-241',
+                        coordinator: 'Nitin',
+                        coordinator_phone: '918007586881',
+                        start_date: '2026-11-08',
+                        end_date: '2026-11-12',
+                        duration_text: '5 Days / 4 Nights',
+                        status: 'upcoming'
+                    }
+                ];
+            }
+
+            renderTrips(allTrips);
+            updateTripMetrics(allTrips);
+        }
+
+        function updateTripMetrics(trips) {
+            const active = trips.filter(t => (t.status || '').toLowerCase() === 'running').length;
+            const upcoming = trips.filter(t => (t.status || '').toLowerCase() === 'upcoming').length;
+            const coordinators = new Set(trips.map(t => t.coordinator).filter(Boolean));
+
+            const activeEl = document.getElementById('activeTripsCount');
+            const upEl = document.getElementById('upcomingTripsCount');
+            const coordEl = document.getElementById('coordinatorsCount');
+
+            if (activeEl) activeEl.innerText = active;
+            if (upEl) upEl.innerText = upcoming;
+            if (coordEl) coordEl.innerText = coordinators.size > 0 ? Array.from(coordinators).join(', ') : 'Nitin';
+        }
+
+        function renderTrips(trips) {
+            const tbody = document.getElementById('tripsTableBody');
+            if (!trips || trips.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="padding:32px; text-align:center; color:#94A3B8;">
+                            <i class="fa-solid fa-plane-slash" style="font-size:24px; margin-bottom:8px;"></i>
+                            <div>No running trips found. Click <strong>Add Running Trip</strong> above to schedule one.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = trips.map(t => {
+                const st = (t.status || 'upcoming').toLowerCase();
+                let statusBadge = '<span class="status-pill status-in-review" style="background:#FEF3C7; color:#B45309; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Upcoming</span>';
+                if (st === 'running' || st === 'active') {
+                    statusBadge = '<span class="status-pill status-confirmed" style="background:#DCFCE7; color:#15803D; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">On-Ground Running</span>';
+                } else if (st === 'completed') {
+                    statusBadge = '<span class="status-pill" style="background:#F1F5F9; color:#475569; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700;">Completed</span>';
+                }
+
+                const phone = t.coordinator_phone || '918007586881';
+                const waUrl = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi ' + (t.coordinator || 'Coordinator') + ', update for guest ' + t.client_name + ' (' + t.destination + ')')}`;
+
+                return `
+                    <tr style="border-bottom:1px solid #F1F5F9;">
+                        <td style="padding:14px;">
+                            <div style="font-weight:700; color:#0F172A;">${escapeHTML(t.client_name)}</div>
+                            <div style="font-size:11.5px; color:#64748B;">${escapeHTML(t.guest_info || t.pax_details || 'Guests')}</div>
+                        </td>
+                        <td style="padding:14px; font-weight:600; color:#2563EB;">${escapeHTML(t.destination)}</td>
+                        <td style="padding:14px;">
+                            <div style="font-weight:600; color:#0F172A;">${escapeHTML(t.flight_details || t.sector || 'TBA')}</div>
+                        </td>
+                        <td style="padding:14px;">
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:#EFF6FF; color:#1D4ED8; padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:700;">
+                                <i class="fa-solid fa-user-tie"></i> ${escapeHTML(t.coordinator || 'Nitin')}
+                            </span>
+                        </td>
+                        <td style="padding:14px; color:#475569;">
+                            <div>${escapeHTML(t.start_date || '')} ${t.end_date ? 'to ' + escapeHTML(t.end_date) : ''}</div>
+                            <div style="font-size:11px; color:#94A3B8;">${escapeHTML(t.duration_text || '')}</div>
+                        </td>
+                        <td style="padding:14px;">
+                            ${statusBadge}
+                        </td>
+                        <td style="padding:14px; text-align:right;">
+                            <a href="${waUrl}" target="_blank" style="padding:6px 12px; background:#25D366; color:#FFF; border-radius:6px; text-decoration:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                                <i class="fa-brands fa-whatsapp"></i> Coordinator
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterTripsTable() {
+            const q = (document.getElementById('tripSearchInput').value || '').toLowerCase().trim();
+            if (!q) {
+                renderTrips(allTrips);
+                return;
+            }
+            const filtered = allTrips.filter(t => {
+                return (t.client_name || '').toLowerCase().includes(q) ||
+                       (t.destination || '').toLowerCase().includes(q) ||
+                       (t.flight_details || '').toLowerCase().includes(q) ||
+                       (t.coordinator || '').toLowerCase().includes(q);
+            });
+            renderTrips(filtered);
+        }
+
+        async function submitTripForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveTrip');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+
+            const payload = {
+                client_name: document.getElementById('tripClientName').value.trim(),
+                destination: document.getElementById('tripDestination').value.trim(),
+                sector: document.getElementById('tripSector').value.trim(),
+                flight_details: document.getElementById('tripSector').value.trim(),
+                coordinator: document.getElementById('tripCoordinator').value.trim(),
+                start_date: document.getElementById('tripStartDate').value,
+                end_date: document.getElementById('tripEndDate').value,
+                guest_info: document.getElementById('tripGuestInfo').value.trim(),
+                status: 'upcoming'
+            };
+
+            try {
+                const res = await fetch('api/trips.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    document.getElementById('addTripModal').style.display = 'none';
+                    document.getElementById('addTripForm').reset();
+                    document.getElementById('tripCoordinator').value = 'Nitin';
+                    loadTrips();
+                } else {
+                    alert('Error saving trip: ' + (data.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Trip save error:', err);
+                // Graceful local save
+                allTrips.unshift({
+                    id: Date.now(),
+                    ...payload,
+                    duration_text: 'Upcoming Trip'
+                });
+                document.getElementById('addTripModal').style.display = 'none';
+                document.getElementById('addTripForm').reset();
+                renderTrips(allTrips);
+                updateTripMetrics(allTrips);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Trip';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTrips();
+        });
+    </script>
 </body>
 </html>
