@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suppliers &amp; Vendors — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=14.0">
     <!-- Strict Authentication Guard -->
     <script>
-        (function() {
+        (function () {
             try {
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
                     window.location.replace('index.html?auth=required&dest=suppliers.html');
                 }
-            } catch(e) {
+            } catch (e) {
                 window.location.replace('index.html?auth=required');
             }
         })();
@@ -29,12 +32,14 @@
             --brand-gold: #D97706;
             --bg-ivory: #F8FAFC;
         }
+
         body {
             background-color: var(--bg-ivory);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #0F172A;
             margin: 0;
         }
+
         .portal-sidebar {
             background: var(--sidebar-navy);
             width: 260px;
@@ -42,16 +47,19 @@
             flex-direction: column;
             transition: all 0.28s ease;
         }
+
         .sidebar-header {
             padding: 24px 22px 18px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         }
+
         .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
         }
+
         .brand-icon-box {
             width: 38px;
             height: 38px;
@@ -63,13 +71,18 @@
             justify-content: center;
             font-size: 18px;
         }
+
         .brand-text-gold {
             font-size: 17px;
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: -0.02em;
         }
-        .brand-text-gold span { color: var(--brand-gold); }
+
+        .brand-text-gold span {
+            color: var(--brand-gold);
+        }
+
         .sidebar-menu {
             padding: 16px 14px;
             display: flex;
@@ -77,6 +90,7 @@
             gap: 4px;
             flex: 1;
         }
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -89,16 +103,27 @@
             text-decoration: none;
             transition: all 0.2s ease;
         }
-        .nav-link:hover { color: #FFFFFF; background: rgba(255,255,255,0.06); }
+
+        .nav-link:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
         .nav-link.active {
             background: var(--brand-blue);
             color: #FFFFFF;
             font-weight: 700;
             box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
         }
-        .nav-link i { width: 18px; font-size: 15px; text-align: center; }
+
+        .nav-link i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="portal-wrapper">
@@ -166,7 +191,8 @@
                 </a>
             </nav>
 
-            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="sidebar-logout-wrap"
+                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
@@ -179,17 +205,22 @@
             <!-- TOPBAR -->
             <header class="portal-topbar">
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" style="background:none; border:none; font-size:18px; cursor:pointer;">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger"
+                        style="background:none; border:none; font-size:18px; cursor:pointer;">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div style="font-size:16px; font-weight:800; color:#0F172A;">DMC Suppliers &amp; Ground Partners</div>
+                    <div style="font-size:16px; font-weight:800; color:#0F172A;">DMC Suppliers &amp; Ground Partners
+                    </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <a href="ai-assistant.html" style="background:#2563EB; color:#FFF; font-weight:700; font-size:13px; padding:8px 16px; border-radius:9999px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                    <a href="ai-assistant.html"
+                        style="background:#2563EB; color:#FFF; font-weight:700; font-size:13px; padding:8px 16px; border-radius:9999px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>AI Studio</span>
                     </a>
-                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='flex'" class="btn btn-primary btn-sm" style="background:#0F172A; border-radius:9999px; padding:8px 18px; cursor:pointer;">
+                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='flex'"
+                        class="btn btn-primary btn-sm"
+                        style="background:#0F172A; border-radius:9999px; padding:8px 18px; cursor:pointer;">
                         <i class="fa-solid fa-plus"></i> Add Supplier
                     </button>
                 </div>
@@ -197,31 +228,46 @@
 
             <main class="portal-content" style="padding:28px 32px;">
                 <!-- STATS -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Contracted Suppliers</div>
-                        <div id="supplierCount" style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">--</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">
+                            Contracted Suppliers</div>
+                        <div id="supplierCount" style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">
+                            --</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Key Destinations</div>
-                        <div id="destinationsSummary" style="font-size:18px; font-weight:800; color:#2563EB; margin-top:10px;">Dubai, Bali, Thailand, Rajasthan</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Key
+                            Destinations</div>
+                        <div id="destinationsSummary"
+                            style="font-size:18px; font-weight:800; color:#2563EB; margin-top:10px;">Dubai, Bali,
+                            Thailand, Rajasthan</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Rate Contracts</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Rate
+                            Contracts</div>
                         <div style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">100% Verified</div>
                     </div>
                 </div>
 
                 <!-- SUPPLIERS TABLE -->
-                <div style="background:#FFF; border-radius:16px; border:1px solid #E2E8F0; padding:22px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+                <div
+                    style="background:#FFF; border-radius:16px; border:1px solid #E2E8F0; padding:22px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                         <div>
-                            <h2 style="margin:0; font-size:18px; font-weight:800; color:#0F172A;">On-Ground Partners Directory</h2>
-                            <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Contact persons (said person), phone numbers, and official supplier mail IDs</p>
+                            <h2 style="margin:0; font-size:18px; font-weight:800; color:#0F172A;">On-Ground Partners
+                                Directory</h2>
+                            <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Contact persons (said person),
+                                phone numbers, and official supplier mail IDs</p>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" id="supplierSearchInput" oninput="filterSuppliersTable()" placeholder="Search company, contact, destination..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
-                            <button type="button" onclick="loadSuppliers()" class="btn btn-secondary btn-sm" style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;" title="Refresh">
+                            <input type="text" id="supplierSearchInput" oninput="filterSuppliersTable()"
+                                placeholder="Search company, contact, destination..."
+                                style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <button type="button" onclick="loadSuppliers()" class="btn btn-secondary btn-sm"
+                                style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;"
+                                title="Refresh">
                                 <i class="fa-solid fa-rotate"></i>
                             </button>
                         </div>
@@ -230,7 +276,8 @@
                     <div style="overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
                             <thead>
-                                <tr style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#64748B; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
+                                <tr
+                                    style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#64748B; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
                                     <th style="padding:12px 14px;">Company Name</th>
                                     <th style="padding:12px 14px;">Said Person (Contact)</th>
                                     <th style="padding:12px 14px;">Number / Phone</th>
@@ -243,7 +290,8 @@
                             <tbody id="suppliersTableBody">
                                 <tr>
                                     <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
-                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                                        <i class="fa-solid fa-circle-notch fa-spin"
+                                            style="font-size:20px; color:#2563EB;"></i>
                                         <div style="margin-top:8px;">Loading suppliers from database...</div>
                                     </td>
                                 </tr>
@@ -256,38 +304,61 @@
     </div>
 
     <!-- Add Supplier Modal -->
-    <div id="addSupplierModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.6); align-items:center; justify-content:center; padding:20px;">
-        <div style="background:#FFF; border-radius:14px; width:100%; max-width:540px; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #E2E8F0; padding-bottom:10px;">
+    <div id="addSupplierModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.6); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:540px; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #E2E8F0; padding-bottom:10px;">
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Add Supplier Partner</h3>
-                <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
+                <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'"
+                    style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
             </div>
-            <form id="addSupplierForm" onsubmit="submitSupplierForm(event)" style="display:flex; flex-direction:column; gap:14px;">
+            <form id="addSupplierForm" onsubmit="submitSupplierForm(event)"
+                style="display:flex; flex-direction:column; gap:14px;">
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Company Name *</label>
-                    <input type="text" id="supName" required placeholder="e.g. Desert Gate Tourism LLC" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Company
+                        Name *</label>
+                    <input type="text" id="supName" required placeholder="e.g. Desert Gate Tourism LLC"
+                        style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Said Person (Contact) *</label>
-                        <input type="text" id="supContact" required placeholder="e.g. Nitin Sharma" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Said
+                            Person (Contact) *</label>
+                        <input type="text" id="supContact" required placeholder="e.g. Nitin Sharma"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Number / Phone *</label>
-                        <input type="text" id="supPhone" required placeholder="+971 50 123 4567" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Number
+                            / Phone *</label>
+                        <input type="text" id="supPhone" required placeholder="+971 50 123 4567"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Mail ID</label>
-                    <input type="email" id="supEmail" placeholder="supplier@example.com" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Mail
+                        ID</label>
+                    <input type="email" id="supEmail" placeholder="supplier@example.com"
+                        style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination &amp; Services Handled</label>
-                    <input type="text" id="supDestination" placeholder="e.g. Dubai & Abu Dhabi (Hotels, Desert Safari, Transport)" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination
+                        &amp; Services Handled</label>
+                    <input type="text" id="supDestination"
+                        placeholder="e.g. Dubai & Abu Dhabi (Hotels, Desert Safari, Transport)"
+                        style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
-                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'" style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
-                    <button type="submit" id="btnSaveSupplier" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
+                    <button type="button" onclick="document.getElementById('addSupplierModal').style.display='none'"
+                        style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
+                    <button type="submit" id="btnSaveSupplier"
+                        style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
                         Save Supplier
                     </button>
                 </div>
@@ -451,10 +522,10 @@
             }
             const filtered = allSuppliers.filter(s => {
                 return (s.name || '').toLowerCase().includes(q) ||
-                       (s.contact_person || '').toLowerCase().includes(q) ||
-                       (s.destination || '').toLowerCase().includes(q) ||
-                       (s.phone || '').toLowerCase().includes(q) ||
-                       (s.email || '').toLowerCase().includes(q);
+                    (s.contact_person || '').toLowerCase().includes(q) ||
+                    (s.destination || '').toLowerCase().includes(q) ||
+                    (s.phone || '').toLowerCase().includes(q) ||
+                    (s.email || '').toLowerCase().includes(q);
             });
             renderSuppliers(filtered);
         }
@@ -510,4 +581,5 @@
         });
     </script>
 </body>
+
 </html>

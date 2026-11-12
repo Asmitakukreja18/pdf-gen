@@ -7,18 +7,20 @@
     <title>Staff Workspace — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=15.0">
     <!-- Strict Authentication Guard (Resolves Issue I-2) -->
     <script>
-        (function() {
+        (function () {
             try {
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
                     window.location.replace('index.html?role=user&auth=required&dest=staff.html');
                 }
-            } catch(e) {
+            } catch (e) {
                 window.location.replace('index.html?role=user&auth=required');
             }
         })();
@@ -219,8 +221,17 @@
             line-height: 1.25;
         }
 
-        .profile-name { font-size: 13.5px; font-weight: 700; color: #0F172A; }
-        .profile-role { font-size: 11.5px; font-weight: 500; color: #64748B; }
+        .profile-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0F172A;
+        }
+
+        .profile-role {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #64748B;
+        }
 
         /* Workspace Header */
         .work-header {
@@ -296,9 +307,20 @@
             font-size: 20px;
         }
 
-        .stat-icon.blue { background: var(--brand-blue-light); color: var(--brand-blue); }
-        .stat-icon.green { background: var(--brand-green-light); color: var(--brand-green); }
-        .stat-icon.gold { background: var(--brand-gold-light); color: var(--brand-gold-text); }
+        .stat-icon.blue {
+            background: var(--brand-blue-light);
+            color: var(--brand-blue);
+        }
+
+        .stat-icon.green {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+        }
+
+        .stat-icon.gold {
+            background: var(--brand-gold-light);
+            color: var(--brand-gold-text);
+        }
 
         .stat-num {
             font-size: 26px;
@@ -390,9 +412,20 @@
             font-weight: 700;
         }
 
-        .status-badge.fresh { background: #EFF6FF; color: #2563EB; }
-        .status-badge.followup { background: #FEF3C7; color: #B45309; }
-        .status-badge.booking { background: #ECFDF5; color: #059669; }
+        .status-badge.fresh {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .status-badge.followup {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        .status-badge.booking {
+            background: #ECFDF5;
+            color: #059669;
+        }
 
         .action-btn-sm {
             padding: 6px 12px;
@@ -406,15 +439,36 @@
             transition: all 0.15s;
         }
 
-        .action-btn-primary { background: var(--brand-blue); color: #FFF; }
-        .action-btn-primary:hover { background: #1D4ED8; }
-        .action-btn-whatsapp { background: #25D366; color: #FFF; }
-        .action-btn-whatsapp:hover { background: #1EBE5D; }
+        .action-btn-primary {
+            background: var(--brand-blue);
+            color: #FFF;
+        }
+
+        .action-btn-primary:hover {
+            background: #1D4ED8;
+        }
+
+        .action-btn-whatsapp {
+            background: #25D366;
+            color: #FFF;
+        }
+
+        .action-btn-whatsapp:hover {
+            background: #1EBE5D;
+        }
 
         @media (max-width: 900px) {
-            .portal-wrapper { flex-direction: column; }
-            .portal-sidebar { width: 100%; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .portal-wrapper {
+                flex-direction: column;
+            }
+
+            .portal-sidebar {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -439,9 +493,13 @@
                     <i class="fa-solid fa-desktop"></i>
                     <span>My Workspace</span>
                 </a>
-                <a href="#myLeadsSection" class="nav-link-item" onclick="document.getElementById('myLeadsSection')?.scrollIntoView({behavior:'smooth'}); return false;">
+                <a href="leads.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html?role=staff" class="nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers Directory</span>
                 </a>
                 <a href="ai-assistant.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -450,6 +508,18 @@
                 <a href="packages.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-box-open"></i>
                     <span>Tour Packages</span>
+                </a>
+                <a href="trips.html?role=staff" class="nav-link-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html?role=staff" class="nav-link-item">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers Directory</span>
+                </a>
+                <a href="invoices.html?role=staff" class="nav-link-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
                 </a>
                 <a href="documents.html?role=staff" class="nav-link-item">
                     <i class="fa-solid fa-folder-open"></i>
@@ -534,7 +604,9 @@
                             <i class="fa-solid fa-list-check" style="color:var(--brand-blue);"></i>
                             <span>My Action Queue &amp; Leads</span>
                         </div>
-                        <span style="font-size:12.5px; font-weight:700; color:var(--brand-blue); background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:4px 12px;">Assigned to You</span>
+                        <span
+                            style="font-size:12.5px; font-weight:700; color:var(--brand-blue); background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:4px 12px;">Assigned
+                            to You</span>
                     </div>
 
                     <div class="table-responsive">
@@ -552,7 +624,8 @@
                                 <tr>
                                     <td>
                                         <div style="font-weight:700; color:#0F172A;">Akash Dewani</div>
-                                        <div style="font-size:12px; color:#64748B;">Dewani Travels (B2B) • 9820011223</div>
+                                        <div style="font-size:12px; color:#64748B;">Dewani Travels (B2B) • 9820011223
+                                        </div>
                                     </td>
                                     <td>
                                         <div style="font-weight:600;">Dubai Luxury 6D</div>
@@ -565,8 +638,12 @@
                                     <td><span class="status-badge followup">Follow-up</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="ai-assistant.html?role=staff&client=Akash%20Dewani&dest=Dubai%20Luxury%206D&budget=140000" class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-bolt"></i> Quote</a>
-                                            <a href="https://wa.me/919820011223" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                            <a href="ai-assistant.html?role=staff&client=Akash%20Dewani&dest=Dubai%20Luxury%206D&budget=140000"
+                                                class="action-btn-sm action-btn-primary" title="Generate Quotation"><i
+                                                    class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/919820011223" target="_blank"
+                                                class="action-btn-sm action-btn-whatsapp"><i
+                                                    class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -586,8 +663,12 @@
                                     <td><span class="status-badge fresh">Fresh Lead</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="ai-assistant.html?role=staff&client=Dipesh%20Batra&dest=Rajasthan%20Udaipur%204N&budget=65000" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
-                                            <a href="https://wa.me/917020660318" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                            <a href="ai-assistant.html?role=staff&client=Dipesh%20Batra&dest=Rajasthan%20Udaipur%204N&budget=65000"
+                                                class="action-btn-sm action-btn-primary"><i
+                                                    class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/917020660318" target="_blank"
+                                                class="action-btn-sm action-btn-whatsapp"><i
+                                                    class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -607,8 +688,12 @@
                                     <td><span class="status-badge booking">In Review</span></td>
                                     <td>
                                         <div style="display:flex; gap:6px;">
-                                            <a href="ai-assistant.html?role=staff&client=Rohan%20Mehta&dest=Bali%20Honeymoon%20Package&budget=95000" class="action-btn-sm action-btn-primary"><i class="fa-solid fa-bolt"></i> Quote</a>
-                                            <a href="https://wa.me/919819922334" target="_blank" class="action-btn-sm action-btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Chat</a>
+                                            <a href="ai-assistant.html?role=staff&client=Rohan%20Mehta&dest=Bali%20Honeymoon%20Package&budget=95000"
+                                                class="action-btn-sm action-btn-primary"><i
+                                                    class="fa-solid fa-bolt"></i> Quote</a>
+                                            <a href="https://wa.me/919819922334" target="_blank"
+                                                class="action-btn-sm action-btn-whatsapp"><i
+                                                    class="fa-brands fa-whatsapp"></i> Chat</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -624,7 +709,9 @@
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444;"></i>
                             <span>Recent Client Quotations &amp; PDF Downloads</span>
                         </div>
-                        <a href="documents.html?role=staff" style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">Open Document Hub &rarr;</a>
+                        <a href="documents.html?role=staff"
+                            style="font-size:13px; font-weight:700; color:var(--brand-blue); text-decoration:none;">Open
+                            Document Hub &rarr;</a>
                     </div>
 
                     <div class="table-responsive">
@@ -641,26 +728,38 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> Thailand Holiday Quotation (LEDMC-2025-001)</div>
-                                        <div style="font-size:12px; color:#64748B;">12 Days Krabi &amp; Phuket Luxury Package</div>
+                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf"
+                                                style="color:#EF4444; margin-right:8px;"></i> Thailand Holiday Quotation
+                                            (LEDMC-2025-001)</div>
+                                        <div style="font-size:12px; color:#64748B;">12 Days Krabi &amp; Phuket Luxury
+                                            Package</div>
                                     </td>
                                     <td>Priya Sharma</td>
                                     <td>245 KB</td>
                                     <td>15 Apr 2025</td>
                                     <td>
-                                        <a href="../images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> Download</a>
+                                        <a href="../images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf"
+                                            target="_blank" class="action-btn-sm"
+                                            style="background:#F1F5F9; color:#0F172A;"><i
+                                                class="fa-solid fa-download"></i> Download</a>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> Dubai Travel Itinerary (LEDMC-2025-002)</div>
-                                        <div style="font-size:12px; color:#64748B;">6 Days / 5 Nights Dubai &amp; Abu Dhabi</div>
+                                        <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf"
+                                                style="color:#EF4444; margin-right:8px;"></i> Dubai Travel Itinerary
+                                            (LEDMC-2025-002)</div>
+                                        <div style="font-size:12px; color:#64748B;">6 Days / 5 Nights Dubai &amp; Abu
+                                            Dhabi</div>
                                     </td>
                                     <td>Rohan Mehta</td>
                                     <td>320 KB</td>
                                     <td>12 Apr 2025</td>
                                     <td>
-                                        <a href="../images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> Download</a>
+                                        <a href="../images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf"
+                                            target="_blank" class="action-btn-sm"
+                                            style="background:#F1F5F9; color:#0F172A;"><i
+                                                class="fa-solid fa-download"></i> Download</a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -681,19 +780,20 @@
                     const u = data.user;
                     const empName = u.name || u.username || 'Executive';
                     const empRole = u.role ? (u.role.charAt(0).toUpperCase() + u.role.slice(1)) : 'Operations';
-                    
+
                     document.getElementById('userName').textContent = empName;
                     document.getElementById('welcomeUserName').textContent = empName;
                     document.getElementById('userRole').textContent = empRole + ' Desk';
                     document.getElementById('userAvatar').textContent = empName.substring(0, 2).toUpperCase();
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             // Silent Heartbeat every 45 seconds for transparent admin tracking (Zero notification for staff)
             setInterval(() => {
-                fetch('api/auth.php?action=heartbeat').catch(() => {});
+                fetch('api/auth.php?action=heartbeat').catch(() => { });
             }, 45000);
         });
     </script>
 </body>
+
 </html>
