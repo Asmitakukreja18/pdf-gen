@@ -544,12 +544,23 @@
                     <input type="text" id="staffSearchInput" placeholder="Search inquiries, guests or destinations...">
                 </div>
 
-                <div class="topbar-actions-group">
-                    <div class="profile-pill-item">
-                        <div class="avatar-box" id="userAvatar">ST</div>
-                        <div class="profile-text-wrap">
-                            <span class="profile-name" id="userName">Staff Executive</span>
-                            <span class="profile-role" id="userRole">Operations Desk</span>
+                <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">
+                    <a href="../website/index.html" class="topbar-action-btn" title="View Public Website"
+                        style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
+                        <span class="hide-mobile">Public Site</span>
+                    </a>
+                    <a href="ai-assistant.html?role=staff" class="topbar-action-btn" title="Open Master AI PDF Studio"
+                        style="display:inline-flex; align-items:center; gap:6px; background:#2563EB; border:none; padding:7px 16px; border-radius:9999px; color:#FFFFFF; font-size:12.5px; font-weight:700; text-decoration:none; box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span class="hide-mobile">AI Studio</span>
+                    </a>
+                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                        <div class="avatar-box" id="userAvatar"
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">ST</div>
+                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="userName" style="font-size:13px; font-weight:700; color:#0F172A;">Staff Executive</span>
+                            <span class="profile-role" id="userRole" style="font-size:11px; font-weight:500; color:#64748B;">Operations Desk</span>
                         </div>
                     </div>
                 </div>
@@ -794,6 +805,7 @@
             }, 45000);
         });
     </script>
+    <script src="js/portal.js"></script>
 </body>
 
 </html>

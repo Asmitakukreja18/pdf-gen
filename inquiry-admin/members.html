@@ -459,15 +459,27 @@
                     <i class="fa-solid fa-handshake"></i>
                     <span>Suppliers</span>
                 </a>
+                <a href="invoices.html" class="nav-link-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="website.html" class="nav-link-item">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
                 <a href="documents.html" class="nav-link-item">
                     <i class="fa-solid fa-folder-open"></i>
                     <span>Documents &amp; PDFs</span>
                 </a>
-                <a href="members.html" class="nav-link-item active">
+                <a href="analytics.html" class="nav-link-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Reports &amp; Analytics</span>
+                </a>
+                <a href="members.html" class="nav-link-item active admin-only-nav">
                     <i class="fa-solid fa-id-card-clip"></i>
                     <span>Staff Management</span>
                 </a>
-                <a href="settings.html" class="nav-link-item">
+                <a href="settings.html" class="nav-link-item admin-only-nav">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
@@ -488,24 +500,42 @@
             <!-- TOPBAR -->
             <header class="portal-topbar">
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <button type="button" onclick="document.getElementById('portalSidebar').classList.toggle('open')"
+                    <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
                         title="Toggle Sidebar">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div class="search-pill-box">
-                        <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
-                        <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()"
-                            placeholder="Search staff by name or role...">
+                    <div class="breadcrumb-trail" style="display:flex; align-items:center; gap:8px; font-size:13px;">
+                        <span class="crumb-root" style="color:#94A3B8; font-weight:500;">Let's Explore DMC</span>
+                        <i class="fa-solid fa-chevron-right crumb-sep" style="font-size:10px; color:#CBD5E1;"></i>
+                        <span class="crumb-current" style="color:#0F172A; font-weight:700;">Staff Management</span>
                     </div>
                 </div>
 
-                <div class="topbar-actions-group">
-                    <div class="profile-pill-item">
-                        <div class="avatar-box">AD</div>
-                        <div style="line-height:1.2;">
-                            <div style="font-weight:700; font-size:12.5px; color:#0F172A;">Admin</div>
-                            <div style="font-size:11px; color:#64748B;">Administrator</div>
+                <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">
+                    <div class="search-pill-box" style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:7px 16px; width:260px;">
+                        <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
+                        <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()"
+                            placeholder="Search staff..." style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
+                    </div>
+                    <a href="../website/index.html" class="topbar-action-btn" title="View Public Website"
+                        style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
+                        <span class="hide-mobile">Public Site</span>
+                    </a>
+                    <a href="ai-assistant.html" class="topbar-action-btn" title="Open Master AI PDF Studio"
+                        style="display:inline-flex; align-items:center; gap:6px; background:#2563EB; border:none; padding:7px 16px; border-radius:9999px; color:#FFFFFF; font-size:12.5px; font-weight:700; text-decoration:none; box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span class="hide-mobile">AI Studio</span>
+                    </a>
+                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                        <div class="avatar-box" id="topbarAvatar"
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            AD
+                        </div>
+                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Admin User</span>
+                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -1134,6 +1164,7 @@
 
         window.addEventListener('DOMContentLoaded', loadMembers);
     </script>
+    <script src="js/portal.js"></script>
 </body>
 
 </html>
