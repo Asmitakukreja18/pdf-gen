@@ -1,24 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Document Management & Admin Portal — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="admin.css?v=8.0">
 </head>
+
 <body>
 
     <!-- Full App Layout (Sidebar + Main Content) -->
     <div class="admin-app-layout">
-        
+
         <!-- LEFT SIDEBAR -->
         <aside class="admin-sidebar">
             <div class="sidebar-brand">
-                <img src="../images/logo.png" alt="Let's Explore DMC" class="sidebar-logo" onerror="this.src='../images/logo-placeholder.svg';">
+                <img src="../images/logo.png" alt="Let's Explore DMC" class="sidebar-logo"
+                    onerror="this.src='../images/logo-placeholder.svg';">
                 <div class="sidebar-brand-text">
                     <h3>Let's Explore DMC</h3>
                     <span>Admin Portal</span>
@@ -59,15 +64,18 @@
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reports &amp; Analytics</span>
                 </a>
-                <a href="../inquiry-admin/website.html" class="sidebar-link" id="navWebsiteCms" style="color:#0F2C59; font-weight:700;">
+                <a href="../inquiry-admin/website.html" class="sidebar-link" id="navWebsiteCms"
+                    style="color:#0F2C59; font-weight:700;">
                     <i class="fa-solid fa-desktop" style="color:#2563EB;"></i>
                     <span>Website CMS</span>
                 </a>
-                <a href="../inquiry-admin/ai-assistant.html" class="sidebar-link" id="navAiAssistant" style="color:#2563EB; font-weight:700;">
+                <a href="../inquiry-admin/ai-assistant.html" class="sidebar-link" id="navAiAssistant"
+                    style="color:#2563EB; font-weight:700;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>AI Assistant</span>
                 </a>
-                <a href="../website/index.html" class="sidebar-link" id="navWebsite" target="_blank" style="color:#475569;">
+                <a href="../website/index.html" class="sidebar-link" id="navWebsite" target="_blank"
+                    style="color:#475569;">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                     <span>Live Public Site</span>
                 </a>
@@ -86,8 +94,10 @@
                 <span class="storage-title">Storage Usage</span>
                 <div class="storage-circle-wrap">
                     <svg viewBox="0 0 36 36" class="circular-chart">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                        <path class="circle" stroke-dasharray="42, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke-dasharray="42, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <text x="18" y="20.35" class="percentage" id="storagePercentText">42%</text>
                     </svg>
                 </div>
@@ -100,12 +110,13 @@
 
         <!-- MAIN CONTENT WRAPPER -->
         <div class="admin-main-wrapper">
-            
+
             <!-- TOP HEADER -->
             <header class="admin-top-header">
                 <div class="top-search-wrap">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="topSearchInput" class="top-search-input" placeholder="Search documents... (Title, Ref, Customer)">
+                    <input type="text" id="topSearchInput" class="top-search-input"
+                        placeholder="Search documents... (Title, Ref, Customer)">
                 </div>
 
                 <div class="top-header-right">
@@ -220,7 +231,7 @@
 
                 <!-- 3. Two-Column Workspace -->
                 <div class="admin-two-col-layout">
-                    
+
                     <!-- LEFT: Document Management Section -->
                     <section class="admin-docs-section">
                         <div class="docs-section-header">
@@ -237,8 +248,11 @@
                         <!-- Toolbar -->
                         <div class="docs-toolbar-bar">
                             <div class="search-box-wrap" style="flex:1; min-width:200px; position:relative;">
-                                <i class="fa-solid fa-magnifying-glass search-icon" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94A3B8;"></i>
-                                <input type="text" id="searchInput" class="search-input" style="width:100%; height:38px; border-radius:9999px; border:1px solid #E2E8F0; padding-left:38px; font-size:12.5px;" placeholder="Search documents...">
+                                <i class="fa-solid fa-magnifying-glass search-icon"
+                                    style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94A3B8;"></i>
+                                <input type="text" id="searchInput" class="search-input"
+                                    style="width:100%; height:38px; border-radius:9999px; border:1px solid #E2E8F0; padding-left:38px; font-size:12.5px;"
+                                    placeholder="Search documents...">
                             </div>
 
                             <select id="filterCategorySelect" class="toolbar-dropdown">
@@ -276,7 +290,7 @@
 
                     <!-- RIGHT: Activity Timeline & Quick Actions Aside -->
                     <aside class="admin-activity-aside" style="display:flex; flex-direction:column; gap:20px;">
-                        
+
                         <!-- Recent Activity Card -->
                         <div class="activity-panel-card">
                             <div class="activity-card-header">
@@ -284,7 +298,8 @@
                                     <i class="fa-solid fa-bolt" style="color:#F59E0B;"></i>
                                     <span>Recent Activity</span>
                                 </h4>
-                                <a href="javascript:void(0)" class="link-view-all" id="btnViewAllActivity">View All &rarr;</a>
+                                <a href="javascript:void(0)" class="link-view-all" id="btnViewAllActivity">View All
+                                    &rarr;</a>
                             </div>
 
                             <div class="activity-timeline">
@@ -374,27 +389,43 @@
 
             <form id="uploadForm">
                 <input type="hidden" id="replaceDocId" value="">
-                
-                <div class="dropzone" id="dropzone" style="border:2px dashed #CBD5E1; border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; background:#F8FAFC; margin-bottom:16px;">
-                    <i class="fa-solid fa-file-pdf dropzone-icon" style="font-size:32px; color:var(--primary-blue); margin-bottom:8px; display:block;"></i>
-                    <p class="dropzone-text" style="font-size:13.5px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Click or drag & drop a PDF file here</p>
-                    <p class="dropzone-subtext" style="font-size:11.5px; color:#64748B;">PDF format only &bull; Up to 25 MB</p>
+
+                <div class="dropzone" id="dropzone"
+                    style="border:2px dashed #CBD5E1; border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; background:#F8FAFC; margin-bottom:16px;">
+                    <i class="fa-solid fa-file-pdf dropzone-icon"
+                        style="font-size:32px; color:var(--primary-blue); margin-bottom:8px; display:block;"></i>
+                    <p class="dropzone-text"
+                        style="font-size:13.5px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Click
+                        or drag & drop a PDF file here</p>
+                    <p class="dropzone-subtext" style="font-size:11.5px; color:#64748B;">PDF format only &bull; Up to 25
+                        MB</p>
                     <input type="file" id="pdfFileInput" accept="application/pdf" style="display: none;">
                 </div>
 
-                <div class="file-selected-pill" id="fileSelectedPill" style="display:none; align-items:center; justify-content:space-between; background:#ECFDF5; border:1px solid #A7F3D0; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:12.5px; color:#059669; font-weight:600;">
+                <div class="file-selected-pill" id="fileSelectedPill"
+                    style="display:none; align-items:center; justify-content:space-between; background:#ECFDF5; border:1px solid #A7F3D0; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:12.5px; color:#059669; font-weight:600;">
                     <span id="selectedFileName">file.pdf</span>
-                    <button type="button" id="removeFileBtn" style="background:none; border:none; color:#EF4444; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" id="removeFileBtn"
+                        style="background:none; border:none; color:#EF4444; cursor:pointer;"><i
+                            class="fa-solid fa-xmark"></i></button>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Document Title</label>
-                    <input type="text" id="uploadTitle" class="form-control" placeholder="e.g., Swiss Tour Voucher - Mr. Sharma" style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;" required>
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Document
+                        Title</label>
+                    <input type="text" id="uploadTitle" class="form-control"
+                        placeholder="e.g., Swiss Tour Voucher - Mr. Sharma"
+                        style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;"
+                        required>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category / Format</label>
-                    <select id="uploadCategory" class="form-control" style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category
+                        / Format</label>
+                    <select id="uploadCategory" class="form-control"
+                        style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
                         <option value="Quotation">Quotation</option>
                         <option value="Itinerary">Itinerary</option>
                         <option value="Invoice">Invoice</option>
@@ -405,11 +436,16 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 18px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Customer / Reference Notes</label>
-                    <textarea id="uploadDescription" class="form-control" rows="3" placeholder="Customer name or reference details..." style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:8px 12px; font-size:13px;"></textarea>
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Customer
+                        / Reference Notes</label>
+                    <textarea id="uploadDescription" class="form-control" rows="3"
+                        placeholder="Customer name or reference details..."
+                        style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:8px 12px; font-size:13px;"></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary" id="submitUploadBtn" style="width: 100%; justify-content: center; height:40px;">
+                <button type="submit" class="btn-primary" id="submitUploadBtn"
+                    style="width: 100%; justify-content: center; height:40px;">
                     <i class="fa-solid fa-check"></i>
                     <span id="uploadBtnText">Upload & Save Document</span>
                 </button>
@@ -426,13 +462,15 @@
                     <span>PDF Preview</span>
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a id="viewerDownloadBtn" href="#" download class="btn-card-act" style="padding:6px 14px; font-size:12px; background:var(--primary-navy); color:#FFFFFF; border:none; border-radius:9999px;">
+                    <a id="viewerDownloadBtn" href="#" download class="btn-card-act"
+                        style="padding:6px 14px; font-size:12px; background:var(--primary-navy); color:#FFFFFF; border:none; border-radius:9999px;">
                         <i class="fa-solid fa-download"></i> Download PDF
                     </a>
                     <button class="btn-close-modal" id="closeViewerModalBtn">&times;</button>
                 </div>
             </div>
-            <iframe id="pdfViewerFrame" src="" style="width: 100%; flex: 1; border: none; border-radius: 8px; background: #FFFFFF;"></iframe>
+            <iframe id="pdfViewerFrame" src=""
+                style="width: 100%; flex: 1; border: none; border-radius: 8px; background: #FFFFFF;"></iframe>
         </div>
     </div>
 
@@ -447,16 +485,20 @@
                 <button class="btn-close-modal" id="closeCommentsModalBtn">&times;</button>
             </div>
 
-            <div class="comments-thread" id="commentsThread" style="display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto; margin-bottom:16px;">
+            <div class="comments-thread" id="commentsThread"
+                style="display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto; margin-bottom:16px;">
                 <!-- Comments injected dynamically -->
             </div>
 
             <form id="addCommentForm">
                 <input type="hidden" id="commentDocId" value="">
                 <div style="margin-bottom: 12px;">
-                    <textarea id="newCommentInput" class="form-control" rows="3" placeholder="Add an internal note or update about this document..." required style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:10px 12px; font-size:13px;"></textarea>
+                    <textarea id="newCommentInput" class="form-control" rows="3"
+                        placeholder="Add an internal note or update about this document..." required
+                        style="width:100%; border:1px solid #E2E8F0; border-radius:6px; padding:10px 12px; font-size:13px;"></textarea>
                 </div>
-                <button type="submit" class="btn-primary" id="saveCommentBtn" style="width:100%; justify-content:center;">
+                <button type="submit" class="btn-primary" id="saveCommentBtn"
+                    style="width:100%; justify-content:center;">
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>Post Internal Note</span>
                 </button>
@@ -475,10 +517,14 @@
                 <button class="btn-close-modal" id="closeCategoryModalBtn">&times;</button>
             </div>
 
-            <form id="newCategoryForm" style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #EDF2F7;">
+            <form id="newCategoryForm"
+                style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #EDF2F7;">
                 <div style="margin-bottom: 10px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category Name</label>
-                    <input type="text" id="newCatName" class="form-control" placeholder="e.g. Visa Documents" required style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
+                    <label
+                        style="display:block; font-size:12px; font-weight:700; color:var(--primary-navy); margin-bottom:4px;">Category
+                        Name</label>
+                    <input type="text" id="newCatName" class="form-control" placeholder="e.g. Visa Documents" required
+                        style="width:100%; height:38px; border:1px solid #E2E8F0; border-radius:6px; padding:0 12px; font-size:13px;">
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
                     <i class="fa-solid fa-plus"></i>
@@ -487,7 +533,8 @@
             </form>
 
             <h4 style="font-size:13px; margin-bottom:10px; color:#475569; font-weight:700;">Active Categories</h4>
-            <div id="categoryManagerList" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
+            <div id="categoryManagerList"
+                style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
                 <!-- Category items loaded dynamically -->
             </div>
         </div>
@@ -498,4 +545,5 @@
 
     <script src="admin.js?v=8.0"></script>
 </body>
+
 </html>

@@ -232,3 +232,4 @@ if ($action === 'update_status') {
         jsonError('Failed to update payment status: ' . $e->getMessage(), 500);
     }
 }
+

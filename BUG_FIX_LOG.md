@@ -111,3 +111,4 @@ A total of **28 critical, high, and medium priority defects** were identified du
 - **Root Cause:** Incomplete initial database dump.
 - **Fix Implemented:** Designed safe, backward-compatible Schema V2 upgrade with zero `DROP` or `TRUNCATE` statements. Appended to `database.sql` and saved to `sql/schema_v2_migration.sql`.
 - **Verification:** Verified SQL syntax and table definitions across all 23 database tables.
+

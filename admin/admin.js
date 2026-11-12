@@ -177,7 +177,7 @@ function initEventListeners() {
         logoutBtn.addEventListener('click', async () => {
             try {
                 await fetch('../api/logout.php');
-            } catch (e) {}
+            } catch (e) { }
             window.location.href = 'login.html';
         });
     }
@@ -481,7 +481,7 @@ async function loadDocuments() {
                 }));
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 
     // Combine: API docs first, then AI Studio docs, then standard reference documents
     const combined = [...apiDocs, ...localSavedDocs, ...DEFAULT_CORPORATE_DOCS];
@@ -878,7 +878,7 @@ function handleCategorySubmit(e) {
     showToast(`Category "${name}" created!`, 'success');
 }
 
-window.deleteCategory = function(catId) {
+window.deleteCategory = function (catId) {
     categoriesList = categoriesList.filter(c => c.id !== catId);
     renderCategoryManagerList();
     showToast('Category deleted.', 'info');

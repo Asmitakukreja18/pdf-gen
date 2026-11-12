@@ -193,3 +193,4 @@ if ($action === 'delete') {
         jsonError('Failed to delete supplier: ' . $e->getMessage(), 500);
     }
 }
+
