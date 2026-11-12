@@ -377,10 +377,12 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table.custom-table {
             width: 100%;
+            min-width: 650px;
             border-collapse: separate;
             border-spacing: 0;
         }
@@ -464,14 +466,6 @@
         }
 
         @media (max-width: 900px) {
-            .portal-wrapper {
-                flex-direction: column;
-            }
-
-            .portal-sidebar {
-                width: 100%;
-            }
-
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -482,7 +476,7 @@
 <body>
     <div class="portal-wrapper">
         <!-- Staff Dedicated Sidebar -->
-        <aside class="portal-sidebar">
+        <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="staff.html" class="sidebar-brand">
                     <div class="brand-icon-box">
@@ -545,9 +539,16 @@
         <main class="portal-main">
             <!-- Topbar -->
             <header class="portal-topbar">
-                <div class="search-pill-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="staffSearchInput" placeholder="Search inquiries, guests or destinations...">
+                <div style="display:flex; align-items:center; gap:12px; flex:1;">
+                    <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
+                        title="Toggle Navigation Menu" aria-label="Toggle Navigation Menu"
+                        style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-pill-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="staffSearchInput" placeholder="Search inquiries, guests or destinations...">
+                    </div>
                 </div>
 
                 <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">

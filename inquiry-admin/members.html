@@ -384,11 +384,13 @@
         @media (max-width: 768px) {
             .portal-sidebar {
                 position: fixed;
-                left: -260px;
+                left: -290px;
                 height: 100%;
             }
 
-            .portal-sidebar.open {
+            .portal-sidebar.open,
+            .portal-sidebar.mobile-open,
+            .portal-sidebar.active {
                 left: 0;
             }
 

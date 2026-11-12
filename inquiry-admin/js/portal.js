@@ -263,36 +263,96 @@
     var triggers = [
       document.getElementById('sidebarToggleBtn'),
       document.getElementById('mobileMenuTrigger'),
-      document.querySelector('.mobile-menu-trigger')
+      document.querySelector('.mobile-menu-trigger'),
+      document.querySelector('.sidebar-toggle-btn')
     ];
 
+    // Create backdrop overlay if not present
+    var backdrop = document.getElementById('portalSidebarBackdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'portalSidebarBackdrop';
+      backdrop.className = 'portal-sidebar-backdrop';
+      document.body.appendChild(backdrop);
+    }
+
+    function toggleMobileDrawer(open) {
+      if (!sidebar) return;
+      var isOpen = typeof open === 'boolean' ? open : !sidebar.classList.contains('mobile-open');
+      if (isOpen) {
+        sidebar.classList.add('mobile-open', 'open', 'active');
+        if (backdrop) backdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } else {
+        sidebar.classList.remove('mobile-open', 'open', 'active');
+        if (backdrop) backdrop.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
     triggers.forEach(function (btn) {
-      if (!btn || !sidebar) return;
+      if (!btn) return;
       btn.addEventListener('click', function (e) {
+        e.preventDefault();
         e.stopPropagation();
         if (window.innerWidth <= 992) {
-          sidebar.classList.toggle('mobile-open');
+          toggleMobileDrawer();
         } else {
-          sidebar.classList.toggle('collapsed');
-          try {
-            localStorage.setItem('dmc_sidebar_collapsed', sidebar.classList.contains('collapsed'));
-          } catch (err) {}
+          if (sidebar) {
+            sidebar.classList.toggle('collapsed');
+            try {
+              localStorage.setItem('dmc_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+            } catch (err) {}
+          }
         }
       });
     });
 
-    // Close mobile drawer on outside click
-    document.addEventListener('click', function (e) {
-      if (!sidebar) return;
-      if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target)) {
-        var clickedTrigger = triggers.some(function (btn) { return btn && btn.contains(e.target); });
-        if (!clickedTrigger) {
-          sidebar.classList.remove('mobile-open');
-        }
+    // Close on backdrop tap
+    if (backdrop) {
+      backdrop.addEventListener('click', function (e) {
+        e.preventDefault();
+        toggleMobileDrawer(false);
+      });
+    }
+
+    // Add mobile close 'X' button to sidebar header if not present
+    if (sidebar) {
+      var header = sidebar.querySelector('.sidebar-header');
+      if (header && !header.querySelector('.sidebar-close-btn')) {
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'sidebar-close-btn';
+        closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        closeBtn.title = 'Close Navigation Menu';
+        closeBtn.setAttribute('aria-label', 'Close Navigation Menu');
+        closeBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleMobileDrawer(false);
+        });
+        header.appendChild(closeBtn);
+      }
+
+      // Close drawer when any navigation link inside sidebar is tapped on mobile
+      var navLinks = sidebar.querySelectorAll('.nav-link, .sidebar-brand, .sidebar-logout-wrap a');
+      navLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
+          if (window.innerWidth <= 992) {
+            toggleMobileDrawer(false);
+          }
+        });
+      });
+    }
+
+    // Close mobile drawer on ESC key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
+        toggleMobileDrawer(false);
       }
     });
 
-    // Restore collapsed state on desktop
+    // Restore desktop collapsed state
     try {
       if (sidebar && window.innerWidth > 992 && localStorage.getItem('dmc_sidebar_collapsed') === 'true') {
         sidebar.classList.add('collapsed');
@@ -306,27 +366,121 @@
       var style = document.createElement('style');
       style.id = 'portal-mobile-overrides';
       style.textContent = `
+        /* Mobile Backdrop */
+        .portal-sidebar-backdrop {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          z-index: 9998;
+          opacity: 0;
+          transition: opacity 0.28s ease;
+          pointer-events: none;
+        }
+        .portal-sidebar-backdrop.active {
+          display: block;
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        /* Sidebar Close Button */
+        .sidebar-close-btn {
+          display: none;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #FFFFFF;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 16px;
+        }
+
         @media (max-width: 992px) {
+          .sidebar-close-btn {
+            display: inline-flex !important;
+          }
+          .portal-wrapper {
+            display: block !important;
+            width: 100% !important;
+            min-height: 100vh !important;
+          }
           .portal-sidebar {
             position: fixed !important;
-            top: 0; bottom: 0; left: -280px;
-            width: 260px !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: -290px !important;
+            width: 275px !important;
+            max-width: 85vw !important;
+            height: 100vh !important;
             z-index: 9999 !important;
-            transition: left 0.3s ease !important;
+            background: #0F172A !important;
+            transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: none !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
           }
-          .portal-sidebar.mobile-open {
+          .portal-sidebar.mobile-open,
+          .portal-sidebar.open,
+          .portal-sidebar.active {
             left: 0 !important;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5) !important;
+            box-shadow: 0 0 50px rgba(0,0,0,0.6) !important;
           }
           .portal-main {
             margin-left: 0 !important;
             width: 100% !important;
+            max-width: 100vw !important;
+            min-width: 0 !important;
           }
-          .mobile-menu-trigger {
+          .mobile-menu-trigger,
+          .sidebar-toggle-btn {
             display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 9px !important;
+            cursor: pointer !important;
+            flex-shrink: 0 !important;
           }
           .hide-mobile {
             display: none !important;
+          }
+        }
+
+        /* Responsive Tables for zero distortion on mobile */
+        @media (max-width: 768px) {
+          .table-responsive,
+          .portal-table-wrapper,
+          div[style*="overflow-x:auto"],
+          div[style*="overflow-x: auto"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            border-radius: 10px !important;
+          }
+          .portal-table,
+          .custom-table,
+          .activity-table,
+          #leadsTable,
+          div[style*="overflow-x:auto"] > table,
+          div[style*="overflow-x: auto"] > table {
+            min-width: 640px !important;
+          }
+          .portal-table th,
+          .portal-table td,
+          .custom-table th,
+          .custom-table td,
+          .activity-table th,
+          .activity-table td {
+            white-space: nowrap !important;
+            padding: 10px 12px !important;
+            font-size: 12px !important;
           }
         }
       `;
