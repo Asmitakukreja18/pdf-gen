@@ -1316,3 +1316,46 @@ div[style*="overflow-x: auto"] > table {
   }
 }
 
+/* Media Query: Extra Small Mobile Phones (< 480px / 375px) */
+@media (max-width: 480px) {
+  .portal-topbar {
+    padding: 8px 10px !important;
+  }
+
+  .portal-content,
+  .content-body,
+  .work-header {
+    padding: 12px 10px 24px !important;
+  }
+
+  /* Form Grids stack cleanly on small mobile */
+  form div[style*="grid-template-columns:1fr 1fr 1fr"],
+  form div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  form div[style*="grid-template-columns:1fr 1fr"],
+  form div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="display:grid; grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    font-size: 12px !important;
+  }
+
+  /* Modal Dialog Full Fit on 375px/430px phones */
+  .modal-box,
+  .auth-modal-box,
+  div[id*="Modal"] > div {
+    width: 96% !important;
+    max-width: 96% !important;
+    padding: 16px 12px !important;
+    margin: 10px auto !important;
+  }
+}
+
