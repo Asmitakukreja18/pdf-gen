@@ -484,6 +484,9 @@
             }
 
             // Also keep localStorage updated
+            if (claudeKey) localStorage.setItem('dmc_claude_api_key', claudeKey);
+            if (geminiKey) localStorage.setItem('dmc_gemini_api_key', geminiKey);
+
             localStorage.setItem('portal_settings', JSON.stringify({
                 idleLock: document.getElementById('idleLockToggle').checked,
                 timestamp: document.getElementById('timestampToggle').checked,
@@ -511,10 +514,17 @@
                     const geminiInput = document.getElementById('geminiApiKeyInput');
                     const providerSelect = document.getElementById('defaultAiProvider');
 
+                    const localClaude = localStorage.getItem('dmc_claude_api_key');
+                    const localGemini = localStorage.getItem('dmc_gemini_api_key');
+
                     if (data.has_claude_key) {
                         claudeBadge.className = 'status-pill status-confirmed';
-                        claudeBadge.textContent = 'Configured';
+                        claudeBadge.textContent = 'Configured (cPanel)';
                         if (claudeInput && !claudeInput.value) claudeInput.placeholder = data.claude_key_masked;
+                    } else if (localClaude) {
+                        claudeBadge.className = 'status-pill status-confirmed';
+                        claudeBadge.textContent = 'Active (Browser)';
+                        if (claudeInput && !claudeInput.value) claudeInput.value = localClaude;
                     } else {
                         claudeBadge.className = 'status-pill status-draft';
                         claudeBadge.textContent = 'Not Configured';
@@ -522,8 +532,12 @@
 
                     if (data.has_gemini_key) {
                         geminiBadge.className = 'status-pill status-confirmed';
-                        geminiBadge.textContent = 'Configured';
+                        geminiBadge.textContent = 'Configured (cPanel)';
                         if (geminiInput && !geminiInput.value) geminiInput.placeholder = data.gemini_key_masked;
+                    } else if (localGemini) {
+                        geminiBadge.className = 'status-pill status-confirmed';
+                        geminiBadge.textContent = 'Active (Browser)';
+                        if (geminiInput && !geminiInput.value) geminiInput.value = localGemini;
                     } else {
                         geminiBadge.className = 'status-pill status-draft';
                         geminiBadge.textContent = 'Not Configured';
