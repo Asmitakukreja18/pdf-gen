@@ -440,6 +440,7 @@
         /* Employee Activity Table */
         .activity-table {
             width: 100%;
+            min-width: 650px;
             border-collapse: separate;
             border-spacing: 0;
             font-size: 13px;
@@ -729,9 +730,9 @@
             <!-- TOPBAR -->
             <header class="portal-topbar">
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn"
+                    <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
-                        title="Toggle Sidebar">
+                        title="Toggle Sidebar" aria-label="Toggle Navigation Menu">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="search-pill-box">
