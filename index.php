@@ -66,10 +66,10 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         /* Decorative Leaf Vector Overlays */
         .leaf-accent-top {
             position: absolute;
-            top: -20px;
+            top: -24px;
             left: -20px;
-            width: 140px;
-            height: 140px;
+            width: 175px;
+            height: 175px;
             pointer-events: none;
             opacity: 0.85;
             z-index: 1;
@@ -106,15 +106,23 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         .brand-link {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             text-decoration: none;
             color: var(--brand-navy);
+            position: relative;
+            z-index: 2;
         }
 
         .brand-logo-img {
-            height: 44px;
+            height: 72px;
             width: auto;
             object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.09));
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand-link:hover .brand-logo-img {
+            transform: scale(1.04);
         }
 
         .brand-title-wrap {
@@ -123,22 +131,22 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         }
 
         .brand-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
             letter-spacing: -0.02em;
             color: var(--brand-navy);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .brand-title i {
             color: var(--brand-gold);
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .brand-badge-tag {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
             color: var(--brand-gold-dark);
             text-transform: uppercase;
@@ -649,7 +657,9 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         }
 
         @media (max-width: 768px) {
-            .gateway-header { padding: 18px 20px; }
+            .gateway-header { padding: 16px 20px; }
+            .brand-logo-img { height: 52px; }
+            .brand-title { font-size: 19px; }
             .header-nav-tags { display: none; }
             .gateway-hero { padding: 10px 20px 30px; }
             .hero-title { font-size: 32px; }
