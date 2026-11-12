@@ -202,3 +202,4 @@ INSERT IGNORE INTO `vouchers`
 VALUES
 (1, 'LEDMC-VCH-2026-001', 'hotel', 1, 2, 1, 'DG-DXB-9812', 'Atlantis The Palm Dubai (2N)', '2026-11-05', '2026-11-07', 'Ocean King Deluxe Room', 'Buffet Breakfast & Dinner', 'Issued'),
 (2, 'LEDMC-VCH-2026-002', 'hotel', 2, 1, 4, 'TR-UDR-4410', 'Trident Udaipur (2N)', '2026-11-08', '2026-11-10', 'Deluxe Garden View Room', 'Buffet Breakfast Included', 'Issued');
+

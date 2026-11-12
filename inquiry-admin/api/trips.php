@@ -237,3 +237,4 @@ if ($action === 'update_status') {
         jsonError('Failed to update trip status: ' . $e->getMessage(), 500);
     }
 }
+

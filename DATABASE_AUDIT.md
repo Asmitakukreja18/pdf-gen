@@ -1,4 +1,4 @@
-# Let's Explore DMC — Database Schema & Relational Integrity Audit (Phase 3)
+i# Let's Explore DMC — Database Schema & Relational Integrity Audit (Phase 3)
 
 **Database Name:** `ihpyruhe_pdf_generator`  
 **Master Schema File:** `database.sql` & `sql/schema_v2_migration.sql`  
@@ -100,3 +100,4 @@ A safe, **100% backward-compatible Schema V2 upgrade** was designed and integrat
 - **Data Protection**: Zero `DROP` or `TRUNCATE` operations.
 - **Migration Script**: Stored in `d:\aipdfgenrater\sql\schema_v2_migration.sql` and appended to `d:\aipdfgenrater\database.sql`.
 - **Status**: **PASS (Local Architecture Validated)** / **BLOCKED (Remote cPanel Port 3306 Restricted to Server Localhost)**.
+

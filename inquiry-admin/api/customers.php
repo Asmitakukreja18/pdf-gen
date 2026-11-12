@@ -148,3 +148,4 @@ if ($method === 'POST') {
         jsonError('Failed to save customer profile', 500);
     }
 }
+
