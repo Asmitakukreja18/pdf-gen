@@ -12,6 +12,24 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
+    <!-- Strict Admin-Only Authentication Guard -->
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('dmc_user');
+                if (!stored) {
+                    window.location.replace('index.html?auth=required&dest=settings.html');
+                    return;
+                }
+                var u = JSON.parse(stored);
+                if (u && u.role && u.role !== 'admin') {
+                    window.location.replace('staff.html');
+                }
+            } catch(e) {
+                window.location.replace('index.html?auth=required');
+            }
+        })();
+    </script>
 </head>
 
 <body>

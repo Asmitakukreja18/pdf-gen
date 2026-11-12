@@ -300,10 +300,10 @@
                     </div>
                     <div class="header-actions">
                         <span style="background:#EFF6FF; border:1px solid #BFDBFE; color:var(--portal-navy); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
-                            <i class="fa-solid fa-microchip" style="color:var(--portal-blue);"></i> Engine: <strong>Claude 3.5 Sonnet</strong>
+                            <i class="fa-solid fa-microchip" style="color:var(--portal-blue);"></i> Engine: <strong id="activeAiEngineName">Claude 3.5 Sonnet</strong>
                         </span>
-                        <span class="status-pill status-confirmed">
-                            <i class="fa-solid fa-circle-check"></i> Multi-Tier Active
+                        <span id="activeAiStatusPill" class="status-pill status-confirmed">
+                            <i class="fa-solid fa-circle-check"></i> Connected
                         </span>
                     </div>
                 </div>
@@ -937,8 +937,21 @@
                     let engineLabel = 'Local DMC Heuristic Engine (smart-travel-heuristic-v2)';
                     if (result.provider === 'claude') {
                         engineLabel = 'Anthropic Claude 3.5 Sonnet';
+                        const eg = document.getElementById('activeAiEngineName');
+                        if (eg) eg.textContent = 'Anthropic Claude 3.5';
+                        const sp = document.getElementById('activeAiStatusPill');
+                        if (sp) { sp.className = 'status-pill status-confirmed'; sp.innerHTML = '<i class="fa-solid fa-circle-check"></i> Claude API Active'; }
                     } else if (result.provider === 'gemini') {
                         engineLabel = 'Google Gemini 2.5 Flash';
+                        const eg = document.getElementById('activeAiEngineName');
+                        if (eg) eg.textContent = 'Google Gemini 2.5 Flash';
+                        const sp = document.getElementById('activeAiStatusPill');
+                        if (sp) { sp.className = 'status-pill status-confirmed'; sp.innerHTML = '<i class="fa-solid fa-circle-check"></i> Gemini Active'; }
+                    } else {
+                        const eg = document.getElementById('activeAiEngineName');
+                        if (eg) eg.textContent = 'Local DMC Intelligence Engine';
+                        const sp = document.getElementById('activeAiStatusPill');
+                        if (sp) { sp.className = 'status-pill status-draft'; sp.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Heuristic Standby'; }
                     }
                     currentGeneratedData = normalizeAiQuotationData(result.data, prompt);
                     renderChatResponse(chatBox, engineLabel, currentGeneratedData, prompt);
@@ -1437,7 +1450,32 @@
             }
         }
 
+        async function checkAiEngineStatus() {
+            try {
+                const res = await fetch('../api/save_ai_settings.php');
+                const data = await res.json();
+                const engineName = document.getElementById('activeAiEngineName');
+                const statusPill = document.getElementById('activeAiStatusPill');
+                if (!engineName || !statusPill) return;
+
+                if (data && data.has_claude_key) {
+                    engineName.textContent = 'Anthropic Claude 3.5';
+                    statusPill.className = 'status-pill status-confirmed';
+                    statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Claude API Active';
+                } else if (data && data.has_gemini_key) {
+                    engineName.textContent = 'Google Gemini 2.5 Flash';
+                    statusPill.className = 'status-pill status-confirmed';
+                    statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Gemini Active';
+                } else {
+                    engineName.textContent = 'Local DMC Intelligence Engine';
+                    statusPill.className = 'status-pill status-draft';
+                    statusPill.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Heuristic Standby';
+                }
+            } catch (e) {}
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            checkAiEngineStatus();
             const params = new URLSearchParams(window.location.search);
             const client = params.get('client');
             const dest = params.get('dest');
