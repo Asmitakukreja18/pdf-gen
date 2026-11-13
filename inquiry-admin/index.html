@@ -994,7 +994,7 @@
                 tabAdmin.classList.remove('active');
                 modalTitle.textContent = 'Staff / User Sign In';
                 modalSubtitle.textContent = 'Enter your staff credentials (executive / agent) — OTP protected';
-                usernameInput.placeholder = 'chanchal / ritesh / operations';
+                usernameInput.placeholder = 'kashish / asmita / chanchal';
                 if (btnText) btnText.textContent = 'Continue to Staff Portal';
             }
         }
@@ -1035,11 +1035,29 @@
             const pTrim = (password || '').trim();
             const pLower = pTrim.toLowerCase();
 
+            // Staff aliases mapping to canonical keys
+            const userAliases = {
+                'admin': ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'],
+                'kashish': ['kashish', 'kashish adwani', 'kashishadwani', 'kashish@letsexploredmc.com', 'kashish@123'],
+                'asmita': ['asmita', 'asmita kukreja', 'asmitakukreja', 'asmita@letsexploredmc.com', 'asmita@123'],
+                'chanchal': ['chanchal', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
+                'ritesh': ['ritesh', 'ritesh verma', 'riteshverma', 'ritesh@letsexploredmc.com'],
+                'operations': ['operations', 'ops', 'operations team', 'ops@letsexploredmc.com']
+            };
+
+            let canonicalKey = uLower;
+            for (const [key, aliases] of Object.entries(userAliases)) {
+                if (uLower === key || aliases.includes(uLower)) {
+                    canonicalKey = key;
+                    break;
+                }
+            }
+
             // Smart aliases and master passes (handles swapped credentials, company name, etc.)
             const adminAliases = ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'];
             const masterPasses = ['admin@123', 'letsexploredmc', 'admin', 'admin123', 'letsexplore', 'letsexploredmc@123', '123456'];
 
-            const isAdminUserAlias = adminAliases.includes(uLower);
+            const isAdminUserAlias = adminAliases.includes(uLower) || canonicalKey === 'admin';
             if (isAdminUserAlias) {
                 uLower = 'admin';
             }
@@ -1050,11 +1068,20 @@
                 || (pLower === 'admin' && masterPasses.includes(uLower));
 
             const knownAccounts = {
-                'admin': { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' },
-                'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com' },
-                'ritesh': { id: 3, username: 'ritesh', name: 'Ritesh Verma', role: 'executive', email: 'ritesh@letsexploredmc.com' },
-                'operations': { id: 4, username: 'operations', name: 'Operations Desk', role: 'agent', email: 'ops@letsexploredmc.com' }
+                'admin': { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com', pass: 'admin@123' },
+                'kashish': { id: 2, username: 'kashish', name: 'Kashish Adwani', role: 'executive', email: 'kashish@letsexploredmc.com', pass: 'kashish@123' },
+                'asmita': { id: 3, username: 'asmita', name: 'Asmita Kukreja', role: 'executive', email: 'asmita@letsexploredmc.com', pass: 'asmita@123' },
+                'chanchal': { id: 4, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com', pass: 'chanchal@123' },
+                'ritesh': { id: 5, username: 'ritesh', name: 'Ritesh Verma', role: 'executive', email: 'ritesh@letsexploredmc.com', pass: 'ritesh@123' },
+                'operations': { id: 6, username: 'operations', name: 'Operations Desk', role: 'agent', email: 'ops@letsexploredmc.com', pass: 'ops@123' }
             };
+
+            const targetAccount = knownAccounts[canonicalKey] || null;
+            const isStaffPassMatch = targetAccount && (
+                pLower === (targetAccount.pass || '').toLowerCase()
+                || pTrim === targetAccount.pass
+                || isMasterPass
+            );
 
             const payload = { username, password };
             if (otpGroup && otpGroup.style.display !== 'none' && otpVal) {
@@ -1095,7 +1122,7 @@
 
                 // If Staff role on offline/standby and OTP not yet shown
                 if (!success && currentRole === 'user' && !isAdminUserAlias && (!otpGroup || otpGroup.style.display === 'none')) {
-                    if (knownAccounts[uLower] && isMasterPass) {
+                    if (targetAccount && isStaffPassMatch) {
                         otpGroup.style.display = 'block';
                         alertBox.className = 'auth-alert info';
                         alertBox.textContent = '6-Digit OTP verification code required (valid for 15 minutes). Enter code below.';
@@ -1110,7 +1137,7 @@
                 // If Staff submitted OTP in offline mode
                 if (!success && currentRole === 'user' && otpGroup && otpGroup.style.display !== 'none') {
                     if (otpVal === '123456' || otpVal === '1234') {
-                        const userObj = knownAccounts[uLower] || { id: 2, username: username, name: username, role: 'executive', email: username + '@letsexploredmc.com' };
+                        const userObj = targetAccount || { id: 2, username: username, name: username, role: 'executive', email: username + '@letsexploredmc.com' };
                         data = {
                             success: true,
                             user: userObj,

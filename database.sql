@@ -432,14 +432,20 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
 (7, 'Hotel Costings', 'Multi-tier hotel tariff comparison and costing sheets'),
 (8, 'Package Summaries', 'Executive holiday package overviews and pricing summaries');
 
--- Staff Members (Admin + Sub-Users Chanchal, Ritesh, Ops)
--- Default Password for all 4 accounts: Admin@123
+-- Staff Members (Admin + Sub-Users Kashish, Asmita, Chanchal, Ritesh, Ops)
+-- Passwords:
+-- Admin: Admin@123 / admin@123
+-- Kashish Adwani: kashish@123
+-- Asmita Kukreja: asmita@123
+-- Chanchal: chanchal@123
 INSERT INTO `users` (`id`, `username`, `name`, `email`, `phone`, `password_hash`, `role`, `status`) VALUES
-(1, 'admin', 'Main Admin', 'admin@letsexploredmc.com', '+91 98765 43210', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'admin', 'active'),
-(2, 'chanchal', 'Chanchal (SU-1)', 'chanchal@letsexploredmc.com', '+91 98765 43211', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'executive', 'active'),
-(3, 'ritesh', 'Ritesh (SU-2)', 'ritesh@letsexploredmc.com', '+91 98765 43212', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'executive', 'active'),
-(4, 'operations', 'Ops Team (SU-3)', 'ops@letsexploredmc.com', '+91 98765 43213', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'agent', 'active')
-ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`), `status` = 'active';
+(1, 'admin', 'Main Admin', 'admin@letsexploredmc.com', '+91 98765 00001', '$2y$10$q3gEHykTCVPbdlbWSxB/B.u/q/S5PeP6uY6r7fu9zDRw6GJMlqgKa', 'admin', 'active'),
+(2, 'kashish', 'Kashish Adwani (SU-1)', 'kashish@letsexploredmc.com', '+91 98765 00002', '$2y$10$WblC6gSxpaUU6k9jSB9su.M8JyjUI2FLgQqocMFQzMaSEqmTBNvhe', 'executive', 'active'),
+(3, 'asmita', 'Asmita Kukreja (SU-2)', 'asmita@letsexploredmc.com', '+91 98765 00003', '$2y$10$fetalUtjo0NdcrTsfZGHJ.g0szQ0iqVW40Y/SulL8nGt3ThYluwZO', 'executive', 'active'),
+(4, 'chanchal', 'Chanchal Sharma (SU-3)', 'chanchal@letsexploredmc.com', '+91 98765 00004', '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm', 'executive', 'active'),
+(5, 'ritesh', 'Ritesh Verma (SU-4)', 'ritesh@letsexploredmc.com', '+91 98765 00005', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'executive', 'active'),
+(6, 'operations', 'Ops Team (SU-5)', 'ops@letsexploredmc.com', '+91 98765 00006', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'agent', 'active')
+ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`), `status` = 'active', `name` = VALUES(`name`);
 
 -- Seed Customers
 INSERT IGNORE INTO `customers` (`id`, `name`, `company_name`, `phone`, `email`, `category`, `destinations_history`) VALUES

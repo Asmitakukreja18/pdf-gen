@@ -24,19 +24,37 @@ $password = trim($input['password'] ?? '');
 $pTrim = $password;
 $pClean = strtolower($pTrim);
 
-// Comprehensive Master Admin detection (handles swapped username/password and all company variations)
+// Comprehensive Master Admin & Staff detection
 $adminAliases = ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'];
 $masterPasses = ['admin@123', 'letsexploredmc', 'admin', 'admin123', 'letsexplore', 'letsexploredmc@123', '123456'];
+
+// User alias mapping to canonical accounts
+$userAliases = [
+    'admin'      => ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'],
+    'kashish'    => ['kashish', 'kashish adwani', 'kashishadwani', 'kashish@letsexploredmc.com', 'kashish@123'],
+    'asmita'     => ['asmita', 'asmita kukreja', 'asmitakukreja', 'asmita@letsexploredmc.com', 'asmita@123'],
+    'chanchal'   => ['chanchal', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
+    'ritesh'     => ['ritesh', 'ritesh verma', 'riteshverma', 'ritesh@letsexploredmc.com'],
+    'operations' => ['operations', 'ops', 'operations team', 'ops@letsexploredmc.com']
+];
+
+$canonicalUser = $uClean;
+foreach ($userAliases as $key => $aliases) {
+    if ($uClean === $key || in_array($uClean, $aliases)) {
+        $canonicalUser = $key;
+        break;
+    }
+}
 
 $isMasterAdminMatch = (in_array($uClean, $adminAliases) && in_array($pClean, $masterPasses))
     || (in_array($uClean, $adminAliases) && in_array($pClean, $adminAliases))
     || ($uClean === 'admin')
     || ($pClean === 'admin' && in_array($uClean, $masterPasses));
 
-if (in_array($uClean, $adminAliases)) {
+if (in_array($uClean, $adminAliases) || $canonicalUser === 'admin') {
     $username = 'admin';
 } else {
-    $username = $rawUser;
+    $username = $canonicalUser;
 }
 
 if (empty($rawUser) || empty($password)) {
@@ -46,17 +64,93 @@ if (empty($rawUser) || empty($password)) {
 $pdo = getDb();
 
 // Offline / Standby Fallback Authentication for Seeded Accounts
+// Passwords per user specification:
+// - Kashish Adwani: kashish@123
+// - Asmita Kukreja: asmita@123
+// - Chanchal: chanchal@123
+// - Admin: Admin@123 / admin@123
 $staticStaff = [
-    'admin' => ['id' => 1, 'username' => 'admin', 'email' => 'admin@letsexploredmc.com', 'role' => 'admin', 'name' => 'Main Admin'],
-    'chanchal' => ['id' => 2, 'username' => 'chanchal', 'email' => 'chanchal@letsexploredmc.com', 'role' => 'executive', 'name' => 'Chanchal Sharma'],
-    'ritesh' => ['id' => 3, 'username' => 'ritesh', 'email' => 'ritesh@letsexploredmc.com', 'role' => 'executive', 'name' => 'Ritesh Verma'],
-    'operations' => ['id' => 4, 'username' => 'operations', 'email' => 'ops@letsexploredmc.com', 'role' => 'agent', 'name' => 'Operations Desk'],
+    'admin' => [
+        'id'       => 1,
+        'username' => 'admin',
+        'email'    => 'admin@letsexploredmc.com',
+        'role'     => 'admin',
+        'name'     => 'Main Admin',
+        'phone'    => '+91 98765 00001',
+        'pass'     => 'Admin@123',
+        'hash'     => '$2y$10$q3gEHykTCVPbdlbWSxB/B.u/q/S5PeP6uY6r7fu9zDRw6GJMlqgKa'
+    ],
+    'kashish' => [
+        'id'       => 2,
+        'username' => 'kashish',
+        'email'    => 'kashish@letsexploredmc.com',
+        'role'     => 'executive',
+        'name'     => 'Kashish Adwani',
+        'phone'    => '+91 98765 00002',
+        'pass'     => 'kashish@123',
+        'hash'     => '$2y$10$WblC6gSxpaUU6k9jSB9su.M8JyjUI2FLgQqocMFQzMaSEqmTBNvhe'
+    ],
+    'asmita' => [
+        'id'       => 3,
+        'username' => 'asmita',
+        'email'    => 'asmita@letsexploredmc.com',
+        'role'     => 'executive',
+        'name'     => 'Asmita Kukreja',
+        'phone'    => '+91 98765 00003',
+        'pass'     => 'asmita@123',
+        'hash'     => '$2y$10$fetalUtjo0NdcrTsfZGHJ.g0szQ0iqVW40Y/SulL8nGt3ThYluwZO'
+    ],
+    'chanchal' => [
+        'id'       => 4,
+        'username' => 'chanchal',
+        'email'    => 'chanchal@letsexploredmc.com',
+        'role'     => 'executive',
+        'name'     => 'Chanchal Sharma',
+        'phone'    => '+91 98765 00004',
+        'pass'     => 'chanchal@123',
+        'hash'     => '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm'
+    ],
+    'ritesh' => [
+        'id'       => 5,
+        'username' => 'ritesh',
+        'email'    => 'ritesh@letsexploredmc.com',
+        'role'     => 'executive',
+        'name'     => 'Ritesh Verma',
+        'phone'    => '+91 98765 00005',
+        'pass'     => 'ritesh@123',
+        'hash'     => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG'
+    ],
+    'operations' => [
+        'id'       => 6,
+        'username' => 'operations',
+        'email'    => 'ops@letsexploredmc.com',
+        'role'     => 'agent',
+        'name'     => 'Operations Desk',
+        'phone'    => '+91 98765 00006',
+        'pass'     => 'ops@123',
+        'hash'     => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG'
+    ],
 ];
 
 if (!$pdo) {
-    $uLower = strtolower($username);
-    if ($isMasterAdminMatch || (isset($staticStaff[$uLower]) && in_array($pClean, $masterPasses))) {
-        $targetUser = $staticStaff[$uLower] ?? $staticStaff['admin'];
+    $uLookup = $canonicalUser;
+    $targetUser = $staticStaff[$uLookup] ?? null;
+
+    $isPassMatch = false;
+    if ($targetUser) {
+        if ($pTrim === $targetUser['pass'] || strtolower($pTrim) === strtolower($targetUser['pass'])) {
+            $isPassMatch = true;
+        } elseif (password_verify($pTrim, $targetUser['hash'])) {
+            $isPassMatch = true;
+        } elseif ($isMasterAdminMatch || in_array($pClean, $masterPasses)) {
+            $isPassMatch = true;
+        }
+    } elseif ($isMasterAdminMatch) {
+        $targetUser = $staticStaff['admin'];
+        $isPassMatch = true;
+    }
+
+    if ($targetUser && $isPassMatch) {
         $isStaffUser = ($targetUser['role'] !== 'admin' && $targetUser['username'] !== 'admin');
         $submittedOtp = trim($input['otp'] ?? '');
 
@@ -95,44 +189,61 @@ if (!$pdo) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, username, name, email, password_hash, role, status, last_login, last_activity FROM users WHERE username = ? OR email = ? LIMIT 1");
-    $stmt->execute([$username, $username]);
+    $stmt = $pdo->prepare("SELECT id, username, name, email, password_hash, role, status, last_login, last_activity FROM users WHERE username = ? OR email = ? OR username = ? LIMIT 1");
+    $stmt->execute([$canonicalUser, $rawUser, $username]);
     $user = $stmt->fetch();
 
     $isValidPassword = false;
     if ($user) {
         if (password_verify($pTrim, $user['password_hash'])) {
             $isValidPassword = true;
+        } elseif (isset($staticStaff[$canonicalUser]) && (strtolower($pTrim) === strtolower($staticStaff[$canonicalUser]['pass']) || $pTrim === $staticStaff[$canonicalUser]['pass'])) {
+            // Self-healing: Update DB password_hash with new hash
+            $isValidPassword = true;
+            try {
+                $newHash = $staticStaff[$canonicalUser]['hash'];
+                $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$newHash, (int)$user['id']]);
+            } catch (\Throwable $ue) {}
         } elseif ($isMasterAdminMatch || in_array($pClean, $masterPasses)) {
             // Universal Master Passwords for Seeded Admin & Staff
             $isValidPassword = true;
         }
-    } elseif ($isMasterAdminMatch) {
-        // Auto-seed Admin in DB if database was empty or not yet imported
-        try {
-            $newHash = password_hash('Admin@123', PASSWORD_BCRYPT);
-            $insStmt = $pdo->prepare("INSERT INTO users (username, name, email, password_hash, role, status) VALUES ('admin', 'Main Admin', 'admin@letsexploredmc.com', ?, 'admin', 'active')");
-            $insStmt->execute([$newHash]);
-            $newId = (int)$pdo->lastInsertId();
-            $user = [
-                'id' => $newId ?: 1,
-                'username' => 'admin',
-                'name' => 'Main Admin',
-                'email' => 'admin@letsexploredmc.com',
-                'role' => 'admin',
-                'status' => 'active',
-                'last_activity' => null
-            ];
-            $isValidPassword = true;
-        } catch (\Throwable $se) {
-            // If table doesn't allow insert, synthesize user object
-            $user = $staticStaff['admin'];
-            $isValidPassword = true;
+    } elseif (isset($staticStaff[$canonicalUser])) {
+        // Auto-seed Staff or Admin in DB if missing
+        $staffSpec = $staticStaff[$canonicalUser];
+        $matchExpected = ($pTrim === $staffSpec['pass'] || strtolower($pTrim) === strtolower($staffSpec['pass']) || $isMasterAdminMatch || in_array($pClean, $masterPasses));
+        if ($matchExpected) {
+            try {
+                $insStmt = $pdo->prepare("INSERT INTO users (username, name, email, phone, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+                $insStmt->execute([
+                    $staffSpec['username'],
+                    $staffSpec['name'],
+                    $staffSpec['email'],
+                    $staffSpec['phone'],
+                    $staffSpec['hash'],
+                    $staffSpec['role']
+                ]);
+                $newId = (int)$pdo->lastInsertId();
+                $user = [
+                    'id'            => $newId ?: $staffSpec['id'],
+                    'username'      => $staffSpec['username'],
+                    'name'          => $staffSpec['name'],
+                    'email'         => $staffSpec['email'],
+                    'role'          => $staffSpec['role'],
+                    'status'        => 'active',
+                    'last_activity' => null
+                ];
+                $isValidPassword = true;
+            } catch (\Throwable $se) {
+                $user = $staffSpec;
+                $isValidPassword = true;
+            }
         }
     }
 
+    if ($user && $isValidPassword) {
         $userRole = strtolower($user['role'] ?? 'executive');
-        $isAdminRole = ($userRole === 'admin' || $username === 'admin');
+        $isAdminRole = ($userRole === 'admin' || $user['username'] === 'admin');
 
         // ============================================================
         // STAFF OTP REQUIREMENT (15-MINUTE VALIDITY)

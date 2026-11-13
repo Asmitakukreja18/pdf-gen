@@ -53,10 +53,50 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
             [
                 'id' => 2,
                 'sub_user_id' => 'SU-1',
+                'username' => 'kashish',
+                'name' => 'Kashish Adwani',
+                'email' => 'kashish@letsexploredmc.com',
+                'phone' => '+91 98765 00002',
+                'role' => 'executive',
+                'status' => 'active',
+                'session_status' => 'Active',
+                'login_time' => '10:30 AM Today',
+                'logout_time' => '— (Session Active)',
+                'last_login' => date('Y-m-d 10:30:00'),
+                'last_activity' => date('Y-m-d H:i:s', time() - 90),
+                'session_duration' => '2h 00m',
+                'total_leads' => 32,
+                'total_quotes' => 29,
+                'followups_pending' => 4,
+                'tasks_completed' => 11
+            ],
+            [
+                'id' => 3,
+                'sub_user_id' => 'SU-2',
+                'username' => 'asmita',
+                'name' => 'Asmita Kukreja',
+                'email' => 'asmita@letsexploredmc.com',
+                'phone' => '+91 98765 00003',
+                'role' => 'executive',
+                'status' => 'active',
+                'session_status' => 'Active',
+                'login_time' => '10:45 AM Today',
+                'logout_time' => '— (Session Active)',
+                'last_login' => date('Y-m-d 10:45:00'),
+                'last_activity' => date('Y-m-d H:i:s', time() - 140),
+                'session_duration' => '1h 50m',
+                'total_leads' => 30,
+                'total_quotes' => 27,
+                'followups_pending' => 3,
+                'tasks_completed' => 10
+            ],
+            [
+                'id' => 4,
+                'sub_user_id' => 'SU-3',
                 'username' => 'chanchal',
                 'name' => 'Chanchal Sharma',
                 'email' => 'chanchal@letsexploredmc.com',
-                'phone' => '+91 98765 00002',
+                'phone' => '+91 98765 00004',
                 'role' => 'executive',
                 'status' => 'active',
                 'session_status' => 'Active',
@@ -71,12 +111,12 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
                 'tasks_completed' => 9
             ],
             [
-                'id' => 3,
-                'sub_user_id' => 'SU-2',
+                'id' => 5,
+                'sub_user_id' => 'SU-4',
                 'username' => 'ritesh',
                 'name' => 'Ritesh Verma',
                 'email' => 'ritesh@letsexploredmc.com',
-                'phone' => '+91 98765 00003',
+                'phone' => '+91 98765 00005',
                 'role' => 'executive',
                 'status' => 'active',
                 'session_status' => 'Active',
@@ -91,12 +131,12 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
                 'tasks_completed' => 7
             ],
             [
-                'id' => 4,
-                'sub_user_id' => 'SU-3',
+                'id' => 6,
+                'sub_user_id' => 'SU-5',
                 'username' => 'operations',
                 'name' => 'Operations Team',
                 'email' => 'operations@letsexploredmc.com',
-                'phone' => '+91 98765 00004',
+                'phone' => '+91 98765 00006',
                 'role' => 'agent',
                 'status' => 'active',
                 'session_status' => 'Active',
@@ -122,6 +162,25 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
     }
 
     try {
+        // Ensure default staff members exist in database
+        try {
+            $defaultStaff = [
+                ['username' => 'kashish', 'name' => 'Kashish Adwani', 'email' => 'kashish@letsexploredmc.com', 'phone' => '+91 98765 00002', 'hash' => '$2y$10$WblC6gSxpaUU6k9jSB9su.M8JyjUI2FLgQqocMFQzMaSEqmTBNvhe', 'role' => 'executive'],
+                ['username' => 'asmita', 'name' => 'Asmita Kukreja', 'email' => 'asmita@letsexploredmc.com', 'phone' => '+91 98765 00003', 'hash' => '$2y$10$fetalUtjo0NdcrTsfZGHJ.g0szQ0iqVW40Y/SulL8nGt3ThYluwZO', 'role' => 'executive'],
+                ['username' => 'chanchal', 'name' => 'Chanchal Sharma', 'email' => 'chanchal@letsexploredmc.com', 'phone' => '+91 98765 00004', 'hash' => '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm', 'role' => 'executive'],
+                ['username' => 'ritesh', 'name' => 'Ritesh Verma', 'email' => 'ritesh@letsexploredmc.com', 'phone' => '+91 98765 00005', 'hash' => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'role' => 'executive'],
+                ['username' => 'operations', 'name' => 'Operations Desk', 'email' => 'ops@letsexploredmc.com', 'phone' => '+91 98765 00006', 'hash' => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'role' => 'agent']
+            ];
+            $checkStmt = $pdo->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+            $seedStmt = $pdo->prepare("INSERT INTO users (username, name, email, phone, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+            foreach ($defaultStaff as $ds) {
+                $checkStmt->execute([$ds['username']]);
+                if (!$checkStmt->fetch()) {
+                    $seedStmt->execute([$ds['username'], $ds['name'], $ds['email'], $ds['phone'], $ds['hash'], $ds['role']]);
+                }
+            }
+        } catch (\Throwable $te) {}
+
         $whereClause = $excludeAdmin ? "WHERE u.role != 'admin' AND u.username != 'admin'" : "";
         $stmt = $pdo->query("
             SELECT 
@@ -290,9 +349,11 @@ if ($action === 'login_history') {
     if (!$pdo) {
         $fallbackHistory = [
             ['id' => 1, 'user_id' => 1, 'username' => 'admin', 'employee_name' => 'Main Admin', 'login_time' => date('Y-m-d 09:15:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 120), 'session_duration_mins' => 100, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
-            ['id' => 2, 'user_id' => 2, 'username' => 'chanchal', 'employee_name' => 'Chanchal Sharma', 'login_time' => date('Y-m-d 09:32:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 300), 'session_duration_mins' => 83, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
-            ['id' => 3, 'user_id' => 3, 'username' => 'ritesh', 'employee_name' => 'Ritesh Verma', 'login_time' => date('Y-m-d 09:40:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 720), 'session_duration_mins' => 75, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
-            ['id' => 4, 'user_id' => 4, 'username' => 'operations', 'employee_name' => 'Operations Desk', 'login_time' => date('Y-m-d 09:50:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 1200), 'session_duration_mins' => 65, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
+            ['id' => 2, 'user_id' => 2, 'username' => 'kashish', 'employee_name' => 'Kashish Adwani', 'login_time' => date('Y-m-d 09:20:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 90), 'session_duration_mins' => 95, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
+            ['id' => 3, 'user_id' => 3, 'username' => 'asmita', 'employee_name' => 'Asmita Kukreja', 'login_time' => date('Y-m-d 09:25:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 140), 'session_duration_mins' => 90, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
+            ['id' => 4, 'user_id' => 4, 'username' => 'chanchal', 'employee_name' => 'Chanchal Sharma', 'login_time' => date('Y-m-d 09:32:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 300), 'session_duration_mins' => 83, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
+            ['id' => 5, 'user_id' => 5, 'username' => 'ritesh', 'employee_name' => 'Ritesh Verma', 'login_time' => date('Y-m-d 09:40:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 720), 'session_duration_mins' => 75, 'status' => 'active', 'is_relogin' => 0, 'ip_address' => '127.0.0.1'],
+            ['id' => 6, 'user_id' => 6, 'username' => 'operations', 'employee_name' => 'Operations Desk', 'login_time' => date('Y-m-d 09:50:00'), 'logout_time' => null, 'last_active' => date('Y-m-d H:i:s', time() - 1200), 'session_duration_mins' => 65, 'status' => 'active', 'is_relogin' => 1, 'ip_address' => '127.0.0.1'],
         ];
         if ($userId > 0) {
             $fallbackHistory = array_values(array_filter($fallbackHistory, function($h) use ($userId) { return $h['user_id'] == $userId; }));
