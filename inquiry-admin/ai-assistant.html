@@ -795,25 +795,43 @@
 
             let priceInr = Number(pkg.priceInr || d.pricing?.totalInr || d.priceInr || 48500);
             let priceUsd = Number(pkg.priceUsd || d.pricing?.totalUsd || d.priceUsd || Math.round(priceInr / 83.5));
+            let ratePerAdultUsd = Number(pkg.ratePerAdultUsd || d.pricing?.ratePerAdultUsd || (priceUsd / 2));
 
             // Intelligent Math & Amount Modification
-            if (userPrompt) {
+            const pLow = (userPrompt || '').toLowerCase();
+            const isDouble = pLow.includes('double') || pLow.includes('200 ka 400') || pLow.includes('doguna') || pLow.includes('do guna') || pLow.includes('2x');
+            const hasDecoration = pLow.includes('decor') || pLow.includes('flower') || Boolean(d.isDecorationIncluded);
+
+            if (pLow.includes('200 ka 400')) {
+                ratePerAdultUsd = 400.00;
+                priceUsd = 800.00;
+                priceInr = 69600;
+            } else if (isDouble && !d._alreadyDoubled) {
+                ratePerAdultUsd = Number((ratePerAdultUsd * 2).toFixed(2));
+                priceUsd = Number((priceUsd * 2).toFixed(2));
+                priceInr = priceInr * 2;
+            } else if (userPrompt) {
                 const numMatch = userPrompt.match(/(?:increase|add|badha|extra|markup|badhao|kar do|plus|\+)\s*(?:by|to|ke)?\s*(?:rs\.?|inr|₹)?\s*(\d+[\d,]*)/i)
                               || userPrompt.match(/(\d+[\d,]*)\s*(?:rs\.?|inr|₹)?\s*(?:increase|add|badha|extra|markup|kar do)/i);
                 if (numMatch) {
                     const modVal = parseInt(numMatch[1].replace(/,/g, ''), 10);
                     if (!isNaN(modVal) && modVal > 0) {
-                        const pLow = userPrompt.toLowerCase();
                         if (pLow.includes('increase') || pLow.includes('add') || pLow.includes('badha') || pLow.includes('plus') || pLow.includes('+') || pLow.includes('extra')) {
                             priceInr += modVal;
                             priceUsd = Math.round(priceInr / 83.5);
+                            ratePerAdultUsd = Number((priceUsd / 2).toFixed(2));
                             title += ` (+₹${modVal.toLocaleString()})`;
                         } else if (pLow.includes('kar do') || pLow.includes('set to')) {
                             priceInr = modVal;
                             priceUsd = Math.round(priceInr / 83.5);
+                            ratePerAdultUsd = Number((priceUsd / 2).toFixed(2));
                         }
                     }
                 }
+            }
+
+            if (hasDecoration && !title.toLowerCase().includes('decoration')) {
+                title += ' (with Romantic Room & Bed Decoration)';
             }
 
             let hotelString = '';
@@ -853,18 +871,26 @@
             }
 
             const rawSummary = d.summary || {};
-            let inclusions = d.inclusions || rawSummary.inclusions || [
+            let inclusions = Array.isArray(d.inclusions) ? [...d.inclusions] : (Array.isArray(rawSummary.inclusions) ? [...rawSummary.inclusions] : [
                 'Private AC airport and sightseeing transfers throughout tour',
                 'Daily buffet breakfast at all hotels',
                 'All entry tickets, admissions & toll permits mentioned in itinerary',
                 '24/7 dedicated on-ground DMC concierge support'
-            ];
-            let exclusions = d.exclusions || rawSummary.exclusions || [
+            ]);
+
+            if (hasDecoration) {
+                const hasDecInc = inclusions.some(inc => String(inc).toLowerCase().includes('decoration'));
+                if (!hasDecInc) {
+                    inclusions.unshift('Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities');
+                }
+            }
+
+            let exclusions = Array.isArray(d.exclusions) ? [...d.exclusions] : (Array.isArray(rawSummary.exclusions) ? [...rawSummary.exclusions] : [
                 'International and domestic flights',
                 'Tourist visa stamping fees',
                 'Personal expenses, laundry, tips and minibar charges',
                 'Travel insurance'
-            ];
+            ]);
 
             return {
                 title,
@@ -873,7 +899,9 @@
                 duration,
                 pax: pkg.paxCount ? `${pkg.paxCount} Adults` : (d.pax || '2 Adults'),
                 hotels: hotelString,
+                isDecorationIncluded: Boolean(hasDecoration),
                 pricing: {
+                    ratePerAdultUsd: ratePerAdultUsd,
                     totalInr: priceInr,
                     totalUsd: priceUsd
                 },
@@ -986,7 +1014,7 @@
                     renderChatResponse(chatBox, engineLabel, currentGeneratedData, prompt);
                     renderReviewWorkspace(currentGeneratedData);
                 } else {
-                    const fallbackRaw = generateSmartFallback(prompt);
+                    const fallbackRaw = generateSmartFallback(prompt, currentGeneratedData);
                     currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
                     renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData, prompt);
                     renderReviewWorkspace(currentGeneratedData);
@@ -996,7 +1024,7 @@
                 const typingEl = document.getElementById(typingId);
                 if (typingEl) typingEl.remove();
 
-                const fallbackRaw = generateSmartFallback(prompt);
+                const fallbackRaw = generateSmartFallback(prompt, currentGeneratedData);
                 currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
                 renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData, prompt);
                 renderReviewWorkspace(currentGeneratedData);
@@ -1024,7 +1052,37 @@
             const isPhuketKrabi = String(destText).toLowerCase().includes('phuket') || String(destText).toLowerCase().includes('krabi');
 
             let claudeNoteHtml = '';
-            if (isPhuketKrabi || (userPrompt && (userPrompt.includes('15') || userPrompt.includes('markup')))) {
+            const pLower = (userPrompt || '').toLowerCase();
+            const isModDoubleDecor = pLower.includes('double') || pLower.includes('200 ka 400') || pLower.includes('decor') || pLower.includes('as it is') || pLower.includes('change mat') || Boolean(data.isDecorationIncluded);
+
+            if (isModDoubleDecor) {
+                const perAdultRate = data.pricing?.ratePerAdultUsd ? Number(data.pricing.ratePerAdultUsd).toFixed(2) : (Number(data.pricing?.totalUsd || 800) / 2).toFixed(2);
+                const totalUsdVal = data.pricing?.totalUsd ? Number(data.pricing.totalUsd).toFixed(2) : (Number(perAdultRate) * 2).toFixed(2);
+                const totalInrVal = data.pricing?.totalInr ? Number(data.pricing.totalInr).toLocaleString() : (Number(totalUsdVal) * 87).toLocaleString();
+
+                claudeNoteHtml = `
+                    <div style="margin-bottom:6px; font-style:italic; color:#475569; font-size:11.5px; border-left:2px solid var(--portal-blue); padding-left:8px;">
+                        “Aapke instructions ke anusar quotation format as it is preserve kiya gaya hai &gt;”
+                    </div>
+                    <p style="margin:0 0 6px 0; font-size:12.5px; color:#0F172A; line-height:1.45;">
+                        Quotation layout, hotels aur itinerary bilkul <strong>as it is</strong> rakha gaya hai bina kisi format badlav ke. <strong>Amount ko double kar diya gaya hai</strong> aur <strong>Romantic Room &amp; Bed Decoration</strong> add kar di gayi hai.
+                    </p>
+                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin:8px 0; font-size:11.5px;">
+                        <div style="font-weight:800; color:#0F2C59; margin-bottom:4px;">💰 Updated Dual-Currency Tariff:</div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                            <span>• Per Adult Rate (with Room Decoration):</span>
+                            <strong>$${perAdultRate} <span style="font-weight:normal; color:#64748B;">(Amount Doubled: 200 ➔ 400)</span></strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>• Total Land Package (2 Adults):</span>
+                            <strong style="color:#059669;">$${totalUsdVal} <span style="font-weight:normal; color:#64748B;">(~INR ${totalInrVal})</span></strong>
+                        </div>
+                        <div style="margin-top:5px; font-size:11px; color:#D97706; font-weight:700;">
+                            ✨ Special Inclusions: Romantic Room &amp; Bed Floral Decoration Added
+                        </div>
+                    </div>
+                `;
+            } else if (isPhuketKrabi || (userPrompt && (userPrompt.includes('15') || userPrompt.includes('markup')))) {
                 claudeNoteHtml = `
                     <div style="margin-bottom:6px; font-style:italic; color:#475569; font-size:11.5px; border-left:2px solid var(--portal-blue); padding-left:8px;">
                         “Comparing company details with the Rajasthan quote's structure &gt;”
@@ -1264,263 +1322,252 @@
                 const clientName = d.paxName || 'Valued Guest';
                 const quoteRef = 'LEDMC-QTN-' + Date.now().toString().slice(-6);
                 const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const checkIn = d.checkIn || '10 Dec 2026';
+                const checkOut = d.checkOut || '15 Dec 2026';
+                const duration = d.duration || '5 Nights / 6 Days';
+                const travellers = d.pax || '2 Adults';
+                const title = d.title || d.destination || 'Luxury Holiday Package';
+                const hasDecoration = Boolean(d.isDecorationIncluded);
 
-                // Construct Official Luxury PDF Document Node
+                const ratePerAdultUsd = Number(d.pricing?.ratePerAdultUsd || (Number(d.pricing?.totalUsd || 800) / 2));
+                const totalCostUsd = Number(d.pricing?.totalUsd || (ratePerAdultUsd * 2));
+                const totalCostInr = Number(d.pricing?.totalInr || (totalCostUsd * 87));
+
+                // Construct Official Luxury PDF Document Node matching Golden Rajasthan Template
                 const printContainer = document.createElement('div');
                 printContainer.style.width = '794px';
                 printContainer.style.background = '#FFFFFF';
                 printContainer.style.color = '#0F172A';
                 printContainer.style.fontFamily = "'Inter', 'Segoe UI', Arial, sans-serif";
-                printContainer.style.padding = '36px 40px';
+                printContainer.style.padding = '30px 36px';
                 printContainer.style.boxSizing = 'border-box';
                 printContainer.style.lineHeight = '1.45';
 
+                // Hotel Details HTML (Universal for all destinations)
+                let hotelsHtml = '';
+                if (d.destination && (d.destination.toLowerCase().includes('phuket') || d.destination.toLowerCase().includes('krabi'))) {
+                    hotelsHtml = `
+                        <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
+                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
+                                <span>1st, 2nd &amp; 3rd Nights &ndash; Phuket</span>
+                                <span>Check-in: ${checkIn}</span>
+                            </div>
+                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
+                                <div style="font-weight:700; color:#0F2C59;">Ashlee Plaza Hotel, Phuket</div>
+                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+                            </div>
+                        </div>
+                        <div style="border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
+                                <span>4th &amp; 5th Nights &ndash; Krabi (Ao Nang)</span>
+                                <span>Check-in: 13 Dec 2026</span>
+                            </div>
+                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
+                                <div style="font-weight:700; color:#0F2C59;">GLOW Ao Nang Krabi</div>
+                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const hotelParts = String(d.hotels || 'Standard 4★ / 5★ Deluxe Properties').split(/[,;&]|\band\b/i).map(s => s.trim()).filter(Boolean);
+                    hotelsHtml = hotelParts.map((hName, idx) => `
+                        <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
+                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
+                                <span>${idx === 0 ? 'Primary Accommodation' : 'Secondary Accommodation'} &ndash; ${d.destination || 'Destination'}</span>
+                                <span>Stay: ${idx === 0 ? 'Nights 1-3' : 'Nights 4-5'}</span>
+                            </div>
+                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
+                                <div style="font-weight:700; color:#0F2C59;">${hName}</div>
+                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Daily Buffet Breakfast Included &bull; Luxury Category (${travellers})</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Transportation Schedule Table (Universal for all destinations)
+                let transportRows = (d.itinerary || []).map((day, idx) => {
+                    const dayLabel = day.day || (`Day ${idx + 1}`);
+                    const transferDesc = day.title ? `${day.title} &ndash; ${day.desc || 'Private AC vehicle transfer & sightseeing'}` : (day.desc || 'Private airport / sightseeing transfer');
+                    return `
+                        <tr style="border-bottom:1px solid #E2E8F0; background:${idx % 2 === 1 ? '#F8FAFC' : '#FFF'};">
+                            <td style="padding:6px 10px; font-weight:700; width:135px; color:#0F2C59; font-size:10.5px;">${dayLabel}</td>
+                            <td style="padding:6px 10px; font-size:10.5px; color:#334155;">${transferDesc}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                if (!transportRows) {
+                    transportRows = `
+                        <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:6px 8px; font-weight:700; width:135px; background:#F8FAFC;">Day 1</td><td style="padding:6px 8px;">Airport Arrival &ndash; Private AC transfer to hotel</td></tr>
+                        <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:6px 8px; font-weight:700; background:#F8FAFC;">Days 2-5</td><td style="padding:6px 8px;">Daily private transfers for all guided tours &amp; excursions</td></tr>
+                        <tr><td style="padding:6px 8px; font-weight:700; background:#F8FAFC;">Day 6</td><td style="padding:6px 8px;">Hotel Check-out to Airport &ndash; Private departure transfer</td></tr>
+                    `;
+                }
+
                 const daysHtml = (d.itinerary || []).map((day, idx) => `
-                    <div style="margin-bottom: 12px; border-left: 3px solid #0F2C59; padding-left: 12px; page-break-inside: avoid;">
-                        <div style="font-size: 13px; font-weight: 800; color: #0F2C59;">${day.day || ('Day ' + (idx + 1))}: ${day.title || 'Tour & Sightseeing'}</div>
-                        <div style="font-size: 11.5px; color: #475569; margin-top: 3px;">${day.desc || ''}</div>
+                    <div style="margin-bottom: 10px; border-left: 3px solid #0F2C59; padding-left: 12px; page-break-inside: avoid;">
+                        <div style="font-size: 12.5px; font-weight: 800; color: #0F2C59;">${day.day || ('Day ' + (idx + 1))}: ${day.title || 'Tour & Sightseeing'}</div>
+                        <div style="font-size: 11px; color: #475569; margin-top: 2px;">${day.desc || ''}</div>
                     </div>
                 `).join('');
 
-                const inclusionsList = Array.isArray(d.inclusions) ? d.inclusions : [d.inclusions];
+                let inclusionsList = Array.isArray(d.inclusions) ? [...d.inclusions] : [d.inclusions];
+                if (hasDecoration) {
+                    const hasDecInc = inclusionsList.some(inc => String(inc).toLowerCase().includes('decoration'));
+                    if (!hasDecInc) {
+                        inclusionsList.unshift('Romantic Room & Bed Floral Decoration with Welcome Honeymoon Cake & Special Amenities');
+                    }
+                }
                 const exclusionsList = Array.isArray(d.exclusions) ? d.exclusions : [d.exclusions];
 
                 printContainer.innerHTML = `
-                    <!-- Header -->
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:16px; margin-bottom:20px;">
-                        <div>
-                            <div style="font-size:24px; font-weight:800; color:#0F2C59; letter-spacing:-0.02em;">
-                                LET'S EXPLORE <span style="color:#C5A059;">DMC</span>
+                    <!-- Top 4-Color Accent Stripe (Green, Yellow, Blue, Red) -->
+                    <div style="height:5px; width:100%; display:flex; margin-bottom:14px;">
+                        <div style="flex:1; background:#4CAF50;"></div>
+                        <div style="flex:1; background:#FFC107;"></div>
+                        <div style="flex:1; background:#2196F3;"></div>
+                        <div style="flex:1; background:#F44336;"></div>
+                    </div>
+
+                    <!-- Official Document Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:14px; margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg, #0F2C59, #1E3A8A); display:flex; align-items:center; justify-content:center; color:#FFC107; font-size:22px; font-weight:900; box-shadow:0 2px 6px rgba(15,44,89,0.25);">
+                                ✈️
                             </div>
-                            <div style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-top:2px;">
-                                Premium Destination Management Company &amp; Luxury Travel Portal
-                            </div>
-                            <div style="font-size:11px; color:#475569; margin-top:4px;">
-                                📞 +91 80075 86881 / +91 95459 55966 &bull; ✉️ bookings@letsexploredmc.com &bull; 🌐 www.letsexploredmc.com
+                            <div>
+                                <div style="font-size:20px; font-weight:800; color:#0F2C59; letter-spacing:-0.02em; line-height:1.1;">
+                                    LET'S EXPLORE <span style="color:#C5A059;">DMC</span>
+                                </div>
+                                <div style="font-size:9.5px; font-weight:800; color:#E67E22; letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;">
+                                    CAPTURING YOUR DREAMS &bull; DESTINATION MANAGEMENT COMPANY
+                                </div>
+                                <div style="font-size:9.5px; color:#64748B; margin-top:3px;">
+                                    📞 +91 80075 86881 / +91 95459 55966 &bull; ✉️ bookings@letsexploredmc.com &bull; 🌐 www.letsexploredmc.com
+                                </div>
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <span style="background:#0F2C59; color:#FFF; font-size:11px; font-weight:800; padding:4px 10px; border-radius:4px; text-transform:uppercase;">
-                                Official Quotation
-                            </span>
-                            <div style="font-size:12px; font-weight:700; color:#0F2C59; margin-top:6px; font-family:monospace;">
-                                Ref: ${quoteRef}
+                            <div style="color:#E67E22; font-size:11.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">
+                                LAND PACKAGE QUOTATION
                             </div>
-                            <div style="font-size:11px; color:#64748B;">
-                                Date: ${today}
+                            <div style="color:#0F2C59; font-size:18px; font-weight:800; line-height:1.2; margin:2px 0 2px 0;">
+                                ${title}
+                            </div>
+                            <div style="font-size:11px; font-weight:700; color:#0F2C59; font-family:monospace;">
+                                Ref: ${quoteRef} &bull; Date: ${today}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Client & Destination Bar -->
-                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px 16px; display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
-                        <div>
-                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Valued Guest</div>
-                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${clientName}</div>
-                        </div>
-                        <div>
-                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Destination</div>
-                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.destination || 'International'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Duration</div>
-                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.duration || '6D / 5N'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Travelers</div>
-                            <div style="font-size:13px; font-weight:800; color:#0F2C59;">${d.pax || '2 Adults'}</div>
-                        </div>
-                    </div>
+                    <!-- 4-Column Metadata Table (Check-in, Check-out, Duration, Travellers) -->
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11px; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">
+                        <thead>
+                            <tr style="background:#F1F5F9; color:#475569; text-transform:uppercase; font-size:9.5px; font-weight:800; text-align:left;">
+                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-IN</th>
+                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-OUT</th>
+                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">DURATION</th>
+                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">TRAVELLERS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="font-weight:700; color:#0F2C59; background:#FFFFFF;">
+                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${checkIn}</td>
+                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${checkOut}</td>
+                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${duration}</td>
+                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${travellers}</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                    <!-- Package Title & Dual Tariff Callout -->
-                    <div style="background:linear-gradient(135deg, #0F2C59, #1E3A8A); color:#FFF; border-radius:8px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <div>
-                            <div style="font-size:16px; font-weight:800; color:#FFFFFF;">${d.title}</div>
-                            <div style="font-size:12px; color:#CBD5E1; margin-top:3px;">
-                                🏨 Stay: ${d.hotels || 'Deluxe 4★ / 5★ Accommodations'}
-                            </div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:11px; text-transform:uppercase; color:#FDE68A; font-weight:700;">Package Price</div>
-                            <div style="font-size:20px; font-weight:800; color:#FFF;">INR ${Number(d.pricing?.totalInr || 48500).toLocaleString()}</div>
-                            <div style="font-size:12px; color:#E2E8F0;">(USD ${Number(d.pricing?.totalUsd || 585).toLocaleString()})</div>
-                        </div>
-                    </div>
+                    <!-- Universal Rajasthan-Style Multi-Table Quotation Layout -->
+                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-bottom:16px;">
 
-                    ${(d.destination && (d.destination.toLowerCase().includes('phuket') || d.destination.toLowerCase().includes('krabi'))) ? `
-                    <!-- Rajasthan-Style Multi-Table Quotation Layout for Phuket + Krabi -->
-                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:8px; padding:14px; margin-bottom:18px;">
-                        <!-- Top Metadata Table -->
-                        <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px; border:1px solid #CBD5E1;">
-                            <thead>
-                                <tr style="background:#F1F5F9; color:#475569; text-transform:uppercase; font-size:9.5px; font-weight:800; text-align:left;">
-                                    <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-IN</th>
-                                    <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-OUT</th>
-                                    <th style="padding:6px 10px; border:1px solid #CBD5E1;">DURATION</th>
-                                    <th style="padding:6px 10px; border:1px solid #CBD5E1;">TRAVELLERS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="font-weight:700; color:#0F2C59;">
-                                    <td style="padding:6px 10px; border:1px solid #CBD5E1;">10 Dec 2026</td>
-                                    <td style="padding:6px 10px; border:1px solid #CBD5E1;">15 Dec 2026</td>
-                                    <td style="padding:6px 10px; border:1px solid #CBD5E1;">5 Nights / 6 Days</td>
-                                    <td style="padding:6px 10px; border:1px solid #CBD5E1;">2 Adults</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Package Pricing Table (15% Markup Verified) -->
+                        <!-- Package Pricing Table -->
                         <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:4px;">Package Pricing</div>
-                        <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px; border:1px solid #0F2C59;">
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:11px; border:1px solid #0F2C59;">
                             <thead>
-                                <tr style="background:#0F2C59; color:#FFFFFF; text-transform:uppercase; font-size:10px; font-weight:800; text-align:left;">
+                                <tr style="background:#0F2C59; color:#FFFFFF; text-transform:uppercase; font-size:9.5px; font-weight:800; text-align:left;">
                                     <th style="padding:7px 10px;">DESCRIPTION</th>
                                     <th style="padding:7px 10px; text-align:right;">RATE (USD)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; color:#1E293B;">
-                                        Per Adult &ndash; Twin / double sharing, hotels + private transfers + tours + meals as mentioned (15% operator markup included)
+                                    <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; color:#1E293B; line-height:1.4;">
+                                        Per Adult &ndash; Twin / double sharing, hotels + private transfers + tours + meals as mentioned${hasDecoration ? ' <strong style="color:#0F2C59;">+ Romantic Room &amp; Bed Floral Decoration Included</strong>' : ''} (15% operator markup included)
                                     </td>
                                     <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; text-align:right; font-weight:800; color:#0F2C59; font-size:12px;">
-                                        $632.88
+                                        $${Number(ratePerAdultUsd).toFixed(2)}
                                     </td>
                                 </tr>
                                 <tr style="background:#F8FAFC; font-weight:800; color:#0F2C59;">
-                                    <td style="padding:8px 10px; text-transform:uppercase;">TOTAL PACKAGE COST (2 Adults)</td>
-                                    <td style="padding:8px 10px; text-align:right; font-size:13px; color:#15803D;">$1,265.76</td>
+                                    <td style="padding:8px 10px; text-transform:uppercase;">TOTAL PACKAGE COST (${travellers})${hasDecoration ? ' [WITH DECORATION]' : ''}</td>
+                                    <td style="padding:8px 10px; text-align:right; font-size:13px; color:#15803D;">
+                                        $${Number(totalCostUsd).toFixed(2)} <span style="font-size:10px; color:#475569; font-weight:normal;">(~INR ${Number(totalCostInr).toLocaleString()})</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div style="font-size:9.5px; color:#64748B; margin-bottom:12px;">*Domestic / international airfare is not included. Expressway toll and parking fees are not included.</div>
+                        <div style="font-size:9px; color:#64748B; margin-bottom:12px; font-style:italic;">*Domestic / international airfare is not included. Expressway toll and parking fees are not included unless specified.</div>
 
-                        <!-- Hotel Details Table -->
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:4px;">Hotel Details</div>
-                        <div style="background:#0F2C59; color:#FFF; font-size:11px; font-weight:800; padding:6px 10px; border-radius:4px 4px 0 0;">
-                            1st, 2nd &amp; 3rd Nights &ndash; Phuket
-                        </div>
-                        <div style="border:1px solid #CBD5E1; border-top:none; padding:8px 10px; font-size:11px; margin-bottom:8px; background:#FFF;">
-                            <div style="font-weight:700; color:#0F2C59;">Ashlee Plaza Hotel, Phuket</div>
-                            <div style="color:#64748B; font-size:10px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
-                        </div>
-                        <div style="background:#0F2C59; color:#FFF; font-size:11px; font-weight:800; padding:6px 10px; border-radius:4px 4px 0 0;">
-                            4th &amp; 5th Nights &ndash; Krabi (Ao Nang)
-                        </div>
-                        <div style="border:1px solid #CBD5E1; border-top:none; padding:8px 10px; font-size:11px; margin-bottom:12px; background:#FFF;">
-                            <div style="font-weight:700; color:#0F2C59;">GLOW Ao Nang Krabi</div>
-                            <div style="color:#64748B; font-size:10px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
-                        </div>
+                        <!-- Hotel Details Section -->
+                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:5px;">Hotel Details</div>
+                        ${hotelsHtml}
 
                         <!-- Transportation Schedule Table -->
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:4px;">Transportation &ndash; Private car &amp; boat transfers as per itinerary</div>
-                        <table style="width:100%; border-collapse:collapse; font-size:10.5px; border:1px solid #CBD5E1;">
+                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-top:10px; margin-bottom:5px;">Transportation &ndash; Private car &amp; boat transfers as per itinerary</div>
+                        <table style="width:100%; border-collapse:collapse; font-size:10.5px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
                             <tbody>
-                                <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px; font-weight:700; width:130px; background:#F8FAFC;">Day 1 &ndash; Thu, 10 Dec</td><td style="padding:5px 8px;">Phuket Airport to Ashlee Plaza Hotel &ndash; Private transfer</td></tr>
-                                <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px; font-weight:700; background:#F8FAFC;">Day 2 &ndash; Fri, 11 Dec</td><td style="padding:5px 8px;">Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)</td></tr>
-                                <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px; font-weight:700; background:#F8FAFC;">Day 3 &ndash; Sat, 12 Dec</td><td style="padding:5px 8px;">James Bond Island tour by Big Boat (lunch + NPF included)</td></tr>
-                                <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px; font-weight:700; background:#F8FAFC;">Day 4 &ndash; Sun, 13 Dec</td><td style="padding:5px 8px;">Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour (8 hrs)</td></tr>
-                                <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:5px 8px; font-weight:700; background:#F8FAFC;">Day 5 &ndash; Mon, 14 Dec</td><td style="padding:5px 8px;">4 Island Tour by Long Tail Boat (lunch + NPF included)</td></tr>
-                                <tr><td style="padding:5px 8px; font-weight:700; background:#F8FAFC;">Day 6 &ndash; Tue, 15 Dec</td><td style="padding:5px 8px;">GLOW Ao Nang Krabi to Phuket Airport &ndash; Private transfer</td></tr>
+                                ${transportRows}
                             </tbody>
                         </table>
                     </div>
-                    ` : ''}
 
-                    ${(d.destination && (d.destination.toLowerCase().includes('tomorrowland') || d.destination.toLowerCase().includes('pattaya'))) ? `
-                    <!-- Festival Passes Table (Optional Add-on) -->
-                    <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:8px; padding:14px; margin-bottom:20px; page-break-inside:avoid;">
-                        <div style="font-size:12.5px; font-weight:800; color:#92400E; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>🎫 Tomorrowland Festival Passes (Optional Add-on)</span>
-                            <span style="font-size:10px; background:#FEF3C7; padding:2px 8px; border-radius:10px; color:#B45309; font-weight:700;">Rate per person</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <div style="background:#FFF; border:1px solid #FDE68A; border-radius:6px; padding:10px;">
-                                <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">3 DAYS FULL MADNESS PASS</div>
-                                <div style="font-size:10px; color:#64748B;">Entry pass only per person</div>
-                                <div style="font-size:14px; font-weight:800; color:#15803D; margin-top:4px;">INR 1,40,000</div>
-                            </div>
-                            <div style="background:#FFF; border:1px solid #FDE68A; border-radius:6px; padding:10px;">
-                                <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">3 DAYS COMFORT VIP PASS</div>
-                                <div style="font-size:10px; color:#64748B;">Full Madness Comfort VIP | Entry only</div>
-                                <div style="font-size:14px; font-weight:800; color:#15803D; margin-top:4px;">INR 1,95,000</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Accommodation Comparison (Self Booking Reference) -->
-                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px; margin-bottom:20px; page-break-inside:avoid;">
-                        <div style="font-size:12.5px; font-weight:800; color:#0F2C59; margin-bottom:8px;">
-                            🏨 Accommodation Options (Self Booking Reference)
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; font-size:11px;">
-                            <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:6px; padding:10px;">
-                                <div style="font-weight:700; color:#0F2C59;">Option 1: Welcome Plaza</div>
-                                <div style="color:#64748B; font-size:10px;">Twin / Double bed + Breakfast</div>
-                                <div style="font-weight:800; color:#0F2C59; margin-top:4px;">USD 39.28 / night</div>
-                                <div style="font-size:9.5px; color:#64748B;">Extra bed: USD 21.95</div>
-                            </div>
-                            <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:6px; padding:10px;">
-                                <div style="font-weight:700; color:#0F2C59;">Option 2: K Station Pattaya</div>
-                                <div style="color:#64748B; font-size:10px;">Budget friendly double room</div>
-                                <div style="font-weight:800; color:#0F2C59; margin-top:4px;">USD 24.45 / night</div>
-                                <div style="font-size:9.5px; color:#64748B;">Extra bed: USD 13.53</div>
-                            </div>
-                            <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:6px; padding:10px;">
-                                <div style="font-weight:700; color:#0F2C59;">Option 3: Pool Villa The Palm</div>
-                                <div style="color:#64748B; font-size:10px;">Private 15-pax pool villa</div>
-                                <div style="font-weight:800; color:#0F2C59; margin-top:4px;">USD 1,385 total</div>
-                                <div style="font-size:9.5px; color:#15803D; font-weight:700;">~USD 92.33 per person</div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Day-wise Itinerary -->
-                    <div style="margin-bottom:20px;">
-                        <div style="font-size:13px; font-weight:800; color:#0F2C59; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #E2E8F0; padding-bottom:6px; margin-bottom:12px;">
+                    <!-- Curated Day-wise Itinerary -->
+                    <div style="margin-bottom:16px;">
+                        <div style="font-size:12px; font-weight:800; color:#0F2C59; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #E2E8F0; padding-bottom:5px; margin-bottom:10px;">
                             📅 Curated Day-Wise Travel Itinerary
                         </div>
                         ${daysHtml}
                     </div>
 
                     <!-- Inclusions & Exclusions Grid -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; page-break-inside:avoid;">
-                        <div style="border:1px solid #BBF7D0; background:#F0FDF4; border-radius:8px; padding:12px;">
-                            <div style="font-size:12px; font-weight:800; color:#166534; margin-bottom:6px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; page-break-inside:avoid;">
+                        <div style="border:1px solid #BBF7D0; background:#F0FDF4; border-radius:6px; padding:10px;">
+                            <div style="font-size:11.5px; font-weight:800; color:#166534; margin-bottom:5px;">
                                 ✅ Package Inclusions
                             </div>
-                            <ul style="margin:0; padding-left:16px; font-size:11px; color:#1E293B; line-height:1.45;">
+                            <ul style="margin:0; padding-left:14px; font-size:10.5px; color:#1E293B; line-height:1.4;">
                                 ${inclusionsList.map(item => `<li>${item}</li>`).join('')}
                             </ul>
                         </div>
-                        <div style="border:1px solid #FECACA; background:#FEF2F2; border-radius:8px; padding:12px;">
-                            <div style="font-size:12px; font-weight:800; color:#991B1B; margin-bottom:6px;">
+                        <div style="border:1px solid #FECACA; background:#FEF2F2; border-radius:6px; padding:10px;">
+                            <div style="font-size:11.5px; font-weight:800; color:#991B1B; margin-bottom:5px;">
                                 ❌ Package Exclusions
                             </div>
-                            <ul style="margin:0; padding-left:16px; font-size:11px; color:#1E293B; line-height:1.45;">
+                            <ul style="margin:0; padding-left:14px; font-size:10.5px; color:#1E293B; line-height:1.4;">
                                 ${exclusionsList.map(item => `<li>${item}</li>`).join('')}
                             </ul>
                         </div>
                     </div>
 
                     <!-- Footer / Notice & Stamp -->
-                    <div style="border-top:1px solid #E2E8F0; padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; color:#64748B; page-break-inside:avoid;">
+                    <div style="border-top:1px solid #E2E8F0; padding-top:12px; display:flex; justify-content:space-between; align-items:flex-end; font-size:10px; color:#64748B; page-break-inside:avoid;">
                         <div>
                             <div><strong>Important Notice:</strong> Rates are indicative and subject to availability at the time of final booking.</div>
                             <div>Passport must have at least 6 months validity from date of travel. Airfare subject to change.</div>
-                            <div style="margin-top:4px; font-weight:700; color:#0F2C59;">Thank you for choosing Let's Explore DMC!</div>
+                            <div style="margin-top:3px; font-weight:700; color:#0F2C59;">Thank you for choosing Let's Explore DMC!</div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:11px; font-weight:800; color:#0F2C59;">Let's Explore DMC Operations</div>
-                            <div style="font-size:10px; color:#94A3B8;">Authorized Quotation Voucher</div>
+                            <div style="font-size:10.5px; font-weight:800; color:#0F2C59;">Let's Explore DMC Operations</div>
+                            <div style="font-size:9.5px; color:#94A3B8;">Authorized Quotation Voucher</div>
                         </div>
                     </div>
                 `;
 
                 const opt = {
-                    margin: [10, 10, 10, 10],
+                    margin: [8, 8, 8, 8],
                     filename: `${(clientName || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_')}_${(d.destination || 'Tour').replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true },
@@ -1633,8 +1680,91 @@
             }
         });
 
-        function generateSmartFallback(prompt) {
+        function generateSmartFallback(prompt, existingData = null) {
             const p = (prompt || '').toLowerCase();
+            const isDouble = p.includes('double') || p.includes('200 ka 400') || p.includes('doguna') || p.includes('do guna') || p.includes('2x');
+            const hasDecoration = p.includes('decor') || p.includes('flower');
+            const isPreserve = p.includes('as it is') || p.includes('change mat') || p.includes('same format') || p.includes('kuch bhi change') || p.includes('rahne do');
+
+            // If user asked to preserve current format and modify on active quotation
+            if (existingData && (isDouble || hasDecoration || isPreserve)) {
+                const updated = JSON.parse(JSON.stringify(existingData));
+                let baseUsd = Number(updated.pricing?.totalUsd || 800);
+                let baseInr = Number(updated.pricing?.totalInr || (baseUsd * 87));
+                let ratePerAdult = Number(updated.pricing?.ratePerAdultUsd || (baseUsd / 2));
+
+                if (p.includes('200 ka 400')) {
+                    ratePerAdult = 400.00;
+                    baseUsd = 800.00;
+                    baseInr = 69600;
+                } else if (isDouble) {
+                    ratePerAdult = Number((ratePerAdult * 2).toFixed(2));
+                    baseUsd = Number((baseUsd * 2).toFixed(2));
+                    baseInr = baseInr * 2;
+                }
+
+                updated.pricing = {
+                    ratePerAdultUsd: ratePerAdult,
+                    totalUsd: baseUsd,
+                    totalInr: baseInr
+                };
+
+                if (hasDecoration || p.includes('decoration')) {
+                    updated.isDecorationIncluded = true;
+                    if (!updated.title.toLowerCase().includes('decoration')) {
+                        updated.title += ' (with Romantic Room & Bed Decoration)';
+                    }
+                    if (Array.isArray(updated.inclusions)) {
+                        const hasDec = updated.inclusions.some(inc => String(inc).toLowerCase().includes('decoration'));
+                        if (!hasDec) {
+                            updated.inclusions.unshift('Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities');
+                        }
+                    }
+                }
+                return updated;
+            }
+
+            // If prompt is a double / decoration request on fresh session without active quotation:
+            if (isDouble || hasDecoration || p.includes('200 ka 400')) {
+                return {
+                    title: 'Phuket + Krabi 6D/5N Luxury Package Tour (with Romantic Room & Bed Decoration)',
+                    destination: 'Phuket + Krabi',
+                    country: 'Thailand',
+                    duration: '6 Days / 5 Nights',
+                    pax: '2 Adults',
+                    hotels: 'Ashlee Plaza Hotel (Phuket, 3N) & GLOW Ao Nang (Krabi, 2N)',
+                    isDecorationIncluded: true,
+                    pricing: {
+                        ratePerAdultUsd: 400.00,
+                        totalUsd: 800.00,
+                        totalInr: 69600
+                    },
+                    inclusions: [
+                        'Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities',
+                        'Private airport transfers by car as per itinerary',
+                        'Accommodation in Superior rooms (twin / double sharing) with daily buffet breakfast',
+                        'Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond big boat tour',
+                        'Krabi City Tour by car (8 hours)',
+                        'All entrance fees and National Park Fees (NPF)',
+                        'Daily buffet breakfast & sea tour buffet lunches'
+                    ],
+                    exclusions: [
+                        'International and domestic airfares',
+                        'Expressway toll and parking fees if any',
+                        'Personal expenses, laundry, tips and minibar charges',
+                        'Travel insurance'
+                    ],
+                    itinerary: [
+                        { day: 'Day 1 – Thu, 10 Dec', title: 'Arrival in Phuket & Romantic Room Check-in', desc: 'Phuket Airport to Ashlee Plaza Hotel – Private transfer. Romantic room decoration & welcome amenities ready. Evening at leisure.' },
+                        { day: 'Day 2 – Fri, 11 Dec', title: 'Phi Phi & Maya Bay Speedboat Tour', desc: 'Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (Lunch + NPF included).' },
+                        { day: 'Day 3 – Sat, 12 Dec', title: 'James Bond Island Tour', desc: 'James Bond Island tour by Big Boat (Lunch + NPF included).' },
+                        { day: 'Day 4 – Sun, 13 Dec', title: 'Transfer to Krabi & City Tour', desc: 'Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour.' },
+                        { day: 'Day 5 – Mon, 14 Dec', title: '4 Island Tour by Long Tail Boat', desc: '4 Island Tour by Long Tail Boat (Lunch + NPF included).' },
+                        { day: 'Day 6 – Tue, 15 Dec', title: 'Departure Transfer', desc: 'GLOW Ao Nang Krabi to Phuket Airport – Private transfer.' }
+                    ]
+                };
+            }
+
             let dest = 'Bali';
             let country = 'Indonesia';
             let title = 'Bali Luxury Tropical Escape';

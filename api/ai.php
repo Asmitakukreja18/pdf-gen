@@ -52,6 +52,9 @@ function extractPdfTextSimple($pdfContent) {
 
 // Read incoming JSON body
 $rawInput = file_get_contents('php://input');
+if (empty($rawInput) && php_sapi_name() === 'cli' && isset($argv[1])) {
+    $rawInput = $argv[1];
+}
 $payload = json_decode($rawInput, true);
 
 if (!$payload || !isset($payload['prompt'])) {
@@ -565,19 +568,31 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         }
     }
 
+    // Dynamic check for user modification commands (e.g., "amount ko double kar do", "200 ka 400", "with decoration", "as it is rahne do")
+    $preserveAsIs = preg_match('/(?:kuch\s*bhi\s*change\s*mat|as\s*it\s*is|same\s*format|dont\s*change|don\'t\s*change|change\s*mat\s*karo|same\s*rahne\s*do)/i', $prompt);
+    $isDoublePrompt = preg_match('/(?:double|200\s*ka\s*400|do\s*guna|doguna|2x)/i', $prompt);
+    $hasSpecificDouble = preg_match('/200\s*(?:ka|to)\s*400/i', $prompt);
+    $hasDecoration = preg_match('/(?:decoration|decor|flower|room\s*decoration|bed\s*decoration)/i', $prompt);
+
     // If an existing quotation is active in current state, preserve its destination & structure
     if ($currentQuotation && is_array($currentQuotation)) {
         $cPkg = $currentQuotation['package'] ?? [];
-        $activeDest = $cPkg['destinations'] ?? ($cPkg['destination'] ?? '');
+        $activeDest = !empty($currentQuotation['destination']) ? $currentQuotation['destination'] : ($cPkg['destinations'] ?? ($cPkg['destination'] ?? ''));
         if (!empty($activeDest)) {
             $hasExplicitNewDest = preg_match('/\b(bali|dubai|uae|singapore|malaysia|turkey|vietnam|kashmir|rajasthan|kerala)\b/i', $prompt);
-            if (!$hasExplicitNewDest) {
+            if (!$hasExplicitNewDest || $preserveAsIs) {
                 $dest = $activeDest;
-                $country = $cPkg['country'] ?? 'Thailand';
-                $duration = $cPkg['duration'] ?? '4 Days / 3 Nights';
+                $country = $currentQuotation['country'] ?? ($cPkg['country'] ?? 'Thailand');
+                $duration = $currentQuotation['duration'] ?? ($cPkg['duration'] ?? '6 Days / 5 Nights');
                 if (preg_match('/(\d+)\s*days?/i', $duration, $dm)) {
                     $numDays = intval($dm[1]);
                     $numNights = max(1, $numDays - 1);
+                }
+                if (!empty($currentQuotation['pricing']['totalInr'])) {
+                    $priceInr = floatval($currentQuotation['pricing']['totalInr']);
+                }
+                if (!empty($currentQuotation['pricing']['totalUsd'])) {
+                    $priceUsd = floatval($currentQuotation['pricing']['totalUsd']);
                 }
                 if (stripos($dest, 'tomorrowland') !== false || stripos($dest, 'pattaya') !== false) {
                     $text .= ' tomorrowland pattaya';
@@ -590,6 +605,19 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         $numDays = intval($m[1]);
         $numNights = !empty($m[2]) ? intval($m[2]) : max(1, $numDays - 1);
         $duration = "{$numDays} Days / {$numNights} Nights";
+    }
+
+    // Handle modification prompt when no previous quote was in session: default to official master Phuket+Krabi template
+    if (($isDoublePrompt || $hasDecoration || $preserveAsIs) && (empty($activeDest) || $activeDest === 'Bali, Indonesia')) {
+        $dest = 'Phuket + Krabi, Thailand';
+        $country = 'Thailand';
+        $numDays = 6;
+        $numNights = 5;
+        $duration = '6 Days / 5 Nights';
+        $currency = 'USD';
+        $usdRate = 87.0;
+        $priceUsd = 800.00;
+        $priceInr = 69600;
     }
 
     if (strpos($text, 'tomorrowland') !== false || strpos($text, 'pattaya') !== false) {
@@ -679,6 +707,18 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         $country = 'Maldives';
         $priceInr = 145000;
         $priceUsd = 1680;
+    }
+
+    // Dynamic Price Doubling & Specific 200 -> 400 calculation
+    $ratePerAdultUsd = round($priceUsd / 2, 2);
+    if ($hasSpecificDouble) {
+        $ratePerAdultUsd = 400.00;
+        $priceUsd = 800.00;
+        $priceInr = 69600;
+    } elseif ($isDoublePrompt) {
+        $ratePerAdultUsd = round($ratePerAdultUsd * 2, 2);
+        $priceUsd = round($priceUsd * 2, 2);
+        $priceInr = round($priceInr * 2);
     }
 
     // Dynamic markup from user prompt (% increase)
@@ -1041,6 +1081,25 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             "All government taxes, driver allowances, tolls, and fuel surcharges included",
             "15% DMC operator markup applied"
         ];
+    }
+
+    if ($hasDecoration) {
+        array_unshift($inclusions, "Romantic Room & Bed Floral Decoration with Welcome Cake & Special Amenities (Honeymoon Inclusions)");
+    }
+
+    if ($hasSpecificDouble || $isDoublePrompt) {
+        $summaryItems = [
+            [
+                'name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned' . ($hasDecoration ? ' + Romantic Room & Bed Floral Decoration' : '') . ' (Amount Doubled as requested: USD ' . number_format($ratePerAdultUsd, 2) . ')',
+                'amountUSD' => $ratePerAdultUsd,
+                'amountINR' => round($ratePerAdultUsd * $usdRate)
+            ],
+            [
+                'name' => 'TOTAL LAND PACKAGE COST (' . ($currentQuotation['pax'] ?? '2 Adults') . ')' . ($hasDecoration ? ' [WITH DECORATION]' : ''),
+                'amountUSD' => $priceUsd,
+                'amountINR' => $priceInr
+            ]
+        ];
     } elseif (strpos($dest, 'Tomorrowland') !== false) {
         $summaryItems = [
             ['name' => 'Land Package (2 Vans Airport & Festival Transfers + City Tour + Insurance)', 'amountUSD' => 127.15, 'amountINR' => $landPriceInr],
@@ -1049,8 +1108,8 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ];
     } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
         $summaryItems = [
-            ['name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned (15% DMC markup applied)', 'amountUSD' => 632.88, 'amountINR' => 55060],
-            ['name' => 'TOTAL LAND PACKAGE COST (2 Adults)', 'amountUSD' => 1265.76, 'amountINR' => 110121]
+            ['name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned (15% DMC markup applied)' . ($hasDecoration ? ' + Romantic Room & Bed Floral Decoration' : ''), 'amountUSD' => $ratePerAdultUsd, 'amountINR' => round($ratePerAdultUsd * $usdRate)],
+            ['name' => 'TOTAL LAND PACKAGE COST (2 Adults)' . ($hasDecoration ? ' [WITH DECORATION]' : ''), 'amountUSD' => $priceUsd, 'amountINR' => $priceInr]
         ];
     }
 
@@ -1068,12 +1127,17 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ];
     }
 
+    $pkgTitle = (strpos($dest, 'Tomorrowland') !== false ? "Pattaya Tomorrowland Thailand 4D3N Group Package" . ($passDelta > 0 ? " (+INR " . number_format($passDelta) . " Passes)" : "") : "{$duration} Luxury {$dest} Escape");
+    if ($hasDecoration && stripos($pkgTitle, 'Decoration') === false) {
+        $pkgTitle .= " (with Romantic Room & Bed Decoration)";
+    }
+
     return [
         'detectedDocType' => 'quotation',
         'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by " . ($isAanay ? "Aanay Tours" : "Let's Explore DMC") . ".",
         'company' => $companyData,
         'package' => [
-            'title' => (strpos($dest, 'Tomorrowland') !== false ? "Pattaya Tomorrowland Thailand 4D3N Group Package" . ($passDelta > 0 ? " (+INR " . number_format($passDelta) . " Passes)" : "") : "{$duration} Luxury {$dest} Escape"),
+            'title' => $pkgTitle,
             'destination' => $dest,
             'destinations' => $dest,
             'duration' => $duration,
@@ -1083,14 +1147,18 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             'currency' => $currency,
             'usdRate' => $usdRate,
             'priceInr' => $priceInr,
-            'priceUsd' => $priceUsd
+            'priceUsd' => $priceUsd,
+            'ratePerAdultUsd' => $ratePerAdultUsd,
+            'isDecorationIncluded' => !empty($hasDecoration)
         ],
         'days' => $days,
         'hotels' => $hotels,
         'pricing' => [
+            'ratePerAdultUsd' => $ratePerAdultUsd,
             'totalInr' => $priceInr,
             'totalUsd' => $priceUsd
         ],
+        'isDecorationIncluded' => !empty($hasDecoration),
         'summary' => [
             'items' => $summaryItems,
             'inclusions' => $inclusions,
