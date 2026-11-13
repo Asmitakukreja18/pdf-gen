@@ -126,6 +126,31 @@ foreach ($attachments as &$attItem) {
 }
 unset($attItem);
 
+// Automatic Google Drive link detection in user prompt
+if (preg_match('/https:\/\/drive\.google\.com\/(?:file\/d\/|open\?id=)([-\w]{25,})/', $prompt, $driveMatches)) {
+    $driveFileId = $driveMatches[1];
+    $driveDownloadUrl = "https://drive.google.com/uc?export=download&id={$driveFileId}";
+    $ctx = stream_context_create([
+        'http' => [
+            'timeout' => 4,
+            'follow_location' => 1,
+            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        ]
+    ]);
+    $driveContent = @file_get_contents($driveDownloadUrl, false, $ctx);
+    if ($driveContent && strlen($driveContent) > 40) {
+        $extractedDrive = extractPdfTextSimple($driveContent);
+        if ($extractedDrive && strlen($extractedDrive) > 20) {
+            $attachments[] = [
+                'name' => 'Google_Drive_Document.pdf',
+                'mimeType' => 'application/pdf',
+                'extractedText' => $extractedDrive,
+                'source' => 'google_drive'
+            ];
+        }
+    }
+}
+
 // Guarantee single $attachment points to the first attachment for backward compatibility
 if (empty($attachment) && !empty($attachments)) {
     $attachment = $attachments[0];
