@@ -381,10 +381,14 @@
                     updateCounters(data.status_counts || data.counts || {});
                     renderLeads(allLeads);
                 } else {
-                    renderFallbackLeads();
+                    allLeads = [];
+                    updateCounters({});
+                    renderLeads([]);
                 }
             } catch (err) {
-                renderFallbackLeads();
+                allLeads = [];
+                updateCounters({});
+                renderLeads([]);
             }
         }
 
@@ -546,27 +550,6 @@
                 document.getElementById('addLeadModal').style.display = 'none';
                 loadLeads();
             }
-        }
-
-        function renderFallbackLeads() {
-            const fallback = [
-                { id: 1, lead_no: 'LEDMC-LEAD-101', customer_name: 'Dipesh Batra', phone: '7020660318', email: 'dipeshbatra043@gmail.com', destination: 'Rajasthan & Udaipur Heritage 5D', adults: 2, children: 0, rooms: 1, budget: 65000, lead_source: 'Website Form', assigned_employee: 'Admin', status: 'Fresh', followup_date: 'Today' },
-                { id: 2, lead_no: 'LEDMC-LEAD-102', customer_name: 'Akash Dewani', phone: '9820011223', email: 'akash@dewanitravels.com', destination: 'Dubai Luxury 6D Atlantis & Safari', adults: 2, children: 1, rooms: 1, budget: 140000, lead_source: 'WhatsApp Partner', assigned_employee: 'Chanchal (SU-1)', status: 'Follow-up', followup_date: 'Tomorrow' },
-                { id: 3, lead_no: 'LEDMC-LEAD-103', customer_name: 'Rohan Mehta', phone: '9819922334', email: 'rohan.mehta@gmail.com', destination: 'Bali Private Pool Villa & Nusa Penida 6D', adults: 2, children: 0, rooms: 1, budget: 95000, lead_source: 'Website Form', assigned_employee: 'Ritesh (SU-2)', status: 'In Review', followup_date: '04 Nov 2026' },
-                { id: 4, lead_no: 'LEDMC-LEAD-104', customer_name: 'Mrs. Sneha Patil', phone: '9833445566', email: 'sneha@aanaytours.com', destination: 'Thailand Phuket & Krabi 7D Island', adults: 4, children: 2, rooms: 2, budget: 185000, lead_source: 'Travel Agent B2B Desk', assigned_employee: 'Ops Team', status: 'Confirmed', followup_date: 'Completed' },
-                { id: 5, lead_no: 'LEDMC-LEAD-105', customer_name: 'Ananya Sharma', phone: '9811223344', email: 'ananya.s@gmail.com', destination: 'Singapore City & Sentosa Island 5D', adults: 2, children: 1, rooms: 1, budget: 125000, lead_source: 'Website Form', assigned_employee: 'Chanchal (SU-1)', status: 'Opportunity', followup_date: '05 Nov 2026' },
-                { id: 6, lead_no: 'LEDMC-LEAD-106', customer_name: 'Vikram Malhotra', phone: '9877112233', email: 'vikram.m@corporatetravel.in', destination: 'Kashmir Luxury Valley 6D', adults: 6, children: 0, rooms: 3, budget: 210000, lead_source: 'Travel Agent B2B Desk', assigned_employee: 'Admin', status: 'Quotation Sent', followup_date: '04 Nov 2026' }
-            ];
-            allLeads = fallback;
-            updateCounters({
-                'Fresh': 1,
-                'Follow-up': 1,
-                'In Review': 1,
-                'Confirmed': 1,
-                'Opportunity': 1,
-                'Quotation Sent': 1
-            });
-            renderLeads(fallback);
         }
 
         function escapeHTML(str) {

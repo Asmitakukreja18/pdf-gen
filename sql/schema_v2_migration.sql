@@ -181,25 +181,11 @@ CREATE TABLE IF NOT EXISTS `supplier_assignments` (
 -- ----------------------------------------------------------------------------
 -- 6. SEED INITIAL BOOKING & PAYMENT SAMPLES LINKED TO EXISTING CUSTOMERS
 -- ----------------------------------------------------------------------------
-INSERT IGNORE INTO `bookings` 
-(`id`, `booking_no`, `customer_id`, `customer_name`, `customer_phone`, `customer_email`, `destination`, `travel_start_date`, `travel_end_date`, `duration_text`, `adults`, `package_cost`, `markup_amount`, `subtotal_amount`, `tax_percent`, `tax_amount`, `grand_total`, `total_paid`, `balance_due`, `status`, `payment_status`, `assigned_coordinator`)
-VALUES
-(1, 'LEDMC-BKG-2026-001', 2, 'Akash Dewani', '9820011223', 'akash@dewanitravels.com', 'Dubai & Abu Dhabi', '2026-11-05', '2026-11-10', '6D/5N', 2, 115000.00, 18333.33, 133333.33, 5.00, 6666.67, 140000.00, 140000.00, 0.00, 'Confirmed', 'Paid', 'Nitin'),
-(2, 'LEDMC-BKG-2026-002', 1, 'Dipesh Batra', '7020660318', 'dipeshbatra043@gmail.com', 'Rajasthan Heritage', '2026-11-08', '2026-11-12', '5D/4N', 2, 38000.00, 4857.14, 42857.14, 5.00, 2142.86, 45000.00, 45000.00, 0.00, 'Vouchers Issued', 'Paid', 'Nitin'),
-(3, 'LEDMC-BKG-2026-003', 4, 'Mrs. Sneha Patil', '9833445566', 'sneha@aanaytours.com', 'Thailand Phuket & Krabi', '2026-11-14', '2026-11-20', '7D/6N', 4, 150000.00, 26190.48, 176190.48, 5.00, 8809.52, 185000.00, 95000.00, 90000.00, 'Pending Confirmation', 'Partially Paid', 'Ops Team');
+-- Dummy data for `bookings` removed. Clean real-time empty state initialized.
 
 -- Seed Corresponding Payments
-INSERT IGNORE INTO `payments`
-(`id`, `receipt_no`, `booking_id`, `invoice_id`, `customer_id`, `payment_type`, `amount`, `amount_inr`, `payment_method`, `transaction_ref`, `payment_date`, `status`)
-VALUES
-(1, 'LEDMC-REC-2026-001', 1, 1, 2, 'Full Balance', 140000.00, 140000.00, 'Bank Transfer (NEFT/RTGS/IMPS)', 'YESBNEFT261102001', '2026-11-02', 'Verified'),
-(2, 'LEDMC-REC-2026-002', 2, 2, 1, 'Full Balance', 45000.00, 45000.00, 'UPI / QR', 'UPI/20261104/89123', '2026-11-04', 'Verified'),
-(3, 'LEDMC-REC-2026-003', 3, 3, 4, 'Advance Token', 95000.00, 95000.00, 'Bank Transfer (NEFT/RTGS/IMPS)', 'HDFCNEFT261106099', '2026-11-06', 'Verified');
+-- Dummy data for `payments` removed. Clean real-time empty state initialized.
 
 -- Seed Corresponding Vouchers
-INSERT IGNORE INTO `vouchers`
-(`id`, `voucher_no`, `voucher_type`, `booking_id`, `customer_id`, `supplier_id`, `supplier_confirmation_no`, `service_title`, `valid_from_date`, `valid_to_date`, `room_type`, `meal_plan`, `status`)
-VALUES
-(1, 'LEDMC-VCH-2026-001', 'hotel', 1, 2, 1, 'DG-DXB-9812', 'Atlantis The Palm Dubai (2N)', '2026-11-05', '2026-11-07', 'Ocean King Deluxe Room', 'Buffet Breakfast & Dinner', 'Issued'),
-(2, 'LEDMC-VCH-2026-002', 'hotel', 2, 1, 4, 'TR-UDR-4410', 'Trident Udaipur (2N)', '2026-11-08', '2026-11-10', 'Deluxe Garden View Room', 'Buffet Breakfast Included', 'Issued');
+-- Dummy data for `vouchers` removed. Clean real-time empty state initialized.
 

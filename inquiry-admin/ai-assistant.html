@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script></script>
     <!-- Strict Authentication Guard -->
     <script>
         (function() {
@@ -724,10 +724,10 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="js/portal.js?v=9.0"></script>
-    <script src="js/idle-tracker.js?v=8.5"></script>
+    <script></script>
+    <script></script>
+    <script></script>
+    <script></script>
     <script>
         let currentGeneratedData = null;
         let activeAttachments = [];
@@ -2519,7 +2519,7 @@
                             { experience: 'Vegetarian Candle Light Dinner' + decorSuffix, menu: 'Set menu', rate: 196 * rateMult, unit: 'USD / COUPLE' },
                             { experience: 'Oriental Night Experience' + decorSuffix, menu: 'Selection One', rate: 281 * rateMult, unit: 'USD / COUPLE' },
                             { experience: 'Private BBQ on the Beach' + decorSuffix, menu: 'Selection One', rate: 212 * rateMult, unit: 'USD / COUPLE' },
-                            { experience: 'Crow's Nest - Over the Ocean Dinner' + decorSuffix, menu: 'Menu Option I', rate: 228 * rateMult, unit: 'USD / COUPLE' }
+                            { experience: 'Crow\'s Nest - Over the Ocean Dinner' + decorSuffix, menu: 'Menu Option I', rate: 228 * rateMult, unit: 'USD / COUPLE' }
                         ],
                         menuDetails: [
                             {
@@ -2568,7 +2568,7 @@
                     inclusions: [
                         'Nights in Pattaya - Hotel Self Booked (Hotel stay is booked by the guests directly and is not part of the package cost)',
                         'Airport Transfers: Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)',
-                        'Travel Insurance: Thailand insurance during local tours within the country's boundaries'
+                        'Travel Insurance: Thailand insurance during local tours within the country\'s boundaries'
                     ],
                     timelineBadges: [
                         { day: '11', month: 'DEC', title: 'Tomorrowland - Day 1', desc: 'Pick-up & Drop-off (2 Vans)' },
@@ -2630,13 +2630,13 @@
                             'Room Amenities': 'Air Conditioning, Safe Box, Mini Bar, Bathrobe & Slippers, Daily Housekeeping'
                         },
                         footer: {
-                            agency: 'Aanay tours / Let's Explore DMC',
+                            agency: 'Aanay tours / Let\'s Explore DMC',
                             contactPerson: 'Viraj Gaglani',
                             contactMobile: '7709123187',
                             contactEmail: 'Infoattdmc@gmail.com'
                         }
                     },
-                    pricing: { grandTotal: 0, status: 'GUARANTEED & CONFIRMED BY LET'S EXPLORE DMC' }
+                    pricing: { grandTotal: 0, status: 'GUARANTEED & CONFIRMED BY LET\'S EXPLORE DMC' }
                 };
             }
 
@@ -2672,9 +2672,6 @@
                     totalInr: currency === 'INR' ? gTotal : Math.round(gTotal * 87),
                     totalUsd: currency === 'USD' ? gTotal : Math.round(gTotal / 87)
                 },
-                client: { name: 'Valued Guest', pax: `${adultCount} Adults` }
-            };
-        },
                 client: { name: 'Valued Guest', pax: `${adultCount} Adults` }
             };
         }

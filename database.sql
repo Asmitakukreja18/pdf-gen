@@ -448,23 +448,13 @@ INSERT INTO `users` (`id`, `username`, `name`, `email`, `phone`, `password_hash`
 ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`), `status` = 'active', `name` = VALUES(`name`);
 
 -- Seed Customers
-INSERT IGNORE INTO `customers` (`id`, `name`, `company_name`, `phone`, `email`, `category`, `destinations_history`) VALUES
-(1, 'Dipesh Batra', 'Direct B2C', '7020660318', 'dipeshbatra043@gmail.com', 'B2C', 'Rajasthan, Dubai'),
-(2, 'Akash Dewani', 'Dewani Travels (B2B)', '9820011223', 'akash@dewanitravels.com', 'B2B', 'Dubai, Thailand'),
-(3, 'Rohan Mehta', 'Direct B2C', '9819922334', 'rohan.mehta@gmail.com', 'B2C', 'Bali, Singapore'),
-(4, 'Mrs. Sneha Patil', 'Aanay Holidays (B2B)', '9833445566', 'sneha@aanaytours.com', 'B2B', 'Phuket, Krabi');
+-- Dummy data for `customers` removed. Clean real-time empty state initialized.
 
 -- Seed Leads
-INSERT IGNORE INTO `leads` (`id`, `lead_no`, `client_type`, `customer_name`, `phone`, `email`, `destination`, `adults`, `children`, `rooms`, `budget`, `lead_source`, `assigned_employee`, `status`, `internal_notes`) VALUES
-(1, 'LEDMC-LEAD-101', 'B2C', 'Dipesh Batra', '7020660318', 'dipeshbatra043@gmail.com', 'Rajasthan & Udaipur', 2, 0, 1, 65000.00, 'Website Form', 'Admin', 'Fresh', 'Looking for 4N heritage hotels with private SUV transport.'),
-(2, 'LEDMC-LEAD-102', 'B2B', 'Akash Dewani', '9820011223', 'akash@dewanitravels.com', 'Dubai Luxury 6D', 2, 1, 1, 140000.00, 'WhatsApp Partner', 'Chanchal (SU-1)', 'Follow-up', 'Atlantis the palm query, flight BOM-DXB-BOM requested.'),
-(3, 'LEDMC-LEAD-103', 'B2C', 'Rohan Mehta', '9819922334', 'rohan.mehta@gmail.com', 'Bali Honeymoon', 2, 0, 1, 95000.00, 'Website Form', 'Ritesh (SU-2)', 'In Review', 'Private pool villa with Nusa Penida tour.');
+-- Dummy data for `leads` removed. Clean real-time empty state initialized.
 
 -- Seed Website Inquiries
-INSERT IGNORE INTO `inquiries` (`id`, `name`, `phone`, `email`, `source`, `destination`, `message`, `status`, `assigned_to`) VALUES
-(1, 'Rajesh Malhotra', '+91 98765 43210', 'rajesh.malhotra@gmail.com', 'Website', 'Dubai Explorer 5N/6D', 'Looking for 5-star Dubai package with Burj Khalifa and desert safari.', 'Fresh', 'Admin'),
-(2, 'Aanand Singhal', '+91 98111 22334', 'aanand.s@travelcorp.in', 'WhatsApp', 'Thailand 12D Master', 'Corporate incentive tour for 15 executives.', 'Followup', 'Chanchal (SU-1)'),
-(3, 'Pooja Kulkarni', '+91 99223 34455', 'pooja.k@gmail.com', 'Website', 'Bali & Nusa Penida Luxury 7D', 'Honeymoon couple, private pool villa in Ubud.', 'Booking', 'Ritesh (SU-2)');
+-- Dummy data for `inquiries` removed. Clean real-time empty state initialized.
 
 -- Seed Country Packages
 INSERT IGNORE INTO `packages` (`id`, `package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `pricing_inr`, `pricing_usd`, `original_pdf_url`) VALUES
@@ -477,15 +467,10 @@ INSERT IGNORE INTO `packages` (`id`, `package_code`, `name`, `country`, `destina
 (7, 'PKG-TR-01', 'Turkey Historical & Cappadocia Caves', 'Turkey', 'Istanbul, Cappadocia', 7, 6, 68000.00, 820.00, 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf');
 
 -- Seed Running Trips
-INSERT IGNORE INTO `trips` (`id`, `trip_code`, `client_name`, `client_phone`, `destination`, `duration`, `travel_start_date`, `travel_end_date`, `flight_details`, `flight_sector`, `coordinator`, `supplier_name`, `status`) VALUES
-(1, 'TRIP-DXB-901', 'Akash Dewani (2 Pax)', '9820011223', 'Dubai & Desert Safari', '6D/5N', '2026-11-01', '2026-11-06', 'Emirates EK-501 / EK-502', 'Mum - Mum (BOM-DXB-BOM)', 'Nitin', 'Desert Adventures LLC', 'Running'),
-(2, 'TRIP-TH-902', 'Dipesh Batra (2 Pax)', '7020660318', 'Thailand (Phuket & Krabi)', '7D/6N', '2026-11-04', '2026-11-10', 'Thai Airways TG-318', 'BOM-BKK-HKT-BOM', 'Thailand Desk', 'Andaman DMC Co.', 'Upcoming');
+-- Dummy data for `trips` removed. Clean real-time empty state initialized.
 
 -- Seed Suppliers
-INSERT IGNORE INTO `suppliers` (`id`, `company_name`, `contact_person`, `phone`, `email`, `destination`, `services`) VALUES
-(1, 'Desert Gate Tours LLC', 'Nitin Sharma', '+971 50 123 4567', 'nitin@desertgate.ae', 'Dubai & Abu Dhabi', 'Hotels, Desert Safari, Cabs, Visas'),
-(2, 'Andaman Discovery Holidays', 'Somchai Prasert', '+66 81 234 5678', 'somchai@andamandiscovery.com', 'Thailand (Phuket/Krabi)', 'Speedboats, Luxury Resorts, Transfers'),
-(3, 'Bali Paradise DMC', 'Wayan Sudiarta', '+62 812 3456 7890', 'wayan@baliparadise.co.id', 'Bali & Lombok', 'Private Villas, Airport Pickups, Guides');
+-- Dummy data for `suppliers` removed. Clean real-time empty state initialized.
 
 -- Seed Default Settings
 INSERT INTO `settings` (`id`, `setting_key`, `setting_value`) VALUES
@@ -501,16 +486,10 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`) VALUES
 ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`);
 
 -- Seed Initial Activity Log
-INSERT IGNORE INTO `user_activity_logs` (`id`, `user_id`, `employee_name`, `action`, `module`, `entity_id`, `details`, `created_at`) VALUES
-(1, 1, 'Main Admin', 'system_init', 'System', 'V8.0', 'Platform initialized with multi-user CRM & operations architecture.', NOW()),
-(2, 2, 'Chanchal (SU-1)', 'sent_quotation', 'Documents', 'LEDMC-2025-001', 'Quotation sent to Priya Sharma via Email & WhatsApp.', NOW() - INTERVAL 2 HOUR),
-(3, 3, 'Ritesh (SU-2)', 'created_lead', 'Leads', 'LEDMC-LEAD-103', 'Rohan Mehta lead added for Bali Honeymoon package.', NOW() - INTERVAL 1 HOUR);
+-- Dummy data for `user_activity_logs` removed. Clean real-time empty state initialized.
 
 -- Seed Showcase Documents in Central Repository (Universal Base Columns)
-INSERT IGNORE INTO `documents` (`id`, `title`, `description`, `category_id`, `file_name`, `file_path`, `file_size`, `mime_type`, `created_at`) VALUES
-(1, 'Thailand Holiday Quotation (LEDMC-2025-001)', 'Customer: Priya Sharma | 12 Days Krabi, Phuket luxury quotation.', 2, 'Thailand_12D11N_Itinerary_Without_Rates.pdf', 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf', 250880, 'application/pdf', '2025-04-15 11:30:00'),
-(2, 'Dubai Travel Itinerary (LEDMC-2025-002)', 'Customer: Rohan Mehta | 6 Days / 5 Nights Dubai & Abu Dhabi premium itinerary.', 6, 'LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf', 327680, 'application/pdf', '2025-04-12 10:00:00'),
-(3, 'Tax Invoice (LEDMC-2025-003)', 'Customer: Neha Kapoor | Commercial corporate GST tax invoice.', 1, 'akash Dewani.pdf', 'images/pdf/akash Dewani.pdf', 215040, 'application/pdf', '2025-04-10 16:45:00');
+-- Dummy data for `documents` removed. Clean real-time empty state initialized.
 
 -- --------------------------------------------------------
 -- Seed Live Public Website Content

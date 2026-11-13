@@ -14,14 +14,18 @@ if (!$pdo) {
     echo json_encode([
         'success' => true,
         'metrics' => [
-            'total_inquiries' => 248,
-            'active_leads' => 186,
-            'confirmed_bookings' => 97,
-            'mtd_revenue' => 1280000,
-            'running_trips' => 14,
-            'pending_followups' => 19,
-            'source' => 'standby_baseline'
-        ]
+            'total_inquiries' => 0,
+            'active_leads' => 0,
+            'confirmed_bookings' => 0,
+            'mtd_revenue' => 0,
+            'running_trips' => 0,
+            'pending_followups' => 0,
+            'source' => 'db_offline'
+        ],
+        'recent_inquiries' => [],
+        'recent_quotations' => [],
+        'upcoming_trips' => [],
+        'activity_feed' => []
     ]);
     exit;
 }
@@ -70,10 +74,10 @@ try {
             $res = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($res) {
                 $leadStats = [
-                    'total' => (int)$res['total'],
-                    'fresh' => (int)$res['fresh'],
-                    'followup' => (int)$res['followup'],
-                    'converted' => (int)$res['converted']
+                    'total' => (int)($res['total'] ?? 0),
+                    'fresh' => (int)($res['fresh'] ?? 0),
+                    'followup' => (int)($res['followup'] ?? 0),
+                    'converted' => (int)($res['converted'] ?? 0)
                 ];
             }
         } catch (Exception $e) {}
@@ -104,11 +108,8 @@ try {
     $grossValue = 0;
     try {
         $stmt = $pdo->query("SELECT SUM(`grand_total`) FROM `invoices`");
-        $grossValue = (float)$stmt->fetchColumn();
+        $grossValue = (float)($stmt->fetchColumn() ?: 0);
     } catch (Exception $e) {}
-    if ($grossValue == 0) {
-        $grossValue = 485000; // Realistic default if initial seed
-    }
 
     // 6. Recent Customer Inquiries (Last 5)
     $recentInquiries = [];
@@ -159,4 +160,3 @@ try {
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-

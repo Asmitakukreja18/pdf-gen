@@ -296,21 +296,13 @@
             try {
                 const res = await fetch('api/get_customers.php');
                 const data = await res.json();
-                if (data.success && Array.isArray(data.customers) && data.customers.length > 0) {
+                if (data.success && Array.isArray(data.customers)) {
                     allCustomers = data.customers;
                 } else {
-                    allCustomers = [
-                        { id: 1, name: 'Dipesh Batra', phone: '7020660318', email: 'dipeshbatra043@gmail.com', category: 'B2C', total_inquiries: 1, converted_trips: 0, destinations: 'Rajasthan, Dubai' },
-                        { id: 2, name: 'Akash Dewani', company_name: 'Dewani Travels', phone: '9820011223', email: 'akash@dewanitravels.com', category: 'B2B', total_inquiries: 3, converted_trips: 2, destinations: 'Dubai, Thailand' },
-                        { id: 3, name: 'Rohan Mehta', phone: '9819922334', email: 'rohan.mehta@gmail.com', category: 'B2C', total_inquiries: 2, converted_trips: 1, destinations: 'Bali, Singapore' }
-                    ];
+                    allCustomers = [];
                 }
             } catch (err) {
-                allCustomers = [
-                    { id: 1, name: 'Dipesh Batra', phone: '7020660318', email: 'dipeshbatra043@gmail.com', category: 'B2C', total_inquiries: 1, converted_trips: 0, destinations: 'Rajasthan, Dubai' },
-                    { id: 2, name: 'Akash Dewani', company_name: 'Dewani Travels', phone: '9820011223', email: 'akash@dewanitravels.com', category: 'B2B', total_inquiries: 3, converted_trips: 2, destinations: 'Dubai, Thailand' },
-                    { id: 3, name: 'Rohan Mehta', phone: '9819922334', email: 'rohan.mehta@gmail.com', category: 'B2C', total_inquiries: 2, converted_trips: 1, destinations: 'Bali, Singapore' }
-                ];
+                allCustomers = [];
             }
             document.getElementById('custCountAll').innerText = allCustomers.length;
             renderCustomersTable(allCustomers);

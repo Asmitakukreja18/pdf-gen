@@ -53,49 +53,9 @@ if ($method === 'GET') {
         ");
         $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Fallback seed if table is empty
+        // Empty if no customers yet
         if (empty($customers)) {
-            $customers = [
-                [
-                    'id' => 1,
-                    'customer_code' => 'CUST-001',
-                    'name' => 'Dipesh Batra',
-                    'company_name' => '',
-                    'phone' => '7020660318',
-                    'email' => 'dipeshbatra043@gmail.com',
-                    'city' => 'Mumbai',
-                    'category' => 'B2C',
-                    'total_inquiries' => 1,
-                    'converted_trips' => 1,
-                    'destinations' => 'Rajasthan, Dubai'
-                ],
-                [
-                    'id' => 2,
-                    'customer_code' => 'CUST-002',
-                    'name' => 'Akash Dewani',
-                    'company_name' => 'Dewani Travels',
-                    'phone' => '9820011223',
-                    'email' => 'akash@dewanitravels.com',
-                    'city' => 'Mumbai',
-                    'category' => 'B2B',
-                    'total_inquiries' => 3,
-                    'converted_trips' => 2,
-                    'destinations' => 'Dubai, Thailand'
-                ],
-                [
-                    'id' => 3,
-                    'customer_code' => 'CUST-003',
-                    'name' => 'Rohan Mehta',
-                    'company_name' => '',
-                    'phone' => '9819922334',
-                    'email' => 'rohan.mehta@gmail.com',
-                    'city' => 'Pune',
-                    'category' => 'B2C',
-                    'total_inquiries' => 2,
-                    'converted_trips' => 1,
-                    'destinations' => 'Bali, Singapore'
-                ]
-            ];
+            $customers = [];
         }
 
         jsonSuccess(['customers' => $customers]);

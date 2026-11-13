@@ -47,24 +47,6 @@ if ($method === 'GET' || $action === 'list') {
         $stmt->execute($params);
         $leads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Auto-seed initial leads if database table is empty
-        if (empty($leads) && empty($search) && ($status === 'all' || empty($status))) {
-            try {
-                $pdo->exec("
-                    INSERT IGNORE INTO `leads` (`id`, `lead_no`, `client_type`, `customer_name`, `phone`, `email`, `destination`, `adults`, `children`, `rooms`, `budget`, `lead_source`, `assigned_employee`, `status`, `internal_notes`, `created_at`) VALUES
-                    (1, 'LEDMC-LEAD-101', 'B2C', 'Dipesh Batra', '7020660318', 'dipeshbatra043@gmail.com', 'Rajasthan & Udaipur Heritage 5D', 2, 0, 1, 65000.00, 'Website Form', 'Admin', 'Fresh', 'Looking for 4N heritage hotels with private SUV transport.', NOW()),
-                    (2, 'LEDMC-LEAD-102', 'B2B', 'Akash Dewani', '9820011223', 'akash@dewanitravels.com', 'Dubai Luxury 6D Atlantis & Desert Safari', 2, 1, 1, 140000.00, 'WhatsApp Partner', 'Chanchal (SU-1)', 'Follow-up', 'Atlantis the palm query, flight BOM-DXB-BOM requested.', NOW()),
-                    (3, 'LEDMC-LEAD-103', 'B2C', 'Rohan Mehta', '9819922334', 'rohan.mehta@gmail.com', 'Bali Private Pool Villa & Nusa Penida 6D', 2, 0, 1, 95000.00, 'Website Form', 'Ritesh (SU-2)', 'In Review', 'Honeymoon couple, prefers pool villa in Ubud + beachfront in Seminyak.', NOW()),
-                    (4, 'LEDMC-LEAD-104', 'B2B', 'Mrs. Sneha Patil', '9833445566', 'sneha@aanaytours.com', 'Thailand Phuket & Krabi 7D Island Escape', 4, 2, 2, 185000.00, 'Travel Agent B2B Desk', 'Ops Team', 'Confirmed', 'Flight tickets issued, 4-star beach resort confirmed with speedboats.', NOW())
-                ");
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute($params);
-                $leads = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } catch (Exception $seedErr) {
-                error_log('Lead seeding note: ' . $seedErr->getMessage());
-            }
-        }
-
         // Fetch count by status
         $countsStmt = $pdo->query("
             SELECT `status`, COUNT(*) as count 

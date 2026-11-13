@@ -18,64 +18,12 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $action = $input['action'] ?? ($_GET['action'] ?? 'list');
 
-$defaultInvoices = [
-    [
-        'id' => 1,
-        'invoice_no' => 'LEDMC-INV-2026-101',
-        'invoice_type' => 'billing',
-        'customer_name' => 'Akash Dewani (Dewani Travels)',
-        'invoice_date' => '2026-11-02',
-        'due_date' => '2026-11-09',
-        'billing_description' => 'Dubai 6D/5N Luxury Land Package & Atlantis Stay',
-        'hsn_code' => '998555',
-        'gst_rate' => 5.00,
-        'subtotal' => 133333.33,
-        'tax_amount' => 6666.67,
-        'grand_total' => 140000.00,
-        'currency' => 'INR',
-        'payment_status' => 'Paid',
-        'created_by' => 'Admin'
-    ],
-    [
-        'id' => 2,
-        'invoice_no' => 'LEDMC-VCH-2026-202',
-        'invoice_type' => 'hotel_voucher',
-        'customer_name' => 'Dipesh Batra',
-        'invoice_date' => '2026-11-04',
-        'due_date' => '2026-11-08',
-        'billing_description' => 'Trident Udaipur — Deluxe Garden View (2N) with Breakfast',
-        'hsn_code' => '998555',
-        'gst_rate' => 0.00,
-        'subtotal' => 45000.00,
-        'tax_amount' => 0.00,
-        'grand_total' => 45000.00,
-        'currency' => 'INR',
-        'payment_status' => 'Paid',
-        'created_by' => 'Chanchal'
-    ],
-    [
-        'id' => 3,
-        'invoice_no' => 'LEDMC-INV-2026-103',
-        'invoice_type' => 'billing',
-        'customer_name' => 'Mrs. Sneha Patil',
-        'invoice_date' => '2026-11-06',
-        'due_date' => '2026-11-13',
-        'billing_description' => 'Thailand Phuket + Krabi 7D Package (4 Pax)',
-        'hsn_code' => '998555',
-        'gst_rate' => 5.00,
-        'subtotal' => 176190.48,
-        'tax_amount' => 8809.52,
-        'grand_total' => 185000.00,
-        'currency' => 'INR',
-        'payment_status' => 'Partially Paid',
-        'created_by' => 'Admin'
-    ]
-];
+$defaultInvoices = [];
 
 // 1. LIST INVOICES / VOUCHERS
 if ($method === 'GET' || $action === 'list') {
     if (!$pdo) {
-        jsonSuccess(['invoices' => $defaultInvoices, 'source' => 'standby_mode']);
+        jsonSuccess(['invoices' => [], 'source' => 'standby_mode']);
     }
 
     try {
@@ -108,33 +56,12 @@ if ($method === 'GET' || $action === 'list') {
         $stmt->execute($params);
         $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Auto-seed if table is empty
-        if (empty($invoices) && empty($search) && ($type === 'all' || empty($type))) {
-            foreach ($defaultInvoices as $di) {
-                try {
-                    $pdo->prepare("
-                        INSERT IGNORE INTO `invoices`
-                        (`invoice_no`, `invoice_type`, `customer_name`, `invoice_date`, `due_date`, `billing_description`, `hsn_code`, `gst_rate`, `subtotal`, `tax_amount`, `grand_total`, `currency`, `payment_status`, `created_by`, `created_at`)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-                    ")->execute([
-                        $di['invoice_no'], $di['invoice_type'], $di['customer_name'], $di['invoice_date'],
-                        $di['due_date'], $di['billing_description'], $di['hsn_code'], $di['gst_rate'],
-                        $di['subtotal'], $di['tax_amount'], $di['grand_total'], $di['currency'],
-                        $di['payment_status'], $di['created_by']
-                    ]);
-                } catch (\Throwable $th) {}
-            }
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
-
         jsonSuccess([
-            'invoices' => $invoices ?: $defaultInvoices,
-            'total' => count($invoices ?: $defaultInvoices)
+            'invoices' => $invoices ?: [],
+            'total' => count($invoices ?: [])
         ]);
     } catch (\Throwable $e) {
-        jsonSuccess(['invoices' => $defaultInvoices, 'error' => $e->getMessage()]);
+        jsonSuccess(['invoices' => [], 'error' => $e->getMessage()]);
     }
 }
 
