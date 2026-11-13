@@ -352,6 +352,21 @@
       }
     });
 
+    // Automatically safeguard any bare tables in main content
+    try {
+      var tables = document.querySelectorAll('.portal-main table, .portal-content table, .content-body table');
+      tables.forEach(function (tbl) {
+        var parent = tbl.parentElement;
+        if (parent && !parent.classList.contains('table-responsive') && !parent.classList.contains('table-container') && !parent.style.overflowX) {
+          var wrap = document.createElement('div');
+          wrap.className = 'table-responsive';
+          wrap.style.cssText = 'width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:12px; border-radius:10px;';
+          parent.insertBefore(wrap, tbl);
+          wrap.appendChild(tbl);
+        }
+      });
+    } catch(err) {}
+
     // Restore desktop collapsed state
     try {
       if (sidebar && window.innerWidth > 992 && localStorage.getItem('dmc_sidebar_collapsed') === 'true') {
@@ -404,10 +419,13 @@
           .sidebar-close-btn {
             display: inline-flex !important;
           }
-          .portal-wrapper {
+          .portal-wrapper,
+          .portal-layout {
             display: block !important;
             width: 100% !important;
+            max-width: 100vw !important;
             min-height: 100vh !important;
+            overflow-x: hidden !important;
           }
           .portal-sidebar {
             position: fixed !important;
@@ -441,8 +459,8 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            width: 38px !important;
-            height: 38px !important;
+            width: 40px !important;
+            height: 40px !important;
             border-radius: 9px !important;
             cursor: pointer !important;
             flex-shrink: 0 !important;
@@ -455,7 +473,9 @@
         /* Responsive Tables for zero distortion on mobile */
         @media (max-width: 768px) {
           .table-responsive,
+          .table-container,
           .portal-table-wrapper,
+          .portal-table-wrap,
           div[style*="overflow-x:auto"],
           div[style*="overflow-x: auto"] {
             width: 100% !important;
@@ -463,14 +483,21 @@
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
             border-radius: 10px !important;
+            margin-bottom: 12px !important;
+            display: block !important;
           }
           .portal-table,
           .custom-table,
           .activity-table,
           #leadsTable,
+          #invoicesTable,
+          #customersTable,
+          #suppliersTable,
+          #tripsTable,
           div[style*="overflow-x:auto"] > table,
           div[style*="overflow-x: auto"] > table {
-            min-width: 640px !important;
+            min-width: 660px !important;
+            width: 100% !important;
           }
           .portal-table th,
           .portal-table td,
