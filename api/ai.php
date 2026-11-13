@@ -480,7 +480,409 @@ function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachments, $api
 // Intelligent Local Multi-Template Fallback
 // ==========================================
 
+
+// ==========================================
+// 1:1 Reference Document Builders (format/)
+// ==========================================
+
+function buildDiningQuoteData($resort = 'Villa Nautica Paradise Island', $userRates = null) {
+    $currency = 'USD';
+    if (!empty($userRates['currency'])) $currency = strtoupper(trim($userRates['currency']));
+
+    $experiences = [
+        ['experience' => 'Candle Light Dinner at the Beach', 'menu' => 'Set menu', 'rate' => 230.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Dig-in Dinner by the Beach', 'menu' => 'Selection One', 'rate' => 281.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Dig-in Dinner by the Beach', 'menu' => 'Selection Two', 'rate' => 281.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Seafood Lunch - Adventure on the Sea', 'menu' => 'Selection One', 'rate' => 185.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Seafood Lunch - Adventure on the Sea', 'menu' => 'Selection Two', 'rate' => 147.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Seafood Lunch - Adventure on the Sea', 'menu' => 'Selection Three', 'rate' => 166.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Vegetarian Candle Light Dinner', 'menu' => 'Set menu', 'rate' => 196.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Oriental Night Experience', 'menu' => 'Selection One', 'rate' => 281.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Oriental Night Experience', 'menu' => 'Selection Two', 'rate' => 281.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Private BBQ on the Beach', 'menu' => 'Selection One', 'rate' => 212.00, 'unit' => 'USD / COUPLE'],
+        ['experience' => 'Crow\'s Nest - Over the Ocean Dinner', 'menu' => 'Menu Option I', 'rate' => 228.00, 'unit' => 'USD / COUPLE']
+    ];
+
+    $menus = [
+        [
+            'title' => 'Candle Light Dinner at the Beach',
+            'rate' => 'USD 230++ per couple',
+            'courses' => [
+                'Amuse-Bouche' => 'Smoked Salmon Mille-Feuille or Prosciutto di Parma & Sweet Melon',
+                'Appetizer' => 'Beef Carpaccio - Rocket & Shaved Parmesan',
+                'Palate Cleanser' => 'Lime Sorbet with a hint of Betel Nut',
+                'Main Course' => 'Grilled Lobster - Lemon & Herb Butter, Mixed Green Salad',
+                'Dessert' => 'Mango & Passion Fruit Parfait'
+            ]
+        ],
+        [
+            'title' => 'Dig-in Dinner by the Beach',
+            'rate' => 'USD 281++ per couple',
+            'courses' => [
+                'Appetizer' => 'Smoked Chicken Breast Delight / Mixed Salad',
+                'Soup' => 'Boston Seafood Chowder or Hot & Sour Soup',
+                'Main Course' => 'Islander Seafood Platter or Cantonese Style Steamed Salmon',
+                'Dessert' => 'Imperial Cheesecake or Chinese Pancake'
+            ]
+        ],
+        [
+            'title' => 'Vegetarian Candle Light Dinner',
+            'rate' => 'USD 196++ per couple',
+            'courses' => [
+                'Appetizer' => 'Duo of vegetable spring roll & cream cheese olive bruschetta',
+                'Soup' => 'Cream of young asparagus soup with herb oil & roasted pimento',
+                'Main Course' => 'Assorted vegetarian combo - Mexican vegetable quesadilla, Pasta vegetariana, Indian stuffed vegetable rotti, oriental stir-fry vegetables with steamed rice & Caesar salad',
+                'Dessert' => 'Tropical fresh fruit platter'
+            ]
+        ],
+        [
+            'title' => 'Crow\'s Nest - Over the Ocean Dinner',
+            'rate' => 'USD 228++ per couple',
+            'description' => 'Lagoon views, starlit skies. Dine beneath the stars in the lifeguard-inspired tower, with panoramic island views and a candlelit feast.',
+            'courses' => [
+                'Appetizer' => 'Roma tomatoes & marinated mozzarella on rustic bread with black olive tapenade',
+                'Soup' => 'Seafood miso soup & tuna maki roll',
+                'Main Course' => 'Surf & Turf - half lobster and wagyu beef, roasted potatoes and winter vegetables OR Lobster Thermidor',
+                'Dessert' => 'Classic Tiramisu or Lemon Cheese Cake'
+            ]
+        ]
+    ];
+
+    return [
+        'docType' => 'dining_quote',
+        'docTitle' => 'DESTINATION DINING QUOTATION',
+        'destination' => 'Villa Nautica Paradise Island',
+        'country' => 'Maldives',
+        'currency' => $currency,
+        'resort' => $resort,
+        'subtitle' => 'Private Beach & Over-the-Ocean Dining Experiences · Rates per couple',
+        'ratesBasis' => 'Per couple (2 guests)',
+        'taxes' => '10% Service Charge + 17% TGST',
+        'issueDate' => date('d-M-Y'),
+        'refNo' => 'LEDMC-DDQ-' . rand(1000, 9999),
+        'diningQuote' => [
+            'resort' => $resort,
+            'currency' => $currency,
+            'ratesBasis' => 'Per couple (2 guests)',
+            'taxes' => '10% Service Charge + 17% TGST',
+            'experiences' => $experiences,
+            'menuDetails' => $menus
+        ],
+        'pricing' => [
+            'grandTotal' => 230.00,
+            'subtotal' => 230.00,
+            'taxAmount' => 62.10,
+            'ratePerAdult' => 115.00,
+            'totalUsd' => 230.00,
+            'totalInr' => round(230.00 * 87.0, 2)
+        ],
+        'inclusions' => [
+            'Private decorated table setup directly on the beach or ocean tower',
+            'Personal dedicated chef & private butler service for the evening',
+            'Fresh floral table arrangement and ambient candlelight',
+            'Chilled fresh coconut or welcome mocktail on arrival'
+        ],
+        'exclusions' => [
+            'Alcoholic beverages and premium vintage champagne unless requested',
+            'Speedboat transfers to/from external resorts or islands',
+            'Personal photography / drone coverage (available upon request)'
+        ],
+        'contacts' => [
+            'phone1' => '+91 80075 86881',
+            'phone2' => '+91 95459 55966',
+            'website' => 'www.letsexploredmc.com',
+            'instagram' => '@lets_exploredmc',
+            'email' => 'letsexploredmc@gmail.com'
+        ]
+    ];
+}
+
+function buildGroupPackageData($package = 'Tomorrowland Thailand', $userRates = null) {
+    $currency = 'USD';
+    $costPerPerson = 127.15;
+    if (!empty($userRates['ratePerAdult'])) $costPerPerson = floatval($userRates['ratePerAdult']);
+
+    return [
+        'docType' => 'group_package',
+        'docTitle' => 'PATTAYA GROUP PACKAGE',
+        'subtitle' => 'Tomorrowland Thailand | 11 - 14 Dec 2026',
+        'destination' => 'Pattaya & Tomorrowland Festival, Thailand',
+        'country' => 'Thailand',
+        'currency' => $currency,
+        'perPersonCost' => $costPerPerson,
+        'costLabel' => 'Land Package | Twin / Double sharing | Hotel self booked',
+        'inclusionsTitle' => 'What\'s Included',
+        'inclusions' => [
+            'Nights in Pattaya - Hotel Self Booked (Hotel stay is booked by the guests directly and is not part of the package cost)',
+            'Airport Transfers: Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)',
+            'Travel Insurance: Thailand insurance during local tours within the country\'s boundaries'
+        ],
+        'timelineBadges' => [
+            ['day' => '11', 'month' => 'DEC', 'title' => 'Tomorrowland - Day 1', 'desc' => 'Pick-up & Drop-off (2 Vans)'],
+            ['day' => '12', 'month' => 'DEC', 'title' => 'Tomorrowland - Day 2', 'desc' => 'Pick-up & Drop-off (2 Vans)'],
+            ['day' => '13', 'month' => 'DEC', 'title' => 'Tomorrowland - Day 3', 'desc' => 'Pick-up & Drop-off (2 Vans)'],
+            ['day' => '14', 'month' => 'DEC', 'title' => 'Pattaya City Tour', 'desc' => 'City tour + Big Buddha ticket & private transfer (2 Vans)']
+        ],
+        'festivalPasses' => [
+            [
+                'title' => '3 DAYS FESTIVAL PASS FULL MADNESS',
+                'badge' => 'OPTIONAL ADD-ON',
+                'desc' => 'Entry pass only per person (No food allowance). Not included in package cost.'
+            ],
+            [
+                'title' => '3 DAYS FESTIVAL PASS COMFORT VIP',
+                'badge' => 'VIP PASS',
+                'desc' => 'Full Madness Comfort VIP | Entry only per person (VIP viewing deck & express entry).'
+            ]
+        ],
+        'accommodationOptions' => [
+            [
+                'optionNo' => '1',
+                'hotel' => 'Welcome Plaza Hotel',
+                'desc' => 'Double / Twin bed, breakfast included',
+                'rate1' => 'Double / Twin bed (2 pax, per night, with breakfast): USD 39.28',
+                'rate2' => 'Extra bed: USD 21.95'
+            ],
+            [
+                'optionNo' => '2',
+                'hotel' => 'K Station Pattaya',
+                'desc' => 'Budget friendly double room',
+                'rate1' => 'Room, Double bed (2 pax, per night): USD 24.45',
+                'rate2' => 'Extra bed: USD 13.53'
+            ],
+            [
+                'optionNo' => '3',
+                'hotel' => 'Pool Villa - The Palm',
+                'desc' => 'Private pool villa for 15 pax',
+                'rate1' => 'Day 1: USD 416 | Day 2: USD 346 | Day 3: USD 346 | Day 4: USD 277 | Total (15 pax): USD 1,385',
+                'rate2' => 'Villa works out to approx. USD 92.33 per person for 4 days. Hotel is self booked - rates above are for reference.'
+            ]
+        ],
+        'pricing' => [
+            'grandTotal' => $costPerPerson * 2,
+            'subtotal' => $costPerPerson * 2,
+            'costPerPerson' => $costPerPerson,
+            'ratePerAdult' => $costPerPerson,
+            'totalUsd' => $costPerPerson * 2,
+            'totalInr' => round($costPerPerson * 2 * 87.0, 2)
+        ],
+        'cta' => [
+            'heading' => 'Ready to party in Pattaya?',
+            'subheading' => 'Call us to lock your group dates & passes: +91 80075 86881',
+            'phones' => ['+91 80075 86881', '+91 95459 55966'],
+            'website' => 'www.letsexploredmc.com',
+            'instagram' => '@lets_exploredmc'
+        ]
+    ];
+}
+
+function buildHotelVoucherData($hotel = 'hilton abu dhabi yas island', $userRates = null) {
+    return [
+        'docType' => 'hotel_voucher',
+        'docTitle' => 'HOTEL ACCOMMODATION VOUCHER',
+        'destination' => 'Abu Dhabi & Yas Island, UAE',
+        'country' => 'UAE',
+        'hotelName' => $hotel,
+        'hotelVoucher' => [
+            'hotelName' => $hotel,
+            'email' => 'reservations_yasisland@hilton.com',
+            'refNo' => 'TG/31130',
+            'mobileNo' => '97122086888',
+            'confirmationNo' => 'NH27002524635670',
+            'cityName' => 'dubai / abu dhabi',
+            'guestName' => 'Aanay tours',
+            'guestEmail' => 'Infoattdmc@gmail.com',
+            'guestMobile' => '7709123187',
+            'hotelType' => 'luxury',
+            'location' => 'abu dhabi',
+            'googleMapsUrl' => 'https://maps.google.com/?q=Hilton+Abu+Dhabi+Yas+Island',
+            'checkIn' => '16-Nov-2026 - 11:52 PM',
+            'checkOut' => '18-Nov-2026 - 11:52 PM',
+            'roomDetails' => [
+                'roomType' => 'Deluxe double room',
+                'occupancy' => 'double sharing + extra bed',
+                'mealPlan' => 'Breakfast',
+                'noOfRooms' => 2,
+                'extraBed' => 0,
+                'adults' => 4,
+                'children' => 2,
+                'infants' => 1,
+                'extraMattress' => 1
+            ],
+            'adultDetails' => [
+                ['name' => 'pratik sangani', 'email' => '-', 'mobile' => '7709123187']
+            ],
+            'importantInfo' => [
+                'Complimentary access to any 1 out of 4 Yas Island Theme Parks - Ferrari World, Warner Bros World, Yas Waterworld or Sea World - per day for every person included in the booking.',
+                'Only passport is considered as valid ID proof that each guest must carry.'
+            ],
+            'idProof' => [
+                'Passport is accepted as ID proof(s) for international travelers.'
+            ],
+            'amenities' => [
+                'Transfers & Connectivity' => 'Airport Shuttle (Free), WiFi Speed: 25+ Mbps, Valet Parking',
+                'Entertainment' => 'Theme Park Access, Outdoor Swimming Pool, Kids Play Area, Spa & Sauna',
+                'Food & Drinks' => 'Daily International Buffet Breakfast, Poolside Bar, Fine Dining Restaurant',
+                'Room Amenities' => 'Air Conditioning, Safe Box, Mini Bar, Bathrobe & Slippers, Daily Housekeeping'
+            ],
+            'footer' => [
+                'ecoNotice' => 'Please consider the environment before printing this e-mail',
+                'agency' => 'Aanay tours / Let\'s Explore DMC',
+                'contactPerson' => 'Viraj Gaglani',
+                'contactMobile' => '7709123187',
+                'contactEmail' => 'Infoattdmc@gmail.com'
+            ]
+        ],
+        'pricing' => [
+            'grandTotal' => 0.00,
+            'status' => 'CONFIRMED & PREPAID BY LET\'S EXPLORE DMC'
+        ]
+    ];
+}
+
+function modifyExistingQuotation($curr, $prompt, $userRates = null) {
+    $p = strtolower($prompt);
+    $updated = $curr;
+    $notes = [];
+
+    // 1. Detect Multiplier (Double, Triple, Half, Specific percentage or factor)
+    $multiplier = 1.0;
+    if (preg_match('/double\s*means\s*(\d+)\s*ka\s*(\d+)/i', $prompt, $dm)) {
+        $multiplier = 2.0;
+        $notes[] = "Rates doubled as requested ({$dm[1]} -> {$dm[2]})";
+    } elseif (preg_match('/double|2x|do guna|twofold|200\s*ka\s*400/i', $p)) {
+        $multiplier = 2.0;
+        $notes[] = "All rates and pricing doubled (2x)";
+    } elseif (preg_match('/triple|3x|teen guna/i', $p)) {
+        $multiplier = 3.0;
+        $notes[] = "All rates tripled (3x)";
+    } elseif (preg_match('/half|adha|1\/2|0\.5x/i', $p)) {
+        $multiplier = 0.5;
+        $notes[] = "All rates reduced to half (50%)";
+    } elseif (preg_match('/(\\d+)%\\s*(badha|increase|markup|add)/i', $p, $pctM)) {
+        $pct = floatval($pctM[1]);
+        $multiplier = 1.0 + ($pct / 100.0);
+        $notes[] = "Prices increased by {$pct}%";
+    }
+
+    // 2. Detect Decoration Request
+    $hasDecoration = (bool)preg_match('/decoration|decorate|with\\s*decoration|sajawat|decor/i', $p);
+    if ($hasDecoration) {
+        $notes[] = "Special romantic decoration added";
+    }
+
+    // Apply multiplier to rates and pricing if multiplier != 1.0
+    if ($multiplier != 1.0) {
+        // A. If pricing block exists
+        if (isset($updated['pricing']) && is_array($updated['pricing'])) {
+            if (isset($updated['pricing']['grandTotal'])) $updated['pricing']['grandTotal'] = round($updated['pricing']['grandTotal'] * $multiplier, 2);
+            if (isset($updated['pricing']['subtotal'])) $updated['pricing']['subtotal'] = round($updated['pricing']['subtotal'] * $multiplier, 2);
+            if (isset($updated['pricing']['totalInr'])) $updated['pricing']['totalInr'] = round($updated['pricing']['totalInr'] * $multiplier, 2);
+            if (isset($updated['pricing']['totalUsd'])) $updated['pricing']['totalUsd'] = round($updated['pricing']['totalUsd'] * $multiplier, 2);
+            if (isset($updated['pricing']['ratePerAdult'])) $updated['pricing']['ratePerAdult'] = round($updated['pricing']['ratePerAdult'] * $multiplier, 2);
+            if (isset($updated['pricing']['ratePerChild'])) $updated['pricing']['ratePerChild'] = round($updated['pricing']['ratePerChild'] * $multiplier, 2);
+            if (isset($updated['pricing']['costPerPerson'])) $updated['pricing']['costPerPerson'] = round($updated['pricing']['costPerPerson'] * $multiplier, 2);
+        }
+        // B. If dining experiences / items list exists (Villa Nautica format)
+        if (isset($updated['diningQuote']['experiences']) && is_array($updated['diningQuote']['experiences'])) {
+            foreach ($updated['diningQuote']['experiences'] as &$exp) {
+                if (isset($exp['rate'])) {
+                    $exp['rate'] = round($exp['rate'] * $multiplier, 2);
+                }
+            }
+        }
+        // C. If invoice / billing items list exists
+        if (isset($updated['invoice']['items']) && is_array($updated['invoice']['items'])) {
+            foreach ($updated['invoice']['items'] as &$item) {
+                if (isset($item['unitPrice'])) $item['unitPrice'] = round($item['unitPrice'] * $multiplier, 2);
+                if (isset($item['total'])) $item['total'] = round($item['total'] * $multiplier, 2);
+            }
+            if (isset($updated['invoice']['subtotal'])) $updated['invoice']['subtotal'] = round($updated['invoice']['subtotal'] * $multiplier, 2);
+            if (isset($updated['invoice']['grandTotal'])) $updated['invoice']['grandTotal'] = round($updated['invoice']['grandTotal'] * $multiplier, 2);
+        }
+        // D. If rate sheet items list exists
+        if (isset($updated['rateSheet']['hotels']) && is_array($updated['rateSheet']['hotels'])) {
+            foreach ($updated['rateSheet']['hotels'] as &$h) {
+                if (isset($h['sglRate'])) $h['sglRate'] = round($h['sglRate'] * $multiplier, 2);
+                if (isset($h['dblRate'])) $h['dblRate'] = round($h['dblRate'] * $multiplier, 2);
+                if (isset($h['extraBedRate'])) $h['extraBedRate'] = round($h['extraBedRate'] * $multiplier, 2);
+            }
+        }
+        // E. If package quotation cost ribbon exists
+        if (isset($updated['perPersonCost'])) {
+            $updated['perPersonCost'] = round($updated['perPersonCost'] * $multiplier, 2);
+        }
+    }
+
+    // Apply Decoration if requested
+    if ($hasDecoration) {
+        // Add to inclusions
+        if (!isset($updated['inclusions']) || !is_array($updated['inclusions'])) {
+            $updated['inclusions'] = [];
+        }
+        $decorText = "Special Romantic Floral Decoration & Celebration Setup";
+        if (!in_array($decorText, $updated['inclusions'])) {
+            array_unshift($updated['inclusions'], $decorText);
+        }
+        // If dining experiences
+        if (isset($updated['diningQuote']['experiences']) && is_array($updated['diningQuote']['experiences'])) {
+            foreach ($updated['diningQuote']['experiences'] as &$exp) {
+                if (!preg_match('/decoration/i', $exp['experience'])) {
+                    $exp['experience'] .= " (with Decoration)";
+                }
+            }
+        }
+        // If title
+        if (isset($updated['docTitle']) && !preg_match('/decoration/i', $updated['docTitle'])) {
+            $updated['docTitle'] .= " (with Decoration)";
+        }
+    }
+
+    // Custom response chat message
+    $msg = "Aapka document format bilkul as-it-is barkaraar rakha gaya hai.";
+    if (!empty($notes)) {
+        $msg .= " " . implode(". ", $notes) . ". Right panel me live preview update ho chuka hai.";
+    }
+    $updated['aiResponseMessage'] = $msg;
+    $updated['aiAction'] = 'modified_existing_format';
+
+    return $updated;
+}
+
 function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachments = null, $requestedDocType = '', $requestedDestination = '', $userRates = null) {
+    // 0. CHECK IF THIS IS A MODIFICATION OF CURRENT ACTIVE QUOTATION/DOCUMENT
+    if (!empty($currentQuotation) && is_array($currentQuotation)) {
+        $pLower = strtolower($prompt);
+        $isModPrompt = preg_match('/change\s*mat\s*karo|as\s*it\s*is|rahne\s*do|same\s*rakho|keep\s*same|sirf|bss|bas|only|double|2x|200\s*ka\s*400|triple|half|adha|badha|ghata|discount|markup|decoration|sajawat|decor|hotel\s*change|update|modify|edit/i', $pLower);
+        if ($isModPrompt) {
+            return modifyExistingQuotation($currentQuotation, $prompt, $userRates);
+        }
+    }
+
+    $pLower = strtolower($prompt);
+    // If prompt mentions 200 ka 400 or dining or villa nautica
+    if (preg_match('/200\s*ka\s*400|villa\s*nautica|destination\s*dining|dining\s*quote|candle\s*light\s*dinner/i', $pLower) || $requestedDocType === 'dining_quote') {
+        $baseDining = buildDiningQuoteData('Villa Nautica Paradise Island', $userRates);
+        if (preg_match('/double|200\s*ka\s*400|decoration/i', $pLower)) {
+            return modifyExistingQuotation($baseDining, $prompt, $userRates);
+        }
+        return $baseDining;
+    }
+
+    // If prompt mentions tomorrowland or pattaya group package
+    if (preg_match('/tomorrowland|pattaya\s*group|festival\s*package/i', $pLower) || $requestedDocType === 'group_package') {
+        $baseGroup = buildGroupPackageData('Tomorrowland Thailand', $userRates);
+        if (preg_match('/double|decoration|2x/i', $pLower)) {
+            return modifyExistingQuotation($baseGroup, $prompt, $userRates);
+        }
+        return $baseGroup;
+    }
+
+    // If prompt mentions aanay tours or hilton voucher
+    if (preg_match('/aanay|hilton|abu\s*dhabi\s*voucher/i', $pLower) || ($requestedDocType === 'hotel_voucher' && preg_match('/aanay|hilton/i', $pLower))) {
+        return buildHotelVoucherData('hilton abu dhabi yas island', $userRates);
+    }
+
     $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
     $allAttText = '';
     $allAttNames = '';
@@ -495,7 +897,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     // 1. Resolve Document Type
     $docType = 'quotation';
     $validDocTypes = [
-        'hotel_voucher', 'transfer_voucher', 'activity_voucher',
+        'hotel_voucher', 'dining_quote', 'group_package', 'transfer_voucher', 'activity_voucher',
         'customer_billing', 'supplier_billing', 'quotation',
         'customer_invoice', 'proforma_invoice',
         'hotel_rate_sheet', 'sightseeing_rate_sheet', 'transport_rate_sheet', 'package_rate_sheet'
