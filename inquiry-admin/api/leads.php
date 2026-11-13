@@ -17,6 +17,9 @@ $action = $input['action'] ?? ($_GET['action'] ?? 'list');
 
 // 1. LIST LEADS
 if ($method === 'GET' || $action === 'list') {
+    if (!$pdo) {
+        jsonSuccess(['leads' => [], 'status_counts' => [], 'counts' => [], 'total' => 0, 'source' => 'standby_mode']);
+    }
     $status = $_GET['status'] ?? 'all';
     $search = trim($_GET['search'] ?? '');
     $assigned = $_GET['assigned'] ?? '';

@@ -16,7 +16,7 @@ $activeUser = checkSessionActivity();
 $pdo = getDb();
 
 if (!$pdo) {
-    jsonError('Database connection unavailable', 503);
+    jsonSuccess(['customers' => [], 'total' => 0, 'source' => 'standby_mode']);
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
