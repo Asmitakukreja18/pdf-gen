@@ -2,20 +2,23 @@
 /**
  * api/ai.php — Multi-Provider AI Gateway & Document Interpreter
  * Supports: Anthropic Claude, Google Gemini 2.5 Flash, OpenAI
- * Automatic Fallback Chain: Claude -> Gemini -> Local
+ * Automatic Fallback Chain: Claude -> Gemini -> Local DMC Intelligence Engine
+ * Comprehensive Support for 12 Distinct Travel Document Formats & Rate Management
  */
 
-header('Content-Type: application/json; charset=UTF-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+require_once __DIR__ . '/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (!headers_sent()) {
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+}
+
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
-
-require_once __DIR__ . '/config.php';
 
 // Helper: Extract text streams directly from PDF binary buffer
 function extractPdfTextSimple($pdfContent) {
@@ -71,6 +74,9 @@ $currentQuotation = $payload['currentQuotation'] ?? null;
 $attachment = $payload['attachment'] ?? null;
 $serverFilePath = trim($payload['serverFilePath'] ?? '');
 $requestedProvider = strtolower(trim($payload['provider'] ?? DEFAULT_AI_PROVIDER));
+$requestedDocType = strtolower(trim($payload['docType'] ?? ''));
+$requestedDestination = trim($payload['destination'] ?? '');
+$userRates = isset($payload['rates']) && is_array($payload['rates']) ? $payload['rates'] : null;
 
 // Read document directly from cPanel server-side storage if serverFilePath is provided
 if (!empty($serverFilePath)) {
@@ -125,26 +131,43 @@ if (empty($attachment) && !empty($attachments)) {
     $attachment = $attachments[0];
 }
 
-// Context string
+// Build context string
 $contextText = '';
 if ($currentQuotation && is_array($currentQuotation)) {
     $contextText = "\nCURRENT ACTIVE DOCUMENT STATE:\n" . json_encode($currentQuotation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
 }
+if (!empty($requestedDocType)) {
+    $contextText .= "\nEXPLICIT REQUESTED DOCUMENT TYPE: " . $requestedDocType . "\n";
+}
+if (!empty($requestedDestination)) {
+    $contextText .= "EXPLICIT TARGET DESTINATION: " . $requestedDestination . "\n";
+}
+if (!empty($userRates)) {
+    $contextText .= "USER SPECIFIED PRICING & RATE PARAMETERS:\n" . json_encode($userRates, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+}
 
-$systemPrompt = "You are the Master Travel Quotation & Document AI Engine for Let's Explore DMC (Destination Management Company).
-Your mission is to intelligently parse incoming travel documents (PDF, Word, Images, WhatsApp notes, Itineraries, Invoices, Hotel Confirmation Vouchers) into the official Let's Explore DMC structured JSON schema.
+$systemPrompt = "You are the Master Travel ERP & AI Document Generation Engine for Let's Explore DMC (Destination Management Company).
+Your mission is to generate professional, destination-specific travel documents across 12 distinct business formats:
 
-CRITICAL INSTRUCTIONS:
-1. Detect document type accurately:
-   - 'itinerary': Day-by-day travel plan WITHOUT rates or experience-focused.
-   - 'quotation': Master Commercial quotation WITH day-by-day line items, Pax, unit rates, USD/INR pricing.
-   - 'invoice': Corporate GST Tax Invoice / Billing document (Invoice #, Date, Bill To, HSN 998555, Tax, Total).
-   - 'confirmation': Hotel Booking Confirmation Voucher (Booking ID, Guest Name, Hotel, Dates, Rooms, Inclusions).
-   - 'hotel_costing': Hotel Comparison & Costing sheet.
-   - 'summary': Executive Package Summary.
-2. NEVER invent fake days or fake destinations if details are present in the text or attached file. Extract EVERY single day.
-3. If user provided modifications (e.g. 'hotel me 10% markup lagao', 'Berjaya times square 49160 + 10% = 54076', 'Ramada hotel add karo'), calculate prices mathematically and update the existing quotation.
-4. Output MUST be valid raw JSON matching the DMC schema with keys: detectedDocType, documentSummary, package, days, hotels, summary, invoice, confirmation.";
+1. 'hotel_voucher': Hotel Booking Confirmation Voucher with Booking ID, Guest details, Hotel address/rating, Room type, Meal plan, Check-in/out dates, Hotel perks, DMC emergency helpline, and voucher terms.
+2. 'transfer_voucher': Private Airport or Inter-City Transfer Voucher with Vehicle category, Pickup date/time/location, Drop-off point, Flight/Train details, Driver contact, Luggage allowance, and Meet & Greet instructions.
+3. 'activity_voucher': Sightseeing, Excursions & Theme Park Voucher with Attraction name, Ticket barcode, Pickup window, Meeting point, Tour inclusions, Highlights, and What to bring.
+4. 'customer_billing': Customer Statement of Account (SOA) with Transaction ledger (Dates, Descriptions, Debits, Credits, Running balance), Total billed, Amount paid, Balance due, and Bank wire details.
+5. 'supplier_billing': Supplier Work Order & Contracted B2B PO with Supplier details, DMC reference, Contracted services table, Net B2B rates, Gross total, Commission/discount, Net payable, and Settlement terms.
+6. 'quotation': Master Travel Quotation with Day-by-day detailed itinerary, Hotels, Dual tariffs (USD & INR), Key inclusions, Exclusions, and Booking terms.
+7. 'customer_invoice': Official Commercial GST Tax Invoice with Invoice #, Date, Client details, HSN Code 998555, Itemized services, Taxable subtotal, CGST 2.5%, SGST 2.5% (or IGST 5%), Grand total, and Bank details.
+8. 'proforma_invoice': Proforma Estimate with Proforma #, Date, Validity period, Estimated services breakdown, 50% advance deposit milestone schedule, and Wire instructions.
+9. 'hotel_rate_sheet': Structured Hotel Tariff Table with Destination hotels, Star categories, Room types, Meal plans, Low season, High season, Peak season rates, and Extra bed policies.
+10. 'sightseeing_rate_sheet': Structured Sightseeing Tariff Table with Tours, Duration, SIC (Seat-in-Coach) Adult/Child rates, Private vehicle rates, Inclusions, and Operating schedules.
+11. 'transport_rate_sheet': Chauffeur & Vehicle Tariff Table with Routes (Airport, 8hr disposal, Inter-city), Vehicle categories (Sedan, SUV, Commuter Van, Minicoach), Toll/fuel rules, and Hourly overtime rates.
+12. 'package_rate_sheet': Complete Tour Package Master Tariff Matrix with 3-Star, 4-Star, and 5-Star tiers across 2 Pax, 4 Pax, 6 Pax, and 10+ Pax groups, Single supplements, and Child policies.
+
+DESTINATION CUSTOMIZATION:
+Generate all content tailored to the selected destination (Thailand, Dubai, Bali, Singapore, Malaysia, Vietnam, Turkey, Kashmir, Rajasthan, Maldives). Never mix up destination landmarks, hotels, or currencies.
+
+RATE & PRICING RULES:
+If user rates or modifications are provided, perform exact mathematical calculations without inventing unapproved numbers.
+Always return valid JSON matching the selected document format, with 'detectedDocType', 'docType', 'docTitle', 'destination', 'country', 'pricing', and the corresponding document object.";
 
 $errors = [];
 
@@ -213,6 +236,13 @@ foreach ($providersToTry as $prov) {
 }
 
 if ($finalResult !== null) {
+    // Ensure document type is normalized if LLM omitted it
+    if (empty($finalResult['detectedDocType']) && !empty($requestedDocType)) {
+        $finalResult['detectedDocType'] = $requestedDocType;
+    }
+    if (empty($finalResult['docType']) && !empty($requestedDocType)) {
+        $finalResult['docType'] = $requestedDocType;
+    }
     echo json_encode([
         'success' => true,
         'provider' => $successfulProvider,
@@ -221,14 +251,14 @@ if ($finalResult !== null) {
         'fallbackNotes' => !empty($errors) ? $errors : null
     ]);
 } else {
-    // Graceful Intelligent Local Generation: Never 502 crash
-    $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachments);
+    // Graceful Intelligent Local Generation Fallback
+    $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachments, $requestedDocType, $requestedDestination, $userRates);
     echo json_encode([
         'success' => true,
         'provider' => 'local-intelligence',
         'model' => 'smart-travel-heuristic-v2',
         'data' => $localData,
-        'fallbackNotes' => !empty($errors) ? $errors : ['notice' => 'Generated via local DMC travel engine']
+        'fallbackNotes' => !empty($errors) ? $errors : ['notice' => 'Generated via local DMC multi-template travel engine']
     ]);
 }
 
@@ -260,10 +290,7 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
                         'data' => $b64
                     ]
                 ];
-            } else {
-                $validImageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if ($mime === 'image/jpg') $mime = 'image/jpeg';
-                if (!in_array($mime, $validImageMimes)) $mime = 'image/jpeg';
+            } elseif (strpos($mime, 'image/') !== false) {
                 $userContent[] = [
                     'type' => 'image',
                     'source' => [
@@ -274,26 +301,22 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
                 ];
             }
         }
-
         if (!empty($attachment['extractedText'])) {
             $userContent[] = [
                 'type' => 'text',
-                'text' => "[EXTRACTED DOCUMENT TEXT - " . ($attachment['name'] ?? 'File') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT]\n"
+                'text' => "--- EXTRACTED CONTENT FROM ATTACHED DOCUMENT (" . ($attachment['name'] ?? 'File') . ") ---\n" . substr($attachment['extractedText'], 0, 15000)
             ];
         }
     }
 
-    $userContent[] = [
-        'type' => 'text',
-        'text' => ($contextText ? $contextText . "\n" : '') . "User Request / Document:\n" . ($userPrompt ?: 'Extract document') . "\nReturn ONLY valid JSON."
-    ];
+    $fullPromptText = $userPrompt . (!empty($contextText) ? "\n\n" . $contextText : "");
+    $userContent[] = ['type' => 'text', 'text' => $fullPromptText];
 
     foreach ($models as $model) {
-        $maxTokens = (strpos($model, 'sonnet') !== false) ? 8192 : 4096;
-        $postData = [
+        $payload = [
             'model' => $model,
-            'max_tokens' => $maxTokens,
-            'system' => $systemPrompt,
+            'max_tokens' => 4096,
+            'system' => $systemPrompt . "\nOutput MUST be raw valid JSON without markdown fences.",
             'messages' => [
                 ['role' => 'user', 'content' => $userContent]
             ]
@@ -306,146 +329,123 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
             CURLOPT_HTTPHEADER => [
                 'x-api-key: ' . $apiKey,
                 'anthropic-version: 2023-06-01',
-                'anthropic-beta: pdfs-2024-09-25',
                 'content-type: application/json'
             ],
-            CURLOPT_POSTFIELDS => json_encode($postData),
-            CURLOPT_TIMEOUT => 40
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_TIMEOUT => 45
         ]);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
+        $curlErr = curl_error($ch);
         curl_close($ch);
 
-        if ($err) {
-            $lastError = $err;
+        if ($curlErr) {
+            $lastError = "cURL error on {$model}: " . $curlErr;
             continue;
         }
 
         $resJson = json_decode($response, true);
-        if ($httpCode >= 200 && $httpCode < 300) {
-            $replyText = $resJson['content'][0]['text'] ?? '';
-            // Robust JSON extraction: Locate outer { ... } block
-            $firstBrace = strpos($replyText, '{');
-            $lastBrace = strrpos($replyText, '}');
-            if ($firstBrace !== false && $lastBrace !== false && $lastBrace > $firstBrace) {
-                $jsonStr = substr($replyText, $firstBrace, $lastBrace - $firstBrace + 1);
-                $parsed = json_decode($jsonStr, true);
-                if ($parsed) {
-                    return ['success' => true, 'model' => $model, 'data' => $parsed];
-                }
-            }
-            $cleaned = preg_replace('/```(?:json)?/i', '', $replyText);
-            $cleaned = trim($cleaned);
-            $parsed = json_decode($cleaned, true);
-            if ($parsed) {
+        if ($httpCode >= 200 && $httpCode < 300 && isset($resJson['content'][0]['text'])) {
+            $rawText = $resJson['content'][0]['text'];
+            $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
+            $cleanJson = preg_replace('/\s*```$/i', '', $cleanJson);
+            $parsed = json_decode($cleanJson, true);
+            if ($parsed && is_array($parsed)) {
                 return ['success' => true, 'model' => $model, 'data' => $parsed];
             }
-        } else {
-            $lastError = $resJson['error']['message'] ?? "HTTP $httpCode";
-            $errType = $resJson['error']['type'] ?? '';
-            // If credit balance too low or key invalid, immediately break and fallback to Gemini
-            if ($httpCode === 400 || $httpCode === 401 || $httpCode === 403 || strpos($lastError, 'credit balance') !== false || $errType === 'invalid_request_error' || $errType === 'authentication_error') {
-                break;
-            }
         }
+        $lastError = $resJson['error']['message'] ?? "HTTP {$httpCode} on {$model}";
     }
-
-    return ['success' => false, 'error' => $lastError ?: 'Claude request failed.'];
+    return ['success' => false, 'error' => $lastError ?? 'Claude calls failed'];
 }
 
 function callGemini($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
-    $models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+    $models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     $lastError = null;
 
-    $parts = [
-        ['text' => $systemPrompt],
-        ['text' => ($contextText ? $contextText . "\n" : '') . "User Instructions:\n" . ($userPrompt ?: 'Extract document structure')]
-    ];
-
+    $parts = [];
     $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
+
     foreach ($attList as $attachment) {
         if (!is_array($attachment)) continue;
         $rawB64 = $attachment['base64'] ?? '';
         $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
         $b64 = trim($b64);
-
         if (!empty($b64)) {
             $mime = $attachment['mimeType'] ?? 'application/pdf';
             $parts[] = [
-                'inlineData' => [
-                    'mimeType' => $mime,
+                'inline_data' => [
+                    'mime_type' => $mime,
                     'data' => $b64
                 ]
             ];
         }
-
         if (!empty($attachment['extractedText'])) {
             $parts[] = [
-                'text' => "\n[DOCUMENT TEXT LAYER - " . ($attachment['name'] ?? 'PDF') . "]:\n" . substr($attachment['extractedText'], 0, 15000) . "\n[END DOCUMENT TEXT LAYER]\n"
+                'text' => "--- ATTACHMENT EXTRACTED TEXT (" . ($attachment['name'] ?? 'File') . ") ---\n" . substr($attachment['extractedText'], 0, 15000)
             ];
         }
     }
 
-    $payload = [
-        'contents' => [
-            ['parts' => $parts]
-        ],
-        'generationConfig' => [
-            'temperature' => 0.1,
-            'responseMimeType' => 'application/json'
-        ]
-    ];
+    $fullText = $systemPrompt . "\n\n" . (!empty($contextText) ? $contextText . "\n\n" : "") . "USER INSTRUCTION: " . $userPrompt . "\n\nOUTPUT MUST BE STRICTLY RAW VALID JSON matching the requested travel document schema.";
+    $parts[] = ['text' => $fullText];
 
     foreach ($models as $model) {
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . urlencode($apiKey);
+        $postData = [
+            'contents' => [
+                ['role' => 'user', 'parts' => $parts]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.2,
+                'response_mime_type' => 'application/json'
+            ]
+        ];
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_TIMEOUT => 25
+            CURLOPT_POSTFIELDS => json_encode($postData),
+            CURLOPT_TIMEOUT => 40
         ]);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
+        $curlErr = curl_error($ch);
         curl_close($ch);
 
-        if ($err) {
-            $lastError = $err;
+        if ($curlErr) {
+            $lastError = "cURL error on {$model}: " . $curlErr;
             continue;
         }
 
         $resJson = json_decode($response, true);
         if ($httpCode >= 200 && $httpCode < 300) {
-            $rawText = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
-            $cleaned = preg_replace('/```(?:json)?/i', '', $rawText);
-            $cleaned = trim($cleaned);
-            $parsed = json_decode($cleaned, true);
-            if ($parsed) {
+            $content = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($content));
+            $cleanJson = preg_replace('/\s*```$/i', '', $cleanJson);
+            $parsed = json_decode($cleanJson, true);
+            if ($parsed && is_array($parsed)) {
                 return ['success' => true, 'model' => $model, 'data' => $parsed];
             }
-        } else {
-            $lastError = $resJson['error']['message'] ?? "HTTP $httpCode";
         }
+        $lastError = $resJson['error']['message'] ?? "HTTP {$httpCode} on {$model}";
     }
-
-    return ['success' => false, 'error' => $lastError ?: 'Gemini request failed.'];
+    return ['success' => false, 'error' => $lastError ?? 'Gemini calls failed'];
 }
 
-function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachment, $apiKey) {
+function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
     $postData = [
         'model' => 'gpt-4o-mini',
         'messages' => [
-            ['role' => 'system', 'content' => $systemPrompt],
-            ['role' => 'user', 'content' => ($contextText ? $contextText . "\n" : '') . $userPrompt]
+            ['role' => 'system', 'content' => $systemPrompt . "\nOutput MUST be raw valid JSON."],
+            ['role' => 'user', 'content' => $userPrompt . (!empty($contextText) ? "\n\n" . $contextText : "")]
         ],
         'response_format' => ['type' => 'json_object'],
-        'temperature' => 0.1
+        'temperature' => 0.2
     ];
 
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
@@ -457,7 +457,7 @@ function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachment, $apiK
             'Content-Type: application/json'
         ],
         CURLOPT_POSTFIELDS => json_encode($postData),
-        CURLOPT_TIMEOUT => 30
+        CURLOPT_TIMEOUT => 35
     ]);
 
     $response = curl_exec($ch);
@@ -473,15 +473,14 @@ function callOpenAI($systemPrompt, $contextText, $userPrompt, $attachment, $apiK
         $parsed = json_decode($content, true);
         if ($parsed) return ['success' => true, 'model' => 'gpt-4o-mini', 'data' => $parsed];
     }
-
     return ['success' => false, 'error' => $resJson['error']['message'] ?? "HTTP $httpCode"];
 }
 
 // ==========================================
-// Intelligent Local Generation Fallback
+// Intelligent Local Multi-Template Fallback
 // ==========================================
 
-function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachments = null) {
+function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachments = null, $requestedDocType = '', $requestedDestination = '', $userRates = null) {
     $attList = is_array($attachments) ? (isset($attachments[0]) ? $attachments : [$attachments]) : [];
     $allAttText = '';
     $allAttNames = '';
@@ -492,246 +491,955 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         }
     }
     $text = strtolower($prompt . ' ' . $allAttNames . ' ' . $allAttText);
-    
-    $dest = 'Bali, Indonesia';
-    $country = 'Indonesia';
+
+    // 1. Resolve Document Type
+    $docType = 'quotation';
+    $validDocTypes = [
+        'hotel_voucher', 'transfer_voucher', 'activity_voucher',
+        'customer_billing', 'supplier_billing', 'quotation',
+        'customer_invoice', 'proforma_invoice',
+        'hotel_rate_sheet', 'sightseeing_rate_sheet', 'transport_rate_sheet', 'package_rate_sheet'
+    ];
+
+    if (!empty($requestedDocType) && in_array($requestedDocType, $validDocTypes)) {
+        $docType = $requestedDocType;
+    } else {
+        // Auto-detect from prompt
+        if (preg_match('/hotel\s*voucher/i', $text) || (preg_match('/voucher/i', $text) && preg_match('/hotel|room|stay|resort/i', $text))) {
+            $docType = 'hotel_voucher';
+        } elseif (preg_match('/transfer\s*voucher|cab\s*voucher|vehicle\s*voucher|airport\s*pickup\s*voucher/i', $text)) {
+            $docType = 'transfer_voucher';
+        } elseif (preg_match('/activity\s*voucher|tour\s*voucher|sightseeing\s*voucher|excursion\s*voucher/i', $text)) {
+            $docType = 'activity_voucher';
+        } elseif (preg_match('/customer\s*billing|statement\s*of\s*account|soa\b|client\s*billing/i', $text)) {
+            $docType = 'customer_billing';
+        } elseif (preg_match('/supplier\s*billing|work\s*order|supplier\s*po|b2b\s*po|vendor\s*order/i', $text)) {
+            $docType = 'supplier_billing';
+        } elseif (preg_match('/proforma/i', $text)) {
+            $docType = 'proforma_invoice';
+        } elseif (preg_match('/tax\s*invoice|gst\s*invoice|customer\s*invoice|\binvoice\b/i', $text)) {
+            $docType = 'customer_invoice';
+        } elseif (preg_match('/hotel\s*rate\s*sheet|hotel\s*tariff/i', $text)) {
+            $docType = 'hotel_rate_sheet';
+        } elseif (preg_match('/sightseeing\s*rate\s*sheet|activity\s*rate\s*sheet|excursion\s*rate/i', $text)) {
+            $docType = 'sightseeing_rate_sheet';
+        } elseif (preg_match('/transportation\s*rate\s*sheet|transport\s*rate\s*sheet|vehicle\s*rate\s*sheet/i', $text)) {
+            $docType = 'transport_rate_sheet';
+        } elseif (preg_match('/package\s*rate\s*sheet|tour\s*package\s*rate|pax\s*matrix|rate\s*matrix/i', $text)) {
+            $docType = 'package_rate_sheet';
+        } elseif (preg_match('/voucher/i', $text)) {
+            $docType = 'hotel_voucher';
+        }
+    }
+
+    // 2. Resolve Destination & Country
+    $dest = 'Phuket & Krabi, Thailand';
+    $country = 'Thailand';
+    $currency = 'USD';
+    $usdRate = 87.0;
     $duration = '6 Days / 5 Nights';
     $numDays = 6;
     $numNights = 5;
-    $currency = 'INR';
-    $usdRate = 86.5;
-    $priceInr = 48500;
-    $priceUsd = 560;
 
-    // Universal Dynamic PDF & Text Document Interpreter
-    $hasExtractedText = strlen(trim($allAttText)) > 20;
-    if ($hasExtractedText) {
-        $rawDoc = $allAttText;
+    $destMap = [
+        'thailand' => ['dest' => 'Phuket & Krabi, Thailand', 'country' => 'Thailand', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'phuket' => ['dest' => 'Phuket & Krabi, Thailand', 'country' => 'Thailand', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'krabi' => ['dest' => 'Phuket & Krabi, Thailand', 'country' => 'Thailand', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'pattaya' => ['dest' => 'Pattaya & Tomorrowland Festival, Thailand', 'country' => 'Thailand', 'currency' => 'BOTH', 'days' => 4, 'nights' => 3],
+        'tomorrowland' => ['dest' => 'Pattaya & Tomorrowland Festival, Thailand', 'country' => 'Thailand', 'currency' => 'BOTH', 'days' => 4, 'nights' => 3],
+        'dubai' => ['dest' => 'Dubai & Abu Dhabi, UAE', 'country' => 'UAE', 'currency' => 'AED', 'days' => 5, 'nights' => 4],
+        'uae' => ['dest' => 'Dubai & Abu Dhabi, UAE', 'country' => 'UAE', 'currency' => 'AED', 'days' => 5, 'nights' => 4],
+        'bali' => ['dest' => 'Bali & Nusa Penida, Indonesia', 'country' => 'Indonesia', 'currency' => 'INR', 'days' => 6, 'nights' => 5],
+        'singapore' => ['dest' => 'Singapore City & Sentosa', 'country' => 'Singapore', 'currency' => 'SGD', 'days' => 5, 'nights' => 4],
+        'malaysia' => ['dest' => 'Kuala Lumpur & Genting Highlands, Malaysia', 'country' => 'Malaysia', 'currency' => 'INR', 'days' => 5, 'nights' => 4],
+        'vietnam' => ['dest' => 'Da Nang, Hoi An & Hanoi, Vietnam', 'country' => 'Vietnam', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'turkey' => ['dest' => 'Istanbul & Cappadocia, Turkey', 'country' => 'Turkey', 'currency' => 'EUR', 'days' => 7, 'nights' => 6],
+        'kashmir' => ['dest' => 'Srinagar, Gulmarg & Pahalgam, Kashmir', 'country' => 'India', 'currency' => 'INR', 'days' => 6, 'nights' => 5],
+        'rajasthan' => ['dest' => 'Jaipur, Jodhpur & Udaipur, Rajasthan', 'country' => 'India', 'currency' => 'INR', 'days' => 6, 'nights' => 5],
+        'maldives' => ['dest' => 'Maldives Luxury Island Atolls', 'country' => 'Maldives', 'currency' => 'USD', 'days' => 5, 'nights' => 4]
+    ];
 
-        // 1. Dynamic Destination & Country Detection
-        if (preg_match('/\b(pattaya|tomorrowland)\b/i', $rawDoc)) {
-            $dest = 'Pattaya & Tomorrowland Festival, Thailand';
-            $country = 'Thailand';
-            $numDays = 4;
-            $numNights = 3;
-            $duration = '4 Days / 3 Nights';
-            $usdRate = 87.0;
-        } elseif (preg_match('/\b(phuket|krabi)\b/i', $rawDoc)) {
-            $dest = 'Phuket + Krabi, Thailand';
-            $country = 'Thailand';
-            $numDays = 6;
-            $numNights = 5;
-            $duration = '6 Days / 5 Nights';
-            $currency = 'USD';
-            $usdRate = 87.0;
-            $priceUsd = 632.88; // Default with 15% markup on base $550.33
-            $priceInr = round($priceUsd * $usdRate);
-        } elseif (preg_match('/\b(bali|ubud|seminyak|kuta|nusa penida)\b/i', $rawDoc)) {
-            $dest = 'Bali & Nusa Penida, Indonesia';
-            $country = 'Indonesia';
-        } elseif (preg_match('/\b(dubai|abu dhabi|uae)\b/i', $rawDoc)) {
-            $dest = 'Dubai & Abu Dhabi, UAE';
-            $country = 'UAE';
-        } elseif (preg_match('/\b(singapore|sentosa)\b/i', $rawDoc)) {
-            $dest = 'Singapore City & Sentosa';
-            $country = 'Singapore';
-        } elseif (preg_match('/\b(kuala lumpur|genting|langkawi|malaysia)\b/i', $rawDoc)) {
-            $dest = 'Malaysia (Kuala Lumpur & Genting)';
-            $country = 'Malaysia';
-        } elseif (preg_match('/\b(cappadocia|istanbul|turkey)\b/i', $rawDoc)) {
-            $dest = 'Istanbul & Cappadocia, Turkey';
-            $country = 'Turkey';
-        } elseif (preg_match('/\b(kashmir|srinagar|gulmarg)\b/i', $rawDoc)) {
-            $dest = 'Srinagar & Gulmarg, Kashmir';
-            $country = 'India';
-        } elseif (preg_match('/\b(rajasthan|udaipur|jaipur)\b/i', $rawDoc)) {
-            $dest = 'Rajasthan & Udaipur Heritage';
-            $country = 'India';
-        }
-
-        // 2. Dynamic Price Detection
-        if (preg_match('/(?:total|cost|price|inr|rs\.?|₹)\s*[:\-]?\s*(?:rs\.?|inr|₹)?\s*([0-9,]{4,})/i', $rawDoc, $pMatch)) {
-            $parsedInr = intval(str_replace(',', '', $pMatch[1]));
-            if ($parsedInr > 5000) {
-                $priceInr = $parsedInr;
-                $priceUsd = round($priceInr / $usdRate);
-            }
-        }
-        if (preg_match('/usd\s*([0-9,.]+)/i', $rawDoc, $uMatch)) {
-            $parsedUsd = floatval(str_replace(',', '', $uMatch[1]));
-            if ($parsedUsd > 50) {
-                $priceUsd = round($parsedUsd);
-                if (empty($pMatch)) {
-                    $priceInr = round($priceUsd * $usdRate);
-                }
+    $destMatched = false;
+    if (!empty($requestedDestination)) {
+        $rd = strtolower(trim($requestedDestination));
+        foreach ($destMap as $key => $info) {
+            if (strpos($rd, $key) !== false) {
+                $dest = $info['dest'];
+                $country = $info['country'];
+                $currency = $info['currency'];
+                $numDays = $info['days'];
+                $numNights = $info['nights'];
+                $duration = "{$numDays} Days / {$numNights} Nights";
+                $destMatched = true;
+                break;
             }
         }
     }
 
-    // Dynamic check for user modification commands (e.g., "amount ko double kar do", "200 ka 400", "with decoration", "as it is rahne do")
-    $preserveAsIs = preg_match('/(?:kuch\s*bhi\s*change\s*mat|as\s*it\s*is|same\s*format|dont\s*change|don\'t\s*change|change\s*mat\s*karo|same\s*rahne\s*do)/i', $prompt);
+    if (!$destMatched) {
+        foreach ($destMap as $key => $info) {
+            if (strpos($text, $key) !== false) {
+                $dest = $info['dest'];
+                $country = $info['country'];
+                $currency = $info['currency'];
+                $numDays = $info['days'];
+                $numNights = $info['nights'];
+                $duration = "{$numDays} Days / {$numNights} Nights";
+                break;
+            }
+        }
+    }
+
+    // 3. Rate & Pricing Calculation
+    $adultCount = 2;
+    $childCount = 0;
+    $ratePerAdult = 400.00;
+    $ratePerChild = 200.00;
+    $hotelNightly = 120.00;
+    $hotelNights = $numNights;
+    $vehicleRate = 140.00;
+    $activityRate = 180.00;
+    $markupPct = 15.0;
+    $taxPct = 5.0;
+    $discountAmount = 0.00;
+
+    // Apply explicit user rates if passed
+    if (!empty($userRates) && is_array($userRates)) {
+        if (!empty($userRates['currency'])) $currency = strtoupper(trim($userRates['currency']));
+        if (!empty($userRates['exchangeRate'])) $usdRate = floatval($userRates['exchangeRate']);
+        if (isset($userRates['ratePerAdult'])) $ratePerAdult = floatval($userRates['ratePerAdult']);
+        if (isset($userRates['adultCount'])) $adultCount = max(1, intval($userRates['adultCount']));
+        if (isset($userRates['ratePerChild'])) $ratePerChild = floatval($userRates['ratePerChild']);
+        if (isset($userRates['childCount'])) $childCount = max(0, intval($userRates['childCount']));
+        if (isset($userRates['hotelNightlyRate'])) $hotelNightly = floatval($userRates['hotelNightlyRate']);
+        if (isset($userRates['hotelNights'])) $hotelNights = max(1, intval($userRates['hotelNights']));
+        if (isset($userRates['vehicleRate'])) $vehicleRate = floatval($userRates['vehicleRate']);
+        if (isset($userRates['activityRate'])) $activityRate = floatval($userRates['activityRate']);
+        if (isset($userRates['markupPercent'])) $markupPct = floatval($userRates['markupPercent']);
+        if (isset($userRates['taxPercent'])) $taxPct = floatval($userRates['taxPercent']);
+        if (isset($userRates['discountAmount'])) $discountAmount = floatval($userRates['discountAmount']);
+    } else {
+        // Destination default pricing heuristics
+        if (strpos($dest, 'Tomorrowland') !== false) {
+            $ratePerAdult = 750.00;
+            $hotelNightly = 0.00; // Self-booked
+            $vehicleRate = 250.00; // 2 Vans
+            $activityRate = 500.00; // Full Madness Passes
+        } elseif (strpos($dest, 'Maldives') !== false) {
+            $ratePerAdult = 840.00;
+            $hotelNightly = 450.00;
+            $vehicleRate = 280.00; // Speedboat
+            $activityRate = 200.00;
+        } elseif (strpos($dest, 'Dubai') !== false) {
+            $ratePerAdult = 350.00;
+            $hotelNightly = 140.00;
+            $vehicleRate = 160.00;
+            $activityRate = 180.00;
+        } elseif (strpos($dest, 'Bali') !== false) {
+            $ratePerAdult = 290.00;
+            $hotelNightly = 95.00;
+            $vehicleRate = 120.00;
+            $activityRate = 140.00;
+        } elseif (strpos($dest, 'Kashmir') !== false || strpos($dest, 'Rajasthan') !== false) {
+            $currency = 'INR';
+            $ratePerAdult = 24500.00;
+            $hotelNightly = 6500.00;
+            $vehicleRate = 14000.00;
+            $activityRate = 8500.00;
+        }
+    }
+
+    // Dynamic prompt modification commands
     $isDoublePrompt = preg_match('/(?:double|200\s*ka\s*400|do\s*guna|doguna|2x)/i', $prompt);
     $hasSpecificDouble = preg_match('/200\s*(?:ka|to)\s*400/i', $prompt);
     $hasDecoration = preg_match('/(?:decoration|decor|flower|room\s*decoration|bed\s*decoration)/i', $prompt);
 
-    // If an existing quotation is active in current state, preserve its destination & structure
-    if ($currentQuotation && is_array($currentQuotation)) {
-        $cPkg = $currentQuotation['package'] ?? [];
-        $activeDest = !empty($currentQuotation['destination']) ? $currentQuotation['destination'] : ($cPkg['destinations'] ?? ($cPkg['destination'] ?? ''));
-        if (!empty($activeDest)) {
-            $hasExplicitNewDest = preg_match('/\b(bali|dubai|uae|singapore|malaysia|turkey|vietnam|kashmir|rajasthan|kerala)\b/i', $prompt);
-            if (!$hasExplicitNewDest || $preserveAsIs) {
-                $dest = $activeDest;
-                $country = $currentQuotation['country'] ?? ($cPkg['country'] ?? 'Thailand');
-                $duration = $currentQuotation['duration'] ?? ($cPkg['duration'] ?? '6 Days / 5 Nights');
-                if (preg_match('/(\d+)\s*days?/i', $duration, $dm)) {
-                    $numDays = intval($dm[1]);
-                    $numNights = max(1, $numDays - 1);
-                }
-                if (!empty($currentQuotation['pricing']['totalInr'])) {
-                    $priceInr = floatval($currentQuotation['pricing']['totalInr']);
-                }
-                if (!empty($currentQuotation['pricing']['totalUsd'])) {
-                    $priceUsd = floatval($currentQuotation['pricing']['totalUsd']);
-                }
-                if (stripos($dest, 'tomorrowland') !== false || stripos($dest, 'pattaya') !== false) {
-                    $text .= ' tomorrowland pattaya';
-                }
-            }
-        }
-    }
-
-    if (preg_match('/(\d+)\s*(?:days?|d)\s*(?:\/\s*(\d+)\s*(?:nights?|n))?/i', $prompt, $m)) {
-        $numDays = intval($m[1]);
-        $numNights = !empty($m[2]) ? intval($m[2]) : max(1, $numDays - 1);
-        $duration = "{$numDays} Days / {$numNights} Nights";
-    }
-
-    // Handle modification prompt when no previous quote was in session: default to official master Phuket+Krabi template
-    if (($isDoublePrompt || $hasDecoration || $preserveAsIs) && (empty($activeDest) || $activeDest === 'Bali, Indonesia')) {
-        $dest = 'Phuket + Krabi, Thailand';
-        $country = 'Thailand';
-        $numDays = 6;
-        $numNights = 5;
-        $duration = '6 Days / 5 Nights';
-        $currency = 'USD';
-        $usdRate = 87.0;
-        $priceUsd = 800.00;
-        $priceInr = 69600;
-    }
-
-    if (strpos($text, 'tomorrowland') !== false || strpos($text, 'pattaya') !== false) {
-        $dest = 'Pattaya & Tomorrowland Festival, Thailand';
-        $country = 'Thailand';
-        $numDays = 4;
-        $numNights = 3;
-        $duration = '4 Days / 3 Nights';
-        $currency = 'BOTH';
-        $usdRate = 87.0;
-
-        // Check for pass / amount increase delta (e.g., "Passes ka amount increase kar do 20000")
-        $passDelta = 0;
-        if (preg_match('/(?:increase|bada|badhao|add|markup|extra|kar\s*do).*?(\d{4,})/i', $prompt, $pm) || preg_match('/(\d{4,}).*?(?:increase|bada|badhao|add)/i', $prompt, $pm) || preg_match('/(?:passes|pass).*?(\d{4,})/i', $prompt, $pm)) {
-            $passDelta = intval($pm[1]);
-        }
-
-        // Preserve previous pass price if already updated in current quotation
-        $existingMadness = 120000;
-        $existingVip = 175000;
-        if ($currentQuotation && !empty($currentQuotation['summary']['items'])) {
-            foreach ($currentQuotation['summary']['items'] as $it) {
-                if (stripos($it['name'], 'Full Madness') !== false || stripos($it['name'], 'Tomorrowland') !== false) {
-                    if (!empty($it['amountINR']) && $it['amountINR'] >= 120000) {
-                        $existingMadness = intval($it['amountINR']);
-                    }
-                }
-                if (stripos($it['name'], 'VIP') !== false) {
-                    if (!empty($it['amountINR']) && $it['amountINR'] >= 175000) {
-                        $existingVip = intval($it['amountINR']);
-                    }
-                }
-            }
-        }
-        $fullMadnessPrice = $existingMadness + $passDelta;
-        $vipPrice = $existingVip + $passDelta;
-        $landPriceInr = 11065; // USD 127.15 @ 87.0
-        $priceInr = $landPriceInr + $fullMadnessPrice;
-        $priceUsd = round($priceInr / $usdRate, 2);
-    } elseif (strpos($text, 'dubai') !== false || strpos($text, 'uae') !== false || strpos($text, 'abu dhabi') !== false) {
-        $dest = 'Dubai & Abu Dhabi, UAE';
-        $country = 'UAE';
-        $priceInr = 62000;
-        $priceUsd = 715;
-    } elseif (strpos($text, 'singapore') !== false) {
-        $dest = 'Singapore City & Sentosa';
-        $country = 'Singapore';
-        $priceInr = 54000;
-        $priceUsd = 625;
-    } elseif (strpos($text, 'thailand') !== false || strpos($text, 'phuket') !== false || strpos($text, 'krabi') !== false || strpos($text, 'bangkok') !== false) {
-        $dest = 'Phuket & Krabi, Thailand';
-        $country = 'Thailand';
-        $priceInr = 42000;
-        $priceUsd = 485;
-    } elseif (strpos($text, 'malaysia') !== false || strpos($text, 'kuala lumpur') !== false || strpos($text, 'genting') !== false) {
-        $dest = 'Kuala Lumpur & Genting Highlands, Malaysia';
-        $country = 'Malaysia';
-        $priceInr = 38500;
-        $priceUsd = 445;
-    } elseif (strpos($text, 'turkey') !== false || strpos($text, 'cappadocia') !== false || strpos($text, 'istanbul') !== false) {
-        $dest = 'Istanbul & Cappadocia, Turkey';
-        $country = 'Turkey';
-        $priceInr = 95000;
-        $priceUsd = 1100;
-    } elseif (strpos($text, 'vietnam') !== false || strpos($text, 'hanoi') !== false || strpos($text, 'da nang') !== false) {
-        $dest = 'Da Nang, Hoi An & Hanoi, Vietnam';
-        $country = 'Vietnam';
-        $priceInr = 49000;
-        $priceUsd = 565;
-    } elseif (strpos($text, 'kashmir') !== false || strpos($text, 'srinagar') !== false || strpos($text, 'gulmarg') !== false) {
-        $dest = 'Srinagar, Gulmarg & Pahalgam, Kashmir';
-        $country = 'India';
-        $priceInr = 36000;
-        $priceUsd = 415;
-    } elseif (strpos($text, 'rajasthan') !== false || strpos($text, 'udaipur') !== false || strpos($text, 'jaipur') !== false) {
-        $dest = 'Jaipur, Jodhpur & Udaipur, Rajasthan';
-        $country = 'India';
-        $priceInr = 34500;
-        $priceUsd = 400;
-    } elseif (strpos($text, 'kerala') !== false || strpos($text, 'munnar') !== false || strpos($text, 'alleppey') !== false) {
-        $dest = 'Munnar, Thekkady & Alleppey Houseboat, Kerala';
-        $country = 'India';
-        $priceInr = 32000;
-        $priceUsd = 370;
-    } elseif (strpos($text, 'maldives') !== false || strpos($text, 'male') !== false || strpos($text, 'water villa') !== false) {
-        $dest = 'Maldives Luxury Island Atolls';
-        $country = 'Maldives';
-        $priceInr = 145000;
-        $priceUsd = 1680;
-    }
-
-    // Dynamic Price Doubling & Specific 200 -> 400 calculation
-    $ratePerAdultUsd = round($priceUsd / 2, 2);
     if ($hasSpecificDouble) {
-        $ratePerAdultUsd = 400.00;
-        $priceUsd = 800.00;
-        $priceInr = 69600;
+        $ratePerAdult = 400.00;
     } elseif ($isDoublePrompt) {
-        $ratePerAdultUsd = round($ratePerAdultUsd * 2, 2);
-        $priceUsd = round($priceUsd * 2, 2);
-        $priceInr = round($priceInr * 2);
+        $ratePerAdult = round($ratePerAdult * 2, 2);
     }
 
-    // Dynamic markup from user prompt (% increase)
-    if (preg_match('/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|extra|increase)?/i', $prompt, $mMatch) ||
-        preg_match('/(?:markup|increase).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i', $prompt, $mMatch)) {
-        $pct = floatval($mMatch[1]);
-        if ($pct > 0 && $pct <= 100) {
-            $priceInr = round($priceInr * (1 + $pct / 100));
-            $priceUsd = round($priceUsd * (1 + $pct / 100), 2);
+    // Calculate deterministic totals without price hallucination
+    $baseSubtotal = ($ratePerAdult * $adultCount) + ($ratePerChild * $childCount);
+    $markupAmount = round(($baseSubtotal * $markupPct) / 100, 2);
+    $taxableSubtotal = max(0, $baseSubtotal + $markupAmount - $discountAmount);
+    $taxAmount = round(($taxableSubtotal * $taxPct) / 100, 2);
+    $grandTotal = round($taxableSubtotal + $taxAmount, 2);
+
+    $totalUsd = ($currency === 'INR') ? round($grandTotal / $usdRate, 2) : $grandTotal;
+    $totalInr = ($currency === 'INR') ? round($grandTotal) : round($grandTotal * $usdRate);
+
+    // Common Company Details
+    $companyData = [
+        'name' => "Let's Explore DMC",
+        'tagline' => 'Destination Management Company & Travel ERP',
+        'address' => 'Suite 402, Royal Palms Business Center, Pune & Bangkok Operations Hub',
+        'phone' => '+91 80075 86881 / +91 95459 55966',
+        'email' => 'bookings@letsexploredmc.com',
+        'website' => 'www.letsexploredmc.com',
+        'gstin' => '27AABCL1234F1Z8',
+        'hsn' => '998555'
+    ];
+
+    $clientData = [
+        'name' => 'Valued Guest / Corporate Partner',
+        'adults' => $adultCount,
+        'children' => $childCount,
+        'pax' => "{$adultCount} Adults" . ($childCount > 0 ? ", {$childCount} Children" : ""),
+        'contact' => '+91 98765 43210',
+        'email' => 'guest@example.com',
+        'leadId' => 'LE-LEAD-' . rand(1000, 9999)
+    ];
+
+    // Reference generators
+    $refBase = date('Ymd') . '-' . rand(100, 999);
+    $todayFormatted = date('d M Y');
+    $checkInFormatted = date('d M Y', strtotime('+14 days'));
+    $checkOutFormatted = date('d M Y', strtotime('+' . (14 + $numNights) . ' days'));
+
+    // Base Common Response Object
+    $response = [
+        'detectedDocType' => $docType,
+        'docType' => $docType,
+        'destination' => $dest,
+        'country' => $country,
+        'duration' => $duration,
+        'currency' => $currency,
+        'company' => $companyData,
+        'client' => $clientData,
+        'pricing' => [
+            'currency' => $currency,
+            'exchangeRate' => $usdRate,
+            'ratePerAdult' => $ratePerAdult,
+            'adultCount' => $adultCount,
+            'ratePerChild' => $ratePerChild,
+            'childCount' => $childCount,
+            'baseSubtotal' => $baseSubtotal,
+            'markupPercent' => $markupPct,
+            'markupAmount' => $markupAmount,
+            'taxPercent' => $taxPct,
+            'taxAmount' => $taxAmount,
+            'discountAmount' => $discountAmount,
+            'grandTotal' => $grandTotal,
+            'totalInr' => $totalInr,
+            'totalUsd' => $totalUsd
+        ]
+    ];
+
+    // =========================================================================
+    // TEMPLATE 1: HOTEL VOUCHER
+    // =========================================================================
+    if ($docType === 'hotel_voucher') {
+        $hotelName = "Ashlee Plaza Hotel Patong / GLOW Ao Nang Krabi";
+        $roomType = "Superior Deluxe Twin / Double Sharing Room";
+        $mealPlan = "Daily International Buffet Breakfast + Dinner Included";
+
+        if (strpos($dest, 'Bali') !== false) {
+            $hotelName = "The Kayon Jungle Resort & Ubud Pool Villa";
+            $roomType = "Private Pool Villa with Jungle & Valley View";
+            $mealPlan = "Daily Breakfast & Afternoon High Tea";
+        } elseif (strpos($dest, 'Dubai') !== false) {
+            $hotelName = "Grand Millennium Hotel Business Bay Dubai";
+            $roomType = "Deluxe King Room with Canal View";
+            $mealPlan = "International Buffet Breakfast Included";
+        } elseif (strpos($dest, 'Maldives') !== false) {
+            $hotelName = "Centara Grand Island Resort & Spa Maldives";
+            $roomType = "Sunset Luxury Overwater Villa with Plunge Pool";
+            $mealPlan = "All-Inclusive Premium Dine-Around Meal Plan";
+        } elseif (strpos($dest, 'Singapore') !== false) {
+            $hotelName = "Marina Bay Sands & Orchard Deluxe Hotel";
+            $roomType = "Premier King Room with SkyPark Access";
+            $mealPlan = "Buffet Breakfast at RISE Restaurant";
+        } elseif (strpos($dest, 'Kashmir') !== false) {
+            $hotelName = "The Lalit Grand Palace Srinagar & Khyber Gulmarg";
+            $roomType = "Heritage Palace Room & Luxury Alpine Cottage";
+            $mealPlan = "Buffet Breakfast & Dinner (MAPAI Plan)";
+        } elseif (strpos($dest, 'Rajasthan') !== false) {
+            $hotelName = "Taj Lake Palace Udaipur & Rambagh Palace Jaipur";
+            $roomType = "Luxury Historical Palace Suite";
+            $mealPlan = "Royal Heritage Buffet Breakfast & Traditional Dinner";
         }
+
+        $hotelInclusions = [
+            "Complimentary high-speed WiFi access throughout hotel property",
+            "Welcome drink & cold refreshing towel on arrival",
+            "Daily international buffet breakfast at main restaurant",
+            "Free access to fitness center, infinity swimming pool & sauna",
+            "Complimentary bottled drinking water (2 bottles per room per day)"
+        ];
+        if ($hasDecoration) {
+            array_unshift($hotelInclusions, "Romantic Room & Bed Floral Decoration with Welcome Cake & Exotic Fruit Basket");
+        }
+
+        $response['docTitle'] = "Hotel Booking Confirmation Voucher";
+        $response['documentSummary'] = "Official confirmed hotel booking voucher for {$clientData['name']} at {$hotelName} ({$dest}).";
+        $response['hotelVoucher'] = [
+            'voucherNumber' => 'LEDMC-HV-' . $refBase,
+            'bookingReference' => 'BK-' . strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $dest), 0, 3)) . '-' . rand(10000, 99999),
+            'confirmationCode' => 'CONF-' . rand(10000, 99999) . '-' . strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $hotelName), 0, 4)),
+            'status' => 'CONFIRMED & GUARANTEED BY DMC',
+            'issueDate' => $todayFormatted,
+            'guestName' => $clientData['name'],
+            'pax' => $clientData['pax'],
+            'hotelName' => $hotelName,
+            'hotelAddress' => 'Prime Tourist District, ' . $dest,
+            'starRating' => '4★ Deluxe / 5★ Luxury Verified Partner',
+            'checkInDate' => $checkInFormatted,
+            'checkInTime' => '14:00 hrs',
+            'checkOutDate' => $checkOutFormatted,
+            'checkOutTime' => '12:00 hrs',
+            'nights' => $numNights,
+            'roomsCount' => 1,
+            'roomType' => $roomType,
+            'mealPlan' => $mealPlan,
+            'inclusions' => $hotelInclusions,
+            'specialRequests' => 'Non-smoking high floor room, King size bed requested.' . ($hasDecoration ? ' Romantic room decoration setup confirmed.' : ''),
+            'supplierContact' => [
+                'groundDmc' => "Let's Explore DMC On-Ground Concierge",
+                'emergencyHelpline' => '+91 80075 86881 / +91 95459 55966',
+                'hotelFrontDesk' => '+66 76 123 456'
+            ],
+            'voucherTerms' => [
+                'Please present this original voucher along with valid government photo IDs or passports at check-in.',
+                'Incidental charges (minibar, laundry, room service) are not included and must be settled directly at checkout.',
+                'Early check-in and late checkout are strictly subject to hotel room availability on arrival.',
+                'Non-amendable within 72 hours of scheduled check-in date.'
+            ]
+        ];
+        return $response;
     }
 
-    // Days generator
+    // =========================================================================
+    // TEMPLATE 2: TRANSFER VOUCHER
+    // =========================================================================
+    if ($docType === 'transfer_voucher') {
+        $vehicleType = "Toyota Commuter VIP Luxury Van (Air-Conditioned)";
+        $pickupLoc = "International Airport Arrival Terminal - Exit Gate 4";
+        $dropLoc = "Hotel & Resort Front Lobby, {$dest}";
+        $flightDetails = "Flight EK-501 (Scheduled Arrival 14:30)";
+
+        if (strpos($dest, 'Thailand') !== false) {
+            $pickupLoc = "Phuket International Airport (HKT) / Suvarnabhumi Airport (BKK) - Gate 3";
+            $vehicleType = "Toyota Commuter VIP 10-Seater Air-Conditioned Van";
+        } elseif (strpos($dest, 'Dubai') !== false) {
+            $pickupLoc = "Dubai International Airport (DXB) Terminal 3 - Chauffeur Meeting Point";
+            $vehicleType = "Luxury AC Sedan / GMC Yukon Executive SUV";
+        } elseif (strpos($dest, 'Bali') !== false) {
+            $pickupLoc = "Ngurah Rai International Airport (DPS) Denpasar - Arrival Hall";
+            $vehicleType = "Toyota Innova Reborn AC Private Vehicle";
+        } elseif (strpos($dest, 'Maldives') !== false) {
+            $pickupLoc = "Velana International Airport (MLE) Malé - Counter 14";
+            $dropLoc = "Island Resort Jetty / Overwater Villa Pavilion";
+            $vehicleType = "Twin-Engine Luxury Enclosed Speedboat";
+            $flightDetails = "Trans-Maldivian Scheduled Speedboat Transfer";
+        }
+
+        $response['docTitle'] = "Private Airport & Inter-City Transfer Voucher";
+        $response['documentSummary'] = "Official confirmed transfer voucher for {$clientData['name']} in {$dest}.";
+        $response['transferVoucher'] = [
+            'voucherNumber' => 'LEDMC-TV-' . $refBase,
+            'bookingReference' => 'TR-' . rand(10000, 99999),
+            'status' => 'CONFIRMED',
+            'issueDate' => $todayFormatted,
+            'guestName' => $clientData['name'],
+            'pax' => $clientData['pax'],
+            'serviceType' => 'Private Roundtrip Airport Arrival & Inter-Hotel Transfer',
+            'pickupDate' => $checkInFormatted,
+            'pickupTime' => '14:30 hrs (or flight arrival landing time)',
+            'pickupLocation' => $pickupLoc,
+            'dropLocation' => $dropLoc,
+            'flightTrainDetails' => $flightDetails,
+            'vehicleType' => $vehicleType,
+            'vehiclePlate' => 'DMC-' . rand(100, 999) . '-VIP',
+            'driverName' => 'Tariq Al-Mansoor / Somchai Prasert (Assigned Chauffeur)',
+            'driverPhone' => '+91 80075 86881 (24x7 Driver Dispatch)',
+            'luggageAllowance' => '1 Standard Large Suitcase (up to 25kg) + 1 Hand Cabin Bag per passenger',
+            'meetingInstructions' => "Our uniformed representative will be stationed at the arrival exit holding a personalized placard displaying '{$clientData['name']} / Let's Explore DMC'. In case of flight delays, chauffeur will wait up to 90 minutes post touchdown free of charge.",
+            'emergencyHelpline' => '+91 80075 86881 / +91 95459 55966'
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 3: ACTIVITY VOUCHER
+    // =========================================================================
+    if ($docType === 'activity_voucher') {
+        $activityName = "Phi Phi Island, Maya Bay & Pileh Lagoon Speedboat Tour with Buffet Lunch";
+        $operator = "Andaman Wave Master & Let's Explore DMC Ground Team";
+        $pickupTime = "07:30 AM - 08:00 AM (Hotel Lobby Pick-up)";
+        $highlights = [
+            "Speedboat cruise through Maya Bay & Emerald Pileh Lagoon",
+            "Snorkeling stop at Khai Island with vibrant marine life",
+            "Buffet lunch served at beachside restaurant",
+            "National Park entrance admission fees (NPF) included"
+        ];
+
+        if (strpos($dest, 'Dubai') !== false) {
+            $activityName = "Premium 4x4 Desert Safari with Dune Bashing, Camel Ride & BBQ Dinner";
+            $operator = "DMC Emirates Desert Adventures";
+            $pickupTime = "02:45 PM - 03:15 PM";
+            $highlights = ["Thrilling 4x4 dune bashing across Red Sand Dunes", "Camel riding & sandboarding experience", "Live Tanoura dance, fire show & belly dance", "Lavish international buffet BBQ dinner with soft drinks"];
+        } elseif (strpos($dest, 'Bali') !== false) {
+            $activityName = "Full Day Nusa Penida Island Speedboat Tour & West Coast Exploration";
+            $operator = "Bali Ocean Fast Cruises & DMC Operations";
+            $pickupTime = "06:45 AM - 07:15 AM";
+            $highlights = ["Iconic Kelingking T-Rex cliff viewpoint & Broken Beach", "Natural infinity pool Angel's Billabong", "Crystal Bay beach relaxation & snorkeling", "Indonesian set lunch with mineral water included"];
+        } elseif (strpos($dest, 'Singapore') !== false) {
+            $activityName = "Universal Studios Singapore One-Day Pass & Sentosa Cable Car Sky Pass";
+            $operator = "Resorts World Sentosa & Singapore Cable Car";
+            $pickupTime = "09:30 AM (Self-Guided / Private Drop)";
+            $highlights = ["Full day unlimited access to all 6 themed zones", "Battlestar Galactica & Transformers Ride 3D", "Roundtrip Mount Faber & Sentosa Line cable car scenic aerial views"];
+        } elseif (strpos($dest, 'Maldives') !== false) {
+            $activityName = "Guided House Reef Snorkeling Safari & Sunset Dolphin Cruise on Wooden Dhoni";
+            $operator = "Resort Marine Biology Center & DMC Island Team";
+            $pickupTime = "04:30 PM (Dive Center Jetty)";
+            $highlights = ["Guided coral reef snorkeling with sea turtles & rays", "Complimentary snorkel, mask & fins gear included", "Traditional wooden Dhoni boat cruise at golden sunset", "Chilled refreshments & fruit skewers served on board"];
+        }
+
+        $response['docTitle'] = "Excursion & Tour Activity Confirmation Voucher";
+        $response['documentSummary'] = "Official confirmed activity voucher for {$activityName} ({$dest}).";
+        $response['activityVoucher'] = [
+            'voucherNumber' => 'LEDMC-AV-' . $refBase,
+            'bookingReference' => 'ACT-' . rand(10000, 99999),
+            'ticketBarcode' => 'BARCODE-' . rand(10000000, 99999999),
+            'status' => 'CONFIRMED PASS',
+            'issueDate' => $todayFormatted,
+            'guestName' => $clientData['name'],
+            'pax' => $clientData['pax'],
+            'activityName' => $activityName,
+            'operator' => $operator,
+            'activityDate' => date('d M Y', strtotime('+16 days')),
+            'pickupTime' => $pickupTime,
+            'meetingPoint' => 'Hotel Front Lobby / Concierge Standby',
+            'duration' => 'Approx. 7–8 Hours (Full Day)',
+            'highlights' => $highlights,
+            'inclusions' => [
+                'Roundtrip hotel transfers in shared air-conditioned vehicle',
+                'All activity admissions, entry tickets & national park fees',
+                'English-speaking certified excursion guide & safety instructor',
+                'Complimentary lunch and mineral water as per itinerary',
+                'Comprehensive destination passenger safety insurance'
+            ],
+            'whatToBring' => [
+                'Comfortable lightweight swimwear & dry change of clothes',
+                'Sunscreen lotion, UV sunglasses & beach towel',
+                'Waterproof pouch for mobile phones & cameras',
+                'Small pocket cash for personal souvenirs or gratuities'
+            ],
+            'cancellationPolicy' => 'Free cancellation up to 48 hours prior to departure. Non-refundable within 24 hours of excursion commencement.'
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 4: CUSTOMER BILLING (STATEMENT OF ACCOUNT)
+    // =========================================================================
+    if ($docType === 'customer_billing') {
+        $soaTotal = $grandTotal;
+        $paidPortion = round($soaTotal * 0.5);
+        $duePortion = $soaTotal - $paidPortion;
+
+        $response['docTitle'] = "Customer Statement of Account & Billing";
+        $response['documentSummary'] = "Statement of Account and payment ledger for {$clientData['name']} ({$dest}).";
+        $response['billing'] = [
+            'statementNumber' => 'LEDMC-SOA-' . $refBase,
+            'statementDate' => $todayFormatted,
+            'clientName' => $clientData['name'],
+            'accountNumber' => 'ACC-CL-' . rand(1000, 9999),
+            'destination' => $dest,
+            'currency' => $currency,
+            'transactions' => [
+                [
+                    'date' => date('d M Y', strtotime('-5 days')),
+                    'description' => "Initial Tour Package Booking Contract — {$dest} ({$duration})",
+                    'reference' => 'QTN-LEDMC-9941',
+                    'debit' => $soaTotal,
+                    'credit' => 0.00,
+                    'balance' => $soaTotal
+                ],
+                [
+                    'date' => date('d M Y', strtotime('-2 days')),
+                    'description' => "Advance Deposit Received (50% Booking Confirmation via Bank Wire)",
+                    'reference' => 'TXN-BANK-88214',
+                    'debit' => 0.00,
+                    'credit' => $paidPortion,
+                    'balance' => $duePortion
+                ]
+            ],
+            'subtotal' => $baseSubtotal,
+            'markup' => $markupAmount,
+            'tax' => $taxAmount,
+            'totalBilled' => $soaTotal,
+            'totalPaid' => $paidPortion,
+            'balanceDue' => $duePortion,
+            'paymentDueDate' => date('d M Y', strtotime('+10 days')),
+            'bankDetails' => [
+                'bankName' => 'HDFC Bank Ltd',
+                'accountName' => "Let's Explore DMC India Pvt Ltd",
+                'accountNumber' => '50200088912345',
+                'ifscCode' => 'HDFC0001234',
+                'branch' => 'Senapati Bapat Road, Pune',
+                'swiftCode' => 'HDFCINBBXXX'
+            ],
+            'terms' => [
+                'Please quote the Statement Number on your bank transfer remittance advice.',
+                'Outstanding balance must be settled 15 days before the tour departure date.',
+                'Interest at 1.5% per month applicable on delayed commercial accounts.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 5: SUPPLIER BILLING (WORK ORDER / PURCHASE ORDER)
+    // =========================================================================
+    if ($docType === 'supplier_billing') {
+        $supplierName = "Siam Ground Services Co. Ltd. (Thailand Hub)";
+        $supplierCurr = 'THB';
+        if (strpos($dest, 'Dubai') !== false) {
+            $supplierName = "Arabian Gate Tourism LLC (Dubai Dmc Partner)";
+            $supplierCurr = 'AED';
+        } elseif (strpos($dest, 'Bali') !== false) {
+            $supplierName = "PT Bali Excursions & Chauffeur Services (Indonesia)";
+            $supplierCurr = 'USD';
+        }
+
+        $grossSupplierCost = round($baseSubtotal * 0.85, 2);
+        $contractDiscount = round($grossSupplierCost * 0.05, 2);
+        $netPayable = round($grossSupplierCost - $contractDiscount, 2);
+
+        $response['docTitle'] = "Supplier Work Order & Contracted B2B PO";
+        $response['documentSummary'] = "Official Work Order / B2B PO issued to {$supplierName} for {$dest}.";
+        $response['supplierBilling'] = [
+            'workOrderNumber' => 'LEDMC-WO-' . $refBase,
+            'poReference' => 'PO-SUPP-' . date('Y') . '-' . rand(1000, 9999),
+            'issueDate' => $todayFormatted,
+            'supplierName' => $supplierName,
+            'supplierAddress' => 'Commercial Ground District, ' . $dest,
+            'contactPerson' => 'Operations Manager',
+            'emergencyPhone' => '+66 2 987 6543',
+            'email' => 'partners@siamground.com',
+            'destination' => $dest,
+            'currency' => $supplierCurr,
+            'contractedServices' => [
+                [
+                    'serviceDate' => $checkInFormatted,
+                    'serviceName' => "Private Airport Meet & Greet + Arrival Transfer ({$clientData['pax']})",
+                    'unitRate' => round($grossSupplierCost * 0.2, 2),
+                    'qty' => 1,
+                    'totalNet' => round($grossSupplierCost * 0.2, 2)
+                ],
+                [
+                    'serviceDate' => date('d M Y', strtotime('+15 days')),
+                    'serviceName' => "Full-Day Destination Guided Sightseeing Excursion + Admissions",
+                    'unitRate' => round($grossSupplierCost * 0.5, 2),
+                    'qty' => 1,
+                    'totalNet' => round($grossSupplierCost * 0.5, 2)
+                ],
+                [
+                    'serviceDate' => $checkOutFormatted,
+                    'serviceName' => "Hotel Check-out to Airport Private Departure Drop Transfer",
+                    'unitRate' => round($grossSupplierCost * 0.3, 2),
+                    'qty' => 1,
+                    'totalNet' => round($grossSupplierCost * 0.3, 2)
+                ]
+            ],
+            'grossContractedAmount' => $grossSupplierCost,
+            'b2bPartnerDiscount' => $contractDiscount,
+            'netPayableToSupplier' => $netPayable,
+            'settlementDueDate' => date('d M Y', strtotime('+30 days')),
+            'paymentTerms' => 'Net 30 Days upon physical voucher submission and trip completion sign-off by guest.',
+            'specialInstructions' => 'All vehicles must be pristine clean, air-conditioned, with bottled water provided. English-speaking guide required.'
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 6: CUSTOMER INVOICE (TAX INVOICE)
+    // =========================================================================
+    if ($docType === 'customer_invoice') {
+        $invTotal = ($currency === 'INR') ? $grandTotal : $totalInr;
+        $invSubtotal = round($invTotal / 1.05, 2);
+        $invGst = round($invTotal - $invSubtotal, 2);
+        $cgst = round($invGst / 2, 2);
+        $sgst = round($invGst / 2, 2);
+
+        $response['docTitle'] = "Commercial Tax Invoice (GST 5%)";
+        $response['documentSummary'] = "Official GST Tax Invoice for {$clientData['name']} ({$dest}).";
+        $response['invoice'] = [
+            'invoiceNumber' => 'LEDMC-INV-' . date('Ymd') . '-' . rand(100, 999),
+            'invoiceDate' => $todayFormatted,
+            'dueDate' => date('d M Y', strtotime('+7 days')),
+            'hsnSac' => '998555',
+            'placeOfSupply' => 'Maharashtra (27) / International Tour Operations',
+            'billTo' => [
+                'name' => $clientData['name'],
+                'phone' => $clientData['contact'],
+                'email' => $clientData['email'],
+                'address' => 'Customer Address on File',
+                'gstin' => 'Unregistered / Retail Consumer'
+            ],
+            'lineItems' => [
+                [
+                    'item' => 1,
+                    'description' => "Complete Luxury Tour Package — {$dest} ({$duration})",
+                    'hsn' => '998555',
+                    'qty' => 1,
+                    'rate' => $invSubtotal,
+                    'taxableAmount' => $invSubtotal,
+                    'gstRate' => '5%',
+                    'gstAmount' => $invGst,
+                    'total' => $invTotal
+                ]
+            ],
+            'subtotal' => $invSubtotal,
+            'cgst' => $cgst,
+            'sgst' => $sgst,
+            'igst' => 0.00,
+            'grandTotal' => $invTotal,
+            'amountInWords' => 'INR ' . number_format($invTotal) . ' Only',
+            'paymentStatus' => 'PARTIALLY PAID / PENDING SETTLEMENT',
+            'bankDetails' => [
+                'bankName' => 'HDFC Bank Ltd',
+                'accountName' => "Let's Explore DMC India Pvt Ltd",
+                'accountNumber' => '50200088912345',
+                'ifscCode' => 'HDFC0001234',
+                'branch' => 'Senapati Bapat Road, Pune',
+                'upiId' => 'letsexplore@hdfcbank'
+            ],
+            'terms' => [
+                'Invoice issued under Tour Operators HSN 998555 subject to 5% GST without Input Tax Credit (ITC).',
+                'All disputes subject to Pune jurisdiction.',
+                'Subject to Let\'s Explore DMC standard booking terms and cancellation policies.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 7: PROFORMA INVOICE
+    // =========================================================================
+    if ($docType === 'proforma_invoice') {
+        $advDeposit = round($grandTotal * 0.5, 2);
+        $finalBalance = round($grandTotal - $advDeposit, 2);
+
+        $response['docTitle'] = "Proforma Invoice (Advance Estimate)";
+        $response['documentSummary'] = "Proforma advance booking estimate for {$clientData['name']} ({$dest}).";
+        $response['proformaInvoice'] = [
+            'proformaNumber' => 'LEDMC-PI-' . date('Ymd') . '-' . rand(100, 999),
+            'issueDate' => $todayFormatted,
+            'validUntil' => date('d M Y', strtotime('+14 days')),
+            'billTo' => $clientData,
+            'destination' => $dest,
+            'currency' => $currency,
+            'servicesBreakdown' => [
+                ['name' => "Land Package Tour & Guided Transfers ({$duration})", 'amount' => round($baseSubtotal * 0.45, 2)],
+                ['name' => "Luxury Accommodation & Daily Dining ({$numNights} Nights)", 'amount' => round($baseSubtotal * 0.45, 2)],
+                ['name' => "Admission Tickets, Excursions & Destination Fees", 'amount' => round($baseSubtotal * 0.10, 2)]
+            ],
+            'subtotal' => $baseSubtotal,
+            'markup' => $markupAmount,
+            'tax' => $taxAmount,
+            'totalEstimate' => $grandTotal,
+            'paymentSchedule' => [
+                [
+                    'milestone' => 'Milestone 1 — 50% Advance Deposit',
+                    'dueDate' => 'Upon Booking Confirmation',
+                    'amount' => $advDeposit,
+                    'status' => 'PAYMENT DUE'
+                ],
+                [
+                    'milestone' => 'Milestone 2 — 50% Final Settlement',
+                    'dueDate' => '15 Days Prior to Tour Departure',
+                    'amount' => $finalBalance,
+                    'status' => 'SCHEDULED'
+                ]
+            ],
+            'terms' => [
+                'This Proforma Invoice is an estimate and does not constitute a final tax invoice.',
+                'Hotel room blocks and contracted tour rates are held for 14 days from issue date.',
+                'Foreign exchange conversion rates are locked strictly upon receipt of the 50% advance deposit.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 8: HOTEL RATE SHEET
+    // =========================================================================
+    if ($docType === 'hotel_rate_sheet') {
+        $rateCurr = ($country === 'India') ? 'INR' : (($country === 'UAE') ? 'AED' : 'USD');
+        $multiplier = ($rateCurr === 'INR') ? 75 : (($rateCurr === 'AED') ? 3.67 : 1);
+
+        $properties = [
+            [
+                'hotelName' => 'Ashlee Plaza Patong / Welcome Plaza',
+                'starRating' => '4★ Deluxe',
+                'roomCategory' => 'Superior Double / Twin Room',
+                'mealPlan' => 'Bed & Breakfast (CP)',
+                'lowSeasonRate' => round(65 * $multiplier),
+                'highSeasonRate' => round(95 * $multiplier),
+                'peakSeasonRate' => round(140 * $multiplier),
+                'extraBedRate' => round(30 * $multiplier),
+                'childNoBed' => round(15 * $multiplier)
+            ],
+            [
+                'hotelName' => 'GLOW Ao Nang Krabi Resort',
+                'starRating' => '4★ Deluxe Resort',
+                'roomCategory' => 'Deluxe Pool View Room',
+                'mealPlan' => 'Breakfast & Dinner (MAP)',
+                'lowSeasonRate' => round(85 * $multiplier),
+                'highSeasonRate' => round(125 * $multiplier),
+                'peakSeasonRate' => round(180 * $multiplier),
+                'extraBedRate' => round(40 * $multiplier),
+                'childNoBed' => round(20 * $multiplier)
+            ],
+            [
+                'hotelName' => 'The Kayon Jungle Resort & Pool Villas',
+                'starRating' => '5★ Luxury Boutique',
+                'roomCategory' => 'Jungle Private Pool Villa',
+                'mealPlan' => 'Breakfast + High Tea Included',
+                'lowSeasonRate' => round(280 * $multiplier),
+                'highSeasonRate' => round(360 * $multiplier),
+                'peakSeasonRate' => round(480 * $multiplier),
+                'extraBedRate' => round(85 * $multiplier),
+                'childNoBed' => 0
+            ],
+            [
+                'hotelName' => 'Grand Millennium Business Bay Dubai',
+                'starRating' => '5★ Deluxe City Hotel',
+                'roomCategory' => 'Canal View King Room',
+                'mealPlan' => 'International Buffet Breakfast',
+                'lowSeasonRate' => round(130 * $multiplier),
+                'highSeasonRate' => round(210 * $multiplier),
+                'peakSeasonRate' => round(320 * $multiplier),
+                'extraBedRate' => round(50 * $multiplier),
+                'childNoBed' => round(25 * $multiplier)
+            ]
+        ];
+
+        $response['docTitle'] = "Contracted Hotel Tariff & Seasonal Rate Sheet";
+        $response['documentSummary'] = "B2B Contracted hotel seasonal tariffs for {$dest} (2026–2027 Season).";
+        $response['hotelRateSheet'] = [
+            'sheetTitle' => "Official B2B Contracted Hotel Tariffs — {$dest}",
+            'destination' => $dest,
+            'currency' => $rateCurr,
+            'validityPeriod' => '01 Nov 2026 – 31 Oct 2027',
+            'properties' => $properties,
+            'policyNotes' => [
+                'Low Season: May to September | High Season: October to April | Peak Season: Dec 20 to Jan 10.',
+                'Rates are quoted per room per night on double sharing basis inclusive of applicable service charges and VAT.',
+                'Mandatory Christmas Eve (Dec 24) & New Year Eve (Dec 31) Gala Dinner surcharges apply.',
+                'Tourism Dirham (Dubai) / Green Tax (Maldives) to be paid directly by guests at checkout if applicable.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 9: SIGHTSEEING RATE SHEET
+    // =========================================================================
+    if ($docType === 'sightseeing_rate_sheet') {
+        $rateCurr = ($country === 'India') ? 'INR' : 'USD';
+        $m = ($rateCurr === 'INR') ? 85 : 1;
+
+        $tours = [
+            [
+                'tourName' => 'Phi Phi & Maya Bay Speedboat Tour + NPF',
+                'duration' => 'Full Day (8 hrs)',
+                'sicAdult' => round(45 * $m),
+                'sicChild' => round(32 * $m),
+                'pvtVehicle' => round(280 * $m),
+                'inclusions' => 'Buffet lunch, snorkeling gear, National Park Fees, guide',
+                'operatingDays' => 'Daily'
+            ],
+            [
+                'tourName' => 'James Bond Island Big Boat Tour & Sea Canoe',
+                'duration' => 'Full Day (8 hrs)',
+                'sicAdult' => round(42 * $m),
+                'sicChild' => round(30 * $m),
+                'pvtVehicle' => round(260 * $m),
+                'inclusions' => 'Lunch on board, sea canoe paddler, admission ticket',
+                'operatingDays' => 'Daily'
+            ],
+            [
+                'tourName' => 'Nusa Penida West Coast Island Excursion',
+                'duration' => 'Full Day (9 hrs)',
+                'sicAdult' => round(55 * $m),
+                'sicChild' => round(38 * $m),
+                'pvtVehicle' => round(290 * $m),
+                'inclusions' => 'Fastboat return ticket, AC island car, lunch, retributions',
+                'operatingDays' => 'Daily'
+            ],
+            [
+                'tourName' => 'Dubai 4x4 Desert Safari with BBQ Dinner',
+                'duration' => 'Evening (6 hrs)',
+                'sicAdult' => round(38 * $m),
+                'sicChild' => round(26 * $m),
+                'pvtVehicle' => round(220 * $m),
+                'inclusions' => 'Dune bashing, camel ride, shows, BBQ dinner buffet',
+                'operatingDays' => 'Daily'
+            ],
+            [
+                'tourName' => 'City Landmarks & Cultural Highlights Tour',
+                'duration' => 'Half Day (4 hrs)',
+                'sicAdult' => round(22 * $m),
+                'sicChild' => round(15 * $m),
+                'pvtVehicle' => round(120 * $m),
+                'inclusions' => 'Private AC transport, licensed English guide, photo stops',
+                'operatingDays' => 'Daily'
+            ]
+        ];
+
+        $response['docTitle'] = "Sightseeing & Excursions B2B Tariff Sheet";
+        $response['documentSummary'] = "Structured B2B rate sheet for attractions and guided excursions in {$dest}.";
+        $response['sightseeingRateSheet'] = [
+            'sheetTitle' => "Sightseeing & Excursion Net B2B Rates — {$dest}",
+            'destination' => $dest,
+            'currency' => $rateCurr,
+            'validityPeriod' => '2026–2027 Contract Year',
+            'tours' => $tours,
+            'policyNotes' => [
+                'SIC rates apply per person; Private vehicle rates apply per vehicle (1–6 pax).',
+                'Child age defined as 3–10 years; infants under 3 years complimentary without seat.',
+                'National Park Fee (NPF) included in all quoted sea excursion rates.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 10: TRANSPORTATION RATE SHEET
+    // =========================================================================
+    if ($docType === 'transport_rate_sheet') {
+        $rateCurr = ($country === 'India') ? 'INR' : 'USD';
+        $m = ($rateCurr === 'INR') ? 85 : 1;
+
+        $routes = [
+            [
+                'route' => 'Airport to Central City / Beach Hotel (One Way)',
+                'sedanRate' => round(28 * $m),
+                'suvRate' => round(38 * $m),
+                'vanRate' => round(48 * $m),
+                'minicoachRate' => round(95 * $m),
+                'fuelTollsIncluded' => 'Yes',
+                'extraHour' => round(10 * $m)
+            ],
+            [
+                'route' => 'Hotel to Airport Departure Drop (One Way)',
+                'sedanRate' => round(26 * $m),
+                'suvRate' => round(35 * $m),
+                'vanRate' => round(45 * $m),
+                'minicoachRate' => round(90 * $m),
+                'fuelTollsIncluded' => 'Yes',
+                'extraHour' => round(10 * $m)
+            ],
+            [
+                'route' => 'Full Day (8 Hours / 80 Km) City Disposal with Chauffeur',
+                'sedanRate' => round(65 * $m),
+                'suvRate' => round(85 * $m),
+                'vanRate' => round(110 * $m),
+                'minicoachRate' => round(195 * $m),
+                'fuelTollsIncluded' => 'Yes',
+                'extraHour' => round(12 * $m)
+            ],
+            [
+                'route' => 'Inter-City Scenic Transfer (e.g. Phuket to Krabi / Dubai to Abu Dhabi)',
+                'sedanRate' => round(85 * $m),
+                'suvRate' => round(110 * $m),
+                'vanRate' => round(145 * $m),
+                'minicoachRate' => round(250 * $m),
+                'fuelTollsIncluded' => 'Yes',
+                'extraHour' => round(14 * $m)
+            ]
+        ];
+
+        $response['docTitle'] = "Chauffeur & Transportation Vehicle Tariff Sheet";
+        $response['documentSummary'] = "Dedicated transport and vehicle rate sheet for {$dest}.";
+        $response['transportRateSheet'] = [
+            'sheetTitle' => "Official Chauffeur & Vehicle Tariff Matrix — {$dest}",
+            'destination' => $dest,
+            'currency' => $rateCurr,
+            'routes' => $routes,
+            'policyNotes' => [
+                'Vehicle capacities: Sedan (1-3 Pax + 2 Bags), SUV (1-4 Pax + 4 Bags), Van (1-10 Pax + 8 Bags), Minicoach (11-20 Pax).',
+                'All rates include air-conditioned vehicle, fuel, highway tolls, parking fees, and driver allowance.',
+                'Night surcharge of 20% applicable for services scheduled between 23:00 hrs and 06:00 hrs.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 11: PACKAGE RATE SHEET (PAX MATRIX)
+    // =========================================================================
+    if ($docType === 'package_rate_sheet') {
+        $rateCurr = ($country === 'India') ? 'INR' : 'USD';
+        $m = ($rateCurr === 'INR') ? 85 : 1;
+
+        $tiers = [
+            [
+                'tierName' => '3★ Deluxe Category (Budget Friendly)',
+                'sampleHotels' => 'Ibis Styles / Holiday Inn Express / Standard Deluxe',
+                'pax2Rate' => round(320 * $m),
+                'pax4Rate' => round(275 * $m),
+                'pax6Rate' => round(240 * $m),
+                'pax10Plus' => round(210 * $m),
+                'singleSupp' => round(110 * $m),
+                'childWithBed' => round(180 * $m),
+                'childNoBed' => round(115 * $m)
+            ],
+            [
+                'tierName' => '4★ Premium Category (Best Value - Most Popular)',
+                'sampleHotels' => 'Ashlee Plaza Patong / GLOW Ao Nang / Novotel',
+                'pax2Rate' => round(420 * $m),
+                'pax4Rate' => round(360 * $m),
+                'pax6Rate' => round(320 * $m),
+                'pax10Plus' => round(280 * $m),
+                'singleSupp' => round(160 * $m),
+                'childWithBed' => round(240 * $m),
+                'childNoBed' => round(150 * $m)
+            ],
+            [
+                'tierName' => '5★ Luxury Pool Villa / Ultra-Deluxe Category',
+                'sampleHotels' => 'The Kayon Jungle / Banyan Tree / Atlantis The Palm',
+                'pax2Rate' => round(850 * $m),
+                'pax4Rate' => round(740 * $m),
+                'pax6Rate' => round(660 * $m),
+                'pax10Plus' => round(590 * $m),
+                'singleSupp' => round(380 * $m),
+                'childWithBed' => round(480 * $m),
+                'childNoBed' => round(290 * $m)
+            ]
+        ];
+
+        $response['docTitle'] = "Complete Tour Package Master Tariff Matrix";
+        $response['documentSummary'] = "Multi-tier package rate matrix across group sizes for {$dest}.";
+        $response['packageRateSheet'] = [
+            'sheetTitle' => "Master Tour Package Rate Matrix ({$duration}) — {$dest}",
+            'destination' => $dest,
+            'duration' => $duration,
+            'currency' => $rateCurr,
+            'tiers' => $tiers,
+            'matrixNotes' => [
+                'Rates are quoted per person on twin/double sharing basis.',
+                'Rates include hotel stay with daily breakfast, private arrival/departure transfers, and signature guided excursions.',
+                'Single supplement represents additional cost for solo single-occupancy room.',
+                'Group rates for 10+ pax include dedicated group tour escort and private 20-seater minicoach.'
+            ]
+        ];
+        return $response;
+    }
+
+    // =========================================================================
+    // TEMPLATE 12: TRAVEL QUOTATION (MASTER COMMERCIAL PROPOSAL)
+    // =========================================================================
+    $pkgTitle = "{$duration} Luxury {$dest} Escape";
+    if ($hasDecoration) {
+        $pkgTitle .= " (with Romantic Room & Bed Decoration)";
+    }
+
     $days = [];
     for ($i = 1; $i <= $numDays; $i++) {
         if ($i === 1) {
@@ -764,421 +1472,101 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         }
     }
 
-    // Specific custom itineraries for popular destinations
-    if (strpos($dest, 'Bali') !== false && $numDays >= 5) {
-        $days[0]['title'] = "Arrival in Bali & Private Transfer to Ubud Pool Villa";
-        $days[1]['title'] = "Ubud Art Village, Kintamani Volcano & Famous Jungle Swing";
-        $days[1]['description'] = "Explore Celuk art village, witness breathtaking views of Mount Batur volcano in Kintamani, visit lush Tegalalang Rice Terraces, and experience the iconic Bali jungle swing.";
-        $days[2]['title'] = "Full Day Nusa Penida Island Speedboat Tour";
-        $days[2]['description'] = "Speedboat to Nusa Penida West Coast. Visit iconic Kelingking T-Rex Beach, Broken Beach, Angel's Billabong natural infinity pool, and Crystal Bay with local lunch included.";
-        $days[3]['title'] = "Ubud to Kuta Transfer via Tanah Lot Sunset Temple";
-        $days[3]['description'] = "Transfer to beach resort in Kuta/Seminyak. Visit the sacred Tanah Lot Temple perched on an ocean rock formation for an unforgettable sunset view.";
-        if ($numDays >= 6) {
-            $days[4]['title'] = "Uluwatu Sunset Cliff Temple & Fire Dance";
-            $days[4]['description'] = "Leisure morning at beach. Afternoon visit to dramatic Uluwatu cliff temple overlooking the Indian Ocean, followed by the enchanting Kecak Fire Dance.";
-        }
-    } elseif (strpos($dest, 'Dubai') !== false && $numDays >= 4) {
-        $days[0]['title'] = "Arrival in Dubai & Luxury Marina Dhow Cruise Dinner";
-        $days[1]['title'] = "Half Day Dubai City Tour & Burj Khalifa 124th Floor";
-        $days[1]['description'] = "Drive past Dubai Frame and Burj Al Arab. Visit Dubai Mall, observe the Dubai Aquarium, and ascend to the 124th floor observation deck of the Burj Khalifa.";
-        $days[2]['title'] = "Leisure Morning & Premium Desert Safari with BBQ Dinner";
-        $days[2]['description'] = "Afternoon thrilling 4x4 dune bashing in Red Sand Dunes, camel rides, sandboarding, falcon photography, belly dance show, Tanoura performance, and lavish buffet BBQ dinner.";
-        if ($numDays >= 5) {
-            $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
-            $days[3]['description'] = "Full day private trip to Abu Dhabi. Marvel at the architectural masterpiece Sheikh Zayed Grand Mosque, drive along Corniche, and visit Louvre Abu Dhabi / Ferrari World photo stop.";
-        }
-    } elseif (strpos($dest, 'Maldives') !== false && $numDays >= 4) {
+    // Destination-specific itineraries
+    if (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
         $days = [
-            [
-                'day' => 1,
-                'title' => "Velana International Airport Arrival & Luxury Speedboat Transfer to Water Villa",
-                'description' => "Meet and greet by Let's Explore DMC airport representative upon arrival in Malé. Seamless scenic speedboat transfer to the island resort. Check-in to your luxury Sunset Water Villa with direct lagoon access. Evening welcome cocktail and sunset beach stroll.",
-                'meals' => 'Dinner Included',
-                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
-                'activities' => ['Airport Representative Meet & Greet', 'Scenic Speedboat Roundtrip Transfer', 'Lagoon Sunset Welcome Drink']
-            ],
-            [
-                'day' => 2,
-                'title' => "House Reef Snorkeling Safari & Coral Garden Exploration",
-                'description' => "Awake to panoramic turquoise ocean views and a lavish international buffet breakfast. Embark on a guided house reef snorkeling safari to explore vibrant coral gardens, sea turtles, and colorful marine life with snorkeling gear included.",
-                'meals' => 'Breakfast, Lunch & Dinner Included',
-                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
-                'activities' => ['Guided House Reef Snorkeling Safari', 'Complimentary Snorkeling Equipment', 'Afternoon High Tea']
-            ],
-            [
-                'day' => 3,
-                'title' => "Sunset Dolphin Cruise & Candle Light Romantic Dinner",
-                'description' => "Morning at leisure enjoying resort water sports (kayaking, paddleboarding). In the late afternoon, set sail on a traditional wooden Dhoni boat for an exhilarating Sunset Dolphin Cruise. Enjoy an exclusive 4-course Candle Light Dinner setup under the stars on the pristine beach.",
-                'meals' => 'Breakfast, Lunch & Candle Light Beach Dinner',
-                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
-                'activities' => ['Sunset Dolphin Cruise on Traditional Dhoni', 'Beach Candle Light Dinner Setup', 'Complimentary Non-motorized Water Sports']
-            ],
-            [
-                'day' => 4,
-                'title' => "Resort Spa Rejuvenation & Sandbank Excursion",
-                'description' => "Indulge in a signature relaxing Balinese/Aromatherapy spa treatment at the overwater spa pavilion. Afternoon private boat excursion to a secluded desert sandbank surrounded by crystalline waters.",
-                'meals' => 'Breakfast, Sandbank Picnic Lunch & Dinner Included',
-                'hotel' => "Sunset Water Villa (Centara Grand / Adaaran Prestige Vadoo)",
-                'activities' => ['Overwater Spa Rejuvenation Session', 'Secluded Sandbank Boat Trip', 'Cocktails at Sunset Overwater Bar']
-            ]
-        ];
-        if ($numDays >= 5) {
-            $days[] = [
-                'day' => $numDays,
-                'title' => "Floating Breakfast & Speedboat Transfer to Malé Airport",
-                'description' => "Begin your final morning with a private Floating Breakfast served in your villa plunge pool. Relax until check-out. Enjoy your return speedboat transfer to Velana International Airport for departure with cherished tropical memories.",
-                'meals' => 'Floating Breakfast Included',
-                'hotel' => 'Check-out & Airport Drop',
-                'activities' => ['Floating Breakfast Experience in Private Pool', 'Return Speedboat Transfer to Malé Airport']
-            ];
-        }
-    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
-        $days = [
-            [
-                'day' => 1,
-                'title' => "Day 1 – Thu, 10 Dec: Phuket Airport to Ashlee Plaza Hotel – Private transfer",
-                'description' => "Arrival at Phuket International Airport. Private meet & greet by Let's Explore DMC representative. Private transfer by AC vehicle to Ashlee Plaza Hotel, Phuket. Check-in to Superior Room, evening leisure and buffet dinner.",
-                'meals' => 'Dinner Included',
-                'hotel' => 'Ashlee Plaza Hotel, Phuket (Superior Room)',
-                'activities' => ['Phuket Airport Meet & Greet', 'Private AC Transfer to Hotel', 'Buffet Dinner']
-            ],
-            [
-                'day' => 2,
-                'title' => "Day 2 – Fri, 11 Dec: Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)",
-                'description' => "Full day sea tour by modern speedboat. Explore Maya Bay, emerald Pileh Lagoon, Viking Cave, Monkey Beach, and Khai Island for snorkeling among vibrant marine life. Includes buffet lunch and National Park Fees (NPF).",
-                'meals' => 'Breakfast, Lunch & Buffet Dinner',
-                'hotel' => 'Ashlee Plaza Hotel, Phuket',
-                'activities' => ['Speedboat Island Hopping', 'Maya Bay & Pileh Lagoon', 'Snorkeling with Gear & NPF Included']
-            ],
-            [
-                'day' => 3,
-                'title' => "Day 3 – Sat, 12 Dec: James Bond Island tour by Big Boat (lunch + NPF included)",
-                'description' => "Cruise Phang Nga Bay by comfortable Big Boat. Sea canoeing with private paddler through limestone sea caves into hidden hongs at Panak & Hong Islands. Visit famous Koh Tapu (James Bond Island) with buffet lunch on board.",
-                'meals' => 'Breakfast, Lunch & Buffet Dinner',
-                'hotel' => 'Ashlee Plaza Hotel, Phuket',
-                'activities' => ['Phang Nga Bay Cruise', 'Sea Canoe with Paddler', 'James Bond Island & NPF Included']
-            ],
-            [
-                'day' => 4,
-                'title' => "Day 4 – Sun, 13 Dec: Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour",
-                'description' => "Check out from Phuket hotel. Private inter-province scenic car transfer to Krabi. En route 8-hour Krabi City Tour covering Tiger Cave Temple (Wat Tham Suea), Krabi River & Giant Black Crab statue. Check-in to GLOW Ao Nang Krabi.",
-                'meals' => 'Breakfast & Buffet Dinner',
-                'hotel' => 'GLOW Ao Nang Krabi (Superior Room)',
-                'activities' => ['Phuket to Krabi Private Car Transfer', 'Krabi City Tour (8 hrs)', 'Tiger Cave Temple Visit']
-            ],
-            [
-                'day' => 5,
-                'title' => "Day 5 – Mon, 14 Dec: 4 Island Tour by Long Tail Boat (lunch + NPF included)",
-                'description' => "Traditional long tail boat tour across Krabi's 4 famous islands: Phra Nang Cave Beach, Tup Island (Talay Waek sandbar phenomenon), Chicken Island for snorkeling, and Poda Island with picnic lunch on powdery sands.",
-                'meals' => 'Breakfast, Lunch & Buffet Dinner',
-                'hotel' => 'GLOW Ao Nang Krabi',
-                'activities' => ['4 Islands Long Tail Boat Tour', 'Talay Waek Sandbar Walk', 'Snorkeling & NPF Included']
-            ],
-            [
-                'day' => 6,
-                'title' => "Day 6 – Tue, 15 Dec: GLOW Ao Nang Krabi to Phuket Airport – Private transfer",
-                'description' => "Buffet breakfast at hotel. Morning at leisure for souvenir shopping in Ao Nang. Private departure transfer by car to Phuket International Airport with wonderful memories of Thailand.",
-                'meals' => 'Breakfast Included',
-                'hotel' => 'Check-out & Airport Drop',
-                'activities' => ['Buffet Breakfast', 'Private Return Airport Transfer']
-            ]
-        ];
-    } elseif (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
-        $days = [
-            [
-                'day' => 1,
-                'title' => "11 DEC: Suvarnabhumi Airport to Pattaya Hotel & Tomorrowland Day 1 Transfers (2 Vans)",
-                'description' => "Private transfer in 2 Vans from Suvarnabhumi Airport to Pattaya Hotel. Evening round-trip festival transfers for Tomorrowland Thailand Day 1. Thailand local travel insurance included.",
-                'meals' => 'Hotel Self Booked',
-                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
-                'activities' => ['Airport Meet & Transfer (2 Vans)', 'Tomorrowland Day 1 Pick-up & Drop-off (2 Vans)', 'Travel Insurance']
-            ],
-            [
-                'day' => 2,
-                'title' => "12 DEC: Tomorrowland Day 2 Pick-up & Drop-off (2 Vans)",
-                'description' => "Dedicated private 2 Vans on standby for Tomorrowland Day 2 festival transfers. Convenient hotel pick-up and late-night return transfer to hotel.",
-                'meals' => 'Hotel Self Booked',
-                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
-                'activities' => ['Tomorrowland Day 2 Round-trip Transfers (2 Vans)', '24x7 Driver Concierge Support']
-            ],
-            [
-                'day' => 3,
-                'title' => "13 DEC: Tomorrowland Day 3 Pick-up & Drop-off (2 Vans)",
-                'description' => "Tomorrowland Thailand Day 3 grand finale transfers. Private 2 Vans pick-up from hotel and return drop-off post festival.",
-                'meals' => 'Hotel Self Booked',
-                'hotel' => "Pattaya Hotel (Welcome Plaza / K Station / Pool Villa Reference)",
-                'activities' => ['Tomorrowland Day 3 Round-trip Transfers (2 Vans)', 'Destination Concierge Support']
-            ],
-            [
-                'day' => 4,
-                'title' => "14 DEC: Pattaya City Tour + Big Buddha & Return Airport Transfer (2 Vans)",
-                'description' => "Pattaya City Tour with Big Buddha temple admission ticket and private transfer. Return airport transfer in 2 Vans to Suvarnabhumi Airport for flight departure.",
-                'meals' => 'Hotel Self Booked',
-                'hotel' => 'Check-out & Airport Drop',
-                'activities' => ['Pattaya City Tour', 'Big Buddha Temple Ticket', 'Return Airport Transfer (2 Vans)']
-            ]
-        ];
-    }
-
-    if (strpos($dest, 'Tomorrowland') !== false || strpos($dest, 'Pattaya') !== false) {
-        $hotels = [
-            [
-                'city' => 'Pattaya',
-                'hotelName' => 'Welcome Plaza Hotel / K Station / Private Pool Villa (Self-Booked)',
-                'roomType' => 'Double / Twin Bed Room with Breakfast (or Private 15-Pax Villa)',
-                'nights' => 3,
-                'mealPlan' => 'Hotel Self Booked by Guests Directly',
-                'rating' => 'Festival Reference Stay'
-            ]
-        ];
-    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
-        $hotels = [
-            [
-                'city' => 'Phuket (Patong Beach)',
-                'hotelName' => 'Ashlee Plaza Hotel, Phuket',
-                'roomType' => 'Superior Room (2 Adults, Twin / Double Sharing)',
-                'nights' => 3,
-                'mealPlan' => 'Breakfast + Buffet Dinner',
-                'rating' => '4 Star Deluxe Hotel'
-            ],
-            [
-                'city' => 'Krabi (Ao Nang)',
-                'hotelName' => 'GLOW Ao Nang Krabi',
-                'roomType' => 'Superior Room (2 Adults, Twin / Double Sharing)',
-                'nights' => 2,
-                'mealPlan' => 'Breakfast + Buffet Dinner',
-                'rating' => '4 Star Deluxe Resort'
-            ]
+            ['day' => 1, 'title' => "Phuket Airport to Ashlee Plaza Hotel – Private Transfer", 'description' => "Arrival at Phuket International Airport. Private meet & greet by Let's Explore DMC representative. Private transfer to Ashlee Plaza Hotel. Evening leisure & buffet dinner.", 'meals' => 'Buffet Dinner Included', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Airport Meet & Greet', 'Private AC Transfer']],
+            ['day' => 2, 'title' => "Phi Phi Island + Maya Bay + Pileh Lagoon by Speedboat", 'description' => "Full day sea tour by modern speedboat. Explore Maya Bay, Pileh Lagoon, Viking Cave, and Khai Island for snorkeling. Includes buffet lunch & National Park Fees (NPF).", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Speedboat Cruise', 'Maya Bay', 'Snorkeling & NPF Included']],
+            ['day' => 3, 'title' => "James Bond Island & Phang Nga Bay by Big Boat", 'description' => "Cruise Phang Nga Bay by Big Boat. Sea canoeing with private paddler through limestone caves. Visit famous Koh Tapu (James Bond Island) with lunch on board.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Phang Nga Cruise', 'Sea Canoe', 'James Bond Island']],
+            ['day' => 4, 'title' => "Phuket to Krabi Inter-Province Transfer + Krabi City Tour", 'description' => "Check out from Phuket. Private scenic transfer to Krabi. En route 8-hour Krabi City Tour covering Tiger Cave Temple (Wat Tham Suea) and Krabi River. Check-in to GLOW Ao Nang.", 'meals' => 'Breakfast & Buffet Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['Phuket to Krabi Transfer', 'Krabi City Tour', 'Tiger Cave Temple']],
+            ['day' => 5, 'title' => "Krabi 4 Islands Tour by Traditional Long Tail Boat", 'description' => "Traditional long tail boat tour across Krabi's 4 islands: Phra Nang Cave, Tup Island sandbar walk, Chicken Island snorkeling, and Poda Island with beach picnic lunch.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['4 Islands Tour', 'Talay Waek Sandbar Walk', 'Snorkeling & NPF Included']],
+            ['day' => 6, 'title' => "Krabi to Phuket Airport Departure Transfer", 'description' => "Buffet breakfast at hotel. Morning souvenir shopping in Ao Nang. Private departure transfer by car to Phuket Airport for flight departure.", 'meals' => 'Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Return Airport Transfer']]
         ];
     } elseif (strpos($dest, 'Bali') !== false) {
-        $hotels = [
-            [
-                'city' => 'Bali (Ubud & Kuta)',
-                'hotelName' => 'The Kayon Jungle Resort & Ubud Pool Villa',
-                'roomType' => 'Private Pool Villa / Deluxe Ocean Suite',
-                'nights' => $numNights,
-                'mealPlan' => 'Daily Buffet Breakfast Included',
-                'rating' => '5 Star Luxury Resort'
-            ]
-        ];
-    } elseif (strpos($dest, 'Maldives') !== false) {
-        $hotels = [
-            [
-                'city' => 'Maldives (North Malé Atoll)',
-                'hotelName' => 'Centara Grand Island Resort & Adaaran Prestige Vadoo',
-                'roomType' => 'Sunset Water Villa with Direct Lagoon Access & Private Plunge Pool',
-                'nights' => $numNights,
-                'mealPlan' => 'All-Inclusive Dine Around (Breakfast, Lunch, Dinner & Beverages)',
-                'rating' => '5 Star Luxury Water Villa'
-            ]
-        ];
+        $days[0]['title'] = "Arrival in Bali & Private Transfer to Ubud Pool Villa";
+        $days[1]['title'] = "Ubud Art Village, Kintamani Volcano & Famous Jungle Swing";
+        $days[2]['title'] = "Full Day Nusa Penida Island Speedboat Tour & West Coast";
+        $days[3]['title'] = "Ubud to Seminyak Transfer via Tanah Lot Sunset Temple";
+        if ($numDays >= 5) $days[4]['title'] = "Uluwatu Sunset Cliff Temple & Fire Dance";
     } elseif (strpos($dest, 'Dubai') !== false) {
-        $hotels = [
-            [
-                'city' => 'Dubai',
-                'hotelName' => 'Grand Millennium Hotel Business Bay / Atlantis The Palm',
-                'roomType' => 'Deluxe King Room with City & Canal View',
-                'nights' => $numNights,
-                'mealPlan' => 'International Buffet Breakfast',
-                'rating' => '5 Star Deluxe'
-            ]
-        ];
-    } else {
-        $hotels = [
-            [
-                'city' => explode(',', $dest)[0],
-                'hotelName' => 'Grand Luxury 5-Star Hotel & Resort',
-                'roomType' => 'Deluxe Suite with Balcony / Pool Villa',
-                'nights' => $numNights,
-                'mealPlan' => 'Buffet Breakfast Included',
-                'rating' => '5 Star Luxury'
-            ]
-        ];
+        $days[0]['title'] = "Arrival in Dubai & Luxury Marina Dhow Cruise Dinner";
+        $days[1]['title'] = "Half Day Dubai City Tour & Burj Khalifa 124th Floor Observation Deck";
+        $days[2]['title'] = "Leisure Morning & Premium 4x4 Desert Safari with BBQ Dinner";
+        if ($numDays >= 4) $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
     }
 
     $inclusions = [
         "Private airport arrival and departure transfers in air-conditioned vehicle",
-        "{$numNights} Nights accommodation in verified 4/5-Star luxury property",
-        "Daily buffet breakfast at all hotels",
+        "{$numNights} Nights accommodation in verified 4★ / 5★ luxury property",
+        "Daily buffet breakfast at all hotels; buffet dinners as specified",
         "All sightseeing tours with dedicated English-speaking driver/guide",
         "Entry tickets and admission passes for all mentioned attractions",
         "All government taxes, toll charges, parking, and driver allowances",
         "24x7 On-ground destination concierge support from Let's Explore DMC"
     ];
 
-    if (strpos($dest, 'Maldives') !== false) {
-        $inclusions = [
-            "Roundtrip Airport Speedboat Transfers (Velana International Airport - Island Resort - Airport)",
-            "{$numNights} Nights Luxury Sunset Water Villa accommodation with private lagoon access",
-            "All-Inclusive Dine Around Meal Plan (Breakfast, Lunch, Dinner, Afternoon Tea & Premium Beverages)",
-            "Guided House Reef Snorkeling Safari with complimentary snorkeling gear",
-            "Sunset Dolphin Cruise excursion on traditional wooden Dhoni boat",
-            "Beach Candle Light Romantic Dinner setup under the stars (1 Evening)",
-            "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
-            "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
-        ];
-    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
-        $inclusions = [
-            "Private transfers by car as specified in the itinerary",
-            "Accommodation in Superior rooms (twin / double sharing) as mentioned",
-            "Daily breakfast at hotel; buffet dinner on Days 1–5; buffet lunch on Day 0 (departure)",
-            "Lunch on all sea tour days (Day 2, Day 3 and Day 5)",
-            "Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond island big boat tour",
-            "Krabi City Tour by car (8 hrs)",
-            "All entrance fees and National Park Fee (NPF) for the tours mentioned",
-            "All government taxes, driver allowances, tolls, and fuel surcharges included",
-            "15% DMC operator markup applied"
-        ];
-    } elseif (strpos($dest, 'Tomorrowland') !== false) {
-        $inclusions = [
-            "Airport Transfers Private: Suvarnabhumi Airport - Pattaya Hotel - Suvarnabhumi Airport (2 Vans)",
-            "Tomorrowland Festival Shuttles: Day 1, Day 2 & Day 3 Pick-up & Drop-off (2 Vans)",
-            "Pattaya City Tour + Big Buddha ticket & private transfer (2 Vans)",
-            "Thailand travel insurance during local tours within country boundaries",
-            "Tomorrowland 3 Days Festival Pass: Full Madness (Entry pass only per person)"
-        ];
+    if ($hasDecoration) {
+        array_unshift($inclusions, "Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities");
     }
 
     $exclusions = [
         "International / Domestic flight tickets",
-        "Hotel stay (if marked Hotel Self Booked by guests directly)",
-        "Personal expenses (laundry, telephone, minibar, spa treatments)",
         "Tourist visa fees (available on request)",
-        "VIP passes or additional festival upgrades unless explicitly invoiced"
-    ];
-
-    $terms = [
-        "Package rates are per person on double-sharing occupancy.",
-        "Rates are subject to availability at the time of final booking confirmation.",
-        "50% advance deposit required for booking; balance due 15 days before travel.",
-        "Cancellations 30+ days prior: full refund minus administrative fee."
+        "Personal expenses (laundry, telephone, minibar, spa treatments)",
+        "Travel insurance coverage (recommended)",
+        "Tipping and gratuities for guides and drivers"
     ];
 
     $summaryItems = [
-        ['name' => 'Land Package Tour Services', 'amountUSD' => round($priceUsd * 0.4, 2), 'amountINR' => round($priceInr * 0.4)],
-        ['name' => 'Accommodation & Inclusions', 'amountUSD' => round($priceUsd * 0.6, 2), 'amountINR' => round($priceInr * 0.6)]
-    ];
-    if (strpos($dest, 'Maldives') !== false) {
-        $inclusions = [
-            "Roundtrip Airport Speedboat Transfers (Velana International Airport - Island Resort - Airport)",
-            "{$numNights} Nights Luxury Sunset Water Villa accommodation with private lagoon access",
-            "All-Inclusive Dine Around Meal Plan (Breakfast, Lunch, Dinner, Afternoon Tea & Premium Beverages)",
-            "Guided House Reef Snorkeling Safari with complimentary snorkeling gear",
-            "Sunset Dolphin Cruise excursion on traditional wooden Dhoni boat",
-            "Beach Candle Light Romantic Dinner setup under the stars (1 Evening)",
-            "Complimentary non-motorized water sports (kayaking, stand-up paddleboarding)",
-            "All Maldives Green Tax (USD 6 per person per night) and Service Charges included"
-        ];
-    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
-        $inclusions = [
-            "Private transfers by car as specified in the itinerary",
-            "Accommodation in Superior rooms (twin / double sharing) as mentioned",
-            "Daily breakfast at hotel; buffet dinner on Days 1–5; buffet lunch on Day 0 (departure)",
-            "Lunch on all sea tour days (Day 2, Day 3 and Day 5)",
-            "Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond island big boat tour",
-            "Krabi City Tour by car (8 hrs)",
-            "All entrance fees and National Park Fee (NPF) for the tours mentioned",
-            "All government taxes, driver allowances, tolls, and fuel surcharges included",
-            "15% DMC operator markup applied"
-        ];
-    }
-
-    if ($hasDecoration) {
-        array_unshift($inclusions, "Romantic Room & Bed Floral Decoration with Welcome Cake & Special Amenities (Honeymoon Inclusions)");
-    }
-
-    if ($hasSpecificDouble || $isDoublePrompt) {
-        $summaryItems = [
-            [
-                'name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned' . ($hasDecoration ? ' + Romantic Room & Bed Floral Decoration' : '') . ' (Amount Doubled as requested: USD ' . number_format($ratePerAdultUsd, 2) . ')',
-                'amountUSD' => $ratePerAdultUsd,
-                'amountINR' => round($ratePerAdultUsd * $usdRate)
-            ],
-            [
-                'name' => 'TOTAL LAND PACKAGE COST (' . ($currentQuotation['pax'] ?? '2 Adults') . ')' . ($hasDecoration ? ' [WITH DECORATION]' : ''),
-                'amountUSD' => $priceUsd,
-                'amountINR' => $priceInr
-            ]
-        ];
-    } elseif (strpos($dest, 'Tomorrowland') !== false) {
-        $summaryItems = [
-            ['name' => 'Land Package (2 Vans Airport & Festival Transfers + City Tour + Insurance)', 'amountUSD' => 127.15, 'amountINR' => $landPriceInr],
-            ['name' => 'Tomorrowland 3 Days Pass (Full Madness)' . ($passDelta > 0 ? " [Updated +INR " . number_format($passDelta) . "]" : ""), 'amountUSD' => round($fullMadnessPrice / $usdRate, 2), 'amountINR' => $fullMadnessPrice],
-            ['name' => "Optional Add-on: Comfort VIP Pass @ INR " . number_format($vipPrice) . " / USD " . round($vipPrice / $usdRate, 2), 'amountUSD' => 0, 'amountINR' => 0]
-        ];
-    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
-        $summaryItems = [
-            ['name' => 'Per Adult – Twin / double sharing, hotels + private transfers + tours + meals as mentioned (15% DMC markup applied)' . ($hasDecoration ? ' + Romantic Room & Bed Floral Decoration' : ''), 'amountUSD' => $ratePerAdultUsd, 'amountINR' => round($ratePerAdultUsd * $usdRate)],
-            ['name' => 'TOTAL LAND PACKAGE COST (2 Adults)' . ($hasDecoration ? ' [WITH DECORATION]' : ''), 'amountUSD' => $priceUsd, 'amountINR' => $priceInr]
-        ];
-    }
-
-    $isAanay = (stripos($text, 'aanay') !== false || stripos($text, 'viraj') !== false);
-    $companyData = null;
-    if ($isAanay) {
-        $companyData = [
-            'name' => 'Aanay Tours',
-            'tagline' => 'Luxury Travel Concierge',
-            'phone' => '7709123187',
-            'contactPerson' => 'Viraj Gaglani',
-            'email' => 'bookings@aanaytours.com',
-            'isPartner' => true,
-            'isWhitelabel' => true
-        ];
-    }
-
-    $pkgTitle = (strpos($dest, 'Tomorrowland') !== false ? "Pattaya Tomorrowland Thailand 4D3N Group Package" . ($passDelta > 0 ? " (+INR " . number_format($passDelta) . " Passes)" : "") : "{$duration} Luxury {$dest} Escape");
-    if ($hasDecoration && stripos($pkgTitle, 'Decoration') === false) {
-        $pkgTitle .= " (with Romantic Room & Bed Decoration)";
-    }
-
-    return [
-        'detectedDocType' => 'quotation',
-        'documentSummary' => "{$duration} bespoke {$dest} travel package crafted by " . ($isAanay ? "Aanay Tours" : "Let's Explore DMC") . ".",
-        'company' => $companyData,
-        'package' => [
-            'title' => $pkgTitle,
-            'destination' => $dest,
-            'destinations' => $dest,
-            'duration' => $duration,
-            'clientName' => 'Valued Guest',
-            'guestCount' => 2,
-            'pax' => '2 Adults',
-            'currency' => $currency,
-            'usdRate' => $usdRate,
-            'priceInr' => $priceInr,
-            'priceUsd' => $priceUsd,
-            'ratePerAdultUsd' => $ratePerAdultUsd,
-            'isDecorationIncluded' => !empty($hasDecoration)
-        ],
-        'days' => $days,
-        'hotels' => $hotels,
-        'pricing' => [
-            'ratePerAdultUsd' => $ratePerAdultUsd,
-            'totalInr' => $priceInr,
-            'totalUsd' => $priceUsd
-        ],
-        'isDecorationIncluded' => !empty($hasDecoration),
-        'summary' => [
-            'items' => $summaryItems,
-            'inclusions' => $inclusions,
-            'exclusions' => $exclusions,
-            'terms' => $terms,
-            'totalINR' => $priceInr,
-            'totalUSD' => $priceUsd
-        ],
-        'invoice' => [
-            'invoiceNumber' => 'LEDMC-INV-' . date('Ymd') . '-01',
-            'date' => date('Y-m-d'),
-            'billTo' => 'Valued Guest',
-            'subtotal' => $priceInr,
-            'gst' => round($priceInr * 0.05),
-            'total' => round($priceInr * 1.05)
-        ],
-        'confirmation' => [
-            'bookingReference' => 'LEDMC-BK-' . date('Ymd') . '-01',
-            'status' => 'Confirmed'
+        [
+            'name' => "Land Package (Hotels + Transfers + Tours + Meals) for {$clientData['pax']}" . ($hasDecoration ? ' [WITH ROOM DECORATION]' : ''),
+            'amountUSD' => $totalUsd,
+            'amountINR' => $totalInr
         ]
     ];
-}
 
+    $response['docTitle'] = "Master Travel Quotation & Detailed Itinerary";
+    $response['documentSummary'] = "{$duration} bespoke {$dest} travel package crafted by Let's Explore DMC.";
+    $response['package'] = [
+        'title' => $pkgTitle,
+        'destination' => $dest,
+        'destinations' => $dest,
+        'duration' => $duration,
+        'clientName' => $clientData['name'],
+        'guestCount' => $adultCount,
+        'pax' => $clientData['pax'],
+        'currency' => $currency,
+        'usdRate' => $usdRate,
+        'priceInr' => $totalInr,
+        'priceUsd' => $totalUsd,
+        'ratePerAdultUsd' => round($totalUsd / max(1, $adultCount), 2),
+        'isDecorationIncluded' => !empty($hasDecoration)
+    ];
+    $response['days'] = $days;
+    $response['hotels'] = [
+        [
+            'city' => explode(',', $dest)[0],
+            'hotelName' => (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : 'Grand Luxury 5-Star Hotel & Resort'),
+            'roomType' => 'Superior / Deluxe Pool View Room',
+            'nights' => $numNights,
+            'mealPlan' => 'Daily Buffet Breakfast Included',
+            'rating' => '4★ / 5★ Deluxe'
+        ]
+    ];
+    $response['summary'] = [
+        'items' => $summaryItems,
+        'inclusions' => $inclusions,
+        'exclusions' => $exclusions,
+        'terms' => [
+            "Package rates are per person on double-sharing occupancy.",
+            "Rates are subject to availability at the time of final booking confirmation.",
+            "50% advance deposit required for booking; balance due 15 days before travel.",
+            "Cancellations 30+ days prior: full refund minus administrative fee."
+        ],
+        'totalINR' => $totalInr,
+        'totalUSD' => $totalUsd
+    ];
+    $response['isDecorationIncluded'] = !empty($hasDecoration);
+
+    return $response;
+}

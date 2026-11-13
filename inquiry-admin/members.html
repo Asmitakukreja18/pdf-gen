@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="css/portal.css?v=14.0">
     <!-- Strict Admin-Only Authentication Guard -->
     <script>
-        (function() {
+        (function () {
             try {
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
@@ -25,7 +25,7 @@
                 if (u && u.role && u.role !== 'admin') {
                     window.location.replace('staff.html');
                 }
-            } catch(e) {
+            } catch (e) {
                 window.location.replace('index.html?auth=required');
             }
         })();
@@ -515,10 +515,12 @@
                 </div>
 
                 <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">
-                    <div class="search-pill-box" style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:7px 16px; width:260px;">
+                    <div class="search-pill-box"
+                        style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:7px 16px; width:260px;">
                         <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
                         <input type="text" id="employeeSearchInput" onkeyup="filterEmployees()"
-                            placeholder="Search staff..." style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
+                            placeholder="Search staff..."
+                            style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
                     <a href="../website/index.html" class="topbar-action-btn" title="View Public Website"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
@@ -530,14 +532,18 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span class="hide-mobile">AI Studio</span>
                     </a>
-                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                    <div class="profile-pill-item"
+                        style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
                             style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
                             AD
                         </div>
-                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Admin User</span>
-                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
+                        <div class="profile-text-wrap hide-mobile"
+                            style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName"
+                                style="font-size:13px; font-weight:700; color:#0F172A;">Admin User</span>
+                            <span class="profile-role" id="topbarUserRole"
+                                style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -675,7 +681,7 @@
         </div>
     </div>
 
-    
+
     <!-- ============================================================
          MODAL: SESSION & LOGIN HISTORY
          ============================================================ -->
@@ -683,8 +689,10 @@
         <div class="modal-box" style="max-width: 680px;">
             <div class="modal-header">
                 <div>
-                    <h3 id="sessionModalTitle" style="margin:0; font-size:15px; font-weight:800;">Staff Session & Login History</h3>
-                    <p id="sessionModalSub" style="margin:2px 0 0; font-size:11.5px; color:#94A3B8;">Employee activity log & session audit</p>
+                    <h3 id="sessionModalTitle" style="margin:0; font-size:15px; font-weight:800;">Staff Session & Login
+                        History</h3>
+                    <p id="sessionModalSub" style="margin:2px 0 0; font-size:11.5px; color:#94A3B8;">Employee activity
+                        log & session audit</p>
                 </div>
                 <button type="button" onclick="document.getElementById('sessionHistoryModal').style.display='none'"
                     style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;">&times;</button>
@@ -701,12 +709,17 @@
                         </tr>
                     </thead>
                     <tbody id="sessionHistoryTableBody">
-                        <tr><td colspan="5" style="text-align:center; padding:18px; color:#64748B;">Loading session history...</td></tr>
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:18px; color:#64748B;">Loading session
+                                history...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 12px 20px; background:#F8FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:flex-end;">
-                <button type="button" onclick="document.getElementById('sessionHistoryModal').style.display='none'" class="btn-outline" style="font-size:12px;">Close</button>
+            <div
+                style="padding: 12px 20px; background:#F8FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('sessionHistoryModal').style.display='none'"
+                    class="btn-outline" style="font-size:12px;">Close</button>
             </div>
         </div>
     </div>
@@ -886,7 +899,7 @@
             ];
         }
 
-        
+
         async function openSessionHistoryModal(userId, empName) {
             document.getElementById('sessionModalTitle').innerText = `Session History — ${empName}`;
             document.getElementById('sessionModalSub').innerText = `Tracking logins, logout times, session duration & inactivity`;
