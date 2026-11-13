@@ -306,7 +306,7 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Client Name *</label>
-                        <input type="text" id="tripClientName" class="form-control" required placeholder="e.g. Akash Dewani" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripClientName" class="form-control" required placeholder="Enter guest/client name" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination *</label>
@@ -383,35 +383,8 @@
                     allTrips = [];
                 }
             } catch (err) {
-                console.warn('Trips fetch failed, using fallback data:', err);
-                allTrips = [
-                    {
-                        id: 1,
-                        client_name: 'Akash Dewani',
-                        guest_info: '2 Adults, 1 Child • Dewani Travels B2B',
-                        destination: 'Dubai & Abu Dhabi',
-                        flight_details: 'Mum - Mum (BOM-DXB-BOM)\nEmirates EK-501 • Direct Return',
-                        coordinator: 'Nitin',
-                        coordinator_phone: '918007586881',
-                        start_date: '2026-11-05',
-                        end_date: '2026-11-10',
-                        duration_text: '6 Days / 5 Nights',
-                        status: 'running'
-                    },
-                    {
-                        id: 2,
-                        client_name: 'Dipesh Batra',
-                        guest_info: '2 Adults • Direct B2C',
-                        destination: 'Rajasthan Heritage (Udaipur + Jaipur)',
-                        flight_details: 'Del - Del (DEL-UDR-DEL)\nIndiGo 6E-241',
-                        coordinator: 'Nitin',
-                        coordinator_phone: '918007586881',
-                        start_date: '2026-11-08',
-                        end_date: '2026-11-12',
-                        duration_text: '5 Days / 4 Nights',
-                        status: 'upcoming'
-                    }
-                ];
+                console.warn('Trips fetch failed:', err);
+                allTrips = [];
             }
 
             renderTrips(allTrips);

@@ -31,7 +31,7 @@ if (!$pdo) {
                     'file_name' => preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$client}_{$ref}") . '.pdf',
                     'file_path' => '../view.html?ref=' . urlencode($ref),
                     'created_at' => $q['updated_at'] ?? date('Y-m-d H:i:s'),
-                    'created_by_name' => 'Dipesh Batra (Staff)',
+                    'created_by_name' => $q['created_by_name'] ?? 'Staff Member',
                     'doc_type' => 'Quotation',
                     'status' => $q['status'] ?? 'Approved'
                 ];

@@ -19,63 +19,7 @@ $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 $action = $input['action'] ?? ($_GET['action'] ?? 'list');
 
 // Default seeded trips for standby mode or empty database
-$defaultTrips = [
-    [
-        'id' => 1,
-        'trip_code' => 'TRIP-DXB-901',
-        'client_name' => 'Akash Dewani',
-        'client_phone' => '9820011223',
-        'destination' => 'Dubai & Abu Dhabi',
-        'duration' => '6D/5N',
-        'travel_start_date' => '2026-11-05',
-        'travel_end_date' => '2026-11-10',
-        'flight_details' => 'Emirates EK-501 / Return EK-502',
-        'flight_sector' => 'Mum - Mum (BOM-DXB-BOM)',
-        'coordinator' => 'Nitin',
-        'supplier_name' => 'Desert Gate Tours LLC',
-        'hotel_details' => 'Atlantis The Palm (2N) + JW Marriott Marquis (3N)',
-        'emergency_contact' => '+91 80075 86881',
-        'status' => 'Running',
-        'notes' => 'VIP B2B guest from Dewani Travels. Private airport Sprinter transfer confirmed.'
-    ],
-    [
-        'id' => 2,
-        'trip_code' => 'TRIP-RAJ-902',
-        'client_name' => 'Dipesh Batra',
-        'client_phone' => '7020660318',
-        'destination' => 'Rajasthan Heritage (Udaipur + Jaipur)',
-        'duration' => '5D/4N',
-        'travel_start_date' => '2026-11-08',
-        'travel_end_date' => '2026-11-12',
-        'flight_details' => 'IndiGo 6E-241',
-        'flight_sector' => 'Del - Del (DEL-UDR-DEL)',
-        'coordinator' => 'Nitin',
-        'supplier_name' => 'Heritage Royal Cabs & Hotels',
-        'hotel_details' => 'Trident Udaipur (2N) + ITC Rajputana Jaipur (2N)',
-        'emergency_contact' => '+91 80075 86881',
-        'status' => 'Upcoming',
-        'notes' => 'Innova Crysta with English speaking chauffeur assigned.'
-    ],
-    [
-        'id' => 3,
-        'trip_code' => 'TRIP-TH-903',
-        'client_name' => 'Mrs. Sneha Patil (4 Pax)',
-        'client_phone' => '9833445566',
-        'destination' => 'Thailand (Phuket & Krabi)',
-        'duration' => '7D/6N',
-        'travel_start_date' => '2026-11-14',
-        'travel_end_date' => '2026-11-20',
-        'flight_details' => 'Thai Airways TG-318',
-        'flight_sector' => 'BOM-BKK-HKT-BOM',
-        'coordinator' => 'Local Desk',
-        'supplier_name' => 'Andaman Discovery Holidays',
-        'hotel_details' => 'Ashlee Plaza Hotel Phuket + GLOW Ao Nang Krabi',
-        'emergency_contact' => '+66 81 234 5678',
-        'status' => 'Upcoming',
-        'notes' => '15% markup package applied. Phi Phi and 4-Island speedboats booked.'
-    ]
-];
-
+$defaultTrips = [];
 // 1. LIST TRIPS
 if ($method === 'GET' || $action === 'list') {
     if (!$pdo) {
@@ -112,26 +56,8 @@ if ($method === 'GET' || $action === 'list') {
         $stmt->execute($params);
         $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Auto-seed trips table if empty
-        if (empty($trips) && empty($search) && ($status === 'all' || empty($status))) {
-            foreach ($defaultTrips as $dt) {
-                try {
-                    $pdo->prepare("
-                        INSERT IGNORE INTO `trips` 
-                        (`trip_code`, `client_name`, `client_phone`, `destination`, `duration`, `travel_start_date`, `travel_end_date`, `flight_details`, `flight_sector`, `coordinator`, `supplier_name`, `hotel_details`, `emergency_contact`, `status`, `notes`, `created_at`)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-                    ")->execute([
-                        $dt['trip_code'], $dt['client_name'], $dt['client_phone'], $dt['destination'],
-                        $dt['duration'], $dt['travel_start_date'], $dt['travel_end_date'], $dt['flight_details'],
-                        $dt['flight_sector'], $dt['coordinator'], $dt['supplier_name'], $dt['hotel_details'],
-                        $dt['emergency_contact'], $dt['status'], $dt['notes']
-                    ]);
-                } catch (\Throwable $th) {}
-            }
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
+        // No dummy auto-seeding
+        $trips = $trips ?: [];
 
         // Summary counts
         $counts = ['active' => 0, 'upcoming' => 0, 'completed' => 0];

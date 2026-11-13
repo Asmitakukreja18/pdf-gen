@@ -1158,10 +1158,10 @@
 
                         const suCode = emp.sub_user_id || ('SU-' + suIdx++);
                         const initials = (emp.name || emp.username).substring(0, 2).toUpperCase();
-                        const leads = emp.total_leads || (suCode === 'SU-1' ? 28 : (suCode === 'SU-2' ? 19 : 12));
-                        const quotes = emp.total_quotes || (suCode === 'SU-1' ? 24 : (suCode === 'SU-2' ? 15 : 9));
-                        const duration = emp.session_duration || (suCode === 'SU-1' ? '1h 45m' : (suCode === 'SU-2' ? '1h 30m' : '45m'));
-                        const loginT = emp.login_time || (suCode === 'SU-1' ? '11:00 AM Today' : (suCode === 'SU-2' ? '11:15 AM Today' : '12:00 PM Today'));
+                        const leads = emp.total_leads || 0;
+                        const quotes = emp.total_quotes || 0;
+                        const duration = emp.session_duration || (emp.is_online ? '1m' : 'Offline');
+                        const loginT = emp.login_time || 'Not logged in today';
                         
                         let statusHtml = '<span class="status-pill-active" style="background:#ECFDF5; color:#047857; border:1px solid #A7F3D0; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Active</span>';
                         if (emp.session_status === 'Screen Locked (15m Idle)') {
@@ -1232,7 +1232,7 @@
                 }
             } catch (err) {
                 const tbody = document.getElementById('recentInquiriesTableBody');
-                tbody.innerHTML = '<tr><td><strong>Rajesh Malhotra</strong></td><td>+91 98765 43210</td><td><strong>Dubai Explorer 5N/6D</strong></td><td><span class="status-pill-active">Proposal Sent</span></td><td><a href="ai-assistant.html" class="status-pill-active" style="background:#F1F5F9; color:#0F172A; text-decoration:none;">Quote &rarr;</a></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:#94A3B8;"><i class="fa-solid fa-inbox" style="font-size:20px; margin-bottom:6px;"></i><div>No recent inquiries received yet.</div></td></tr>';
             }
         }
 

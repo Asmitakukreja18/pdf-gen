@@ -421,53 +421,8 @@
                     allSuppliers = [];
                 }
             } catch (err) {
-                console.warn('Suppliers fetch failed, using fallback data:', err);
-                allSuppliers = [
-                    {
-                        id: 1,
-                        name: 'Desert Gate Tourism LLC',
-                        category: 'UAE Ground Operator',
-                        contact_person: 'Nitin Sharma',
-                        phone: '+971 50 123 4567',
-                        email: 'nitin@desertgate.ae',
-                        destination: 'Dubai & Abu Dhabi',
-                        services: 'Luxury AC Vans, Desert Safari, Burj Khalifa',
-                        status: 'Active'
-                    },
-                    {
-                        id: 2,
-                        name: 'Bali Paradise DMC',
-                        category: 'Indonesia Ground Partner',
-                        contact_person: 'Wayan Sudiarta',
-                        phone: '+62 812 3456 7890',
-                        email: 'wayan@baliparadise.co.id',
-                        destination: 'Bali & Nusa Penida',
-                        services: 'Private Pool Villas, Speedboats, AC Cars',
-                        status: 'Active'
-                    },
-                    {
-                        id: 3,
-                        name: 'Siam Leisure Group Co., Ltd.',
-                        category: 'Thailand Ground Partner',
-                        contact_person: 'Somchai Prasert',
-                        phone: '+66 81 234 5678',
-                        email: 'booking@siamleisure.co.th',
-                        destination: 'Phuket & Krabi',
-                        services: 'Phi Phi Speedboats, 4-Island Tour, Hotel Transfers',
-                        status: 'Active'
-                    },
-                    {
-                        id: 4,
-                        name: 'Rajasthan Royal Heritage Travels',
-                        category: 'Domestic Rajasthan DMC',
-                        contact_person: 'Bhawani Singh',
-                        phone: '+91 94140 12345',
-                        email: 'ops@rajasthanroyalheritage.com',
-                        destination: 'Udaipur, Jaipur & Jodhpur',
-                        services: 'Heritage Haveli Bookings, Innova Crysta, Fort Guides',
-                        status: 'Active'
-                    }
-                ];
+                console.warn('Suppliers fetch notice:', err);
+                allSuppliers = [];
             }
 
             renderSuppliers(allSuppliers);
@@ -479,10 +434,14 @@
             const destEl = document.getElementById('destinationsSummary');
             if (countEl) countEl.innerText = suppliers.length;
 
-            if (destEl && suppliers.length > 0) {
-                const dests = Array.from(new Set(suppliers.map(s => (s.destination || '').split('&')[0].trim()).filter(Boolean)));
-                if (dests.length > 0) {
-                    destEl.innerText = dests.slice(0, 4).join(', ');
+            if (destEl) {
+                if (suppliers.length > 0) {
+                    const dests = Array.from(new Set(suppliers.map(s => (s.destination || '').split('&')[0].trim()).filter(Boolean)));
+                    if (dests.length > 0) {
+                        destEl.innerText = dests.slice(0, 4).join(', ');
+                    }
+                } else {
+                    destEl.innerText = 'No partners added yet';
                 }
             }
         }
