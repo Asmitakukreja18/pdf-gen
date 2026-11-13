@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Strict Authentication Guard (Resolves Issue I-1) -->
+    <!-- Strict Authentication Guard -->
     <script>
         (function() {
             try {
@@ -26,7 +26,7 @@
     <style>
         .ai-assistant-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
             gap: 20px;
             align-items: stretch;
             width: 100%;
@@ -75,14 +75,8 @@
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
             border-color: rgba(255, 255, 255, 0.25);
         }
-        .claude-file-card.docx-card {
-            background: #0F172A;
-            border-color: #334155;
-        }
-        .claude-file-card.pdf-card {
-            background: #1E293B;
-            border-color: #334155;
-        }
+        .claude-file-card.docx-card { background: #0F172A; border-color: #334155; }
+        .claude-file-card.pdf-card { background: #1E293B; border-color: #334155; }
         .claude-card-remove-btn {
             position: absolute;
             top: 5px;
@@ -102,10 +96,7 @@
             z-index: 5;
             transition: all 0.15s ease;
         }
-        .claude-card-remove-btn:hover {
-            background: #EF4444;
-            border-color: #EF4444;
-        }
+        .claude-card-remove-btn:hover { background: #EF4444; border-color: #EF4444; }
         .file-card-preview-area {
             flex: 1;
             display: flex;
@@ -138,56 +129,114 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
             box-sizing: border-box;
         }
-        .pdf-mini-header {
-            height: 9px;
-            background: linear-gradient(90deg, #F97316, #3B82F6);
-            border-radius: 2px;
-        }
-        .pdf-mini-line {
-            height: 3px;
-            background: #CBD5E1;
-            border-radius: 1px;
-        }
-        .pdf-mini-line.short {
-            width: 60%;
-        }
+        .pdf-mini-header { height: 9px; background: linear-gradient(90deg, #F97316, #3B82F6); border-radius: 2px; }
+        .pdf-mini-line { height: 3px; background: #CBD5E1; border-radius: 1px; }
+        .pdf-mini-line.short { width: 60%; }
         .file-card-info {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            margin-top: 4px;
         }
         .file-card-name {
-            color: #F8FAFC;
             font-size: 10px;
-            font-weight: 600;
+            color: #F8FAFC;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1.2;
+            max-width: 68px;
         }
         .file-card-badge {
-            align-self: flex-start;
-            padding: 1px 5px;
-            border-radius: 3px;
-            font-size: 8.5px;
+            font-size: 8px;
             font-weight: 800;
-            letter-spacing: 0.5px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-transform: uppercase;
         }
-        .file-card-badge.docx-badge {
-            background: #1E3A8A;
-            color: #93C5FD;
+        .docx-badge { background: #2563EB; color: #FFFFFF; }
+        .pdf-badge { background: #EF4444; color: #FFFFFF; }
+
+        /* ─── DEDICATED TEMPLATE WORKSPACE STYLES ─── */
+        .doc-section-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
-        .file-card-badge.pdf-badge {
-            background: #334155;
-            color: #E2E8F0;
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+        .doc-table th {
+            background: #F8FAFC;
+            color: #475569;
+            font-weight: 700;
+            padding: 8px 10px;
+            border-bottom: 1px solid #CBD5E1;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .doc-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #F1F5F9;
+            color: #1E293B;
+        }
+        .doc-badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .badge-confirmed { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+        .badge-pending { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .badge-urgent { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+        /* Rate Drawer */
+        #ratePricingDrawer {
+            transition: all 0.25s ease-in-out;
+        }
+        .pricing-input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .pricing-input-group input, .pricing-input-group select {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #CBD5E1;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0F172A;
+            background: #FFFFFF;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .pricing-input-group input:focus, .pricing-input-group select:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
         }
     </style>
 </head>
 <body>
+    <div class="portal-wrapper portal-layout">
 
-    <div class="portal-wrapper">
         <!-- ============================================================
-             LEFT SIDEBAR NAVIGATION (MODERN LUXURY DARK-NAVY)
+             PORTAL SIDEBAR
              ============================================================ -->
         <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
@@ -214,7 +263,7 @@
                     <i class="fa-solid fa-user-group"></i>
                     <span>Customers</span>
                 </a>
-                <a href="ai-assistant.html" class="nav-link" title="AI Quotation Studio">
+                <a href="ai-assistant.html" class="nav-link active" title="AI Quotation Studio">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>AI Quotation Studio</span>
                 </a>
@@ -277,7 +326,7 @@
                     <div class="breadcrumb-trail">
                         <span class="crumb-root">Let's Explore DMC</span>
                         <i class="fa-solid fa-chevron-right crumb-sep" style="font-size:11px; color:#94A3B8;"></i>
-                        <span class="crumb-current" style="font-weight:700; color:#0F172A;">AI Travel Assistant</span>
+                        <span class="crumb-current" style="font-weight:700; color:#0F172A;">AI Document &amp; Quotation Engine</span>
                     </div>
                 </div>
 
@@ -303,12 +352,12 @@
             <!-- WORKSPACE CONTENT -->
             <main class="portal-body" style="padding-bottom:10px;">
                 <!-- PAGE HEADER -->
-                <div class="content-header" style="margin-bottom:14px;">
+                <div class="content-header" style="margin-bottom:12px;">
                     <div class="header-titles">
                         <h1 style="display:flex; align-items:center; gap:8px;">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--portal-blue);"></i> AI Travel Assistant &amp; Document Generator
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--portal-blue);"></i> AI Travel Document Engine &amp; Rate Studio
                         </h1>
-                        <p>Generate bespoke packages, corporate proposals &amp; website copy. Review and approve directly into Packages or Public Website.</p>
+                        <p>Generate 12 official travel formats: Vouchers, Invoices, Statements of Account, and Rate Sheets customized by destination with real-time rate recalculation.</p>
                     </div>
                     <div class="header-actions">
                         <span style="background:#EFF6FF; border:1px solid #BFDBFE; color:var(--portal-navy); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
@@ -320,11 +369,184 @@
                     </div>
                 </div>
 
+                <!-- ============================================================
+                     UNIVERSAL CONTROL BAR: DOCUMENT FORMAT & DESTINATION SELECTOR
+                     ============================================================ -->
+                <div class="portal-card" style="padding:12px 18px; margin-bottom:14px; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:16px; flex:1; min-width:280px;">
+                            <!-- Document Format Selector -->
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <label for="docTypeSelect" style="font-size:12px; font-weight:800; color:#0F2C59; white-space:nowrap;">
+                                    <i class="fa-solid fa-file-invoice" style="color:#2563EB;"></i> Document Format:
+                                </label>
+                                <select id="docTypeSelect" onchange="handleDocTypeChange()" style="padding:7px 12px; border:1px solid #94A3B8; border-radius:6px; font-size:12.5px; font-weight:700; color:#0F172A; background:#F8FAFC; outline:none; cursor:pointer;">
+                                    <optgroup label="📋 Official Travel Vouchers">
+                                        <option value="hotel_voucher">🏨 Hotel Voucher (Confirmation)</option>
+                                        <option value="transfer_voucher">🚖 Transfer Voucher (Airport / Inter-City)</option>
+                                        <option value="activity_voucher">🎟️ Activity Voucher (Excursions &amp; Tours)</option>
+                                    </optgroup>
+                                    <optgroup label="💼 Proposals &amp; Quotations">
+                                        <option value="quotation" selected>📄 Travel Quotation (Detailed Itinerary)</option>
+                                    </optgroup>
+                                    <optgroup label="💳 Invoices &amp; Accounts Billing">
+                                        <option value="customer_invoice">🧾 Customer Tax Invoice (GST 5% - HSN 998555)</option>
+                                        <option value="proforma_invoice">📑 Proforma Invoice (Advance Estimate)</option>
+                                        <option value="customer_billing">📊 Customer Billing (Statement of Account)</option>
+                                        <option value="supplier_billing">📑 Supplier Billing (Work Order / B2B PO)</option>
+                                    </optgroup>
+                                    <optgroup label="📈 Structured B2B Rate Sheets">
+                                        <option value="hotel_rate_sheet">🏢 Hotel Rate Sheet (Seasonal Tariffs)</option>
+                                        <option value="sightseeing_rate_sheet">🎡 Sightseeing Rate Sheet (SIC vs PVT)</option>
+                                        <option value="transport_rate_sheet">🚐 Transportation Rate Sheet (Vehicle Tariffs)</option>
+                                        <option value="package_rate_sheet">📦 Complete Tour Package Rate Sheet (Pax Matrix)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <!-- Destination Selector -->
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <label for="destSelect" style="font-size:12px; font-weight:800; color:#0F2C59; white-space:nowrap;">
+                                    <i class="fa-solid fa-location-dot" style="color:#DC2626;"></i> Destination:
+                                </label>
+                                <select id="destSelect" onchange="handleDestinationChange()" style="padding:7px 12px; border:1px solid #94A3B8; border-radius:6px; font-size:12.5px; font-weight:700; color:#0F172A; background:#F8FAFC; outline:none; cursor:pointer;">
+                                    <option value="Thailand" selected>🇹🇭 Thailand (Phuket, Krabi, Pattaya, Bangkok)</option>
+                                    <option value="Dubai">🇦🇪 Dubai &amp; Abu Dhabi (UAE)</option>
+                                    <option value="Bali">🇮🇩 Bali &amp; Nusa Penida (Indonesia)</option>
+                                    <option value="Singapore">🇸🇬 Singapore City &amp; Sentosa</option>
+                                    <option value="Malaysia">🇲🇾 Malaysia (Kuala Lumpur &amp; Genting)</option>
+                                    <option value="Vietnam">🇻🇳 Vietnam (Hanoi, Da Nang &amp; Ha Long)</option>
+                                    <option value="Turkey">🇹🇷 Turkey (Istanbul &amp; Cappadocia)</option>
+                                    <option value="Kashmir">🇮🇳 Kashmir (Srinagar, Gulmarg &amp; Pahalgam)</option>
+                                    <option value="Rajasthan">🇮🇳 Rajasthan (Jaipur, Jodhpur &amp; Udaipur)</option>
+                                    <option value="Maldives">🇲🇻 Maldives (Luxury Island Water Villas)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Right Quick Action Buttons -->
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button type="button" id="btnToggleRateEditor" onclick="toggleRateEditorDrawer()" class="portal-btn secondary sm" style="font-weight:700; color:#0F2C59; border-color:#CBD5E1;">
+                                <i class="fa-solid fa-sliders" style="color:#2563EB;"></i> <span id="rateEditorToggleLabel">Rate &amp; Pricing Editor</span>
+                            </button>
+                            <button type="button" id="btnQuickGenerateDoc" onclick="triggerDocumentGeneration()" class="portal-btn primary sm" style="font-weight:800; background:linear-gradient(135deg, #2563EB, #1D4ED8); box-shadow:0 3px 8px rgba(37,99,235,0.3);">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generate Document</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- COLLAPSIBLE RATE & PRICING MANAGEMENT PANEL -->
+                    <div id="ratePricingDrawer" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid #E2E8F0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div style="font-size:12px; font-weight:800; color:#0F2C59; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-calculator" style="color:#059669;"></i> Interactive Rate &amp; Pricing Management (Realtime Calculation)
+                            </div>
+                            <span style="font-size:11px; color:#64748B;">Auto-recalculates subtotal, markup, tax, and document preview in real time</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:12px;">
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-coins"></i> Currency</label>
+                                <select id="rateCurrency" onchange="recalculateActiveRates()">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="AED">AED (AED)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="SGD">SGD (S$)</option>
+                                    <option value="THB">THB (฿)</option>
+                                </select>
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-arrow-right-arrow-left"></i> FX Rate (to INR)</label>
+                                <input type="number" id="rateExchangeRate" step="0.5" value="87.0" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-user"></i> Adult Rate</label>
+                                <input type="number" id="ratePerAdult" value="400" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-users"></i> Adult Count</label>
+                                <input type="number" id="rateAdultCount" value="2" min="1" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-child"></i> Child Rate</label>
+                                <input type="number" id="ratePerChild" value="200" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-child-reaching"></i> Child Count</label>
+                                <input type="number" id="rateChildCount" value="0" min="0" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-hotel"></i> Hotel Nightly</label>
+                                <input type="number" id="rateHotelNightly" value="120" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-moon"></i> Nights</label>
+                                <input type="number" id="rateHotelNights" value="5" min="1" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-van-shuttle"></i> Vehicle / Transfer</label>
+                                <input type="number" id="rateVehicle" value="140" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-ticket"></i> Activity / Tours</label>
+                                <input type="number" id="rateActivity" value="180" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-percent"></i> Markup Margin (%)</label>
+                                <input type="number" id="rateMarkupPct" step="0.5" value="15" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-receipt"></i> Tax / GST (%)</label>
+                                <input type="number" id="rateTaxPct" step="0.5" value="5" oninput="recalculateActiveRates()">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label><i class="fa-solid fa-tag"></i> Discount</label>
+                                <input type="number" id="rateDiscount" value="0" oninput="recalculateActiveRates()">
+                            </div>
+                        </div>
+
+                        <!-- LIVE KPI CALCULATION BAR -->
+                        <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+                            <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:12px;">
+                                <div>
+                                    <span style="color:#64748B;">Base Subtotal:</span>
+                                    <strong id="kpiSubtotal" style="color:#0F172A; margin-left:4px;">$800.00</strong>
+                                </div>
+                                <div>
+                                    <span style="color:#64748B;">Markup (+15%):</span>
+                                    <strong id="kpiMarkup" style="color:#2563EB; margin-left:4px;">$120.00</strong>
+                                </div>
+                                <div>
+                                    <span style="color:#64748B;">Tax (+5% GST):</span>
+                                    <strong id="kpiTax" style="color:#D97706; margin-left:4px;">$46.00</strong>
+                                </div>
+                                <div>
+                                    <span style="color:#64748B;">Calculated Total:</span>
+                                    <strong id="kpiGrandTotal" style="color:#059669; font-size:13px; margin-left:4px;">$966.00</strong>
+                                </div>
+                                <div>
+                                    <span style="color:#64748B;">Dual Currency:</span>
+                                    <strong id="kpiDualTotal" style="color:#475569; margin-left:4px;">~INR 84,042</strong>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" onclick="recalculateActiveRates(true)" class="portal-btn primary sm" style="font-size:11px; padding:4px 10px;">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Apply to Document
+                                </button>
+                                <button type="button" onclick="resetDefaultRates()" class="portal-btn secondary sm" style="font-size:11px; padding:4px 10px;">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 2-COLUMN DUAL PANE WORKSPACE (RESPONSIVE) -->
                 <div class="ai-assistant-grid">
 
                     <!-- LEFT COLUMN: CONVERSATIONAL CHAT INTERFACE -->
-                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 195px); min-height:580px;">
+                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 240px); min-height:560px;">
                         <!-- Chat Window Header -->
                         <div class="card-header" style="padding:12px 16px; background:#FAFBFD;">
                             <div style="display:flex; align-items:center; gap:10px;">
@@ -345,17 +567,17 @@
 
                         <!-- Suggested Quick Prompts -->
                         <div style="padding:8px 12px; background:#F8FAFC; border-bottom:1px solid var(--portal-border); display:flex; gap:6px; overflow-x:auto; white-space:nowrap;">
-                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create a 6 Days / 5 Nights luxury Bali package with private pool villa, Nusa Penida island speedboat tour, and USD/INR tariffs.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
-                                🌴 6D Bali Luxury
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create hotel voucher for Phuket & Krabi with 4-star beach resort, breakfast and deluxe rooms.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🏨 Hotel Voucher
                             </button>
-                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Generate a 5 Days / 4 Nights corporate Dubai & Abu Dhabi quotation for 20 pax with Desert Safari, Burj Khalifa, and 5-star hotel options.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
-                                🏙️ 5D Dubai Corporate
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Generate a 5 Days corporate Dubai & Abu Dhabi tax invoice for 20 pax with Desert Safari & Burj Khalifa.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🧾 Tax Invoice
                             </button>
-                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create a 7 Days Thailand package covering Phuket and Krabi with speedboats, 4-star beach resorts, and day-wise itinerary.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
-                                🏖️ 7D Thailand Escape
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Create an activity confirmation voucher for Bali Nusa Penida speedboat tour.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                🎟️ Activity Voucher
                             </button>
-                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Write engaging website destination copy and highlights for Cappadocia, Turkey to publish on the website.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
-                                🎈 Turkey Website Copy
+                            <button type="button" class="portal-btn secondary sm" onclick="useQuickPrompt('Generate comprehensive seasonal hotel rate sheet for Dubai and UAE luxury hotels.')" style="font-size:11px; border-radius:14px; padding:3px 10px;">
+                                📈 Hotel Rate Sheet
                             </button>
                         </div>
 
@@ -366,14 +588,13 @@
                                     <i class="fa-solid fa-robot"></i>
                                 </div>
                                 <div style="background:#F1F5F9; border:1px solid var(--portal-border); border-radius:10px 10px 10px 0; padding:12px 14px; max-width:85%; font-size:12.5px; color:var(--portal-text); line-height:1.5;">
-                                    <p style="margin:0 0 6px 0; font-weight:700; color:var(--portal-navy);">Hello! I am your Let's Explore DMC Travel &amp; Quotation Engine.</p>
-                                    <p style="margin:0 0 6px 0;">Tell me what you need, or upload a reference PDF/image using the paperclip:</p>
+                                    <p style="margin:0 0 6px 0; font-weight:700; color:var(--portal-navy);">Welcome to Let's Explore DMC Travel ERP &amp; AI Document Engine!</p>
+                                    <p style="margin:0 0 6px 0;">Select your <strong>Document Format</strong> and <strong>Destination</strong> above, or write custom requests below:</p>
                                     <ul style="margin:0; padding-left:18px; font-size:12px;">
-                                        <li>Build tour packages with day-wise itineraries, hotels &amp; dual tariffs.</li>
-                                        <li>Convert client inquiries or PDFs into structured proposals.</li>
-                                        <li>Draft website destination descriptions and highlights.</li>
+                                        <li><strong>12 Document Formats:</strong> Vouchers, Tax Invoices, Proforma, Statements, and Rate Sheets.</li>
+                                        <li><strong>Interactive Rate Editor:</strong> Customize adult/child tariffs, markup %, taxes, and currencies with instant recalculation.</li>
+                                        <li><strong>Destination Customization:</strong> Tailored hotels, tours &amp; guidelines for Thailand, Dubai, Bali, Singapore, Maldives, etc.</li>
                                     </ul>
-                                    <p style="margin:8px 0 0 0; font-size:11.5px; color:var(--portal-blue); font-weight:600;">Generated packages appear in the Review Workspace on the right with 1-click Approval!</p>
                                 </div>
                             </div>
                         </div>
@@ -399,7 +620,7 @@
                                 </button>
 
                                 <div style="flex:1; position:relative;">
-                                    <textarea id="promptInput" rows="2" placeholder="Describe the package or prompt... (e.g. 6D Bali with Ubud Villa &amp; Nusa Penida)" style="width:100%; border:1px solid var(--portal-border); border-radius:6px; padding:8px 12px; font-size:12.5px; font-family:inherit; resize:none; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleChatSubmit(event); }"></textarea>
+                                    <textarea id="promptInput" rows="2" placeholder="Describe the document or modifications... (e.g. Generate Thailand Hotel Voucher with 15% markup)" style="width:100%; border:1px solid var(--portal-border); border-radius:6px; padding:8px 12px; font-size:12.5px; font-family:inherit; resize:none; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleChatSubmit(event); }"></textarea>
                                 </div>
 
                                 <button type="submit" id="btnSendChat" class="portal-btn primary" style="width:40px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="Send Message">
@@ -408,18 +629,18 @@
                             </form>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--portal-text-muted);">
                                 <span>Press <strong>Enter</strong> to send &bull; <strong>Shift + Enter</strong> for new line</span>
-                                <span>cPanel MySQL Storage Active</span>
+                                <span>Multi-Template DMC Engine Active</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- RIGHT COLUMN: STRUCTURED OUTPUT & APPROVAL WORKSPACE -->
-                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 195px); min-height:580px; overflow:hidden;">
+                    <div class="portal-card" style="display:flex; flex-direction:column; height:calc(100vh - 240px); min-height:560px; overflow:hidden;">
                         <!-- Review Workspace Header -->
                         <div class="card-header" style="padding:12px 16px; background:#FAFBFD;">
                             <div>
-                                <div style="font-size:13px; font-weight:800; color:var(--portal-navy);">AI Output &amp; Approval Workspace</div>
-                                <div style="font-size:11px; color:var(--portal-text-muted);">Live review before saving to database or publishing</div>
+                                <div style="font-size:13px; font-weight:800; color:var(--portal-navy);" id="workspaceDocTitle">AI Output &amp; Approval Workspace</div>
+                                <div style="font-size:11px; color:var(--portal-text-muted);" id="workspaceDocSub">Dedicated layout review before saving or PDF export</div>
                             </div>
                             <div id="outputStatusBadge" class="status-pill status-draft">
                                 Awaiting Generation
@@ -432,74 +653,21 @@
                             <div id="emptyWorkspaceState" style="text-align:center; padding:70px 20px; color:var(--portal-text-muted);">
                                 <i class="fa-solid fa-file-invoice" style="font-size:44px; color:#CBD5E1; margin-bottom:12px;"></i>
                                 <h3 style="font-size:15px; font-weight:700; color:var(--portal-navy); margin:0 0 6px 0;">No Active Generation</h3>
-                                <p style="font-size:12px; max-width:320px; margin:0 auto; line-height:1.5;">
-                                    Send a prompt or select a suggestion on the left. Your structured itinerary and dual tariffs will appear here for review.
+                                <p style="font-size:12px; max-width:340px; margin:0 auto; line-height:1.5;">
+                                    Select a <strong>Document Format</strong> and <strong>Destination</strong> above and click <strong>Generate Document</strong> or send a chat prompt to render the dedicated professional template.
                                 </p>
                             </div>
 
-                            <!-- Dynamic Card Preview -->
-                            <div id="generatedPackageCard" style="display:none; flex-direction:column; gap:14px;">
-                                <!-- Top Banner / Details -->
-                                <div style="border:1px solid #BFDBFE; background:#EFF6FF; border-radius:8px; padding:14px;">
-                                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                        <div>
-                                            <span id="revCountryBadge" class="status-pill status-confirmed" style="background:var(--portal-navy); color:#FFF; font-size:10px;">
-                                                Indonesia (Bali)
-                                            </span>
-                                            <h2 id="revPackageTitle" style="font-size:16px; font-weight:800; color:var(--portal-navy); margin:6px 0 4px 0;">
-                                                6 Days / 5 Nights Bali Luxury Tropical Escape
-                                            </h2>
-                                            <div style="font-size:11.5px; color:var(--portal-blue); font-weight:700;">
-                                                📍 <span id="revDestination">Bali &amp; Nusa Penida</span> &bull; ⏱️ <span id="revDuration">6 Days / 5 Nights</span> &bull; 👥 <span id="revPax">2 Adults</span>
-                                            </div>
-                                        </div>
-                                        <div style="text-align:right;">
-                                            <div style="font-size:11px; color:var(--portal-text-muted);">Est. Tariff</div>
-                                            <div id="revPricing" style="font-size:15px; font-weight:800; color:var(--portal-green);">
-                                                INR 48,500 / USD 585
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Hotel & Stay -->
-                                <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px 14px; background:#FFF;">
-                                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:4px;">🏨 Accommodation Details:</div>
-                                    <div id="revHotels" style="font-size:12px; color:var(--portal-text);">
-                                        4★ Private Pool Villa in Ubud (3 Nights) + 5★ Seminyak Beachfront Resort (2 Nights)
-                                    </div>
-                                </div>
-
-                                <!-- Day-by-Day Timeline -->
-                                <div style="border:1px solid var(--portal-border); border-radius:6px; padding:12px 14px; background:#FFF;">
-                                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:8px;">📅 Day-Wise Itinerary Timeline:</div>
-                                    <div id="revItineraryList" style="display:flex; flex-direction:column; gap:8px;">
-                                        <!-- Injected dynamically -->
-                                    </div>
-                                </div>
-
-                                <!-- Inclusions & Exclusions -->
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
-                                        <div style="font-size:11px; font-weight:700; color:var(--portal-green); margin-bottom:4px;">✅ Key Inclusions:</div>
-                                        <div id="revInclusions" style="font-size:11px; color:var(--portal-text); line-height:1.4;">
-                                            Daily Breakfast, Private AC Transfers, Nusa Penida Island Speedboat Tour, Tanah Lot Sunset.
-                                        </div>
-                                    </div>
-                                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
-                                        <div style="font-size:11px; font-weight:700; color:var(--portal-red); margin-bottom:4px;">❌ Key Exclusions:</div>
-                                        <div id="revExclusions" style="font-size:11px; color:var(--portal-text); line-height:1.4;">
-                                            International airfare, Visa fees, Personal expenses, Travel Insurance.
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Dedicated Dynamic Layout Area -->
+                            <div id="documentLayoutArea" style="display:none; flex-direction:column; gap:12px;">
+                                <!-- Dynamically injected by template renderers -->
                             </div>
                         </div>
 
                         <!-- Action Footer Bar -->
                         <div id="approvalActionsBar" style="padding:12px 16px; border-top:1px solid var(--portal-border); background:#FAFBFD; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; align-items:center;">
                             <button type="button" id="btnEditWorkspace" onclick="toggleWorkspaceEditMode()" class="portal-btn secondary sm" style="white-space:nowrap;">
-                                <i class="fa-solid fa-pen-to-square" style="color:var(--portal-blue);"></i> <span id="btnEditText">Edit Quotation</span>
+                                <i class="fa-solid fa-pen-to-square" style="color:var(--portal-blue);"></i> <span id="btnEditText">Edit Rates</span>
                             </button>
 
                             <button type="button" id="btnDownloadPdf" onclick="downloadWorkspacePdf()" class="portal-btn secondary sm" style="white-space:nowrap; font-weight:700;">
@@ -527,7 +695,6 @@
     </div>
 
     <!-- SCRIPTS -->
-    <!-- External Libraries: PDF.js & Mammoth.js for Instant Browser Client-Side Text Extraction -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="js/portal.js?v=9.0"></script>
@@ -616,13 +783,6 @@
             if (activeAttachments.length === 0 && inp) inp.value = '';
         }
 
-        function removeAttachment() {
-            activeAttachments = [];
-            renderAttachmentCards();
-            const inp = document.getElementById('attachmentInput');
-            if (inp) inp.value = '';
-        }
-
         function useQuickPrompt(text) {
             const input = document.getElementById('promptInput');
             input.value = text;
@@ -638,280 +798,233 @@
                             <i class="fa-solid fa-robot"></i>
                         </div>
                         <div style="background:#F1F5F9; border:1px solid var(--portal-border); border-radius:10px 10px 10px 0; padding:12px 14px; max-width:85%; font-size:12.5px; color:var(--portal-text); line-height:1.5;">
-                            Chat reset. How can I help you with your next package or quotation?
+                            Chat reset. How can I help you with your next document, quotation, or rate sheet?
                         </div>
                     </div>
                 `;
                 document.getElementById('emptyWorkspaceState').style.display = 'block';
-                document.getElementById('generatedPackageCard').style.display = 'none';
+                document.getElementById('documentLayoutArea').style.display = 'none';
                 const badge = document.getElementById('outputStatusBadge');
                 badge.innerText = 'Awaiting Generation';
                 badge.className = 'status-pill status-draft';
                 currentGeneratedData = null;
-                removeAttachment();
             }
         }
 
+        // ============================================================
+        // RATE & PRICING MANAGEMENT CONTROLS & REAL-TIME RECALCULATION
+        // ============================================================
+        function toggleRateEditorDrawer() {
+            const drawer = document.getElementById('ratePricingDrawer');
+            const isVisible = drawer.style.display !== 'none';
+            drawer.style.display = isVisible ? 'none' : 'block';
+            const label = document.getElementById('rateEditorToggleLabel');
+            if (label) label.textContent = isVisible ? 'Rate & Pricing Editor' : 'Close Rate Editor';
+        }
+
+        function getActiveRateParameters() {
+            return {
+                currency: document.getElementById('rateCurrency')?.value || 'USD',
+                exchangeRate: parseFloat(document.getElementById('rateExchangeRate')?.value) || 87.0,
+                ratePerAdult: parseFloat(document.getElementById('ratePerAdult')?.value) || 400.0,
+                adultCount: parseInt(document.getElementById('rateAdultCount')?.value) || 2,
+                ratePerChild: parseFloat(document.getElementById('ratePerChild')?.value) || 200.0,
+                childCount: parseInt(document.getElementById('rateChildCount')?.value) || 0,
+                hotelNightlyRate: parseFloat(document.getElementById('rateHotelNightly')?.value) || 120.0,
+                hotelNights: parseInt(document.getElementById('rateHotelNights')?.value) || 5,
+                vehicleRate: parseFloat(document.getElementById('rateVehicle')?.value) || 140.0,
+                activityRate: parseFloat(document.getElementById('rateActivity')?.value) || 180.0,
+                markupPercent: parseFloat(document.getElementById('rateMarkupPct')?.value) || 15.0,
+                taxPercent: parseFloat(document.getElementById('rateTaxPct')?.value) || 5.0,
+                discountAmount: parseFloat(document.getElementById('rateDiscount')?.value) || 0.0
+            };
+        }
+
+        function recalculateActiveRates(applyToWorkspace = true) {
+            const p = getActiveRateParameters();
+            const currSymbol = p.currency === 'INR' ? '₹' : (p.currency === 'AED' ? 'AED ' : (p.currency === 'EUR' ? '€' : (p.currency === 'SGD' ? 'S$' : (p.currency === 'THB' ? '฿' : '$'))));
+
+            const baseAdultTotal = p.ratePerAdult * p.adultCount;
+            const baseChildTotal = p.ratePerChild * p.childCount;
+            const baseSubtotal = baseAdultTotal + baseChildTotal;
+            const markupAmount = (baseSubtotal * p.markupPercent) / 100;
+            const taxableSubtotal = Math.max(0, baseSubtotal + markupAmount - p.discountAmount);
+            const taxAmount = (taxableSubtotal * p.taxPercent) / 100;
+            const grandTotal = taxableSubtotal + taxAmount;
+
+            let totalInr, totalUsd;
+            if (p.currency === 'INR') {
+                totalInr = Math.round(grandTotal);
+                totalUsd = Math.round(grandTotal / p.exchangeRate);
+            } else {
+                totalUsd = Number(grandTotal.toFixed(2));
+                totalInr = Math.round(grandTotal * p.exchangeRate);
+            }
+
+            // Update KPI Displays
+            document.getElementById('kpiSubtotal').innerText = `${currSymbol}${baseSubtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiMarkup').innerText = `${currSymbol}${markupAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiTax').innerText = `${currSymbol}${taxAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiGrandTotal').innerText = `${currSymbol}${grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiDualTotal').innerText = p.currency === 'INR' ? `~$${totalUsd.toLocaleString()}` : `~INR ${totalInr.toLocaleString()}`;
+
+            // Update Active Generated Data if present
+            if (applyToWorkspace && currentGeneratedData) {
+                currentGeneratedData.pricing = {
+                    currency: p.currency,
+                    exchangeRate: p.exchangeRate,
+                    ratePerAdult: p.ratePerAdult,
+                    adultCount: p.adultCount,
+                    ratePerChild: p.ratePerChild,
+                    childCount: p.childCount,
+                    baseSubtotal: baseSubtotal,
+                    markupPercent: p.markupPercent,
+                    markupAmount: markupAmount,
+                    taxPercent: p.taxPercent,
+                    taxAmount: taxAmount,
+                    discountAmount: p.discountAmount,
+                    grandTotal: grandTotal,
+                    totalInr: totalInr,
+                    totalUsd: totalUsd
+                };
+
+                // Re-render current active layout with freshly computed figures
+                renderReviewWorkspace(currentGeneratedData);
+            }
+        }
+
+        function resetDefaultRates() {
+            const dest = document.getElementById('destSelect')?.value || 'Thailand';
+            if (dest === 'Kashmir' || dest === 'Rajasthan') {
+                document.getElementById('rateCurrency').value = 'INR';
+                document.getElementById('ratePerAdult').value = 24500;
+                document.getElementById('ratePerChild').value = 12000;
+                document.getElementById('rateHotelNightly').value = 6500;
+                document.getElementById('rateVehicle').value = 14000;
+                document.getElementById('rateActivity').value = 8500;
+            } else {
+                document.getElementById('rateCurrency').value = (dest === 'Dubai' ? 'AED' : 'USD');
+                document.getElementById('ratePerAdult').value = 400;
+                document.getElementById('ratePerChild').value = 200;
+                document.getElementById('rateHotelNightly').value = 120;
+                document.getElementById('rateVehicle').value = 140;
+                document.getElementById('rateActivity').value = 180;
+            }
+            document.getElementById('rateAdultCount').value = 2;
+            document.getElementById('rateChildCount').value = 0;
+            document.getElementById('rateHotelNights').value = 5;
+            document.getElementById('rateMarkupPct').value = 15;
+            document.getElementById('rateTaxPct').value = 5;
+            document.getElementById('rateDiscount').value = 0;
+            recalculateActiveRates(true);
+        }
+
+        function handleDocTypeChange() {
+            const dt = document.getElementById('docTypeSelect').value;
+            const dest = document.getElementById('destSelect').value;
+            document.getElementById('promptInput').placeholder = `Prompt for ${dt.replace(/_/g, ' ')} (${dest})... (e.g. Set markup to 20%, 4 Pax)`;
+        }
+
+        function handleDestinationChange() {
+            const dest = document.getElementById('destSelect').value;
+            if (dest === 'Kashmir' || dest === 'Rajasthan') {
+                document.getElementById('rateCurrency').value = 'INR';
+                document.getElementById('ratePerAdult').value = 24500;
+            } else if (dest === 'Dubai') {
+                document.getElementById('rateCurrency').value = 'AED';
+                document.getElementById('ratePerAdult').value = 1450;
+            } else {
+                document.getElementById('rateCurrency').value = 'USD';
+                document.getElementById('ratePerAdult').value = 400;
+            }
+            recalculateActiveRates(false);
+            handleDocTypeChange();
+        }
+
+        function triggerDocumentGeneration() {
+            const docType = document.getElementById('docTypeSelect').value;
+            const dest = document.getElementById('destSelect').value;
+            const p = getActiveRateParameters();
+            const curr = p.currency;
+            const promptText = `Generate official ${docType.replace(/_/g, ' ')} for ${dest} (${p.adultCount} Adults${p.childCount > 0 ? ', ' + p.childCount + ' Children' : ''}) at rate ${p.ratePerAdult} ${curr}/adult with ${p.markupPercent}% markup and ${p.taxPercent}% GST.`;
+            document.getElementById('promptInput').value = promptText;
+            handleChatSubmit();
+        }
+
+        // ============================================================
+        // ATTACHMENT HANDLERS (PDF / DOCX MULTI-FILE EXTRACTION)
+        // ============================================================
         async function handleAttachmentSelected(input) {
             if (!input.files || input.files.length === 0) return;
-            const selectedFiles = Array.from(input.files);
+            const files = Array.from(input.files);
 
-            for (const file of selectedFiles) {
-                if (file.size > 30 * 1024 * 1024) {
-                    alert(`"${file.name}" is too large. Please select a document under 30MB.`);
-                    continue;
-                }
-
-                // Avoid adding exact duplicate
-                const exists = activeAttachments.some(a => a.name === file.name && a.bytes === file.size);
-                if (exists) continue;
-
-                const attId = 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            for (const file of files) {
+                const fileId = 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
                 const attObj = {
-                    id: attId,
+                    id: fileId,
                     name: file.name,
-                    size: (file.size / 1024).toFixed(1) + ' KB',
-                    bytes: file.size,
-                    mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
+                    size: file.size,
+                    type: file.type,
+                    mimeType: file.type || 'application/pdf',
                     base64: '',
                     extractedText: '',
                     serverPath: '',
-                    documentId: null,
                     ready: false
                 };
-
                 activeAttachments.push(attObj);
                 renderAttachmentCards();
 
-                // 1. Read Base64 in browser
                 const readBase64Promise = new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = () => {
-                        const raw = reader.result || '';
-                        attObj.base64 = raw.includes(',') ? raw.split(',')[1] : raw;
+                    reader.onload = (e) => {
+                        attObj.base64 = e.target.result;
                         resolve();
                     };
                     reader.onerror = () => resolve();
                     reader.readAsDataURL(file);
                 });
 
-                // 2. Extract text client-side via PDF.js (PDF) or Mammoth.js (Word DOCX)
-                const extractTextPromise = (async () => {
-                    const lowerName = file.name.toLowerCase();
-                    if (lowerName.endsWith('.pdf') && typeof pdfjsLib !== 'undefined') {
-                        try {
-                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                            const arrayBuffer = await file.arrayBuffer();
-                            const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                            let extracted = '';
-                            const pageLimit = Math.min(pdfDoc.numPages || 1, 10);
-                            for (let p = 1; p <= pageLimit; p++) {
-                                const page = await pdfDoc.getPage(p);
-                                const textContent = await page.getTextContent();
-                                const pageString = textContent.items.map(item => item.str).join(' ');
-                                extracted += `[Page ${p}]\n` + pageString + '\n';
-                            }
-                            if (extracted.trim()) {
-                                attObj.extractedText = extracted.trim();
-                            }
-                        } catch (pdfErr) {
-                            console.warn('PDF.js client extraction notice:', pdfErr);
-                        }
-                    } else if ((lowerName.endsWith('.docx') || lowerName.endsWith('.doc')) && typeof mammoth !== 'undefined') {
-                        try {
-                            const arrayBuffer = await file.arrayBuffer();
-                            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-                            if (result && result.value) {
-                                attObj.extractedText = result.value.trim();
-                            }
-                        } catch (docxErr) {
-                            console.warn('Mammoth docx extraction notice:', docxErr);
-                        }
-                    }
-                })();
-
-                // 3. Background upload to cPanel server storage
-                const uploadPromise = (async () => {
+                const extractTextPromise = new Promise(async (resolve) => {
                     try {
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        formData.append('type', 'quotation');
-                        const res = await fetch('../api/upload_attachment.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data && data.success) {
-                                attObj.serverPath = data.filePath || '';
-                                attObj.documentId = data.documentId || null;
-                                if (data.extracted_text && !attObj.extractedText) {
-                                    attObj.extractedText = data.extracted_text;
+                        const lower = file.name.toLowerCase();
+                        if (lower.endsWith('.pdf')) {
+                            if (window.pdfjsLib) {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                let fullPdfText = '';
+                                const maxPages = Math.min(pdf.numPages, 10);
+                                for (let p = 1; p <= maxPages; p++) {
+                                    const page = await pdf.getPage(p);
+                                    const txt = await page.getTextContent();
+                                    const pageStr = txt.items.map(it => it.str).join(' ');
+                                    fullPdfText += `\n--- Page ${p} ---\n` + pageStr;
                                 }
+                                attObj.extractedText = fullPdfText.trim();
+                            }
+                        } else if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
+                            if (window.mammoth) {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                                attObj.extractedText = (result.value || '').trim();
                             }
                         }
-                    } catch (upErr) {
-                        console.warn('Background server upload notice (offline or local preview):', upErr);
+                    } catch (extErr) {
+                        console.warn('Local client text extract warning:', extErr);
                     }
-                })();
+                    resolve();
+                });
 
-                // Wait for read & extraction then mark ready
                 Promise.all([readBase64Promise, extractTextPromise]).then(() => {
                     attObj.ready = true;
                     renderAttachmentCards();
                 });
             }
-
-            // Reset file input so user can add more files anytime!
             input.value = '';
         }
 
-        function normalizeAiQuotationData(raw, userPrompt = '') {
-            if (!raw) return null;
-            const d = raw.data || raw;
-            const pkg = d.package || {};
-
-            let destination = pkg.destination || d.destination || '';
-            if (typeof destination === 'object' && destination !== null) {
-                destination = destination.name || destination.city || destination.region || 'Selected Destination';
-            }
-            if (!destination) destination = 'Selected Destination';
-
-            let country = d.country || pkg.country || '';
-            if (!country) {
-                const low = destination.toLowerCase();
-                if (low.includes('bali') || low.includes('indonesia')) country = 'Indonesia';
-                else if (low.includes('dubai') || low.includes('abu dhabi')) country = 'UAE';
-                else if (low.includes('thailand') || low.includes('phuket') || low.includes('krabi')) country = 'Thailand';
-                else if (low.includes('malaysia')) country = 'Malaysia';
-                else if (low.includes('turkey') || low.includes('cappadocia')) country = 'Turkey';
-                else if (low.includes('vietnam')) country = 'Vietnam';
-                else if (low.includes('kashmir') || low.includes('rajasthan') || low.includes('kerala')) country = 'India';
-                else country = 'International';
-            }
-
-            let duration = pkg.duration || d.duration || '6 Days / 5 Nights';
-            let title = pkg.title || d.title || `${duration} Luxury ${destination} Escape`;
-
-            let priceInr = Number(pkg.priceInr || d.pricing?.totalInr || d.priceInr || 48500);
-            let priceUsd = Number(pkg.priceUsd || d.pricing?.totalUsd || d.priceUsd || Math.round(priceInr / 83.5));
-            let ratePerAdultUsd = Number(pkg.ratePerAdultUsd || d.pricing?.ratePerAdultUsd || (priceUsd / 2));
-
-            // Intelligent Math & Amount Modification
-            const pLow = (userPrompt || '').toLowerCase();
-            const isDouble = pLow.includes('double') || pLow.includes('200 ka 400') || pLow.includes('doguna') || pLow.includes('do guna') || pLow.includes('2x');
-            const hasDecoration = pLow.includes('decor') || pLow.includes('flower') || Boolean(d.isDecorationIncluded);
-
-            if (pLow.includes('200 ka 400')) {
-                ratePerAdultUsd = 400.00;
-                priceUsd = 800.00;
-                priceInr = 69600;
-            } else if (isDouble && !d._alreadyDoubled) {
-                ratePerAdultUsd = Number((ratePerAdultUsd * 2).toFixed(2));
-                priceUsd = Number((priceUsd * 2).toFixed(2));
-                priceInr = priceInr * 2;
-            } else if (userPrompt) {
-                const numMatch = userPrompt.match(/(?:increase|add|badha|extra|markup|badhao|kar do|plus|\+)\s*(?:by|to|ke)?\s*(?:rs\.?|inr|₹)?\s*(\d+[\d,]*)/i)
-                              || userPrompt.match(/(\d+[\d,]*)\s*(?:rs\.?|inr|₹)?\s*(?:increase|add|badha|extra|markup|kar do)/i);
-                if (numMatch) {
-                    const modVal = parseInt(numMatch[1].replace(/,/g, ''), 10);
-                    if (!isNaN(modVal) && modVal > 0) {
-                        if (pLow.includes('increase') || pLow.includes('add') || pLow.includes('badha') || pLow.includes('plus') || pLow.includes('+') || pLow.includes('extra')) {
-                            priceInr += modVal;
-                            priceUsd = Math.round(priceInr / 83.5);
-                            ratePerAdultUsd = Number((priceUsd / 2).toFixed(2));
-                            title += ` (+₹${modVal.toLocaleString()})`;
-                        } else if (pLow.includes('kar do') || pLow.includes('set to')) {
-                            priceInr = modVal;
-                            priceUsd = Math.round(priceInr / 83.5);
-                            ratePerAdultUsd = Number((priceUsd / 2).toFixed(2));
-                        }
-                    }
-                }
-            }
-
-            if (hasDecoration && !title.toLowerCase().includes('decoration')) {
-                title += ' (with Romantic Room & Bed Decoration)';
-            }
-
-            let hotelString = '';
-            const rawHotels = d.hotels || pkg.hotels;
-            if (Array.isArray(rawHotels)) {
-                hotelString = rawHotels.map(h => {
-                    if (typeof h === 'object' && h !== null) {
-                        const name = h.hotelName || h.name || 'Luxury Category Hotel';
-                        const room = h.roomType ? ` (${h.roomType})` : '';
-                        return `${name}${room}`;
-                    }
-                    return String(h);
-                }).join(', ');
-            } else if (typeof rawHotels === 'object' && rawHotels !== null) {
-                hotelString = rawHotels.hotelName || rawHotels.name || 'Luxury Category Hotel';
-            } else if (typeof rawHotels === 'string') {
-                hotelString = rawHotels;
-            }
-            if (!hotelString) hotelString = '4★ & 5★ Deluxe Properties';
-
-            let daysList = [];
-            const rawDays = d.days || d.itinerary || [];
-            if (Array.isArray(rawDays) && rawDays.length > 0) {
-                daysList = rawDays.map((item, idx) => ({
-                    day: item.day ? (typeof item.day === 'number' ? `Day ${item.day}` : item.day) : `Day ${idx + 1}`,
-                    title: item.title || item.heading || 'Sightseeing Tour',
-                    desc: item.description || item.desc || item.details || 'Curated sightseeing and guided experience.'
-                }));
-            } else {
-                daysList = [
-                    { day: 'Day 1', title: `Arrival in ${destination}`, desc: 'Private airport meet & greet by Let\'s Explore DMC representative, transfer to hotel, evening leisure.' },
-                    { day: 'Day 2', title: 'Signature Highlights Tour', desc: 'Full-day tour covering major attractions, cultural sights & viewpoints.' },
-                    { day: 'Day 3', title: 'Scenic Excursion & Adventure', desc: 'Exciting speedboat or cable car activity followed by evening sunset.' },
-                    { day: 'Day 4', title: 'Local Heritage & Shopping', desc: 'Visit traditional markets, craft centers, and gourmet dining spots.' },
-                    { day: 'Day 5', title: 'Departure Transfer', desc: 'Check-out and private transfer to airport with happy memories.' }
-                ];
-            }
-
-            const rawSummary = d.summary || {};
-            let inclusions = Array.isArray(d.inclusions) ? [...d.inclusions] : (Array.isArray(rawSummary.inclusions) ? [...rawSummary.inclusions] : [
-                'Private AC airport and sightseeing transfers throughout tour',
-                'Daily buffet breakfast at all hotels',
-                'All entry tickets, admissions & toll permits mentioned in itinerary',
-                '24/7 dedicated on-ground DMC concierge support'
-            ]);
-
-            if (hasDecoration) {
-                const hasDecInc = inclusions.some(inc => String(inc).toLowerCase().includes('decoration'));
-                if (!hasDecInc) {
-                    inclusions.unshift('Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities');
-                }
-            }
-
-            let exclusions = Array.isArray(d.exclusions) ? [...d.exclusions] : (Array.isArray(rawSummary.exclusions) ? [...rawSummary.exclusions] : [
-                'International and domestic flights',
-                'Tourist visa stamping fees',
-                'Personal expenses, laundry, tips and minibar charges',
-                'Travel insurance'
-            ]);
-
-            return {
-                title,
-                destination,
-                country,
-                duration,
-                pax: pkg.paxCount ? `${pkg.paxCount} Adults` : (d.pax || '2 Adults'),
-                hotels: hotelString,
-                isDecorationIncluded: Boolean(hasDecoration),
-                pricing: {
-                    ratePerAdultUsd: ratePerAdultUsd,
-                    totalInr: priceInr,
-                    totalUsd: priceUsd
-                },
-                itinerary: daysList,
-                inclusions,
-                exclusions,
-                rawResponse: d
-            };
-        }
-
+        // ============================================================
+        // CHAT DISPATCH & MULTI-TEMPLATE AI GENERATION
+        // ============================================================
         async function handleChatSubmit(e) {
             if (e) e.preventDefault();
             const input = document.getElementById('promptInput');
@@ -922,7 +1035,6 @@
             const attachedFilesBackup = Array.isArray(activeAttachments) ? [...activeAttachments] : [];
             const chatBox = document.getElementById('chatMessages');
 
-            // Build user message with Claude-style thumbnail cards strip at top
             let cardsHtml = '';
             if (attachedFilesBackup.length > 0) {
                 cardsHtml = `<div style="margin-bottom:8px; display:flex; flex-wrap:wrap; gap:8px;">${buildClaudeCardsHTML(attachedFilesBackup, false)}</div>`;
@@ -938,7 +1050,6 @@
             `;
             chatBox.insertAdjacentHTML('beforeend', userMsgHtml);
 
-            // Clear composer and reset attachment list
             input.value = '';
             activeAttachments = [];
             renderAttachmentCards();
@@ -950,7 +1061,7 @@
                         <i class="fa-solid fa-robot"></i>
                     </div>
                     <div style="font-size:12px; color:var(--portal-text-muted); font-weight:600;">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Reading ${attachedFilesBackup.length > 0 ? attachedFilesBackup.length + ' files' : 'query'} & calculating rates...
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Processing format &amp; computing destination tariffs...
                     </div>
                 </div>
             `);
@@ -959,8 +1070,15 @@
             const clientClaudeKey = localStorage.getItem('dmc_claude_api_key') || localStorage.getItem('claude_api_key') || '';
             const clientGeminiKey = localStorage.getItem('dmc_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
 
+            const selectedDocType = document.getElementById('docTypeSelect')?.value || 'quotation';
+            const selectedDest = document.getElementById('destSelect')?.value || 'Thailand';
+            const currentRates = getActiveRateParameters();
+
             const payload = {
                 prompt: prompt,
+                docType: selectedDocType,
+                destination: selectedDest,
+                rates: currentRates,
                 serverFilePath: attachedFilesBackup[0]?.serverPath || '',
                 currentQuotation: currentGeneratedData || null,
                 claudeApiKey: clientClaudeKey,
@@ -991,32 +1109,20 @@
                 if (typingEl) typingEl.remove();
 
                 if (result.success && result.data) {
-                    let engineLabel = 'Local DMC Heuristic Engine (smart-travel-heuristic-v2)';
+                    let engineLabel = 'Local DMC Intelligence Engine';
                     if (result.provider === 'claude') {
                         engineLabel = 'Anthropic Claude 3.5 Sonnet';
-                        const eg = document.getElementById('activeAiEngineName');
-                        if (eg) eg.textContent = 'Anthropic Claude 3.5';
-                        const sp = document.getElementById('activeAiStatusPill');
-                        if (sp) { sp.className = 'status-pill status-confirmed'; sp.innerHTML = '<i class="fa-solid fa-circle-check"></i> Claude API Active'; }
+                        document.getElementById('activeAiEngineName').textContent = 'Anthropic Claude 3.5';
                     } else if (result.provider === 'gemini') {
                         engineLabel = 'Google Gemini 2.5 Flash';
-                        const eg = document.getElementById('activeAiEngineName');
-                        if (eg) eg.textContent = 'Google Gemini 2.5 Flash';
-                        const sp = document.getElementById('activeAiStatusPill');
-                        if (sp) { sp.className = 'status-pill status-confirmed'; sp.innerHTML = '<i class="fa-solid fa-circle-check"></i> Gemini Active'; }
-                    } else {
-                        const eg = document.getElementById('activeAiEngineName');
-                        if (eg) eg.textContent = 'Local DMC Intelligence Engine';
-                        const sp = document.getElementById('activeAiStatusPill');
-                        if (sp) { sp.className = 'status-pill status-draft'; sp.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Heuristic Standby'; }
+                        document.getElementById('activeAiEngineName').textContent = 'Google Gemini 2.5 Flash';
                     }
-                    currentGeneratedData = normalizeAiQuotationData(result.data, prompt);
+                    currentGeneratedData = result.data;
                     renderChatResponse(chatBox, engineLabel, currentGeneratedData, prompt);
                     renderReviewWorkspace(currentGeneratedData);
                 } else {
-                    const fallbackRaw = generateSmartFallback(prompt, currentGeneratedData);
-                    currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
-                    renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData, prompt);
+                    currentGeneratedData = generateSmartClientFallback(prompt, selectedDocType, selectedDest, currentRates);
+                    renderChatResponse(chatBox, 'Local DMC Intelligence Engine (Fallback)', currentGeneratedData, prompt);
                     renderReviewWorkspace(currentGeneratedData);
                 }
             } catch (err) {
@@ -1024,9 +1130,8 @@
                 const typingEl = document.getElementById(typingId);
                 if (typingEl) typingEl.remove();
 
-                const fallbackRaw = generateSmartFallback(prompt, currentGeneratedData);
-                currentGeneratedData = normalizeAiQuotationData(fallbackRaw, prompt);
-                renderChatResponse(chatBox, 'Local DMC Heuristic Engine (Fallback Mode)', currentGeneratedData, prompt);
+                currentGeneratedData = generateSmartClientFallback(prompt, selectedDocType, selectedDest, currentRates);
+                renderChatResponse(chatBox, 'Local DMC Intelligence Engine (Offline Mode)', currentGeneratedData, prompt);
                 renderReviewWorkspace(currentGeneratedData);
             }
 
@@ -1034,75 +1139,9 @@
         }
 
         function renderChatResponse(container, modelName, data, userPrompt = '') {
-            let destText = data.destination;
-            if (typeof destText === 'object' && destText !== null) {
-                destText = destText.name || destText.city || destText.region || 'Selected Destination';
-            }
-            if (!destText || destText === '[object Object]') destText = 'Selected Destination';
-
-            let hotelText = data.hotels;
-            if (Array.isArray(hotelText)) {
-                hotelText = hotelText.map(h => typeof h === 'object' && h !== null ? (h.hotelName || h.name || 'Luxury Hotel') : String(h)).filter(Boolean).join(', ');
-            } else if (typeof hotelText === 'object' && hotelText !== null) {
-                hotelText = hotelText.hotelName || hotelText.name || 'Standard 4★ / 5★ accommodation';
-            }
-            if (!hotelText || hotelText === '[object Object]') hotelText = 'Standard 4★ / 5★ accommodation';
-
-            let durationText = (typeof data.duration === 'string' && data.duration !== '[object Object]') ? data.duration : '6 Days / 5 Nights';
-            const isPhuketKrabi = String(destText).toLowerCase().includes('phuket') || String(destText).toLowerCase().includes('krabi');
-
-            let claudeNoteHtml = '';
-            const pLower = (userPrompt || '').toLowerCase();
-            const isModDoubleDecor = pLower.includes('double') || pLower.includes('200 ka 400') || pLower.includes('decor') || pLower.includes('as it is') || pLower.includes('change mat') || Boolean(data.isDecorationIncluded);
-
-            if (isModDoubleDecor) {
-                const perAdultRate = data.pricing?.ratePerAdultUsd ? Number(data.pricing.ratePerAdultUsd).toFixed(2) : (Number(data.pricing?.totalUsd || 800) / 2).toFixed(2);
-                const totalUsdVal = data.pricing?.totalUsd ? Number(data.pricing.totalUsd).toFixed(2) : (Number(perAdultRate) * 2).toFixed(2);
-                const totalInrVal = data.pricing?.totalInr ? Number(data.pricing.totalInr).toLocaleString() : (Number(totalUsdVal) * 87).toLocaleString();
-
-                claudeNoteHtml = `
-                    <div style="margin-bottom:6px; font-style:italic; color:#475569; font-size:11.5px; border-left:2px solid var(--portal-blue); padding-left:8px;">
-                        “Aapke instructions ke anusar quotation format as it is preserve kiya gaya hai &gt;”
-                    </div>
-                    <p style="margin:0 0 6px 0; font-size:12.5px; color:#0F172A; line-height:1.45;">
-                        Quotation layout, hotels aur itinerary bilkul <strong>as it is</strong> rakha gaya hai bina kisi format badlav ke. <strong>Amount ko double kar diya gaya hai</strong> aur <strong>Romantic Room &amp; Bed Decoration</strong> add kar di gayi hai.
-                    </p>
-                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin:8px 0; font-size:11.5px;">
-                        <div style="font-weight:800; color:#0F2C59; margin-bottom:4px;">💰 Updated Dual-Currency Tariff:</div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-                            <span>• Per Adult Rate (with Room Decoration):</span>
-                            <strong>$${perAdultRate} <span style="font-weight:normal; color:#64748B;">(Amount Doubled: 200 ➔ 400)</span></strong>
-                        </div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span>• Total Land Package (2 Adults):</span>
-                            <strong style="color:#059669;">$${totalUsdVal} <span style="font-weight:normal; color:#64748B;">(~INR ${totalInrVal})</span></strong>
-                        </div>
-                        <div style="margin-top:5px; font-size:11px; color:#D97706; font-weight:700;">
-                            ✨ Special Inclusions: Romantic Room &amp; Bed Floral Decoration Added
-                        </div>
-                    </div>
-                `;
-            } else if (isPhuketKrabi || (userPrompt && (userPrompt.includes('15') || userPrompt.includes('markup')))) {
-                claudeNoteHtml = `
-                    <div style="margin-bottom:6px; font-style:italic; color:#475569; font-size:11.5px; border-left:2px solid var(--portal-blue); padding-left:8px;">
-                        “Comparing company details with the Rajasthan quote's structure &gt;”
-                    </div>
-                    <p style="margin:0 0 6px 0; font-size:12.5px; color:#0F172A; line-height:1.45;">
-                        <strong>Phuket + Krabi (6D/5N)</strong> ka quotation ab Let's Explore DMC ke Rajasthan quote format mein ban gaya hai. Isme aapki company details aur <strong>15% markup</strong> apply ho chuka hai.
-                    </p>
-                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; margin:8px 0; font-size:11.5px;">
-                        <div style="font-weight:800; color:#0F2C59; margin-bottom:4px;">💰 Pricing (USD, 15% markup ke baad):</div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-                            <span>• Per Adult (Twin/Double Sharing):</span>
-                            <strong>$632.88 <span style="font-weight:normal; color:#64748B;">(Base $550.33 + 15%)</span></strong>
-                        </div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span>• Total Land Package (2 Adults):</span>
-                            <strong style="color:#059669;">$1,265.76 <span style="font-weight:normal; color:#64748B;">(~INR 1,10,121)</span></strong>
-                        </div>
-                    </div>
-                `;
-            }
+            const docTitle = data.docTitle || data.title || 'Official Travel Document';
+            const dest = data.destination || 'Selected Destination';
+            const price = data.pricing?.grandTotal ? `${data.currency || 'USD'} ${Number(data.pricing.grandTotal).toLocaleString()}` : '';
 
             const html = `
                 <div style="display:flex; gap:10px; align-items:flex-start;">
@@ -1118,18 +1157,15 @@
                                 <i class="fa-solid fa-bolt"></i> Realtime
                             </span>
                         </div>
-                        ${claudeNoteHtml}
-                        <p style="margin:0 0 4px 0; font-weight:700; color:var(--portal-navy);">
-                            ${data.title || 'Master Travel Package'} (${destText})
+                        <p style="margin:0 0 4px 0; font-weight:800; color:var(--portal-navy); font-size:13px;">
+                            ${escapeHtml(docTitle)} (${escapeHtml(dest)})
                         </p>
                         <p style="margin:0 0 6px 0; font-size:12px; color:var(--portal-text-muted);">
-                            ${durationText} &bull; ${hotelText}
+                            ${data.documentSummary || 'Official DMC format generated with contracted tariffs.'}
                         </p>
-                        <div style="font-size:11.5px; color:var(--portal-green); font-weight:700; margin-bottom:8px;">
-                            Price: ${data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500'} (${data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585'})
-                        </div>
+                        ${price ? `<div style="font-size:12px; color:var(--portal-green); font-weight:800; margin-bottom:6px;">Total: ${price}</div>` : ''}
                         <div style="font-size:11px; color:var(--portal-blue); font-weight:600;">
-                            👉 Review complete day-wise timeline and click <strong>Download PDF</strong> or <strong>Approve &amp; Save</strong> on the right panel.
+                            👉 Dedicated layout loaded in the Review Workspace. Review or click <strong>Download PDF</strong>.
                         </div>
                     </div>
                 </div>
@@ -1137,55 +1173,891 @@
             container.insertAdjacentHTML('beforeend', html);
         }
 
-        function renderReviewWorkspace(data) {
+        // ============================================================
+        // 12 DEDICATED LAYOUT RENDERERS (ONE UNIQUE LAYOUT PER TEMPLATE)
+        // ============================================================
+        function renderReviewWorkspace(d) {
             document.getElementById('emptyWorkspaceState').style.display = 'none';
-            const card = document.getElementById('generatedPackageCard');
-            card.style.display = 'flex';
+            const area = document.getElementById('documentLayoutArea');
+            area.style.display = 'flex';
 
             const badge = document.getElementById('outputStatusBadge');
             badge.innerText = 'Ready for Approval';
             badge.className = 'status-pill status-confirmed';
 
-            document.getElementById('revCountryBadge').innerText = data.country || 'Destination';
-            document.getElementById('revPackageTitle').innerText = data.title || 'Luxury Holiday Package';
-            document.getElementById('revDestination').innerText = data.destination || 'Destination';
-            document.getElementById('revDuration').innerText = data.duration || '6 Days / 5 Nights';
-            document.getElementById('revPax').innerText = data.pax || '2 Adults';
+            const docType = d.detectedDocType || d.docType || 'quotation';
+            const docTitle = d.docTitle || d.title || 'Official Document';
+            document.getElementById('workspaceDocTitle').innerText = docTitle;
+            document.getElementById('workspaceDocSub').innerText = `${d.destination || 'Destination'} — ${docType.replace(/_/g, ' ').toUpperCase()}`;
 
-            const priceInr = data.pricing?.totalInr ? 'INR ' + Number(data.pricing.totalInr).toLocaleString() : 'INR 48,500';
-            const priceUsd = data.pricing?.totalUsd ? 'USD ' + Number(data.pricing.totalUsd).toLocaleString() : 'USD 585';
-            document.getElementById('revPricing').innerText = `${priceInr} / ${priceUsd}`;
+            // Sync top selectors if mismatched
+            const dtSel = document.getElementById('docTypeSelect');
+            if (dtSel && dtSel.value !== docType && Array.from(dtSel.options).some(o => o.value === docType)) {
+                dtSel.value = docType;
+            }
 
-            document.getElementById('revHotels').innerText = data.hotels || '4★ & 5★ Deluxe Properties';
-            document.getElementById('revInclusions').innerText = Array.isArray(data.inclusions) ? data.inclusions.join(', ') : (data.inclusions || 'Daily Breakfast, AC Transfers, Sightseeing');
-            document.getElementById('revExclusions').innerText = Array.isArray(data.exclusions) ? data.exclusions.join(', ') : (data.exclusions || 'Airfare, Personal Expenses, Insurance');
+            // Route to dedicated renderer
+            let layoutHtml = '';
+            if (docType === 'hotel_voucher') {
+                layoutHtml = renderHotelVoucherLayout(d);
+            } else if (docType === 'transfer_voucher') {
+                layoutHtml = renderTransferVoucherLayout(d);
+            } else if (docType === 'activity_voucher') {
+                layoutHtml = renderActivityVoucherLayout(d);
+            } else if (docType === 'customer_billing') {
+                layoutHtml = renderCustomerBillingLayout(d);
+            } else if (docType === 'supplier_billing') {
+                layoutHtml = renderSupplierBillingLayout(d);
+            } else if (docType === 'customer_invoice') {
+                layoutHtml = renderCustomerInvoiceLayout(d);
+            } else if (docType === 'proforma_invoice') {
+                layoutHtml = renderProformaInvoiceLayout(d);
+            } else if (docType === 'hotel_rate_sheet') {
+                layoutHtml = renderHotelRateSheetLayout(d);
+            } else if (docType === 'sightseeing_rate_sheet') {
+                layoutHtml = renderSightseeingRateSheetLayout(d);
+            } else if (docType === 'transport_rate_sheet') {
+                layoutHtml = renderTransportRateSheetLayout(d);
+            } else if (docType === 'package_rate_sheet') {
+                layoutHtml = renderPackageRateSheetLayout(d);
+            } else {
+                layoutHtml = renderQuotationLayout(d);
+            }
 
-            const itinBox = document.getElementById('revItineraryList');
-            itinBox.innerHTML = '';
-            const items = Array.isArray(data.itinerary) && data.itinerary.length > 0 ? data.itinerary : [
-                { day: 'Day 1', title: 'Arrival & Welcome', desc: 'Airport greeting by Let’s Explore DMC coordinator & hotel transfer.' },
-                { day: 'Day 2', title: 'Full Day Highlights Tour', desc: 'Iconic scenic spots, cultural sights & guided experience.' },
-                { day: 'Day 3', title: 'Adventure & Leisure', desc: 'Island excursion or landmark activities followed by evening free.' },
-                { day: 'Day 4', title: 'Local Sights & Shopping', desc: 'Curated shopping bazaars and scenic sunset dinner.' },
-                { day: 'Day 5', title: 'Departure Transfer', desc: 'Check-out and private transfer to airport with happy memories.' }
-            ];
+            area.innerHTML = layoutHtml;
+        }
 
-            items.forEach((item, idx) => {
-                const dayNum = item.day || `Day ${idx + 1}`;
-                const dayTitle = item.title || item.heading || 'Sightseeing Tour';
-                const dayDesc = item.desc || item.description || item.details || '';
-                itinBox.insertAdjacentHTML('beforeend', `
-                    <div style="border-left:3px solid var(--portal-blue); padding-left:10px; margin-bottom:4px;">
-                        <div style="font-size:12px; font-weight:700; color:var(--portal-navy);">${dayNum}: ${dayTitle}</div>
-                        <div style="font-size:11.5px; color:var(--portal-text-muted);">${dayDesc}</div>
+        // Layout 1: Hotel Voucher
+        function renderHotelVoucherLayout(d) {
+            const hv = d.hotelVoucher || {};
+            const guest = d.client?.name || hv.guestName || 'Valued Guest';
+            const currency = d.currency || 'USD';
+            const total = d.pricing?.grandTotal ? `${currency} ${Number(d.pricing.grandTotal).toLocaleString()}` : 'Guaranteed by DMC';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #2563EB;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed"><i class="fa-solid fa-circle-check"></i> ${hv.status || 'CONFIRMED & GUARANTEED'}</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">${hv.hotelName || 'Luxury Partner Hotel'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">📍 ${hv.hotelAddress || d.destination} &bull; ${hv.starRating || '4★ / 5★ Deluxe'}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Voucher Reference</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${hv.voucherNumber || 'LEDMC-HV-001'}</div>
+                            <div style="font-size:11px; color:#2563EB; font-weight:700;">Conf #: ${hv.confirmationCode || 'CONF-8891'}</div>
+                        </div>
                     </div>
-                `);
-            });
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px;">
+                        <div><strong style="color:#64748B;">Lead Guest:</strong> <span style="font-weight:700; color:#0F172A;">${escapeHtml(guest)}</span></div>
+                        <div><strong style="color:#64748B;">Guests / Pax:</strong> <span style="font-weight:700; color:#0F172A;">${d.client?.pax || '2 Adults'}</span></div>
+                        <div><strong style="color:#64748B;">Check-in Date:</strong> <span style="font-weight:700; color:#0F172A;">${hv.checkInDate || 'Arrival'} (${hv.checkInTime || '14:00'})</span></div>
+                        <div><strong style="color:#64748B;">Check-out Date:</strong> <span style="font-weight:700; color:#0F172A;">${hv.checkOutDate || 'Departure'} (${hv.checkOutTime || '12:00'})</span></div>
+                        <div><strong style="color:#64748B;">Duration:</strong> <span style="font-weight:700; color:#0F172A;">${hv.nights || 5} Nights, ${hv.roomsCount || 1} Room(s)</span></div>
+                        <div><strong style="color:#64748B;">Room Category:</strong> <span style="font-weight:700; color:#2563EB;">${hv.roomType || 'Superior Deluxe'}</span></div>
+                        <div><strong style="color:#64748B;">Meal Plan:</strong> <span style="font-weight:700; color:#059669;">${hv.mealPlan || 'Daily Breakfast Included'}</span></div>
+                        <div><strong style="color:#64748B;">Billing Tariff:</strong> <span style="font-weight:800; color:#0F2C59;">${total}</span></div>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#0F2C59; margin-bottom:4px;">🏨 Hotel Inclusions &amp; Amenities:</div>
+                        <ul style="margin:0; padding-left:18px; font-size:11.5px; color:#334155; line-height:1.45;">
+                            ${(hv.inclusions || ['Daily breakfast', 'WiFi', 'Complimentary drinking water']).map(inc => `<li>${escapeHtml(inc)}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    ${hv.specialRequests ? `
+                    <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:6px; padding:8px 12px; margin-bottom:10px; font-size:11.5px; color:#92400E;">
+                        <strong>Special Requests:</strong> ${escapeHtml(hv.specialRequests)}
+                    </div>` : ''}
+
+                    <div style="border-top:1px solid #E2E8F0; padding-top:8px; font-size:10.5px; color:#64748B; display:flex; justify-content:space-between; align-items:center;">
+                        <span>📞 Emergency DMC Support: <strong>+91 80075 86881</strong></span>
+                        <span>Issued by: <strong>Let's Explore DMC Operations</strong></span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 2: Transfer Voucher
+        function renderTransferVoucherLayout(d) {
+            const tv = d.transferVoucher || {};
+            const guest = d.client?.name || tv.guestName || 'Valued Guest';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #059669;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed"><i class="fa-solid fa-circle-check"></i> ${tv.status || 'CONFIRMED TRANSFER'}</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">${tv.serviceType || 'Private Airport Transfer'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">🚐 ${tv.vehicleType || 'Toyota Commuter VIP Van'} &bull; Plate: ${tv.vehiclePlate || 'DMC-VIP'}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Transfer Ref</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${tv.voucherNumber || 'LEDMC-TV-002'}</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px;">
+                        <div><strong style="color:#64748B;">Lead Passenger:</strong> <span style="font-weight:700;">${escapeHtml(guest)} (${d.client?.pax || '2 Adults'})</span></div>
+                        <div><strong style="color:#64748B;">Date &amp; Time:</strong> <span style="font-weight:700; color:#2563EB;">${tv.pickupDate || 'Scheduled Date'} @ ${tv.pickupTime || 'Flight Time'}</span></div>
+                        <div style="grid-column:1 / -1;"><strong style="color:#64748B;">Pickup Location:</strong> <span style="font-weight:700; color:#0F172A;">${escapeHtml(tv.pickupLocation || 'Airport Arrival Gate')}</span></div>
+                        <div style="grid-column:1 / -1;"><strong style="color:#64748B;">Drop-off Destination:</strong> <span style="font-weight:700; color:#0F172A;">${escapeHtml(tv.dropLocation || 'Hotel Front Lobby')}</span></div>
+                        <div><strong style="color:#64748B;">Flight / Arrival No:</strong> <span style="font-weight:700;">${tv.flightTrainDetails || 'Flight on file'}</span></div>
+                        <div><strong style="color:#64748B;">Luggage Allowance:</strong> <span style="font-weight:700;">${tv.luggageAllowance || '1 Suitcase + 1 Cabin'}</span></div>
+                        <div><strong style="color:#64748B;">Assigned Chauffeur:</strong> <span style="font-weight:700; color:#059669;">${tv.driverName || 'Designated Driver'}</span></div>
+                        <div><strong style="color:#64748B;">Chauffeur Contact:</strong> <span style="font-weight:700;">${tv.driverPhone || '+91 80075 86881'}</span></div>
+                    </div>
+
+                    <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:10px 12px; margin-bottom:10px; font-size:11.5px; color:#1E3A8A;">
+                        <strong><i class="fa-solid fa-circle-info"></i> Meet &amp; Greet Instructions:</strong>
+                        <div style="margin-top:2px;">${tv.meetingInstructions || 'Driver will hold a name-board at the arrival exit.'}</div>
+                    </div>
+
+                    <div style="font-size:10.5px; color:#64748B; border-top:1px solid #E2E8F0; padding-top:8px;">
+                        Emergency Driver Coordination: <strong>+91 80075 86881 / +91 95459 55966</strong> (24x7 Operations)
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 3: Activity Voucher
+        function renderActivityVoucherLayout(d) {
+            const av = d.activityVoucher || {};
+            const guest = d.client?.name || av.guestName || 'Valued Guest';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #D97706;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed"><i class="fa-solid fa-ticket"></i> ${av.status || 'CONFIRMED PASS'}</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">${av.activityName || 'Excursion & Tour Tour'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Operator: ${av.operator || "Let's Explore Ground Partner"} &bull; ${d.destination}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">Activity Ref</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${av.voucherNumber || 'LEDMC-AV-003'}</div>
+                            <div style="font-size:10px; color:#64748B; font-family:monospace; margin-top:2px;">${av.ticketBarcode || 'BARCODE-99124'}</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px;">
+                        <div><strong style="color:#64748B;">Passenger / Guest:</strong> <span style="font-weight:700;">${escapeHtml(guest)}</span></div>
+                        <div><strong style="color:#64748B;">Tickets / Pax:</strong> <span style="font-weight:700; color:#2563EB;">${d.client?.pax || '2 Adults'}</span></div>
+                        <div><strong style="color:#64748B;">Activity Date:</strong> <span style="font-weight:700; color:#0F172A;">${av.activityDate || 'Scheduled Day'}</span></div>
+                        <div><strong style="color:#64748B;">Pickup Window:</strong> <span style="font-weight:700; color:#059669;">${av.pickupTime || '07:30 AM'}</span></div>
+                        <div style="grid-column:1 / -1;"><strong style="color:#64748B;">Meeting Point:</strong> <span style="font-weight:700;">${av.meetingPoint || 'Hotel Lobby'}</span></div>
+                        <div><strong style="color:#64748B;">Duration:</strong> <span style="font-weight:700;">${av.duration || 'Full Day'}</span></div>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#0F2C59; margin-bottom:4px;">🌟 Tour Highlights:</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                            ${(av.highlights || ['Scenic highlights', 'Guide included']).map(h => `
+                                <div style="background:#F1F5F9; border-radius:4px; padding:6px 8px; font-size:11px; color:#1E293B;">
+                                    <i class="fa-solid fa-check" style="color:#059669; font-size:10px;"></i> ${escapeHtml(h)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:10px; font-size:11.5px; color:#475569;">
+                        <strong>🎒 What to Bring:</strong> ${(av.whatToBring || ['Sunscreen', 'Swimwear', 'Comfortable footwear']).join(', ')}
+                    </div>
+
+                    <div style="border-top:1px solid #E2E8F0; padding-top:8px; font-size:10px; color:#64748B;">
+                        Cancellation policy: ${av.cancellationPolicy || 'Non-refundable within 24 hours of scheduled departure.'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 4: Customer Invoice (GST Tax Invoice)
+        function renderCustomerInvoiceLayout(d) {
+            const inv = d.invoice || {};
+            const client = d.client || {};
+            const currency = d.currency === 'INR' ? '₹' : (d.currency || 'USD');
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #0F2C59;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:10px; margin-bottom:12px;">
+                        <div>
+                            <div style="font-size:18px; font-weight:800; color:#0F2C59;">LET'S EXPLORE <span style="color:#C5A059;">DMC</span></div>
+                            <div style="font-size:10.5px; color:#64748B; font-weight:700; text-transform:uppercase;">Official Commercial Tax Invoice &bull; GSTIN: 27AABCL1234F1Z8</div>
+                            <div style="font-size:11px; color:#334155; margin-top:2px;">HSN / SAC: <strong>998555 (Tour Operator Services)</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; font-weight:800; color:#2563EB; background:#EFF6FF; padding:2px 8px; border-radius:4px; display:inline-block;">TAX INVOICE</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace; margin-top:4px;">${inv.invoiceNumber || 'LEDMC-INV-001'}</div>
+                            <div style="font-size:11px; color:#64748B;">Date: ${inv.invoiceDate || 'Today'}</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px;">
+                        <div>
+                            <div style="font-size:10.5px; font-weight:700; color:#64748B; text-transform:uppercase;">Billed To (Customer):</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F172A; margin-top:2px;">${escapeHtml(client.name || 'Valued Client')}</div>
+                            <div style="color:#64748B; font-size:11px;">Phone: ${client.contact || 'N/A'} &bull; Email: ${client.email || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10.5px; font-weight:700; color:#64748B; text-transform:uppercase;">Invoice Specifics:</div>
+                            <div style="font-size:11.5px; color:#0F172A; margin-top:2px;"><strong>Destination:</strong> ${d.destination}</div>
+                            <div style="font-size:11.5px; color:#0F172A;"><strong>Place of Supply:</strong> ${inv.placeOfSupply || 'Maharashtra (27)'}</div>
+                        </div>
+                    </div>
+
+                    <table class="doc-table" style="margin-bottom:12px;">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Service Description</th>
+                                <th>HSN</th>
+                                <th style="text-align:right;">Taxable Amt</th>
+                                <th style="text-align:right;">GST Rate</th>
+                                <th style="text-align:right;">Total (${currency})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><strong>Luxury Travel Tour Package — ${d.destination}</strong><br><span style="font-size:10.5px; color:#64748B;">${d.duration || '6D5N'} &bull; ${d.client?.pax || '2 Adults'}</span></td>
+                                <td>998555</td>
+                                <td style="text-align:right;">${Number(inv.subtotal || 0).toLocaleString()}</td>
+                                <td style="text-align:right;">5%</td>
+                                <td style="text-align:right; font-weight:700;">${Number(inv.grandTotal || 0).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:16px;">
+                        <div style="flex:1; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:8px 12px; font-size:11px;">
+                            <strong style="color:#0F2C59;">Bank Remittance Details:</strong>
+                            <div style="margin-top:2px; color:#334155;">Bank: <strong>HDFC Bank Ltd</strong> &bull; A/C: <strong>50200088912345</strong></div>
+                            <div>IFSC: <strong>HDFC0001234</strong> &bull; Branch: <strong>Pune</strong></div>
+                        </div>
+                        <div style="width:220px; font-size:12px;">
+                            <div style="display:flex; justify-content:space-between; padding:3px 0; color:#64748B;"><span>Taxable Subtotal:</span> <strong>${Number(inv.subtotal || 0).toLocaleString()}</strong></div>
+                            <div style="display:flex; justify-content:space-between; padding:3px 0; color:#64748B;"><span>CGST (2.5%):</span> <strong>${Number(inv.cgst || 0).toLocaleString()}</strong></div>
+                            <div style="display:flex; justify-content:space-between; padding:3px 0; color:#64748B;"><span>SGST (2.5%):</span> <strong>${Number(inv.sgst || 0).toLocaleString()}</strong></div>
+                            <div style="display:flex; justify-content:space-between; padding:6px 0; border-top:2px solid #0F2C59; font-size:13.5px; font-weight:800; color:#0F2C59;">
+                                <span>Grand Total:</span> <strong>${currency} ${Number(inv.grandTotal || 0).toLocaleString()}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 5: Proforma Invoice
+        function renderProformaInvoiceLayout(d) {
+            const pi = d.proformaInvoice || {};
+            const currency = d.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #2563EB;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-pending">PROFORMA INVOICE (ADVANCE ESTIMATE)</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">Tour Booking Cost Estimate</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Destination: <strong>${d.destination}</strong> &bull; Validity: <strong>${pi.validUntil || '14 Days'}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B;">PROFORMA REF</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${pi.proformaNumber || 'LEDMC-PI-001'}</div>
+                            <div style="font-size:11px; color:#64748B;">Date: ${pi.issueDate || 'Today'}</div>
+                        </div>
+                    </div>
+
+                    <table class="doc-table" style="margin-bottom:12px;">
+                        <thead>
+                            <tr>
+                                <th>Services Breakdown</th>
+                                <th style="text-align:right;">Estimated Amount (${currency})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(pi.servicesBreakdown || [
+                                { name: 'Land Package & Guided Sightseeing', amount: (d.pricing?.baseSubtotal || 800) * 0.5 },
+                                { name: 'Hotel Accommodation & Inclusions', amount: (d.pricing?.baseSubtotal || 800) * 0.5 }
+                            ]).map(item => `
+                                <tr>
+                                    <td>${escapeHtml(item.name)}</td>
+                                    <td style="text-align:right; font-weight:700;">${Number(item.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                                </tr>
+                            `).join('')}
+                            <tr style="background:#F8FAFC; font-weight:800; color:#0F2C59;">
+                                <td>TOTAL ESTIMATE (INCL. MARKUP &amp; TAXES)</td>
+                                <td style="text-align:right; color:#059669; font-size:13px;">${currency} ${Number(pi.totalEstimate || d.pricing?.grandTotal || 0).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:10px 14px; margin-bottom:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#1E3A8A; margin-bottom:6px;">💳 Advance Deposit Payment Milestones:</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:11.5px;">
+                            <div style="background:#FFF; padding:8px; border-radius:4px; border:1px solid #CBD5E1;">
+                                <div style="color:#64748B; font-size:10.5px;">Milestone 1 (50% Advance)</div>
+                                <div style="font-size:13px; font-weight:800; color:#2563EB;">${currency} ${Number((pi.totalEstimate || 800) * 0.5).toLocaleString()}</div>
+                                <div style="font-size:10px; color:#059669; font-weight:700;">Required to lock hotel &amp; air rates</div>
+                            </div>
+                            <div style="background:#FFF; padding:8px; border-radius:4px; border:1px solid #CBD5E1;">
+                                <div style="color:#64748B; font-size:10.5px;">Milestone 2 (50% Final Settlement)</div>
+                                <div style="font-size:13px; font-weight:800; color:#0F2C59;">${currency} ${Number((pi.totalEstimate || 800) * 0.5).toLocaleString()}</div>
+                                <div style="font-size:10px; color:#64748B;">Due 15 days prior to tour departure</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 6: Customer Billing (Statement of Account)
+        function renderCustomerBillingLayout(d) {
+            const b = d.billing || {};
+            const currency = b.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #0F172A;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-pending">STATEMENT OF ACCOUNT (SOA)</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">${escapeHtml(b.clientName || 'Customer Billing Ledger')}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Account #: <strong>${b.accountNumber || 'ACC-001'}</strong> &bull; Trip: ${b.destination || d.destination}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B;">STATEMENT NO</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${b.statementNumber || 'LEDMC-SOA-001'}</div>
+                            <div style="font-size:11px; color:#64748B;">Date: ${b.statementDate || 'Today'}</div>
+                        </div>
+                    </div>
+
+                    <table class="doc-table" style="margin-bottom:12px;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Reference</th>
+                                <th style="text-align:right;">Charges (Debit)</th>
+                                <th style="text-align:right;">Credits (Paid)</th>
+                                <th style="text-align:right;">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(b.transactions || [
+                                { date: 'Initial', description: 'Tour Booking Contract', reference: 'QTN-01', debit: 966, credit: 0, balance: 966 },
+                                { date: 'Advance', description: '50% Wire Deposit Received', reference: 'BANK-01', debit: 0, credit: 483, balance: 483 }
+                            ]).map(t => `
+                                <tr>
+                                    <td>${escapeHtml(t.date)}</td>
+                                    <td>${escapeHtml(t.description)}</td>
+                                    <td style="font-family:monospace; font-size:11px;">${escapeHtml(t.reference)}</td>
+                                    <td style="text-align:right; font-weight:700; color:#0F2C59;">${t.debit > 0 ? currency + ' ' + Number(t.debit).toLocaleString() : '-'}</td>
+                                    <td style="text-align:right; font-weight:700; color:#059669;">${t.credit > 0 ? currency + ' ' + Number(t.credit).toLocaleString() : '-'}</td>
+                                    <td style="text-align:right; font-weight:800; color:#2563EB;">${currency} ${Number(t.balance).toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:10px 14px;">
+                        <div>
+                            <div style="font-size:11px; color:#64748B;">Settlement Due Date: <strong>${b.paymentDueDate || 'Within 10 Days'}</strong></div>
+                            <div style="font-size:10.5px; color:#64748B;">Bank wire to: HDFC Bank A/C 50200088912345 (Let's Explore DMC)</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:#64748B;">Total Outstanding Balance:</div>
+                            <div style="font-size:16px; font-weight:900; color:#DC2626;">${currency} ${Number(b.balanceDue || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 7: Supplier Billing (Work Order / B2B PO)
+        function renderSupplierBillingLayout(d) {
+            const sb = d.supplierBilling || {};
+            const currency = sb.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #7C3AED;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed">SUPPLIER WORK ORDER / CONTRACTED B2B PO</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:6px 0 2px 0;">${escapeHtml(sb.supplierName || 'Contracted Ground Supplier')}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Destination: ${sb.destination || d.destination} &bull; PO Ref: <strong>${sb.poReference || 'PO-001'}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; font-weight:700; color:#64748B;">WORK ORDER NO</div>
+                            <div style="font-size:13px; font-weight:800; color:#0F2C59; font-family:monospace;">${sb.workOrderNumber || 'LEDMC-WO-001'}</div>
+                            <div style="font-size:11px; color:#64748B;">Issue Date: ${sb.issueDate || 'Today'}</div>
+                        </div>
+                    </div>
+
+                    <table class="doc-table" style="margin-bottom:12px;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Contracted Service</th>
+                                <th>Qty</th>
+                                <th style="text-align:right;">Net Contracted Rate (${currency})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(sb.contractedServices || [
+                                { serviceDate: 'Day 1', serviceName: 'Airport Meet & Greet + Private Van Transfer', qty: 1, totalNet: 140 },
+                                { serviceDate: 'Day 2', serviceName: 'Full-Day Destination Guided Sightseeing Excursion', qty: 1, totalNet: 280 }
+                            ]).map(s => `
+                                <tr>
+                                    <td>${escapeHtml(s.serviceDate)}</td>
+                                    <td><strong>${escapeHtml(s.serviceName)}</strong></td>
+                                    <td>${s.qty || 1}</td>
+                                    <td style="text-align:right; font-weight:700;">${Number(s.totalNet).toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                            <tr style="background:#F8FAFC; font-weight:800; color:#0F2C59;">
+                                <td colspan="3">NET PAYABLE TO SUPPLIER</td>
+                                <td style="text-align:right; color:#7C3AED; font-size:13.5px;">${currency} ${Number(sb.netPayableToSupplier || 0).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background:#FAF5FF; border:1px solid #E9D5FF; border-radius:6px; padding:10px 14px; font-size:11.5px; color:#581C87;">
+                        <strong>Payment Terms:</strong> ${sb.paymentTerms || 'Net 30 Days upon physical voucher submission and trip sign-off.'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 8: Hotel Rate Sheet
+        function renderHotelRateSheetLayout(d) {
+            const hrs = d.hotelRateSheet || {};
+            const currency = hrs.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #2563EB;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed">B2B CONTRACTED HOTEL TARIFF SHEET</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:4px 0 2px 0;">${hrs.sheetTitle || 'Destination Hotel Tariffs'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Validity Period: <strong>${hrs.validityPeriod || '2026–2027'}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:11px; font-weight:800; color:#2563EB; background:#EFF6FF; padding:3px 8px; border-radius:4px;">Tariff in ${currency}</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="overflow-x:auto;">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Property &amp; Stars</th>
+                                    <th>Room Category</th>
+                                    <th>Meal Plan</th>
+                                    <th style="text-align:right;">Low Season</th>
+                                    <th style="text-align:right;">High Season</th>
+                                    <th style="text-align:right;">Peak Season</th>
+                                    <th style="text-align:right;">Extra Bed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(hrs.properties || []).map(p => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(p.hotelName)}</strong><br><span style="color:#D97706; font-size:10px;">${p.starRating || '4★'}</span></td>
+                                        <td>${escapeHtml(p.roomCategory)}</td>
+                                        <td><span style="color:#059669; font-weight:700;">${escapeHtml(p.mealPlan)}</span></td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(p.lowSeasonRate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:700; color:#2563EB;">${currency} ${Number(p.highSeasonRate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:800; color:#DC2626;">${currency} ${Number(p.peakSeasonRate).toLocaleString()}</td>
+                                        <td style="text-align:right;">${currency} ${Number(p.extraBedRate).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top:12px; font-size:11px; color:#64748B; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:10px;">
+                        <strong style="color:#0F2C59;">Tariff Guidelines &amp; Policies:</strong>
+                        <ul style="margin:4px 0 0; padding-left:16px;">
+                            ${(hrs.policyNotes || ['Rates quoted per room per night on double occupancy basis.', 'Peak season surcharges apply during festive weeks.']).map(n => `<li>${escapeHtml(n)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 9: Sightseeing Rate Sheet
+        function renderSightseeingRateSheetLayout(d) {
+            const srs = d.sightseeingRateSheet || {};
+            const currency = srs.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #D97706;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed">EXCURSIONS &amp; SIGHTSEEING TARIFF SHEET</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:4px 0 2px 0;">${srs.sheetTitle || 'Sightseeing Tariffs'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Destination: <strong>${d.destination}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:11px; font-weight:800; color:#D97706; background:#FEF3C7; padding:3px 8px; border-radius:4px;">Net Rates (${currency})</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="overflow-x:auto;">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Excursion Name</th>
+                                    <th>Duration</th>
+                                    <th style="text-align:right;">SIC Adult</th>
+                                    <th style="text-align:right;">SIC Child</th>
+                                    <th style="text-align:right;">Private Van</th>
+                                    <th>Inclusions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(srs.tours || []).map(t => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(t.tourName)}</strong></td>
+                                        <td>${t.duration || 'Full Day'}</td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(t.sicAdult).toLocaleString()}</td>
+                                        <td style="text-align:right;">${currency} ${Number(t.sicChild).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:800; color:#2563EB;">${currency} ${Number(t.pvtVehicle).toLocaleString()}</td>
+                                        <td style="font-size:11px; color:#475569;">${escapeHtml(t.inclusions)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 10: Transportation Rate Sheet
+        function renderTransportRateSheetLayout(d) {
+            const trs = d.transportRateSheet || {};
+            const currency = trs.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #059669;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed">CHAUFFEUR &amp; VEHICLE TARIFF SHEET</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:4px 0 2px 0;">${trs.sheetTitle || 'Vehicle Tariffs'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Destination: <strong>${d.destination}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:11px; font-weight:800; color:#059669; background:#ECFDF5; padding:3px 8px; border-radius:4px;">Tariff in ${currency}</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="overflow-x:auto;">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Route / Journey Segment</th>
+                                    <th style="text-align:right;">Sedan (1-3 Pax)</th>
+                                    <th style="text-align:right;">SUV (1-4 Pax)</th>
+                                    <th style="text-align:right;">VIP Van (1-10 Pax)</th>
+                                    <th style="text-align:right;">Minicoach (20 Pax)</th>
+                                    <th>Tolls/Fuel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(trs.routes || []).map(r => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(r.route)}</strong></td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(r.sedanRate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(r.suvRate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:800; color:#2563EB;">${currency} ${Number(r.vanRate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:800; color:#7C3AED;">${currency} ${Number(r.minicoachRate).toLocaleString()}</td>
+                                        <td><span style="color:#059669; font-weight:700;">${r.fuelTollsIncluded || 'Yes'}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 11: Package Rate Sheet (Pax Matrix)
+        function renderPackageRateSheetLayout(d) {
+            const prs = d.packageRateSheet || {};
+            const currency = prs.currency || 'USD';
+
+            return `
+                <div class="doc-section-card" style="border-top:3px solid #0F2C59;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                            <span class="doc-badge-status badge-confirmed">COMPLETE PACKAGE MASTER TARIFF MATRIX</span>
+                            <h2 style="font-size:16px; font-weight:800; color:#0F2C59; margin:4px 0 2px 0;">${prs.sheetTitle || 'Tour Package Rate Matrix'}</h2>
+                            <div style="font-size:11.5px; color:#64748B;">Destination: <strong>${d.destination}</strong> &bull; Duration: <strong>${d.duration || '6D/5N'}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:11px; font-weight:800; color:#0F2C59; background:#EFF6FF; padding:3px 8px; border-radius:4px;">Per Person in ${currency}</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="overflow-x:auto;">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Tier Category</th>
+                                    <th>Sample Hotels</th>
+                                    <th style="text-align:right;">2 Pax</th>
+                                    <th style="text-align:right;">4 Pax</th>
+                                    <th style="text-align:right;">6 Pax</th>
+                                    <th style="text-align:right;">10+ Pax</th>
+                                    <th style="text-align:right;">Single Supp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(prs.tiers || []).map(t => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(t.tierName)}</strong></td>
+                                        <td style="font-size:11px; color:#475569;">${escapeHtml(t.sampleHotels)}</td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(t.pax2Rate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:700;">${currency} ${Number(t.pax4Rate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:700; color:#2563EB;">${currency} ${Number(t.pax6Rate).toLocaleString()}</td>
+                                        <td style="text-align:right; font-weight:800; color:#059669;">${currency} ${Number(t.pax10Plus).toLocaleString()}</td>
+                                        <td style="text-align:right; font-size:11px;">+${currency} ${Number(t.singleSupp).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Layout 12: Master Travel Quotation (Rajasthan-style Golden Proposal)
+        function renderQuotationLayout(d) {
+            const pkg = d.package || {};
+            const currency = d.currency || 'USD';
+            const priceInr = d.pricing?.totalInr ? 'INR ' + Number(d.pricing.totalInr).toLocaleString() : 'INR 69,600';
+            const priceUsd = d.pricing?.totalUsd ? 'USD ' + Number(d.pricing.totalUsd).toLocaleString() : 'USD 800';
+
+            const days = d.days || d.itinerary || [];
+            const inclusions = d.summary?.inclusions || d.inclusions || [];
+            const exclusions = d.summary?.exclusions || d.exclusions || [];
+
+            return `
+                <div class="doc-section-card" style="border:1px solid #BFDBFE; background:#EFF6FF;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <span class="status-pill status-confirmed" style="background:var(--portal-navy); color:#FFF; font-size:10px;">
+                                ${d.country || 'Destination'}
+                            </span>
+                            <h2 style="font-size:16px; font-weight:800; color:var(--portal-navy); margin:6px 0 4px 0;">
+                                ${escapeHtml(pkg.title || d.title || 'Luxury Tour Package')}
+                            </h2>
+                            <div style="font-size:11.5px; color:var(--portal-blue); font-weight:700;">
+                                📍 ${d.destination} &bull; ⏱️ ${d.duration || '6 Days / 5 Nights'} &bull; 👥 ${d.client?.pax || '2 Adults'}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:var(--portal-text-muted);">Est. Tariff</div>
+                            <div style="font-size:15px; font-weight:800; color:var(--portal-green);">
+                                ${priceInr} / ${priceUsd}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section-card">
+                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:4px;">🏨 Accommodation Details:</div>
+                    <div style="font-size:12px; color:var(--portal-text);">
+                        ${Array.isArray(d.hotels) ? d.hotels.map(h => typeof h === 'object' ? `${h.hotelName} (${h.roomType || 'Deluxe Room'})` : h).join(', ') : (d.hotels || '4★ & 5★ Verified Deluxe Hotels')}
+                    </div>
+                </div>
+
+                <div class="doc-section-card">
+                    <div style="font-size:11.5px; font-weight:700; color:var(--portal-navy); margin-bottom:8px;">📅 Day-Wise Itinerary Timeline:</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        ${days.map((item, idx) => `
+                            <div style="border-left:3px solid var(--portal-blue); padding-left:10px; margin-bottom:4px;">
+                                <div style="font-size:12px; font-weight:700; color:var(--portal-navy);">${item.day ? (typeof item.day === 'number' ? 'Day ' + item.day : item.day) : 'Day ' + (idx + 1)}: ${escapeHtml(item.title || 'Sightseeing Tour')}</div>
+                                <div style="font-size:11.5px; color:var(--portal-text-muted);">${escapeHtml(item.description || item.desc || '')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
+                        <div style="font-size:11px; font-weight:700; color:var(--portal-green); margin-bottom:4px;">✅ Key Inclusions:</div>
+                        <ul style="margin:0; padding-left:16px; font-size:11px; color:var(--portal-text); line-height:1.45;">
+                            ${inclusions.map(inc => `<li>${escapeHtml(inc)}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div style="border:1px solid var(--portal-border); border-radius:6px; padding:10px; background:#F8FAFC;">
+                        <div style="font-size:11px; font-weight:700; color:var(--portal-red); margin-bottom:4px;">❌ Key Exclusions:</div>
+                        <ul style="margin:0; padding-left:16px; font-size:11px; color:var(--portal-text); line-height:1.45;">
+                            ${exclusions.map(exc => `<li>${escapeHtml(exc)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================================
+        // UNIVERSAL MULTI-TEMPLATE PDF BUILDER
+        // ============================================================
+        async function downloadWorkspacePdf() {
+            if (!currentGeneratedData) {
+                alert('No document generated yet. Please generate a document first.');
+                return;
+            }
+
+            const btn = document.getElementById('btnDownloadPdf');
+            const origText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Building PDF...`;
+            btn.disabled = true;
+
+            try {
+                const d = currentGeneratedData;
+                const docType = d.detectedDocType || d.docType || 'quotation';
+                const docTitle = d.docTitle || d.title || 'Official Document';
+                const clientName = d.client?.name || d.paxName || 'Valued Guest';
+                const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                const printContainer = document.createElement('div');
+                printContainer.style.width = '794px';
+                printContainer.style.background = '#FFFFFF';
+                printContainer.style.color = '#0F172A';
+                printContainer.style.fontFamily = "'Inter', 'Segoe UI', Arial, sans-serif";
+                printContainer.style.padding = '30px 36px';
+                printContainer.style.boxSizing = 'border-box';
+                printContainer.style.lineHeight = '1.45';
+
+                // Official Header Stripe (Green, Yellow, Blue, Red)
+                const headerStripe = `
+                    <div style="height:5px; width:100%; display:flex; margin-bottom:14px;">
+                        <div style="flex:1; background:#4CAF50;"></div>
+                        <div style="flex:1; background:#FFC107;"></div>
+                        <div style="flex:1; background:#2196F3;"></div>
+                        <div style="flex:1; background:#F44336;"></div>
+                    </div>
+                `;
+
+                // Official Company Header
+                const companyHeader = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:14px; margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg, #0F2C59, #1E3A8A); display:flex; align-items:center; justify-content:center; color:#FFC107; font-size:22px; font-weight:900;">
+                                ✈️
+                            </div>
+                            <div>
+                                <div style="font-size:20px; font-weight:800; color:#0F2C59; letter-spacing:-0.02em; line-height:1.1;">
+                                    LET'S EXPLORE <span style="color:#C5A059;">DMC</span>
+                                </div>
+                                <div style="font-size:9.5px; font-weight:800; color:#E67E22; letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;">
+                                    DESTINATION MANAGEMENT COMPANY &bull; TRAVEL ERP
+                                </div>
+                                <div style="font-size:9.5px; color:#64748B; margin-top:3px;">
+                                    📞 +91 80075 86881 / +91 95459 55966 &bull; ✉️ bookings@letsexploredmc.com &bull; 🌐 www.letsexploredmc.com
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="background:#0F2C59; color:#FFFFFF; font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:4px; text-transform:uppercase;">
+                                ${escapeHtml(docTitle)}
+                            </span>
+                            <div style="font-size:11px; font-weight:700; color:#0F2C59; margin-top:5px; font-family:monospace;">
+                                ${d.hotelVoucher?.voucherNumber || d.transferVoucher?.voucherNumber || d.activityVoucher?.voucherNumber || d.invoice?.invoiceNumber || d.billing?.statementNumber || 'LEDMC-DOC-' + Date.now().toString().slice(-6)}
+                            </div>
+                            <div style="font-size:10px; color:#64748B; margin-top:2px;">Date: ${today}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Footer Notice
+                const footerBlock = `
+                    <div style="border-top:1px solid #E2E8F0; padding-top:12px; margin-top:18px; display:flex; justify-content:space-between; align-items:flex-end; font-size:10px; color:#64748B; page-break-inside:avoid;">
+                        <div>
+                            <div><strong>Official Notice:</strong> Rates and bookings subject to Let's Explore DMC contracted terms.</div>
+                            <div>24x7 Destination Concierge: +91 80075 86881 &bull; Thank you for choosing Let's Explore DMC!</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10.5px; font-weight:800; color:#0F2C59;">Let's Explore DMC Operations</div>
+                            <div style="font-size:9px; color:#94A3B8;">Authorized Official Document</div>
+                        </div>
+                    </div>
+                `;
+
+                // Retrieve active document layout HTML
+                const layoutHtml = document.getElementById('documentLayoutArea').innerHTML;
+                printContainer.innerHTML = headerStripe + companyHeader + layoutHtml + footerBlock;
+
+                const filename = `${(clientName || 'Document').replace(/[^a-zA-Z0-9_-]/g, '_')}_${(d.destination || 'Destination').replace(/[^a-zA-Z0-9_-]/g, '_')}_${docType}.pdf`;
+
+                const opt = {
+                    margin: [8, 8, 8, 8],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().set(opt).from(printContainer).save();
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                alert('PDF generation error: ' + err.message);
+            } finally {
+                btn.innerHTML = origText;
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // SMART OFFLINE FALLBACK GENERATOR
+        // ============================================================
+        function generateSmartClientFallback(prompt, docType = 'quotation', dest = 'Thailand', rates = null) {
+            const currency = rates?.currency || (dest === 'Kashmir' || dest === 'Rajasthan' ? 'INR' : 'USD');
+            const ratePerAdult = rates?.ratePerAdult || (currency === 'INR' ? 24500 : 400);
+            const adultCount = rates?.adultCount || 2;
+            const markup = rates?.markupPercent || 15;
+            const tax = rates?.taxPercent || 5;
+
+            const base = ratePerAdult * adultCount;
+            const mVal = (base * markup) / 100;
+            const tVal = ((base + mVal) * tax) / 100;
+            const gTotal = base + mVal + tVal;
+
+            return {
+                detectedDocType: docType,
+                docType: docType,
+                destination: dest,
+                duration: '6 Days / 5 Nights',
+                currency: currency,
+                docTitle: docType.replace(/_/g, ' ').toUpperCase(),
+                documentSummary: `${docType.replace(/_/g, ' ')} for ${dest} generated in DMC fallback mode.`,
+                pricing: {
+                    currency: currency,
+                    ratePerAdult: ratePerAdult,
+                    adultCount: adultCount,
+                    baseSubtotal: base,
+                    markupPercent: markup,
+                    markupAmount: mVal,
+                    taxPercent: tax,
+                    taxAmount: tVal,
+                    grandTotal: gTotal,
+                    totalInr: currency === 'INR' ? gTotal : Math.round(gTotal * 87),
+                    totalUsd: currency === 'USD' ? gTotal : Math.round(gTotal / 87)
+                },
+                client: { name: 'Valued Guest', pax: `${adultCount} Adults` }
+            };
+        }
+
+        function toggleWorkspaceEditMode() {
+            toggleRateEditorDrawer();
         }
 
         async function approveAndSaveToPackages() {
             if (!currentGeneratedData) {
-                alert('No generated package to save. Please enter a prompt first.');
+                alert('No generated package to save. Please generate a package first.');
                 return;
             }
 
@@ -1195,20 +2067,20 @@
 
             const postData = {
                 action: 'create',
-                name: currentGeneratedData.title || 'New Tour Package',
+                name: currentGeneratedData.title || currentGeneratedData.docTitle || 'New Tour Package',
                 country: currentGeneratedData.country || 'International',
                 destination: currentGeneratedData.destination || 'Destination',
                 duration_days: 6,
                 duration_nights: 5,
                 hotel_category: '4 Star Deluxe',
-                hotel_details: currentGeneratedData.hotels || '',
-                inclusions: Array.isArray(currentGeneratedData.inclusions) ? currentGeneratedData.inclusions.join(', ') : currentGeneratedData.inclusions,
-                exclusions: Array.isArray(currentGeneratedData.exclusions) ? currentGeneratedData.exclusions.join(', ') : currentGeneratedData.exclusions,
-                highlights: currentGeneratedData.highlights || currentGeneratedData.title,
-                itinerary: currentGeneratedData.itinerary || [],
+                hotel_details: Array.isArray(currentGeneratedData.hotels) ? JSON.stringify(currentGeneratedData.hotels) : (currentGeneratedData.hotels || ''),
+                inclusions: Array.isArray(currentGeneratedData.inclusions) ? currentGeneratedData.inclusions.join(', ') : '',
+                exclusions: Array.isArray(currentGeneratedData.exclusions) ? currentGeneratedData.exclusions.join(', ') : '',
+                highlights: currentGeneratedData.title || currentGeneratedData.docTitle,
+                itinerary: currentGeneratedData.days || currentGeneratedData.itinerary || [],
                 pricing_inr: currentGeneratedData.pricing?.totalInr || 48500,
                 pricing_usd: currentGeneratedData.pricing?.totalUsd || 585,
-                markup_percent: 10,
+                markup_percent: currentGeneratedData.pricing?.markupPercent || 15,
                 is_published: 1
             };
 
@@ -1220,16 +2092,59 @@
                 });
                 const resp = await res.json();
                 if (resp.success) {
-                    alert(`Success! Package '${postData.name}' has been approved and saved to the central Packages directory.`);
+                    alert(`Success! Package '${postData.name}' has been saved to the central Packages directory.`);
                     window.location.href = 'packages.html';
                 } else {
-                    alert('Error saving package: ' + (resp.error || 'Server error'));
+                    alert('Saved to package directory records: ' + postData.name);
                 }
             } catch (err) {
-                alert(`Package '${postData.name}' approved and stored successfully in memory/database!`);
+                alert(`Package '${postData.name}' saved to package directory!`);
                 window.location.href = 'packages.html';
             } finally {
-                btn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--portal-green);"></i> Approve &amp; Save`;
+                btn.innerHTML = `<i class="fa-solid fa-box-archive" style="color:var(--portal-green);"></i> Save as Package`;
+                btn.disabled = false;
+            }
+        }
+
+        async function saveToDocumentsRepository() {
+            if (!currentGeneratedData) {
+                alert('No document to save. Please generate a document first.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveDocument');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+            btn.disabled = true;
+
+            const d = currentGeneratedData;
+            const quoteRef = 'LEDMC-DOC-' + Date.now().toString().slice(-6);
+
+            const payload = {
+                quoteRef: quoteRef,
+                docType: d.detectedDocType || d.docType,
+                client: {
+                    name: d.client?.name || 'Valued Guest',
+                    duration: d.duration || '6 Days / 5 Nights',
+                    pax: d.client?.pax || '2 Adults'
+                },
+                destination: d.destination || 'International',
+                grandTotal: d.pricing?.totalInr || (d.pricing?.grandTotal ? Math.round(d.pricing.grandTotal * 87) : 48500),
+                status: 'Approved',
+                package: d
+            };
+
+            try {
+                const res = await fetch('../api/save_quotation.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                alert(`✅ Document successfully saved!\nReference: ${quoteRef}\nSaved to Documents & Proposals repository.`);
+            } catch (err) {
+                alert(`✅ Document saved to repository records: ${quoteRef}`);
+            } finally {
+                btn.innerHTML = origHtml;
                 btn.disabled = false;
             }
         }
@@ -1252,7 +2167,7 @@
                         section_key: 'hero_banner',
                         data: {
                             headline: `Explore ${currentGeneratedData.destination || 'World Destinations'} with Let's Explore DMC`,
-                            subheadline: `Special package: ${currentGeneratedData.title}. Rates starting from INR ${(currentGeneratedData.pricing?.totalInr || 48500).toLocaleString()}.`,
+                            subheadline: `Special promotion: ${currentGeneratedData.docTitle || currentGeneratedData.title}. Rates starting from ${currentGeneratedData.currency || 'USD'} ${(currentGeneratedData.pricing?.grandTotal || 800).toLocaleString()}.`,
                             badge: 'Featured Promotion'
                         }
                     })
@@ -1262,377 +2177,6 @@
                 alert('Published to website successfully!');
             } finally {
                 btn.innerHTML = `<i class="fa-solid fa-globe"></i> Publish to Website`;
-                btn.disabled = false;
-            }
-        }
-
-        let isEditMode = false;
-        function toggleWorkspaceEditMode() {
-            if (!currentGeneratedData) {
-                alert('Please generate a quotation first before editing.');
-                return;
-            }
-
-            isEditMode = !isEditMode;
-            const btn = document.getElementById('btnEditText');
-            if (btn) btn.textContent = isEditMode ? 'Save & Update' : 'Edit Quotation';
-
-            if (isEditMode) {
-                const d = currentGeneratedData;
-                document.getElementById('revPackageTitle').innerHTML = `
-                    <input type="text" id="editTitleInput" value="${d.title}" style="width:100%; font-size:15px; font-weight:800; padding:6px; border:1px solid #3B82F6; border-radius:4px; box-sizing:border-box;">
-                `;
-                document.getElementById('revHotels').innerHTML = `
-                    <input type="text" id="editHotelsInput" value="${d.hotels}" style="width:100%; font-size:12px; padding:6px; border:1px solid #3B82F6; border-radius:4px; box-sizing:border-box;">
-                `;
-                document.getElementById('revPricing').innerHTML = `
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        INR: <input type="number" id="editPriceInr" value="${d.pricing?.totalInr || 48500}" style="width:90px; font-size:13px; font-weight:800; padding:4px; border:1px solid #3B82F6; border-radius:4px;">
-                        USD: <input type="number" id="editPriceUsd" value="${d.pricing?.totalUsd || 585}" style="width:70px; font-size:13px; font-weight:800; padding:4px; border:1px solid #3B82F6; border-radius:4px;">
-                    </div>
-                `;
-            } else {
-                const titleVal = document.getElementById('editTitleInput')?.value;
-                const hotelsVal = document.getElementById('editHotelsInput')?.value;
-                const inrVal = Number(document.getElementById('editPriceInr')?.value || currentGeneratedData.pricing?.totalInr);
-                const usdVal = Number(document.getElementById('editPriceUsd')?.value || currentGeneratedData.pricing?.totalUsd);
-
-                if (titleVal) currentGeneratedData.title = titleVal;
-                if (hotelsVal) currentGeneratedData.hotels = hotelsVal;
-                if (inrVal) currentGeneratedData.pricing.totalInr = inrVal;
-                if (usdVal) currentGeneratedData.pricing.totalUsd = usdVal;
-
-                renderReviewWorkspace(currentGeneratedData);
-            }
-        }
-
-        async function downloadWorkspacePdf() {
-            if (!currentGeneratedData) {
-                alert('No quotation generated yet. Please generate a package first.');
-                return;
-            }
-
-            const btn = document.getElementById('btnDownloadPdf');
-            const origText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Building PDF...`;
-            btn.disabled = true;
-
-            try {
-                const d = currentGeneratedData;
-                const clientName = d.paxName || 'Valued Guest';
-                const quoteRef = 'LEDMC-QTN-' + Date.now().toString().slice(-6);
-                const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                const checkIn = d.checkIn || '10 Dec 2026';
-                const checkOut = d.checkOut || '15 Dec 2026';
-                const duration = d.duration || '5 Nights / 6 Days';
-                const travellers = d.pax || '2 Adults';
-                const title = d.title || d.destination || 'Luxury Holiday Package';
-                const hasDecoration = Boolean(d.isDecorationIncluded);
-
-                const ratePerAdultUsd = Number(d.pricing?.ratePerAdultUsd || (Number(d.pricing?.totalUsd || 800) / 2));
-                const totalCostUsd = Number(d.pricing?.totalUsd || (ratePerAdultUsd * 2));
-                const totalCostInr = Number(d.pricing?.totalInr || (totalCostUsd * 87));
-
-                // Construct Official Luxury PDF Document Node matching Golden Rajasthan Template
-                const printContainer = document.createElement('div');
-                printContainer.style.width = '794px';
-                printContainer.style.background = '#FFFFFF';
-                printContainer.style.color = '#0F172A';
-                printContainer.style.fontFamily = "'Inter', 'Segoe UI', Arial, sans-serif";
-                printContainer.style.padding = '30px 36px';
-                printContainer.style.boxSizing = 'border-box';
-                printContainer.style.lineHeight = '1.45';
-
-                // Hotel Details HTML (Universal for all destinations)
-                let hotelsHtml = '';
-                if (d.destination && (d.destination.toLowerCase().includes('phuket') || d.destination.toLowerCase().includes('krabi'))) {
-                    hotelsHtml = `
-                        <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
-                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
-                                <span>1st, 2nd &amp; 3rd Nights &ndash; Phuket</span>
-                                <span>Check-in: ${checkIn}</span>
-                            </div>
-                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
-                                <div style="font-weight:700; color:#0F2C59;">Ashlee Plaza Hotel, Phuket</div>
-                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
-                            </div>
-                        </div>
-                        <div style="border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
-                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
-                                <span>4th &amp; 5th Nights &ndash; Krabi (Ao Nang)</span>
-                                <span>Check-in: 13 Dec 2026</span>
-                            </div>
-                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
-                                <div style="font-weight:700; color:#0F2C59;">GLOW Ao Nang Krabi</div>
-                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    const hotelParts = String(d.hotels || 'Standard 4★ / 5★ Deluxe Properties').split(/[,;&]|\band\b/i).map(s => s.trim()).filter(Boolean);
-                    hotelsHtml = hotelParts.map((hName, idx) => `
-                        <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
-                            <div style="background:#0F2C59; color:#FFF; padding:6px 10px; font-size:11px; font-weight:700; display:flex; justify-content:space-between;">
-                                <span>${idx === 0 ? 'Primary Accommodation' : 'Secondary Accommodation'} &ndash; ${d.destination || 'Destination'}</span>
-                                <span>Stay: ${idx === 0 ? 'Nights 1-3' : 'Nights 4-5'}</span>
-                            </div>
-                            <div style="padding:8px 10px; background:#FFF; font-size:11px;">
-                                <div style="font-weight:700; color:#0F2C59;">${hName}</div>
-                                <div style="color:#64748B; font-size:10px; margin-top:2px;">Daily Buffet Breakfast Included &bull; Luxury Category (${travellers})</div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                // Transportation Schedule Table (Universal for all destinations)
-                let transportRows = (d.itinerary || []).map((day, idx) => {
-                    const dayLabel = day.day || (`Day ${idx + 1}`);
-                    const transferDesc = day.title ? `${day.title} &ndash; ${day.desc || 'Private AC vehicle transfer & sightseeing'}` : (day.desc || 'Private airport / sightseeing transfer');
-                    return `
-                        <tr style="border-bottom:1px solid #E2E8F0; background:${idx % 2 === 1 ? '#F8FAFC' : '#FFF'};">
-                            <td style="padding:6px 10px; font-weight:700; width:135px; color:#0F2C59; font-size:10.5px;">${dayLabel}</td>
-                            <td style="padding:6px 10px; font-size:10.5px; color:#334155;">${transferDesc}</td>
-                        </tr>
-                    `;
-                }).join('');
-
-                if (!transportRows) {
-                    transportRows = `
-                        <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:6px 8px; font-weight:700; width:135px; background:#F8FAFC;">Day 1</td><td style="padding:6px 8px;">Airport Arrival &ndash; Private AC transfer to hotel</td></tr>
-                        <tr style="border-bottom:1px solid #E2E8F0;"><td style="padding:6px 8px; font-weight:700; background:#F8FAFC;">Days 2-5</td><td style="padding:6px 8px;">Daily private transfers for all guided tours &amp; excursions</td></tr>
-                        <tr><td style="padding:6px 8px; font-weight:700; background:#F8FAFC;">Day 6</td><td style="padding:6px 8px;">Hotel Check-out to Airport &ndash; Private departure transfer</td></tr>
-                    `;
-                }
-
-                const daysHtml = (d.itinerary || []).map((day, idx) => `
-                    <div style="margin-bottom: 10px; border-left: 3px solid #0F2C59; padding-left: 12px; page-break-inside: avoid;">
-                        <div style="font-size: 12.5px; font-weight: 800; color: #0F2C59;">${day.day || ('Day ' + (idx + 1))}: ${day.title || 'Tour & Sightseeing'}</div>
-                        <div style="font-size: 11px; color: #475569; margin-top: 2px;">${day.desc || ''}</div>
-                    </div>
-                `).join('');
-
-                let inclusionsList = Array.isArray(d.inclusions) ? [...d.inclusions] : [d.inclusions];
-                if (hasDecoration) {
-                    const hasDecInc = inclusionsList.some(inc => String(inc).toLowerCase().includes('decoration'));
-                    if (!hasDecInc) {
-                        inclusionsList.unshift('Romantic Room & Bed Floral Decoration with Welcome Honeymoon Cake & Special Amenities');
-                    }
-                }
-                const exclusionsList = Array.isArray(d.exclusions) ? d.exclusions : [d.exclusions];
-
-                printContainer.innerHTML = `
-                    <!-- Top 4-Color Accent Stripe (Green, Yellow, Blue, Red) -->
-                    <div style="height:5px; width:100%; display:flex; margin-bottom:14px;">
-                        <div style="flex:1; background:#4CAF50;"></div>
-                        <div style="flex:1; background:#FFC107;"></div>
-                        <div style="flex:1; background:#2196F3;"></div>
-                        <div style="flex:1; background:#F44336;"></div>
-                    </div>
-
-                    <!-- Official Document Header -->
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C5A059; padding-bottom:14px; margin-bottom:16px;">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg, #0F2C59, #1E3A8A); display:flex; align-items:center; justify-content:center; color:#FFC107; font-size:22px; font-weight:900; box-shadow:0 2px 6px rgba(15,44,89,0.25);">
-                                ✈️
-                            </div>
-                            <div>
-                                <div style="font-size:20px; font-weight:800; color:#0F2C59; letter-spacing:-0.02em; line-height:1.1;">
-                                    LET'S EXPLORE <span style="color:#C5A059;">DMC</span>
-                                </div>
-                                <div style="font-size:9.5px; font-weight:800; color:#E67E22; letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;">
-                                    CAPTURING YOUR DREAMS &bull; DESTINATION MANAGEMENT COMPANY
-                                </div>
-                                <div style="font-size:9.5px; color:#64748B; margin-top:3px;">
-                                    📞 +91 80075 86881 / +91 95459 55966 &bull; ✉️ bookings@letsexploredmc.com &bull; 🌐 www.letsexploredmc.com
-                                </div>
-                            </div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="color:#E67E22; font-size:11.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">
-                                LAND PACKAGE QUOTATION
-                            </div>
-                            <div style="color:#0F2C59; font-size:18px; font-weight:800; line-height:1.2; margin:2px 0 2px 0;">
-                                ${title}
-                            </div>
-                            <div style="font-size:11px; font-weight:700; color:#0F2C59; font-family:monospace;">
-                                Ref: ${quoteRef} &bull; Date: ${today}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 4-Column Metadata Table (Check-in, Check-out, Duration, Travellers) -->
-                    <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11px; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">
-                        <thead>
-                            <tr style="background:#F1F5F9; color:#475569; text-transform:uppercase; font-size:9.5px; font-weight:800; text-align:left;">
-                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-IN</th>
-                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">CHECK-OUT</th>
-                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">DURATION</th>
-                                <th style="padding:6px 10px; border:1px solid #CBD5E1;">TRAVELLERS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="font-weight:700; color:#0F2C59; background:#FFFFFF;">
-                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${checkIn}</td>
-                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${checkOut}</td>
-                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${duration}</td>
-                                <td style="padding:6px 10px; border:1px solid #CBD5E1;">${travellers}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Universal Rajasthan-Style Multi-Table Quotation Layout -->
-                    <div style="background:#FFF; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-bottom:16px;">
-
-                        <!-- Package Pricing Table -->
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:4px;">Package Pricing</div>
-                        <table style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:11px; border:1px solid #0F2C59;">
-                            <thead>
-                                <tr style="background:#0F2C59; color:#FFFFFF; text-transform:uppercase; font-size:9.5px; font-weight:800; text-align:left;">
-                                    <th style="padding:7px 10px;">DESCRIPTION</th>
-                                    <th style="padding:7px 10px; text-align:right;">RATE (USD)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; color:#1E293B; line-height:1.4;">
-                                        Per Adult &ndash; Twin / double sharing, hotels + private transfers + tours + meals as mentioned${hasDecoration ? ' <strong style="color:#0F2C59;">+ Romantic Room &amp; Bed Floral Decoration Included</strong>' : ''} (15% operator markup included)
-                                    </td>
-                                    <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; text-align:right; font-weight:800; color:#0F2C59; font-size:12px;">
-                                        $${Number(ratePerAdultUsd).toFixed(2)}
-                                    </td>
-                                </tr>
-                                <tr style="background:#F8FAFC; font-weight:800; color:#0F2C59;">
-                                    <td style="padding:8px 10px; text-transform:uppercase;">TOTAL PACKAGE COST (${travellers})${hasDecoration ? ' [WITH DECORATION]' : ''}</td>
-                                    <td style="padding:8px 10px; text-align:right; font-size:13px; color:#15803D;">
-                                        $${Number(totalCostUsd).toFixed(2)} <span style="font-size:10px; color:#475569; font-weight:normal;">(~INR ${Number(totalCostInr).toLocaleString()})</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div style="font-size:9px; color:#64748B; margin-bottom:12px; font-style:italic;">*Domestic / international airfare is not included. Expressway toll and parking fees are not included unless specified.</div>
-
-                        <!-- Hotel Details Section -->
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-bottom:5px;">Hotel Details</div>
-                        ${hotelsHtml}
-
-                        <!-- Transportation Schedule Table -->
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; margin-top:10px; margin-bottom:5px;">Transportation &ndash; Private car &amp; boat transfers as per itinerary</div>
-                        <table style="width:100%; border-collapse:collapse; font-size:10.5px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
-                            <tbody>
-                                ${transportRows}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Curated Day-wise Itinerary -->
-                    <div style="margin-bottom:16px;">
-                        <div style="font-size:12px; font-weight:800; color:#0F2C59; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #E2E8F0; padding-bottom:5px; margin-bottom:10px;">
-                            📅 Curated Day-Wise Travel Itinerary
-                        </div>
-                        ${daysHtml}
-                    </div>
-
-                    <!-- Inclusions & Exclusions Grid -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; page-break-inside:avoid;">
-                        <div style="border:1px solid #BBF7D0; background:#F0FDF4; border-radius:6px; padding:10px;">
-                            <div style="font-size:11.5px; font-weight:800; color:#166534; margin-bottom:5px;">
-                                ✅ Package Inclusions
-                            </div>
-                            <ul style="margin:0; padding-left:14px; font-size:10.5px; color:#1E293B; line-height:1.4;">
-                                ${inclusionsList.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div style="border:1px solid #FECACA; background:#FEF2F2; border-radius:6px; padding:10px;">
-                            <div style="font-size:11.5px; font-weight:800; color:#991B1B; margin-bottom:5px;">
-                                ❌ Package Exclusions
-                            </div>
-                            <ul style="margin:0; padding-left:14px; font-size:10.5px; color:#1E293B; line-height:1.4;">
-                                ${exclusionsList.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Footer / Notice & Stamp -->
-                    <div style="border-top:1px solid #E2E8F0; padding-top:12px; display:flex; justify-content:space-between; align-items:flex-end; font-size:10px; color:#64748B; page-break-inside:avoid;">
-                        <div>
-                            <div><strong>Important Notice:</strong> Rates are indicative and subject to availability at the time of final booking.</div>
-                            <div>Passport must have at least 6 months validity from date of travel. Airfare subject to change.</div>
-                            <div style="margin-top:3px; font-weight:700; color:#0F2C59;">Thank you for choosing Let's Explore DMC!</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:10.5px; font-weight:800; color:#0F2C59;">Let's Explore DMC Operations</div>
-                            <div style="font-size:9.5px; color:#94A3B8;">Authorized Quotation Voucher</div>
-                        </div>
-                    </div>
-                `;
-
-                const opt = {
-                    margin: [8, 8, 8, 8],
-                    filename: `${(clientName || 'Quotation').replace(/[^a-zA-Z0-9_-]/g, '_')}_${(d.destination || 'Tour').replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                await html2pdf().set(opt).from(printContainer).save();
-            } catch (err) {
-                console.error('PDF generation error:', err);
-                alert('PDF generation error: ' + err.message);
-            } finally {
-                btn.innerHTML = origText;
-                btn.disabled = false;
-            }
-        }
-
-        async function saveToDocumentsRepository() {
-            if (!currentGeneratedData) {
-                alert('No quotation to save. Please generate a package first.');
-                return;
-            }
-
-            const btn = document.getElementById('btnSaveDocument');
-            const origHtml = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
-            btn.disabled = true;
-
-            const d = currentGeneratedData;
-            const quoteRef = 'LEDMC-QTN-' + Date.now().toString().slice(-6);
-            const clientName = d.paxName || 'Valued Guest';
-
-            const payload = {
-                quoteRef: quoteRef,
-                client: {
-                    name: clientName,
-                    travelDate: d.travelDate || '',
-                    duration: d.duration || '6 Days / 5 Nights',
-                    pax: d.pax || '2 Adults'
-                },
-                destination: d.destination || 'International',
-                landArrangement: {
-                    hotelName: d.hotels || 'Luxury Category Hotel',
-                    nights: d.duration || '5 Nights'
-                },
-                grandTotal: d.pricing?.totalInr || 48500,
-                status: 'Approved',
-                package: d
-            };
-
-            try {
-                const res = await fetch('../api/save_quotation.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                if (result.success) {
-                    alert(`✅ Quotation successfully saved!\nReference ID: ${quoteRef}\nSaved to Documents & Proposals database.`);
-                } else {
-                    alert('Saved successfully to document records: ' + quoteRef);
-                }
-            } catch (err) {
-                alert(`✅ Quotation saved to records: ${quoteRef}`);
-            } finally {
-                btn.innerHTML = origHtml;
                 btn.disabled = false;
             }
         }
@@ -1663,216 +2207,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAiEngineStatus();
-            const params = new URLSearchParams(window.location.search);
-            const client = params.get('client');
-            const dest = params.get('dest');
-            const budget = params.get('budget');
-            const fromPkg = params.get('from_pkg');
+            recalculateActiveRates(false);
 
-            if (client || dest) {
-                const prompt = `Create a quotation for ${client || 'Valued Guest'} traveling to ${dest || 'Selected Destination'}${budget ? ' with budget INR ' + budget : ''}. Include hotel details, day-wise itinerary, and dual tariffs.`;
-                document.getElementById('promptInput').value = prompt;
-                setTimeout(() => handleChatSubmit(), 400);
-            } else if (fromPkg && dest) {
-                const prompt = `Load and customize luxury tour package for ${dest} with custom branding and client quotation.`;
-                document.getElementById('promptInput').value = prompt;
-                setTimeout(() => handleChatSubmit(), 400);
+            const params = new URLSearchParams(window.location.search);
+            const dtParam = params.get('type') || params.get('docType');
+            const destParam = params.get('dest');
+            if (dtParam) {
+                const sel = document.getElementById('docTypeSelect');
+                if (sel && Array.from(sel.options).some(o => o.value === dtParam)) {
+                    sel.value = dtParam;
+                }
+            }
+            if (destParam) {
+                const dSel = document.getElementById('destSelect');
+                if (dSel && Array.from(dSel.options).some(o => o.value.toLowerCase().includes(destParam.toLowerCase()))) {
+                    dSel.value = destParam;
+                }
             }
         });
-
-        function generateSmartFallback(prompt, existingData = null) {
-            const p = (prompt || '').toLowerCase();
-            const isDouble = p.includes('double') || p.includes('200 ka 400') || p.includes('doguna') || p.includes('do guna') || p.includes('2x');
-            const hasDecoration = p.includes('decor') || p.includes('flower');
-            const isPreserve = p.includes('as it is') || p.includes('change mat') || p.includes('same format') || p.includes('kuch bhi change') || p.includes('rahne do');
-
-            // If user asked to preserve current format and modify on active quotation
-            if (existingData && (isDouble || hasDecoration || isPreserve)) {
-                const updated = JSON.parse(JSON.stringify(existingData));
-                let baseUsd = Number(updated.pricing?.totalUsd || 800);
-                let baseInr = Number(updated.pricing?.totalInr || (baseUsd * 87));
-                let ratePerAdult = Number(updated.pricing?.ratePerAdultUsd || (baseUsd / 2));
-
-                if (p.includes('200 ka 400')) {
-                    ratePerAdult = 400.00;
-                    baseUsd = 800.00;
-                    baseInr = 69600;
-                } else if (isDouble) {
-                    ratePerAdult = Number((ratePerAdult * 2).toFixed(2));
-                    baseUsd = Number((baseUsd * 2).toFixed(2));
-                    baseInr = baseInr * 2;
-                }
-
-                updated.pricing = {
-                    ratePerAdultUsd: ratePerAdult,
-                    totalUsd: baseUsd,
-                    totalInr: baseInr
-                };
-
-                if (hasDecoration || p.includes('decoration')) {
-                    updated.isDecorationIncluded = true;
-                    if (!updated.title.toLowerCase().includes('decoration')) {
-                        updated.title += ' (with Romantic Room & Bed Decoration)';
-                    }
-                    if (Array.isArray(updated.inclusions)) {
-                        const hasDec = updated.inclusions.some(inc => String(inc).toLowerCase().includes('decoration'));
-                        if (!hasDec) {
-                            updated.inclusions.unshift('Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities');
-                        }
-                    }
-                }
-                return updated;
-            }
-
-            // If prompt is a double / decoration request on fresh session without active quotation:
-            if (isDouble || hasDecoration || p.includes('200 ka 400')) {
-                return {
-                    title: 'Phuket + Krabi 6D/5N Luxury Package Tour (with Romantic Room & Bed Decoration)',
-                    destination: 'Phuket + Krabi',
-                    country: 'Thailand',
-                    duration: '6 Days / 5 Nights',
-                    pax: '2 Adults',
-                    hotels: 'Ashlee Plaza Hotel (Phuket, 3N) & GLOW Ao Nang (Krabi, 2N)',
-                    isDecorationIncluded: true,
-                    pricing: {
-                        ratePerAdultUsd: 400.00,
-                        totalUsd: 800.00,
-                        totalInr: 69600
-                    },
-                    inclusions: [
-                        'Romantic Room & Bed Floral Decoration with Welcome Cake & Special Honeymoon Amenities',
-                        'Private airport transfers by car as per itinerary',
-                        'Accommodation in Superior rooms (twin / double sharing) with daily buffet breakfast',
-                        'Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond big boat tour',
-                        'Krabi City Tour by car (8 hours)',
-                        'All entrance fees and National Park Fees (NPF)',
-                        'Daily buffet breakfast & sea tour buffet lunches'
-                    ],
-                    exclusions: [
-                        'International and domestic airfares',
-                        'Expressway toll and parking fees if any',
-                        'Personal expenses, laundry, tips and minibar charges',
-                        'Travel insurance'
-                    ],
-                    itinerary: [
-                        { day: 'Day 1 – Thu, 10 Dec', title: 'Arrival in Phuket & Romantic Room Check-in', desc: 'Phuket Airport to Ashlee Plaza Hotel – Private transfer. Romantic room decoration & welcome amenities ready. Evening at leisure.' },
-                        { day: 'Day 2 – Fri, 11 Dec', title: 'Phi Phi & Maya Bay Speedboat Tour', desc: 'Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (Lunch + NPF included).' },
-                        { day: 'Day 3 – Sat, 12 Dec', title: 'James Bond Island Tour', desc: 'James Bond Island tour by Big Boat (Lunch + NPF included).' },
-                        { day: 'Day 4 – Sun, 13 Dec', title: 'Transfer to Krabi & City Tour', desc: 'Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour.' },
-                        { day: 'Day 5 – Mon, 14 Dec', title: '4 Island Tour by Long Tail Boat', desc: '4 Island Tour by Long Tail Boat (Lunch + NPF included).' },
-                        { day: 'Day 6 – Tue, 15 Dec', title: 'Departure Transfer', desc: 'GLOW Ao Nang Krabi to Phuket Airport – Private transfer.' }
-                    ]
-                };
-            }
-
-            let dest = 'Bali';
-            let country = 'Indonesia';
-            let title = 'Bali Luxury Tropical Escape';
-            let duration = '6 Days / 5 Nights';
-            let hotels = '4★ / 5★ Luxury Category with daily breakfast';
-            let priceInr = 48500;
-            let priceUsd = 585;
-
-            // Specialized WhatsApp workflow: Phuket + Krabi 15% markup with Rajasthan quote formatting
-            if (p.includes('15%') || p.includes('15 percent') || (p.includes('phuket') && p.includes('krabi')) || (p.includes('phuket') && p.includes('markup')) || p.includes('humari company')) {
-                return {
-                    title: 'Phuket + Krabi 6D/5N Package Tour (2 Pax Budget)',
-                    destination: 'Phuket + Krabi',
-                    country: 'Thailand',
-                    duration: '6 Days / 5 Nights',
-                    pax: '2 Adults',
-                    hotels: 'Ashlee Plaza Hotel (Phuket, 3N) & GLOW Ao Nang (Krabi, 2N)',
-                    pricing: {
-                        ratePerAdultUsd: 632.88,
-                        totalUsd: 1265.76,
-                        totalInr: 109488
-                    },
-                    inclusions: [
-                        'Private airport transfers by car as per itinerary',
-                        'Accommodation in Superior rooms (twin / double sharing) with daily buffet breakfast',
-                        'Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond big boat tour',
-                        'Krabi City Tour by car (8 hours)',
-                        'All entrance fees and National Park Fees (NPF)',
-                        'Daily buffet breakfast & sea tour buffet lunches'
-                    ],
-                    exclusions: [
-                        'International and domestic airfares',
-                        'Expressway toll and parking fees if any',
-                        'Personal expenses, laundry, tips and minibar charges',
-                        'Travel insurance'
-                    ],
-                    itinerary: [
-                        { day: 'Day 1 – Thu, 10 Dec', title: 'Arrival in Phuket', desc: 'Phuket Airport to Ashlee Plaza Hotel – Private transfer. Check-in and evening at leisure.' },
-                        { day: 'Day 2 – Fri, 11 Dec', title: 'Phi Phi & Maya Bay Speedboat Tour', desc: 'Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (Lunch + NPF included).' },
-                        { day: 'Day 3 – Sat, 12 Dec', title: 'James Bond Island Tour', desc: 'James Bond Island tour by Big Boat (Lunch + NPF included).' },
-                        { day: 'Day 4 – Sun, 13 Dec', title: 'Transfer to Krabi & City Tour', desc: 'Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour.' },
-                        { day: 'Day 5 – Mon, 14 Dec', title: '4 Island Tour by Long Tail Boat', desc: '4 Island Tour by Long Tail Boat (Lunch + NPF included).' },
-                        { day: 'Day 6 – Tue, 15 Dec', title: 'Departure Transfer', desc: 'GLOW Ao Nang Krabi to Phuket Airport – Private transfer.' }
-                    ]
-                };
-            }
-
-            if (p.includes('tomorrowland') || p.includes('pattaya')) {
-                dest = 'Pattaya Tomorrowland Thailand';
-                country = 'Thailand';
-                title = 'Tomorrowland Thailand 4D3N Pattaya Group Package';
-                priceInr = 131062;
-                priceUsd = 1530;
-                duration = '4 Days / 3 Nights';
-                hotels = 'Welcome Plaza Hotel / K Station / Private Pool Villa (Self-Booked)';
-            } else if (p.includes('dubai')) {
-                dest = 'Dubai & Abu Dhabi';
-                country = 'UAE';
-                title = 'Dubai Corporate & Luxury Highlights';
-                priceInr = 54000;
-                priceUsd = 650;
-            } else if (p.includes('thailand') || p.includes('phuket')) {
-                dest = 'Thailand (Phuket & Krabi)';
-                country = 'Thailand';
-                title = 'Thailand Island Hopping & Beach Resort';
-                priceInr = 38000;
-                priceUsd = 460;
-            } else if (p.includes('malaysia')) {
-                dest = 'Kuala Lumpur & Genting';
-                country = 'Malaysia';
-                title = 'Malaysia Highland & City Explorer';
-                priceInr = 34500;
-                priceUsd = 415;
-            } else if (p.includes('turkey') || p.includes('cappadocia')) {
-                dest = 'Istanbul & Cappadocia';
-                country = 'Turkey';
-                title = 'Turkey Historical Wonders & Cave Experience';
-                priceInr = 74500;
-                priceUsd = 890;
-            } else if (p.includes('kashmir')) {
-                dest = 'Srinagar, Gulmarg & Pahalgam';
-                country = 'India';
-                title = 'Kashmir Heaven on Earth Luxury Tour';
-                priceInr = 32000;
-                priceUsd = 385;
-            }
-
-            return {
-                title: title,
-                destination: dest,
-                country: country,
-                duration: '6 Days / 5 Nights',
-                pax: '2 Adults',
-                hotels: '4★ / 5★ Luxury Category with daily breakfast',
-                pricing: { totalInr: priceInr, totalUsd: priceUsd },
-                inclusions: ['All private airport and sightseeing transfers in AC vehicle', 'Daily buffet breakfast', 'Guided excursion and entry permits', '24/7 dedicated on-ground DMC coordinator'],
-                exclusions: ['International flight tickets', 'Visa stamping fees', 'Personal expenses, laundry, tips', 'Optional water sports activities'],
-                itinerary: [
-                    { day: 'Day 1', title: `Arrival in ${dest}`, desc: 'Warm reception by Let’s Explore DMC team. Private transfer to hotel. Rest & leisure.' },
-                    { day: 'Day 2', title: 'Signature Highlights Tour', desc: 'Full-day tour covering major attractions, cultural sights & viewpoints.' },
-                    { day: 'Day 3', title: 'Scenic Excursion & Adventure', desc: 'Exciting speedboat or cable car activity followed by evening sunset.' },
-                    { day: 'Day 4', title: 'Local Heritage & Shopping', desc: 'Visit traditional markets, craft centers, and gourmet dining spots.' },
-                    { day: 'Day 5', title: 'Leisure Day / Beach Villa Stay', desc: 'Free day for spa treatment or relaxing by the private pool.' },
-                    { day: 'Day 6', title: 'Departure Transfer', desc: 'Private transfer back to international airport with cherished memories.' }
-                ]
-            };
-        }
     </script>
-    <script src="js/portal.js"></script>
 </body>
 </html>

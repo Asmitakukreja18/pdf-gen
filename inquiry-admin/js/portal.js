@@ -1,4 +1,4 @@
-/**
+hahiy/**
  * portal.js — Master SaaS Portal Layout, Role Controller & Security Enforcer
  * Let's Explore DMC Luxury ERP Portal
  * 
@@ -11,146 +11,146 @@
  *   Staff has mandatory 15-min idle lock with OTP.
  */
 
-(function () {
-  'use strict';
+  (function () {
+    'use strict';
 
-  // 1. IMMEDIATE PAGE-LEVEL ROLE ENFORCEMENT BEFORE DOM RENDERS
-  enforcePageAccessRules();
+    // 1. IMMEDIATE PAGE-LEVEL ROLE ENFORCEMENT BEFORE DOM RENDERS
+    enforcePageAccessRules();
 
-  document.addEventListener('DOMContentLoaded', () => {
-    initPortalTheme();
-    syncUserIdentity();
-    renderRoleSpecificSidebar();
-    initSidebarControls();
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+      initPortalTheme();
+      syncUserIdentity();
+      renderRoleSpecificSidebar();
+      initSidebarControls();
+    });
 
-  /**
-   * Prevents Staff from accessing Admin pages, and redirects Admin to Executive Dashboard
-   */
-  function enforcePageAccessRules() {
-    var storedUser = null;
-    try {
-      var raw = localStorage.getItem('dmc_user');
-      if (raw) storedUser = JSON.parse(raw);
-    } catch (e) {
-      storedUser = null;
-    }
+    /**
+     * Prevents Staff from accessing Admin pages, and redirects Admin to Executive Dashboard
+     */
+    function enforcePageAccessRules() {
+      var storedUser = null;
+      try {
+        var raw = localStorage.getItem('dmc_user');
+        if (raw) storedUser = JSON.parse(raw);
+      } catch (e) {
+        storedUser = null;
+      }
 
-    var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || '';
-    role = role.toLowerCase();
-    var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
-    var isAdmin = (role === 'admin' || role === 'superadmin' || role === 'owner');
+      var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || '';
+      role = role.toLowerCase();
+      var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
+      var isAdmin = (role === 'admin' || role === 'superadmin' || role === 'owner');
 
-    var currentFile = window.location.pathname.split('/').pop().toLowerCase();
-    if (!currentFile || currentFile === '') currentFile = 'index.html';
+      var currentFile = window.location.pathname.split('/').pop().toLowerCase();
+      if (!currentFile || currentFile === '') currentFile = 'index.html';
 
-    var adminOnlyPages = ['dashboard.html', 'members.html', 'settings.html', 'analytics.html', 'website.html'];
+      var adminOnlyPages = ['dashboard.html', 'members.html', 'settings.html', 'analytics.html', 'website.html'];
 
-    // If Staff attempts to visit Admin-only monitoring/settings pages:
-    if (isStaff && adminOnlyPages.indexOf(currentFile) !== -1) {
-      console.warn('[Security] Staff user blocked from Admin page:', currentFile);
-      window.location.replace('staff.html');
-      return;
-    }
+      // If Staff attempts to visit Admin-only monitoring/settings pages:
+      if (isStaff && adminOnlyPages.indexOf(currentFile) !== -1) {
+        console.warn('[Security] Staff user blocked from Admin page:', currentFile);
+        window.location.replace('staff.html');
+        return;
+      }
 
-    // If Admin attempts to visit Staff-only operational workspace:
-    if (isAdmin && currentFile === 'staff.html') {
-      window.location.replace('dashboard.html');
-      return;
-    }
-  }
-
-  /**
-   * Reads authenticated user from localStorage and hydrates topbar
-   */
-  function syncUserIdentity() {
-    var storedUser = null;
-    try {
-      var raw = localStorage.getItem('dmc_user');
-      if (raw) storedUser = JSON.parse(raw);
-    } catch (e) {
-      storedUser = null;
-    }
-
-    var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin';
-    role = role.toLowerCase();
-    var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
-
-    // Update Avatar Initials
-    var avatarEl = document.getElementById('topbarAvatar') || document.getElementById('userAvatar');
-    if (avatarEl) {
-      if (storedUser && storedUser.name) {
-        var parts = storedUser.name.trim().split(/\s+/);
-        var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : parts[0].substring(0, 2);
-        avatarEl.textContent = initials.toUpperCase();
-      } else {
-        avatarEl.textContent = isStaff ? 'ST' : 'AD';
+      // If Admin attempts to visit Staff-only operational workspace:
+      if (isAdmin && currentFile === 'staff.html') {
+        window.location.replace('dashboard.html');
+        return;
       }
     }
 
-    // Update Topbar User Name & Role
-    var nameEls = [
-      document.getElementById('topbarUserName'),
-      document.getElementById('userName'),
-      document.getElementById('userNameEl')
-    ];
-    nameEls.forEach(function (el) {
-      if (el) {
+    /**
+     * Reads authenticated user from localStorage and hydrates topbar
+     */
+    function syncUserIdentity() {
+      var storedUser = null;
+      try {
+        var raw = localStorage.getItem('dmc_user');
+        if (raw) storedUser = JSON.parse(raw);
+      } catch (e) {
+        storedUser = null;
+      }
+
+      var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin';
+      role = role.toLowerCase();
+      var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
+
+      // Update Avatar Initials
+      var avatarEl = document.getElementById('topbarAvatar') || document.getElementById('userAvatar');
+      if (avatarEl) {
         if (storedUser && storedUser.name) {
-          el.textContent = storedUser.name;
+          var parts = storedUser.name.trim().split(/\s+/);
+          var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : parts[0].substring(0, 2);
+          avatarEl.textContent = initials.toUpperCase();
         } else {
-          el.textContent = isStaff ? 'Staff Executive' : 'Sir / Owner (Admin)';
+          avatarEl.textContent = isStaff ? 'ST' : 'AD';
         }
       }
-    });
 
-    var roleEls = [
-      document.getElementById('topbarUserRole'),
-      document.getElementById('userRole')
-    ];
-    roleEls.forEach(function (el) {
-      if (el) {
-        el.textContent = isStaff ? 'Operations Desk (Sub-User)' : 'Super Administrator (Owner)';
+      // Update Topbar User Name & Role
+      var nameEls = [
+        document.getElementById('topbarUserName'),
+        document.getElementById('userName'),
+        document.getElementById('userNameEl')
+      ];
+      nameEls.forEach(function (el) {
+        if (el) {
+          if (storedUser && storedUser.name) {
+            el.textContent = storedUser.name;
+          } else {
+            el.textContent = isStaff ? 'Staff Executive' : 'Sir / Owner (Admin)';
+          }
+        }
+      });
+
+      var roleEls = [
+        document.getElementById('topbarUserRole'),
+        document.getElementById('userRole')
+      ];
+      roleEls.forEach(function (el) {
+        if (el) {
+          el.textContent = isStaff ? 'Operations Desk (Sub-User)' : 'Super Administrator (Owner)';
+        }
+      });
+
+      var welcomeName = document.getElementById('welcomeUserName');
+      if (welcomeName) {
+        welcomeName.textContent = (storedUser && storedUser.name) ? storedUser.name.split(' ')[0] : (isStaff ? 'Executive' : 'Sir');
       }
-    });
 
-    var welcomeName = document.getElementById('welcomeUserName');
-    if (welcomeName) {
-      welcomeName.textContent = (storedUser && storedUser.name) ? storedUser.name.split(' ')[0] : (isStaff ? 'Executive' : 'Sir');
+      // Set brand link according to role
+      var brandLink = document.getElementById('sidebarBrandLink') || document.querySelector('.sidebar-brand');
+      if (brandLink) {
+        brandLink.setAttribute('href', isStaff ? 'staff.html' : 'dashboard.html');
+      }
     }
 
-    // Set brand link according to role
-    var brandLink = document.getElementById('sidebarBrandLink') || document.querySelector('.sidebar-brand');
-    if (brandLink) {
-      brandLink.setAttribute('href', isStaff ? 'staff.html' : 'dashboard.html');
-    }
-  }
+    /**
+     * Renders strictly separated sidebar navigation depending on whether user is ADMIN or STAFF
+     */
+    function renderRoleSpecificSidebar() {
+      var menu = document.querySelector('.portal-sidebar .sidebar-menu') || document.querySelector('.sidebar-nav');
+      if (!menu) return;
 
-  /**
-   * Renders strictly separated sidebar navigation depending on whether user is ADMIN or STAFF
-   */
-  function renderRoleSpecificSidebar() {
-    var menu = document.querySelector('.portal-sidebar .sidebar-menu') || document.querySelector('.sidebar-nav');
-    if (!menu) return;
+      var storedUser = null;
+      try {
+        var raw = localStorage.getItem('dmc_user');
+        if (raw) storedUser = JSON.parse(raw);
+      } catch (e) {
+        storedUser = null;
+      }
 
-    var storedUser = null;
-    try {
-      var raw = localStorage.getItem('dmc_user');
-      if (raw) storedUser = JSON.parse(raw);
-    } catch (e) {
-      storedUser = null;
-    }
+      var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin';
+      role = role.toLowerCase();
+      var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
+      var currentPath = window.location.pathname.split('/').pop().toLowerCase() || (isStaff ? 'staff.html' : 'dashboard.html');
 
-    var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin';
-    role = role.toLowerCase();
-    var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
-    var currentPath = window.location.pathname.split('/').pop().toLowerCase() || (isStaff ? 'staff.html' : 'dashboard.html');
-
-    if (isStaff) {
-      // =========================================================================
-      // STAFF OPERATIONAL SIDEBAR — DAILY WORKING ACCOUNT (NO ADMIN MONITORING)
-      // =========================================================================
-      menu.innerHTML = `
+      if (isStaff) {
+        // =========================================================================
+        // STAFF OPERATIONAL SIDEBAR — DAILY WORKING ACCOUNT (NO ADMIN MONITORING)
+        // =========================================================================
+        menu.innerHTML = `
         <div class="nav-group-title" style="font-size:10.5px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.08em; padding:8px 16px 4px;">My Daily Desk</div>
         <a href="staff.html" class="nav-link nav-link-item ${currentPath === 'staff.html' ? 'active' : ''}">
           <i class="fa-solid fa-desktop"></i>
@@ -191,11 +191,11 @@
           <span>Documents &amp; PDFs</span>
         </a>
       `;
-    } else {
-      // =========================================================================
-      // ADMIN / OWNER (SIR) SIDEBAR — MONITORING & BUSINESS CONTROL (NO DAILY OPS QUEUES)
-      // =========================================================================
-      menu.innerHTML = `
+      } else {
+        // =========================================================================
+        // ADMIN / OWNER (SIR) SIDEBAR — MONITORING & BUSINESS CONTROL (NO DAILY OPS QUEUES)
+        // =========================================================================
+        menu.innerHTML = `
         <div class="nav-group-title" style="font-size:10.5px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.08em; padding:8px 16px 4px;">Executive Control</div>
         <a href="dashboard.html" class="nav-link nav-link-item ${currentPath === 'dashboard.html' ? 'active' : ''}">
           <i class="fa-solid fa-house"></i>
@@ -252,135 +252,135 @@
           <span>Documents &amp; Proposals</span>
         </a>
       `;
-    }
-  }
-
-  /**
-   * Mobile Toggle & Collapsed State Handling
-   */
-  function initSidebarControls() {
-    var sidebar = document.getElementById('portalSidebar') || document.querySelector('.portal-sidebar');
-    var triggers = [
-      document.getElementById('sidebarToggleBtn'),
-      document.getElementById('mobileMenuTrigger'),
-      document.querySelector('.mobile-menu-trigger'),
-      document.querySelector('.sidebar-toggle-btn')
-    ];
-
-    // Create backdrop overlay if not present
-    var backdrop = document.getElementById('portalSidebarBackdrop');
-    if (!backdrop) {
-      backdrop = document.createElement('div');
-      backdrop.id = 'portalSidebarBackdrop';
-      backdrop.className = 'portal-sidebar-backdrop';
-      document.body.appendChild(backdrop);
-    }
-
-    function toggleMobileDrawer(open) {
-      if (!sidebar) return;
-      var isOpen = typeof open === 'boolean' ? open : !sidebar.classList.contains('mobile-open');
-      if (isOpen) {
-        sidebar.classList.add('mobile-open', 'open', 'active');
-        if (backdrop) backdrop.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      } else {
-        sidebar.classList.remove('mobile-open', 'open', 'active');
-        if (backdrop) backdrop.classList.remove('active');
-        document.body.style.overflow = '';
       }
     }
 
-    triggers.forEach(function (btn) {
-      if (!btn) return;
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (window.innerWidth <= 992) {
-          toggleMobileDrawer();
+    /**
+     * Mobile Toggle & Collapsed State Handling
+     */
+    function initSidebarControls() {
+      var sidebar = document.getElementById('portalSidebar') || document.querySelector('.portal-sidebar');
+      var triggers = [
+        document.getElementById('sidebarToggleBtn'),
+        document.getElementById('mobileMenuTrigger'),
+        document.querySelector('.mobile-menu-trigger'),
+        document.querySelector('.sidebar-toggle-btn')
+      ];
+
+      // Create backdrop overlay if not present
+      var backdrop = document.getElementById('portalSidebarBackdrop');
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'portalSidebarBackdrop';
+        backdrop.className = 'portal-sidebar-backdrop';
+        document.body.appendChild(backdrop);
+      }
+
+      function toggleMobileDrawer(open) {
+        if (!sidebar) return;
+        var isOpen = typeof open === 'boolean' ? open : !sidebar.classList.contains('mobile-open');
+        if (isOpen) {
+          sidebar.classList.add('mobile-open', 'open', 'active');
+          if (backdrop) backdrop.classList.add('active');
+          document.body.style.overflow = 'hidden';
         } else {
-          if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-            try {
-              localStorage.setItem('dmc_sidebar_collapsed', sidebar.classList.contains('collapsed'));
-            } catch (err) {}
-          }
+          sidebar.classList.remove('mobile-open', 'open', 'active');
+          if (backdrop) backdrop.classList.remove('active');
+          document.body.style.overflow = '';
         }
-      });
-    });
+      }
 
-    // Close on backdrop tap
-    if (backdrop) {
-      backdrop.addEventListener('click', function (e) {
-        e.preventDefault();
-        toggleMobileDrawer(false);
-      });
-    }
-
-    // Add mobile close 'X' button to sidebar header if not present
-    if (sidebar) {
-      var header = sidebar.querySelector('.sidebar-header');
-      if (header && !header.querySelector('.sidebar-close-btn')) {
-        var closeBtn = document.createElement('button');
-        closeBtn.type = 'button';
-        closeBtn.className = 'sidebar-close-btn';
-        closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        closeBtn.title = 'Close Navigation Menu';
-        closeBtn.setAttribute('aria-label', 'Close Navigation Menu');
-        closeBtn.addEventListener('click', function(e) {
+      triggers.forEach(function (btn) {
+        if (!btn) return;
+        btn.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          toggleMobileDrawer(false);
-        });
-        header.appendChild(closeBtn);
-      }
-
-      // Close drawer when any navigation link inside sidebar is tapped on mobile
-      var navLinks = sidebar.querySelectorAll('.nav-link, .sidebar-brand, .sidebar-logout-wrap a');
-      navLinks.forEach(function (link) {
-        link.addEventListener('click', function () {
           if (window.innerWidth <= 992) {
-            toggleMobileDrawer(false);
+            toggleMobileDrawer();
+          } else {
+            if (sidebar) {
+              sidebar.classList.toggle('collapsed');
+              try {
+                localStorage.setItem('dmc_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+              } catch (err) { }
+            }
           }
         });
       });
-    }
 
-    // Close mobile drawer on ESC key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
-        toggleMobileDrawer(false);
+      // Close on backdrop tap
+      if (backdrop) {
+        backdrop.addEventListener('click', function (e) {
+          e.preventDefault();
+          toggleMobileDrawer(false);
+        });
       }
-    });
 
-    // Automatically safeguard any bare tables in main content
-    try {
-      var tables = document.querySelectorAll('.portal-main table, .portal-content table, .content-body table');
-      tables.forEach(function (tbl) {
-        var parent = tbl.parentElement;
-        if (parent && !parent.classList.contains('table-responsive') && !parent.classList.contains('table-container') && !parent.style.overflowX) {
-          var wrap = document.createElement('div');
-          wrap.className = 'table-responsive';
-          wrap.style.cssText = 'width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:12px; border-radius:10px;';
-          parent.insertBefore(wrap, tbl);
-          wrap.appendChild(tbl);
+      // Add mobile close 'X' button to sidebar header if not present
+      if (sidebar) {
+        var header = sidebar.querySelector('.sidebar-header');
+        if (header && !header.querySelector('.sidebar-close-btn')) {
+          var closeBtn = document.createElement('button');
+          closeBtn.type = 'button';
+          closeBtn.className = 'sidebar-close-btn';
+          closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          closeBtn.title = 'Close Navigation Menu';
+          closeBtn.setAttribute('aria-label', 'Close Navigation Menu');
+          closeBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMobileDrawer(false);
+          });
+          header.appendChild(closeBtn);
+        }
+
+        // Close drawer when any navigation link inside sidebar is tapped on mobile
+        var navLinks = sidebar.querySelectorAll('.nav-link, .sidebar-brand, .sidebar-logout-wrap a');
+        navLinks.forEach(function (link) {
+          link.addEventListener('click', function () {
+            if (window.innerWidth <= 992) {
+              toggleMobileDrawer(false);
+            }
+          });
+        });
+      }
+
+      // Close mobile drawer on ESC key
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
+          toggleMobileDrawer(false);
         }
       });
-    } catch(err) {}
 
-    // Restore desktop collapsed state
-    try {
-      if (sidebar && window.innerWidth > 992 && localStorage.getItem('dmc_sidebar_collapsed') === 'true') {
-        sidebar.classList.add('collapsed');
-      }
-    } catch (e) {}
-  }
+      // Automatically safeguard any bare tables in main content
+      try {
+        var tables = document.querySelectorAll('.portal-main table, .portal-content table, .content-body table');
+        tables.forEach(function (tbl) {
+          var parent = tbl.parentElement;
+          if (parent && !parent.classList.contains('table-responsive') && !parent.classList.contains('table-container') && !parent.style.overflowX) {
+            var wrap = document.createElement('div');
+            wrap.className = 'table-responsive';
+            wrap.style.cssText = 'width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:12px; border-radius:10px;';
+            parent.insertBefore(wrap, tbl);
+            wrap.appendChild(tbl);
+          }
+        });
+      } catch (err) { }
 
-  function initPortalTheme() {
-    // Inject mobile overlay styles if not present
-    if (!document.getElementById('portal-mobile-overrides')) {
-      var style = document.createElement('style');
-      style.id = 'portal-mobile-overrides';
-      style.textContent = `
+      // Restore desktop collapsed state
+      try {
+        if (sidebar && window.innerWidth > 992 && localStorage.getItem('dmc_sidebar_collapsed') === 'true') {
+          sidebar.classList.add('collapsed');
+        }
+      } catch (e) { }
+    }
+
+    function initPortalTheme() {
+      // Inject mobile overlay styles if not present
+      if (!document.getElementById('portal-mobile-overrides')) {
+        var style = document.createElement('style');
+        style.id = 'portal-mobile-overrides';
+        style.textContent = `
         /* Mobile Backdrop */
         .portal-sidebar-backdrop {
           display: none;
@@ -511,8 +511,8 @@
           }
         }
       `;
-      document.head.appendChild(style);
+        document.head.appendChild(style);
+      }
     }
-  }
 
-})();
+  })();
