@@ -5799,3 +5799,66 @@ p {
   background: rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
 }
+
+/* ─── MOBILE RESPONSIVENESS OVERRIDES FOR STUDIO & PREVIEWS ─── */
+@media (max-width: 768px) {
+  .claude-studio-layout {
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .claude-sidebar {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: -280px;
+    width: 260px;
+    height: calc(100vh - 64px);
+    z-index: 999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .claude-sidebar.mobile-open,
+  .claude-sidebar.open {
+    left: 0;
+  }
+
+  .claude-sidebar.collapsed {
+    width: 260px;
+  }
+
+  /* Preview and Options Table Zero Distortion on Phones */
+  .agent-options-table-wrap,
+  .table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .agent-options-table {
+    min-width: 580px !important;
+    width: 100% !important;
+  }
+
+  .agent-options-table th,
+  .agent-options-table td {
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Modals on Mobile Phones */
+  .modal-dialog,
+  .modal-box,
+  .auth-modal-box {
+    width: 95% !important;
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+    padding: 18px 14px !important;
+  }
+}

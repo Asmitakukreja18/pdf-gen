@@ -648,6 +648,137 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
             border: 1px solid #86EFAC;
         }
 
+        /* Mobile Hamburger & Slide Drawer */
+        .gateway-mobile-toggle {
+            display: none;
+            background: #FFFFFF;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            color: var(--brand-navy);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .gateway-mobile-toggle:hover {
+            background: #F8FAFC;
+            border-color: var(--brand-gold);
+        }
+
+        .gateway-drawer-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .gateway-drawer-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .gateway-mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: #FFFFFF;
+            z-index: 1000;
+            box-shadow: -10px 0 35px rgba(15, 23, 42, 0.25);
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .gateway-mobile-drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FAFBFD;
+        }
+
+        .drawer-close-btn {
+            background: #F1F5F9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .drawer-close-btn:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+
+        .drawer-nav-list {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--brand-navy);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .drawer-link:hover {
+            background: #F8FAFD;
+            color: var(--accent-blue);
+        }
+
+        .drawer-link i {
+            width: 22px;
+            text-align: center;
+            color: var(--brand-gold);
+            font-size: 16px;
+        }
+
+        .drawer-cta-wrap {
+            padding: 16px 20px 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         /* Responsive Breakpoints */
         @media (max-width: 1024px) {
             .hero-title { font-size: 40px; }
@@ -657,21 +788,31 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         }
 
         @media (max-width: 768px) {
-            .gateway-header { padding: 16px 20px; }
+            .gateway-header { padding: 14px 18px; }
             .brand-logo-img { height: 52px; }
-            .brand-title { font-size: 19px; }
+            .brand-title { font-size: 18px; }
             .header-nav-tags { display: none; }
-            .gateway-hero { padding: 10px 20px 30px; }
-            .hero-title { font-size: 32px; }
-            .hero-subtitle { font-size: 15px; }
+            .gateway-mobile-toggle { display: inline-flex; }
+            .leaf-accent-top,
+            .leaf-accent-bottom {
+                max-width: 35vw;
+                max-height: 35vw;
+                overflow: hidden;
+            }
+            .gateway-hero { padding: 10px 18px 30px; }
+            .hero-title { font-size: 30px; }
+            .hero-subtitle { font-size: 14.5px; }
             .login-cards-grid { grid-template-columns: 1fr; }
-            .trust-stats-bar { flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+            .trust-stats-bar { flex-wrap: wrap; gap: 16px; justify-content: space-between; }
         }
 
         @media (max-width: 480px) {
-            .hero-title { font-size: 28px; }
-            .portal-card { padding: 24px 20px; }
-            .auth-modal-box { padding: 28px 20px; }
+            .gateway-header { padding: 12px 14px; }
+            .brand-logo-img { height: 46px; }
+            .brand-title { font-size: 16px; }
+            .hero-title { font-size: 26px; }
+            .portal-card { padding: 22px 18px; }
+            .auth-modal-box { padding: 24px 18px; }
         }
     </style>
 </head>
@@ -680,6 +821,54 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
     <!-- Decorative Top Leaves -->
     <div class="leaf-accent-top"></div>
     <div class="leaf-accent-bottom"></div>
+
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div class="gateway-drawer-backdrop" id="gatewayDrawerBackdrop" onclick="toggleGatewayDrawer(false)"></div>
+
+    <!-- Mobile Drawer Navigation Menu -->
+    <aside class="gateway-mobile-drawer" id="gatewayMobileDrawer" aria-label="Mobile Navigation">
+        <div class="drawer-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
+                <div>
+                    <div style="font-size:14px; font-weight:800; color:var(--brand-navy);">Let's Explore DMC</div>
+                    <div style="font-size:10px; font-weight:700; color:var(--brand-gold-dark); text-transform:uppercase;">Master Gateway</div>
+                </div>
+            </div>
+            <button type="button" class="drawer-close-btn" onclick="toggleGatewayDrawer(false)" aria-label="Close menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <nav class="drawer-nav-list">
+            <a href="website/index.html#packages" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-box-open"></i> Tour Packages
+            </a>
+            <a href="website/index.html#destinations" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-earth-americas"></i> Destinations
+            </a>
+            <a href="website/index.html#about" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-shield-halved"></i> About DMC
+            </a>
+            <a href="website/index.html#inquiry" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-paper-plane"></i> Plan My Holiday
+            </a>
+            <a href="studio.html" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quotation Studio
+            </a>
+        </nav>
+
+        <div class="drawer-cta-wrap">
+            <button type="button" onclick="toggleGatewayDrawer(false); openAuthModal('user');"
+                style="width:100%; padding:12px; border-radius:9999px; background:#EFF6FF; border:1px solid #BFDBFE; color:var(--accent-blue); font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fa-solid fa-briefcase"></i> Staff Operations Login
+            </button>
+            <button type="button" onclick="toggleGatewayDrawer(false); openAuthModal('admin');"
+                style="width:100%; padding:12px; border-radius:9999px; background:var(--brand-navy); border:none; color:#FFFFFF; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fa-solid fa-crown" style="color:var(--brand-gold);"></i> Admin Control Center
+            </button>
+        </div>
+    </aside>
 
     <!-- Header Navigation -->
     <header class="gateway-header">
@@ -691,17 +880,21 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
             </div>
         </a>
 
-        <div style="display:flex; align-items:center; gap:16px;">
+        <div style="display:flex; align-items:center; gap:12px;">
             <div class="header-nav-tags">
-                <span>Travel</span>
+                <a href="website/index.html#packages" style="color:inherit; text-decoration:none;">Travel</a>
                 <span class="dot">&bull;</span>
-                <span>Explore</span>
+                <a href="website/index.html#destinations" style="color:inherit; text-decoration:none;">Explore</a>
                 <span class="dot">&bull;</span>
-                <span>Experience</span>
+                <a href="website/index.html#about" style="color:inherit; text-decoration:none;">Experience</a>
             </div>
-            <a href="studio.html" style="background:#0F172A; color:#FFFFFF; padding:8px 18px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
+            <a href="studio.html" style="background:#0F172A; color:#FFFFFF; padding:8px 16px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio
             </a>
+            <!-- Mobile Menu Toggle Button -->
+            <button type="button" class="gateway-mobile-toggle" id="gatewayMobileMenuBtn" aria-label="Toggle Navigation Menu" onclick="toggleGatewayDrawer(true)">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -1038,6 +1231,30 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
                 }
             }
         }
+
+        // Mobile Drawer Controller
+        function toggleGatewayDrawer(open) {
+            const drawer = document.getElementById('gatewayMobileDrawer');
+            const backdrop = document.getElementById('gatewayDrawerBackdrop');
+            if (!drawer) return;
+            const isOpen = typeof open === 'boolean' ? open : !drawer.classList.contains('open');
+            if (isOpen) {
+                drawer.classList.add('open');
+                if (backdrop) backdrop.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.remove('open');
+                if (backdrop) backdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close mobile drawer on ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                toggleGatewayDrawer(false);
+            }
+        });
     </script>
 </body>
 </html>
