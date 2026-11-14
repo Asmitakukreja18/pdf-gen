@@ -136,3 +136,4 @@ clean_file('inquiry-admin/trips.html', [
 clean_file('website/index.html', [
     ('placeholder="e.g. Akash Dewani"', 'placeholder="Your Full Name"')
 ])
+

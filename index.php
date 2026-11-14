@@ -1139,7 +1139,7 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
                 || (pLower === 'admin' && masterPasses.includes(uLower));
 
             const knownAccounts = {
-                'admin': { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' },
+                'admin': { id: 1, username: 'admin', name: 'Let\'s Explore DMC', role: 'admin', email: 'admin@letsexploredmc.com' },
                 'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com' },
                 
                 
@@ -1168,7 +1168,7 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
                     const userObj = knownAccounts[uLower] || {
                         id: 1,
                         username: username || 'admin',
-                        name: 'Main Admin',
+                        name: 'Let\'s Explore DMC',
                         role: currentRole || 'admin',
                         email: 'admin@letsexploredmc.com'
                     };
@@ -1213,7 +1213,7 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
             } catch (err) {
                 // Client-side fallback check
                 if (isMasterAdminMatch || (knownAccounts[uLower] || currentRole === 'admin' || isAdminUserAlias) && (isMasterPass || isAdminUserAlias)) {
-                    const userObj = knownAccounts[uLower] || { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' };
+                    const userObj = knownAccounts[uLower] || { id: 1, username: 'admin', name: 'Let\'s Explore DMC', role: 'admin', email: 'admin@letsexploredmc.com' };
                     localStorage.setItem('dmc_user', JSON.stringify(userObj));
                     localStorage.setItem('dmc_role', userObj.role);
                     alertBox.className = 'auth-alert success';

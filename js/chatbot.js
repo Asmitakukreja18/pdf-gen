@@ -103,7 +103,7 @@ const Chatbot = (() => {
           { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
           { label: '🌟 Dubai 6D Itinerary', val: 'Dubai 6D itinerary with rates' },
           { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
-          { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+          { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
           { label: '🗺️ Itinerary (No Rates)', val: 'Itinerary se costing hatao' }
         ], true);
         if (typeof showToast === 'function') showToast('Sample tasks loaded in quick actions', 'info');
@@ -160,7 +160,7 @@ const Chatbot = (() => {
       { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
       { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
       { label: '📈 +10% Markup Lagao', val: 'Add 10% markup to this package' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Costing Hatao)', val: 'Itinerary se costing hatao' },
       { label: '🧾 Tax Invoice Banao', val: 'Tax invoice banao' }
     ];
@@ -381,7 +381,7 @@ const Chatbot = (() => {
             primary: true 
           },
           { 
-            label: '📈 Aanay Tours 10% Markup Table', 
+            label: '📈 Let's Explore DMC 10% Markup Table', 
             val: `[2:45 pm, 31/10/2026] Chanchal: Aanay tours ki details k sath edit karo\n[2:45 pm, 31/10/2026] Chanchal: 10 percent markup anay tours ki details ke sath details k sath edit karke dena unki details hata dena DETSILS DALO INKI HATAO AND COLOR THEME BHI FORMAT BHI` 
           },
           { 
@@ -617,7 +617,7 @@ const Chatbot = (() => {
         percent: pctMatch ? parseFloat(pctMatch[1]) : 10,
         fixedINR: fixedMatch ? parseInt(fixedMatch[1], 10) : 0,
         isAanay: isAanay || isClaudeBenchmarkQuery,
-        partner: (isAanay || isClaudeBenchmarkQuery) ? 'Aanay Tours' : 'Partner',
+        partner: (isAanay || isClaudeBenchmarkQuery) ? 'Let's Explore DMC' : 'Partner',
         attachmentsCount: attsCount > 0 ? attsCount : 2,
         rawText: raw,
         cleanText: t
@@ -640,7 +640,7 @@ const Chatbot = (() => {
     if (isAanay || isRebrand) {
       return {
         type: 'COMPANY_REBRAND',
-        partner: isAanay ? 'Aanay Tours' : 'Partner',
+        partner: isAanay ? 'Let's Explore DMC' : 'Partner',
         isAanay: isAanay,
         rawText: t
       };
@@ -775,7 +775,7 @@ const Chatbot = (() => {
         return;
       }
 
-      // TASK B: COMPANY REBRANDING (Aanay Tours / White-label)
+      // TASK B: COMPANY REBRANDING (Let's Explore DMC / White-label)
       if (intent.type === 'COMPANY_REBRAND') {
         await executeRebrandWorkflow(intent, taskLog);
         return;
@@ -1028,11 +1028,11 @@ const Chatbot = (() => {
    * 7.0 COMPOUND WORKFLOW: MARKUP + AANAY TOURS REBRANDING + COLOR THEME
    * Replicates the exact Claude task execution flow:
    * - Tool progress pills: "Ran 3 commands, read 2 files >", "Read a file, shared files >"
-   * - Natural interim status: "Maldives wali Aanay Tours PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga."
-   * - Header: "Maldives ki quote Aanay Tours ke format mein ready hai: AanayTours_Maldives_5D4N.pdf"
+   * - Natural interim status: "Maldives wali Let's Explore DMC PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga."
+   * - Header: "Maldives ki quote Let's Explore DMC ke format mein ready hai: LetsExplore_Maldives_5D4N.pdf"
    * - Subhead: "Markup (10% add kiya)"
    * - Option Comparison Table: Option | Supplier ka rate | Aapka rate (couple) | Per person
-   * - Replaces Let's Explore DMC details with Aanay Tours, suppresses supplier contacts, updates Live Preview and file download.
+   * - Replaces Let's Explore DMC details with Let's Explore DMC, suppresses supplier contacts, updates Live Preview and file download.
    */
   async function executeCompoundWorkflow(intent, taskLog, attachments = []) {
     const pct = intent.percent > 0 ? intent.percent : 10;
@@ -1044,25 +1044,25 @@ const Chatbot = (() => {
     taskLog.push(`Ran 3 commands, read ${filesCount} file${filesCount > 1 ? 's' : ''}`);
     taskLog.push(`Inspected Maldives luxury resort accommodations and pricing streams`);
 
-    setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring Aanay Tours identity and suppressing supplier details...');
+    setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring Let's Explore DMC identity and suppressing supplier details...');
     await sleep(350);
 
     // 1. Company Rebrand
     QuotationData.company = {
-      name: 'Aanay Tours',
+      name: 'Let's Explore DMC',
       tagline: 'Luxury Travel Concierge',
       phone: '7709123187',
-      contactPerson: 'Viraj Gaglani',
-      email: 'bookings@aanaytours.com',
+      contactPerson: 'Let's Explore Reservations Team',
+      email: 'ops@letsexploredmc.com',
       isPartner: true,
       isWhitelabel: true
     };
     Object.assign(AgentMemory.activeCompany, QuotationData.company);
-    taskLog.push(`Replaced DMC details with <strong>Aanay Tours</strong> (Contact: Viraj Gaglani - 7709123187)`);
+    taskLog.push(`Replaced DMC details with <strong>Let's Explore DMC</strong> (Contact: Let's Explore Reservations Team - 7709123187)`);
 
     // 2. Suppress Supplier Contacts in footer
     if (!QuotationData.footerSettings) QuotationData.footerSettings = {};
-    QuotationData.footerSettings.companyName = 'Aanay Tours';
+    QuotationData.footerSettings.companyName = 'Let's Explore DMC';
     QuotationData.footerSettings.companyPhone = '7709123187';
     QuotationData.footerSettings.website = '';
     QuotationData.footerSettings.instagram = '';
@@ -1136,7 +1136,7 @@ const Chatbot = (() => {
 
     taskLog.push(`Applied <strong>+${pct}% markup</strong> mathematically to couple and per-person rates`);
 
-    setTyping(true, '📋 Validating and synchronizing Live Preview...', 'Finalizing AanayTours_Maldives_5D4N.pdf...');
+    setTyping(true, '📋 Validating and synchronizing Live Preview...', 'Finalizing LetsExplore_Maldives_5D4N.pdf...');
     await sleep(300);
 
     if (typeof App !== 'undefined') {
@@ -1150,7 +1150,7 @@ const Chatbot = (() => {
 
     setTyping(false);
 
-    const fileName = 'AanayTours_Maldives_5D4N.pdf';
+    const fileName = 'LetsExplore_Maldives_5D4N.pdf';
     AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
 
     // Build the exact comparison table HTML
@@ -1179,7 +1179,7 @@ const Chatbot = (() => {
 
     const changesList = [
       `Added <strong>${pct}% markup</strong> to all resort options (couple and per-person rates).`,
-      `Updated company details to <strong>Aanay Tours</strong> (Contact: Viraj Gaglani - 7709123187).`,
+      `Updated company details to <strong>Let's Explore DMC</strong> (Contact: Let's Explore Reservations Team - 7709123187).`,
       `Suppressed Let's Explore DMC internal supplier costing and contact details.`,
       `Applied Luxury Navy & Warm Gold color theme with white-label headers & footers.`,
       `Synchronized Live Studio Preview and generated verified PDF reference.`
@@ -1188,9 +1188,9 @@ const Chatbot = (() => {
     const responseHtml = renderAgentResponseCard({
       tasks: taskLog,
       toolPillTop: `Ran 3 commands, read ${filesCount} file${filesCount > 1 ? 's' : ''} >`,
-      interimNote: 'Maldives wali Aanay Tours PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga.',
+      interimNote: 'Maldives wali Let's Explore DMC PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga.',
       toolPillBottom: 'Read a file, shared files >',
-      leadText: `Maldives ki quote Aanay Tours ke format mein ready hai: <strong>${fileName}</strong>`,
+      leadText: `Maldives ki quote Let's Explore DMC ke format mein ready hai: <strong>${fileName}</strong>`,
       subhead: `Markup (${pct}% add kiya)`,
       changes: changesList,
       calcTable: tableHtml,
@@ -1201,7 +1201,7 @@ const Chatbot = (() => {
     appendAI(responseHtml);
 
     showReplies([
-      { label: '🖨️ Download PDF (Aanay Tours)', val: '__PDF__', primary: true },
+      { label: '🖨️ Download PDF (Let's Explore DMC)', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📄 Word DOCX', val: '__DOCX__' },
       { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' },
@@ -1384,13 +1384,13 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📄 Download Word DOCX', val: '__DOCX__' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
     ]);
   }
 
   /**
-   * 7.2 COMPANY REBRANDING WORKFLOW (Aanay Tours / White-label)
+   * 7.2 COMPANY REBRANDING WORKFLOW (Let's Explore DMC / White-label)
    * Replaces Let's Explore DMC contact info with partner details while preserving package & rates
    */
   async function executeRebrandWorkflow(intent, taskLog) {
@@ -1398,8 +1398,8 @@ const Chatbot = (() => {
     await sleep(400);
 
     const isAanay = intent.isAanay || /aanay/i.test(intent.rawText);
-    const partnerName = isAanay ? 'Aanay Tours' : 'Aanay Tours';
-    const contactPerson = 'Viraj Gaglani';
+    const partnerName = isAanay ? 'Let's Explore DMC' : 'Let's Explore DMC';
+    const contactPerson = 'Let's Explore Reservations Team';
     const phone = '7709123187';
 
     // Update Company State
@@ -1409,7 +1409,7 @@ const Chatbot = (() => {
       tagline: 'Luxury Travel Concierge',
       phone: phone,
       contactPerson: contactPerson,
-      email: 'bookings@aanaytours.com',
+      email: 'ops@letsexploredmc.com',
       isPartner: true,
       isWhitelabel: true
     };
@@ -1449,11 +1449,11 @@ const Chatbot = (() => {
 
     const pkg = QuotationData.package || {};
     const dest = pkg.destinations || pkg.title || 'Package';
-    const fileName = `AanayTours_${sanitizeFileName(dest)}_${sanitizeFileName(pkg.duration || 'Tour')}.pdf`;
+    const fileName = `LetsExplore_${sanitizeFileName(dest)}_${sanitizeFileName(pkg.duration || 'Tour')}.pdf`;
     AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
 
     taskLog.push(`Generated partner-branded file reference: <strong>${escapeHTML(fileName)}</strong>`);
-    taskLog.push(`Synchronized Live Preview with Aanay Tours luxury header and partner footer`);
+    taskLog.push(`Synchronized Live Preview with Let's Explore DMC luxury header and partner footer`);
 
     setTyping(false);
 
@@ -1476,7 +1476,7 @@ const Chatbot = (() => {
     appendAI(responseHtml);
 
     showReplies([
-      { label: '🖨️ Download PDF (Aanay Tours)', val: '__PDF__', primary: true },
+      { label: '🖨️ Download PDF (Let's Explore DMC)', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📄 Word DOCX', val: '__DOCX__' },
       { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
@@ -1539,7 +1539,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download Itinerary PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '💰 Restore Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
@@ -1672,7 +1672,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
@@ -1832,7 +1832,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
     ]);
   }
@@ -1866,7 +1866,7 @@ const Chatbot = (() => {
     } else if (/company|branding|aanay|white-?label/i.test(q)) {
       answer = `
         Hum complete <strong>B2B White-label aur Partner Rebranding</strong> support karte hain.<br>
-        Agar aapka B2B travel agent (jaise Aanay Tours) apne brand se quote chahta hai, toh bas bolen:<br>
+        Agar aapka B2B travel agent (jaise Let's Explore DMC) apne brand se quote chahta hai, toh bas bolen:<br>
         <em>"Aanay tours ki details k sath edit karo unki details hata dena"</em><br><br>
         System DMC supplier details hata kar partner ka naam, contact person aur contact number laga dega!
       `;
@@ -1882,7 +1882,7 @@ const Chatbot = (() => {
       { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
       { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
       { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
-      { label: '🏢 Aanay Tours Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
