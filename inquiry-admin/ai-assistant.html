@@ -768,11 +768,12 @@
                 updateLivePreviews();
             }
 
-            // Read URL params (e.g. from task or lead quote click)
+            // Read URL params (e.g. from task or lead quote click or package edit)
             const params = new URLSearchParams(window.location.search);
             const taskParam = params.get('task');
             const clientParam = params.get('client');
             const destParam = params.get('dest');
+            const titleParam = params.get('title');
 
             if (clientParam && typeof QuotationData !== 'undefined' && QuotationData.client) {
                 QuotationData.client.name = clientParam;
@@ -791,10 +792,29 @@
                     }
                 }
             }
+            if (titleParam && typeof QuotationData !== 'undefined' && QuotationData.package) {
+                QuotationData.package.packageTitle = titleParam;
+                addChatMessage('user', `Customize itinerary: ${titleParam}`);
+                addChatMessage('assistant', `Loaded **${titleParam}** into AI Studio. You can edit hotel stays, adjust markup (+10%), change inclusions, or download the revised proposal.`);
+            }
             if (taskParam) {
                 addChatMessage('user', `Working on assigned task: ${taskParam}`);
                 addChatMessage('assistant', `Loaded context for task: **${taskParam}**. I'm ready to generate or modify this proposal as needed!`);
             }
+
+            try {
+                const storedAiDoc = localStorage.getItem('activeAiDocument');
+                if (storedAiDoc && typeof QuotationData !== 'undefined') {
+                    const parsed = JSON.parse(storedAiDoc);
+                    if (parsed.package) {
+                        QuotationData.package = { ...QuotationData.package, ...parsed.package };
+                    }
+                    if (parsed.landArrangement) {
+                        QuotationData.landArrangement = { ...QuotationData.landArrangement, ...parsed.landArrangement };
+                    }
+                    updateLivePreviews();
+                }
+            } catch(e) {}
         });
 
         function updateLivePreviews() {

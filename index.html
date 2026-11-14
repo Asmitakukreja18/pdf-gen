@@ -898,10 +898,13 @@
     <aside class="gateway-mobile-drawer" id="gatewayMobileDrawer" aria-label="Mobile Navigation">
         <div class="drawer-header">
             <div style="display:flex; align-items:center; gap:10px;">
-                <img src="images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
+                <img src="images/logo.png" alt="Let's Explore DMC" style="height:36px; object-fit:contain;"
+                    onerror="this.style.display='none'">
                 <div>
                     <div style="font-size:14px; font-weight:800; color:var(--brand-navy);">Let's Explore DMC</div>
-                    <div style="font-size:10px; font-weight:700; color:var(--brand-gold-dark); text-transform:uppercase;">Master Gateway</div>
+                    <div
+                        style="font-size:10px; font-weight:700; color:var(--brand-gold-dark); text-transform:uppercase;">
+                        Master Gateway</div>
                 </div>
             </div>
             <button type="button" class="drawer-close-btn" onclick="toggleGatewayDrawer(false)" aria-label="Close menu">
@@ -910,16 +913,20 @@
         </div>
 
         <nav class="drawer-nav-list">
-            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link"
+                onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-globe"></i> Official Website (letsexploredmc.com)
             </a>
-            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link"
+                onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-box-open"></i> Tour Packages
             </a>
-            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link"
+                onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-earth-americas"></i> Destinations
             </a>
-            <a href="javascript:void(0)" onclick="toggleGatewayDrawer(false); handlePublicAiStudioClick();" class="drawer-link">
+            <a href="javascript:void(0)" onclick="toggleGatewayDrawer(false); handlePublicAiStudioClick();"
+                class="drawer-link">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quotation Studio
             </a>
         </nav>
@@ -949,20 +956,25 @@
 
         <div style="display:flex; align-items:center; gap:12px;">
             <div class="header-nav-tags">
-                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="nav-tag-link" title="Explore Tour Packages">Travel</a>
+                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="nav-tag-link"
+                    title="Explore Tour Packages">Travel</a>
                 <span class="dot">&bull;</span>
                 <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="nav-tag-link"
                     title="Discover DMC Destinations">Explore</a>
                 <span class="dot">&bull;</span>
-                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="nav-tag-link" title="About Let's Explore DMC">letsexploredmc.com <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
+                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="nav-tag-link"
+                    title="About Let's Explore DMC">letsexploredmc.com <i class="fa-solid fa-arrow-up-right-from-square"
+                        style="font-size:10px;"></i></a>
             </div>
             <a href="javascript:void(0)" onclick="handlePublicAiStudioClick()"
                 style="background:#0F172A; color:#FFFFFF; padding:8px 16px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);"
                 title="Open AI Studio">
-                <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> <span class="hide-sm">AI Studio</span>
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> <span class="hide-sm">AI
+                    Studio</span>
             </a>
             <!-- Mobile Menu Toggle Button -->
-            <button type="button" class="gateway-mobile-toggle" id="gatewayMobileMenuBtn" aria-label="Toggle Navigation Menu" onclick="toggleGatewayDrawer(true)">
+            <button type="button" class="gateway-mobile-toggle" id="gatewayMobileMenuBtn"
+                aria-label="Toggle Navigation Menu" onclick="toggleGatewayDrawer(true)">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
@@ -1273,8 +1285,8 @@
             const knownAccounts = {
                 'admin': { id: 1, username: 'admin', name: 'Let\'s Explore DMC', role: 'admin', email: 'admin@letsexploredmc.com' },
                 'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com' },
-                
-                
+
+
             };
 
             const payload = { username, password };
@@ -1423,7 +1435,7 @@
         }
 
         // Close mobile drawer on ESC
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 toggleGatewayDrawer(false);
             }
