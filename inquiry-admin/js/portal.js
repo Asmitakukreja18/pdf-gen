@@ -84,7 +84,7 @@ hahiy/**
           var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]) : parts[0].substring(0, 2);
           avatarEl.textContent = initials.toUpperCase();
         } else {
-          avatarEl.textContent = isStaff ? 'ST' : 'AD';
+          avatarEl.textContent = isStaff ? 'ST' : 'LE';
         }
       }
 
@@ -99,7 +99,7 @@ hahiy/**
           if (storedUser && storedUser.name) {
             el.textContent = storedUser.name;
           } else {
-            el.textContent = isStaff ? 'Staff Executive' : 'Sir / Owner (Admin)';
+            el.textContent = isStaff ? 'Staff Executive' : 'Let\'s Explore DMC';
           }
         }
       });
@@ -110,7 +110,7 @@ hahiy/**
       ];
       roleEls.forEach(function (el) {
         if (el) {
-          el.textContent = isStaff ? 'Operations Desk (Sub-User)' : 'Super Administrator (Owner)';
+          el.textContent = isStaff ? 'Operations Desk' : 'Super Administrator';
         }
       });
 

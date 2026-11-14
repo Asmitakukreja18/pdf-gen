@@ -439,7 +439,7 @@ INSERT IGNORE INTO `categories` (`id`, `name`, `description`) VALUES
 -- Asmita Kukreja: asmita@123
 -- Chanchal: chanchal@123
 INSERT INTO `users` (`id`, `username`, `name`, `email`, `phone`, `password_hash`, `role`, `status`) VALUES
-(1, 'admin', 'Main Admin', 'admin@letsexploredmc.com', '+91 98765 00001', '$2y$10$q3gEHykTCVPbdlbWSxB/B.u/q/S5PeP6uY6r7fu9zDRw6GJMlqgKa', 'admin', 'active'),
+(1, 'admin', 'Let\'s Explore DMC', 'admin@letsexploredmc.com', '+91 98765 00001', '$2y$10$q3gEHykTCVPbdlbWSxB/B.u/q/S5PeP6uY6r7fu9zDRw6GJMlqgKa', 'admin', 'active'),
 (2, 'kashish', 'Kashish Adwani (SU-1)', 'kashish@letsexploredmc.com', '+91 98765 00002', '$2y$10$WblC6gSxpaUU6k9jSB9su.M8JyjUI2FLgQqocMFQzMaSEqmTBNvhe', 'executive', 'active'),
 (3, 'asmita', 'Asmita Kukreja (SU-2)', 'asmita@letsexploredmc.com', '+91 98765 00003', '$2y$10$fetalUtjo0NdcrTsfZGHJ.g0szQ0iqVW40Y/SulL8nGt3ThYluwZO', 'executive', 'active'),
 (4, 'chanchal', 'Chanchal Sharma (SU-3)', 'chanchal@letsexploredmc.com', '+91 98765 00004', '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm', 'executive', 'active')', 'ops@letsexploredmc.com', '+91 98765 00006', '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG', 'agent', 'active')
