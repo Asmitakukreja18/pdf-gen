@@ -88,7 +88,7 @@ if ($action === 'create') {
     $endDate = !empty($input['travel_end_date']) ? $input['travel_end_date'] : date('Y-m-d', strtotime('+5 days'));
     $flightDetails = trim($input['flight_details'] ?? '');
     $flightSector = trim($input['flight_sector'] ?? 'BOM-DXB-BOM');
-    $coordinator = trim($input['coordinator'] ?? 'Nitin');
+    $coordinator = trim($input['coordinator'] ?? 'Operations');
     $supplierName = trim($input['supplier_name'] ?? '');
     $hotelDetails = trim($input['hotel_details'] ?? '');
     $status = trim($input['status'] ?? 'Running');

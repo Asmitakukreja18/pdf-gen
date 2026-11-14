@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+(function(){
+  try {
+    var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+    var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+    var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+    document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+  } catch(e) {}
+})();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running Trips & Operations — Let's Explore DMC</title>
@@ -128,59 +138,67 @@
             </div>
 
             <nav class="sidebar-menu">
-                <a href="dashboard.html" class="nav-link">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="leads.html" class="nav-link">
-                    <i class="fa-solid fa-inbox"></i>
-                    <span>Leads &amp; Inquiries</span>
-                </a>
-                <a href="customers.html" class="nav-link">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Customers</span>
-                </a>
-                <a href="ai-assistant.html" class="nav-link" title="AI Quotation Studio">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>AI Quotation Studio</span>
-                </a>
-                <a href="packages.html" class="nav-link">
-                    <i class="fa-solid fa-box-open"></i>
-                    <span>Tour Packages</span>
-                </a>
-                <a href="trips.html" class="nav-link active">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Running Trips</span>
-                </a>
-                <a href="suppliers.html" class="nav-link">
-                    <i class="fa-solid fa-handshake"></i>
-                    <span>Suppliers</span>
-                </a>
-                <a href="invoices.html" class="nav-link">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Invoices &amp; Vouchers</span>
-                </a>
-                <a href="website.html" class="nav-link">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>Website CMS</span>
-                </a>
-                <a href="documents.html" class="nav-link">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>Documents &amp; PDFs</span>
-                </a>
-                <a href="analytics.html" class="nav-link">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Reports &amp; Analytics</span>
-                </a>
-                <a href="members.html" class="nav-link admin-only-nav">
-                    <i class="fa-solid fa-id-card-clip"></i>
-                    <span>Staff Management</span>
-                </a>
-                <a href="settings.html" class="nav-link admin-only-nav">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
-                </a>
-            </nav>
+                    <!-- Dashboard for Admin -->
+                    <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <!-- My Workspace for Staff -->
+                    <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>My Workspace</span>
+                    </a>
+                    <!-- Core Travel Operations (Common) -->
+                    <a href="leads.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-inbox"></i>
+                        <span>Leads &amp; Inquiries</span>
+                    </a>
+                    <a href="customers.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>Customers</span>
+                    </a>
+                    <a href="ai-assistant.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>AI Quotation Studio</span>
+                    </a>
+                    <a href="packages.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Tour Packages</span>
+                    </a>
+                    <a href="trips.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Running Trips</span>
+                    </a>
+                    <a href="suppliers.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-handshake"></i>
+                        <span>Suppliers</span>
+                    </a>
+                    <a href="invoices.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Invoices &amp; Vouchers</span>
+                    </a>
+                    <a href="documents.html" class="nav-link nav-link-item">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Documents &amp; PDFs</span>
+                    </a>
+                    <!-- Admin Only Management -->
+                    <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="website.html" class="nav-link nav-link-item admin-only-nav">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>Website CMS</span>
+                    </a>
+                    <a href="members.html" class="nav-link nav-link-item admin-only-nav">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                        <span>Staff Management</span>
+                    </a>
+                    <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
 
             <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
@@ -224,9 +242,7 @@
                     </button>
                     <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
-                            AD
-                        </div>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
                         <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
                             <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
                             <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
@@ -248,7 +264,7 @@
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
                         <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">On-Ground Coordinators</div>
-                        <div id="coordinatorsCount" style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">Nitin + Local Team</div>
+                        <div id="coordinatorsCount" style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">0 Active</div>
                     </div>
                 </div>
 
@@ -320,7 +336,7 @@
                     </div>
                     <div>
                         <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Coordinator *</label>
-                        <input type="text" id="tripCoordinator" class="form-control" value="Nitin" required style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <input type="text" id="tripCoordinator" class="form-control" placeholder="e.g. Ground Team / Coordinator Name" required style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
@@ -402,7 +418,7 @@
 
             if (activeEl) activeEl.innerText = active;
             if (upEl) upEl.innerText = upcoming;
-            if (coordEl) coordEl.innerText = coordinators.size > 0 ? Array.from(coordinators).join(', ') : 'Nitin';
+            if (coordEl) coordEl.innerText = coordinators.size > 0 ? Array.from(coordinators).join(', ') : '0 Active';
         }
 
         function renderTrips(trips) {
@@ -443,7 +459,7 @@
                         </td>
                         <td style="padding:14px;">
                             <span style="display:inline-flex; align-items:center; gap:6px; background:#EFF6FF; color:#1D4ED8; padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:700;">
-                                <i class="fa-solid fa-user-tie"></i> ${escapeHTML(t.coordinator || 'Nitin')}
+                                <i class="fa-solid fa-user-tie"></i> ${escapeHTML(t.coordinator || 'Operations Team')}
                             </span>
                         </td>
                         <td style="padding:14px; color:#475569;">
@@ -506,7 +522,7 @@
                 if (data && data.success) {
                     document.getElementById('addTripModal').style.display = 'none';
                     document.getElementById('addTripForm').reset();
-                    document.getElementById('tripCoordinator').value = 'Nitin';
+                    document.getElementById('tripCoordinator').value = '';
                     loadTrips();
                 } else {
                     alert('Error saving trip: ' + (data.message || 'Unknown error'));

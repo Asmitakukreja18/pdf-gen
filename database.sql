@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `trips` (
   `travel_end_date` DATE NOT NULL,
   `flight_details` VARCHAR(255) DEFAULT NULL,
   `flight_sector` VARCHAR(150) DEFAULT 'BOM-DXB-BOM',
-  `coordinator` VARCHAR(100) NOT NULL DEFAULT 'Nitin',
+  `coordinator` VARCHAR(100) NOT NULL DEFAULT 'Operations',
   `supplier_name` VARCHAR(150) DEFAULT NULL,
   `hotel_details` TEXT DEFAULT NULL,
   `emergency_contact` VARCHAR(100) DEFAULT '+91 98765 43210',
@@ -455,14 +455,7 @@ ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`), `status` = 'a
 -- Dummy data for `inquiries` removed. Clean real-time empty state initialized.
 
 -- Seed Country Packages
-INSERT IGNORE INTO `packages` (`id`, `package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `pricing_inr`, `pricing_usd`, `original_pdf_url`) VALUES
-(1, 'PKG-IN-01', 'Kerala God\'s Own Country Holiday', 'India', 'Munnar, Thekkady, Alleppey', 6, 5, 28500.00, 340.00, 'images/pdf/anaytours.pdf'),
-(2, 'PKG-IN-02', 'Kashmir Paradise Valley Tour', 'India', 'Srinagar, Gulmarg, Pahalgam', 6, 5, 34000.00, 410.00, 'images/pdf/anaytours.pdf'),
-(3, 'PKG-SG-01', 'Singapore City Wonders & Sentosa', 'Singapore', 'Singapore City, Sentosa Island', 5, 4, 48000.00, 580.00, 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf'),
-(4, 'PKG-MY-01', 'Malaysia Skyline & Highlands', 'Malaysia', 'Kuala Lumpur, Genting Highlands', 6, 5, 32000.00, 385.00, 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf'),
-(5, 'PKG-MY-02', 'Langkawi Island Escape & KL', 'Malaysia', 'Langkawi & Kuala Lumpur', 7, 6, 42000.00, 505.00, 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf'),
-(6, 'PKG-ID-01', 'Bali Bliss & Cultural Ubud Tour', 'Indonesia', 'Ubud, Kuta, Nusa Penida', 6, 5, 36500.00, 440.00, 'images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf'),
-(7, 'PKG-TR-01', 'Turkey Historical & Cappadocia Caves', 'Turkey', 'Istanbul, Cappadocia', 7, 6, 68000.00, 820.00, 'images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf');
+-- Clean real-time empty state initialized (0 dummy packages). Real packages created via Admin Portal.
 
 -- Seed Running Trips
 -- Dummy data for `trips` removed. Clean real-time empty state initialized.
@@ -533,7 +526,7 @@ CREATE TABLE IF NOT EXISTS `bookings` (
   `status` ENUM('Draft', 'Pending Confirmation', 'Confirmed', 'Vouchers Issued', 'In Progress', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending Confirmation',
   `payment_status` ENUM('Unpaid', 'Partially Paid', 'Paid', 'Refunded') NOT NULL DEFAULT 'Unpaid',
   `special_requests` TEXT DEFAULT NULL,
-  `assigned_coordinator` VARCHAR(100) DEFAULT 'Nitin',
+  `assigned_coordinator` VARCHAR(100) DEFAULT 'Operations',
   `created_by_user_id` INT UNSIGNED DEFAULT 1,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -650,7 +643,7 @@ CREATE TABLE IF NOT EXISTS `supplier_assignments` (
   `currency` VARCHAR(10) NOT NULL DEFAULT 'INR',
   `supplier_payment_status` ENUM('Unpaid', 'Advance Paid', 'Settled') NOT NULL DEFAULT 'Unpaid',
   `supplier_paid_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
-  `assigned_coordinator` VARCHAR(100) DEFAULT 'Nitin',
+  `assigned_coordinator` VARCHAR(100) DEFAULT 'Operations',
   `status` ENUM('Assigned', 'Confirmed', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Assigned',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

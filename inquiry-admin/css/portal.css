@@ -1604,3 +1604,34 @@ div[style*="overflow-x: auto"]>table {
     margin: 8px auto !important;
   }
 }
+
+/* =========================================================================
+   ZERO-FLICKER ROLE-BASED NAVIGATION (ADMIN VS STAFF)
+   ========================================================================= */
+html.is-staff .admin-only-nav,
+body.is-staff .admin-only-nav,
+html.is-staff .admin-nav-link,
+body.is-staff .admin-nav-link {
+  display: none !important;
+}
+
+html.is-staff .staff-only-nav,
+body.is-staff .staff-only-nav,
+html.is-staff .staff-nav-link,
+body.is-staff .staff-nav-link {
+  display: flex !important;
+}
+
+html:not(.is-staff) .staff-only-nav,
+body:not(.is-staff) .staff-only-nav,
+html:not(.is-staff) .staff-nav-link,
+body:not(.is-staff) .staff-nav-link {
+  display: none !important;
+}
+
+html:not(.is-staff) .admin-only-nav,
+body:not(.is-staff) .admin-only-nav,
+html:not(.is-staff) .admin-nav-link,
+body:not(.is-staff) .admin-nav-link {
+  display: flex !important;
+}
