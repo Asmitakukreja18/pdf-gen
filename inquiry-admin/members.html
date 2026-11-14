@@ -1340,6 +1340,7 @@
 
             filtered.forEach(m => {
                 const tr = document.createElement('tr');
+                const isAdmin = (m.role || '').toLowerCase() === 'admin' || (m.username || '').toLowerCase() === 'admin';
                 const initial = (m.name || m.username || 'U').charAt(0).toUpperCase();
                 const isActive = m.status === 'active';
                 const statusClass = isActive ? 'active' : 'inactive';
@@ -1365,10 +1366,17 @@
                         <div style="font-size:11px; color:#64748B;">Duration: ${escapeHTML(m.session_duration || '45m')}</div>
                     </td>
                     <td>
-                        <span class="status-badge ${statusClass}">
-                            <span style="width:6px; height:6px; border-radius:50%; background:${isActive ? '#10B981' : '#EF4444'};"></span>
-                            ${isActive ? 'Active' : 'Inactive'}
-                        </span>
+                        ${isAdmin ? `
+                            <span class="status-badge active" style="background:#ECFDF5; color:#065F46; border:1px solid #A7F3D0;">
+                                <span style="width:6px; height:6px; border-radius:50%; background:#10B981;"></span>
+                                Active (Master)
+                            </span>
+                        ` : `
+                            <span class="status-badge ${statusClass}">
+                                <span style="width:6px; height:6px; border-radius:50%; background:${isActive ? '#10B981' : '#EF4444'};"></span>
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        `}
                     </td>
                     <td>
                         <div style="font-weight:700; color:#0F172A;">${m.total_quotes || 0} Quotes</div>
@@ -1380,16 +1388,22 @@
                         </span>
                     </td>
                     <td style="text-align:right;">
-                        <div style="display:flex; justify-content:flex-end; gap:6px;">
+                        <div style="display:flex; justify-content:flex-end; align-items:center; gap:6px;">
                             <button type="button" onclick="openSessionHistoryModal(${m.id}, '${escapeHTML(m.name || m.username)}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px; color:#2563EB;" title="View Session History">
                                 <i class="fa-solid fa-clock-rotate-left"></i> History
                             </button>
-                            <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px;" title="Toggle Account Status">
-                                ${isActive ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button type="button" onclick="revokeSession(${m.id})" class="btn-outline" style="padding:4px 10px; font-size:11.5px; color:#EF4444;" title="Revoke Active Session">
-                                <i class="fa-solid fa-power-off"></i>
-                            </button>
+                            ${isAdmin ? `
+                                <span style="background:#FEF3C7; color:#92400E; font-size:11px; font-weight:800; padding:4px 10px; border-radius:9999px; border:1px solid #FDE68A; display:inline-flex; align-items:center; gap:5px;" title="Admin account monitors all staff and cannot be deactivated">
+                                    <i class="fa-solid fa-crown" style="color:#D97706;"></i> Monitoring Center
+                                </span>
+                            ` : `
+                                <button type="button" onclick="toggleMemberStatus(${m.id}, '${isActive ? 'inactive' : 'active'}')" class="btn-outline" style="padding:4px 10px; font-size:11.5px; ${isActive ? 'color:#B45309;' : 'color:#059669; font-weight:700;'}" title="Toggle Account Active/Inactive">
+                                    ${isActive ? 'Deactivate' : 'Activate User'}
+                                </button>
+                                <button type="button" onclick="revokeSession(${m.id})" class="btn-outline" style="padding:4px 10px; font-size:11.5px; color:#EF4444;" title="Revoke Active Session">
+                                    <i class="fa-solid fa-power-off"></i>
+                                </button>
+                            `}
                         </div>
                     </td>
                 `;
