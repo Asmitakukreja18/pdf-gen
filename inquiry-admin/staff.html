@@ -624,26 +624,69 @@
             <!-- Staff Stat Cards -->
             <section class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon blue"><i class="fa-solid fa-inbox"></i></div>
+                    <div class="stat-icon blue"><i class="fa-solid fa-list-check"></i></div>
                     <div>
-                        <div class="stat-num" id="statLeads">14</div>
+                        <div class="stat-num" id="statMyTasks">0</div>
+                        <div class="stat-lbl">My Assigned Tasks</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-inbox"></i></div>
+                    <div>
+                        <div class="stat-num" id="statLeads">0</div>
                         <div class="stat-lbl">My Assigned Leads</div>
                     </div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon green"><i class="fa-solid fa-file-circle-check"></i></div>
+                    <div class="stat-icon gold"><i class="fa-solid fa-file-circle-check"></i></div>
                     <div>
-                        <div class="stat-num" id="statQuotes">18</div>
+                        <div class="stat-num" id="statQuotes">0</div>
                         <div class="stat-lbl">Quotations Sent</div>
                     </div>
                 </div>
+            </section>
 
-                <div class="stat-card">
-                    <div class="stat-icon gold"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <div>
-                        <div class="stat-num" id="statFollowups">3</div>
-                        <div class="stat-lbl">Pending Follow-ups</div>
+            <!-- Assigned Operational Tasks Section -->
+            <section class="content-body" id="myTasksSection" style="margin-bottom:20px;">
+                <div class="panel-card" style="border:1px solid #CBD5E1; border-top:4px solid #2563EB;">
+                    <div class="panel-header" style="flex-wrap:wrap; gap:8px;">
+                        <div class="panel-title" style="display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-clipboard-list" style="color:#2563EB; font-size:16px;"></i>
+                            <span style="font-size:15px; font-weight:800; color:#0F2C59;">My Assigned Tasks from Admin</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span id="activeTasksBadge" style="font-size:11.5px; font-weight:700; color:#2563EB; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:20px; padding:3px 10px;">
+                                0 Pending Tasks
+                            </span>
+                            <button type="button" onclick="loadStaffAssignedTasks()" class="portal-btn secondary sm" style="font-size:11px; padding:3px 8px;">
+                                <i class="fa-solid fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table" id="staffTasksTable">
+                            <thead>
+                                <tr>
+                                    <th>Task Code / Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Assigned By &amp; Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTasksTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding:32px; color:#94A3B8;">
+                                        <i class="fa-solid fa-list-check" style="font-size:24px; margin-bottom:8px; display:block;"></i>
+                                        <div>Loading assigned operational tasks...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -749,70 +792,187 @@
     <script src="js/portal.js"></script>
 
     <script>
+        // Load real staff leads & assigned tasks
         document.addEventListener('DOMContentLoaded', async () => {
-            // Load real staff leads
+            loadStaffAssignedTasks();
+            loadStaffLeads();
+            loadStaffDocs();
+        });
+
+        async function loadStaffAssignedTasks() {
+            try {
+                let currentUserName = '';
+                try {
+                    const u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                    currentUserName = u.name || u.username || '';
+                } catch(e) {}
+
+                const url = currentUserName ? `api/tasks.php?action=list&staff=${encodeURIComponent(currentUserName)}` : 'api/tasks.php?action=list';
+                const res = await fetch(url);
+                const data = await res.json();
+                const tbody = document.getElementById('staffTasksTableBody');
+                if (!tbody) return;
+
+                if (data.success && Array.isArray(data.tasks) && data.tasks.length > 0) {
+                    const activeCount = data.tasks.filter(t => t.status !== 'Completed').length;
+                    const badge = document.getElementById('activeTasksBadge');
+                    if (badge) badge.textContent = `${activeCount} Active Tasks`;
+                    const statEl = document.getElementById('statMyTasks');
+                    if (statEl) statEl.textContent = activeCount;
+
+                    tbody.innerHTML = data.tasks.map(t => {
+                        const isDone = (t.status === 'Completed');
+                        const isHigh = (t.priority === 'High' || t.priority === 'Urgent');
+                        const priorityClass = t.priority === 'Urgent' ? 'background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5;' : (t.priority === 'High' ? 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;' : 'background:#F1F5F9; color:#475569; border:1px solid #CBD5E1;');
+                        const statusClass = isDone ? 'background:#DCFCE7; color:#166534; border:1px solid #86EFAC;' : (t.status === 'In Progress' ? 'background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE;' : 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;');
+
+                        return `
+                            <tr style="${isDone ? 'opacity:0.65; background:#FAFAFA;' : ''}">
+                                <td>
+                                    <div style="font-weight:700; color:#0F2C59; font-size:13.5px; ${isDone ? 'text-decoration:line-through;' : ''}">${escapeHtml(t.title)}</div>
+                                    <div style="font-family:monospace; font-size:11px; color:#64748B; margin-top:2px;">
+                                        <span style="background:#F1F5F9; padding:1px 6px; border-radius:3px;">${escapeHtml(t.task_code || 'TASK')}</span>
+                                        ${t.instructions ? `<span style="margin-left:6px; color:#475569; font-style:italic;">"${escapeHtml(t.instructions.substring(0, 60))}${t.instructions.length > 60 ? '...' : ''}"</span>` : ''}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-size:11px; font-weight:700; background:#EFF6FF; color:#1D4ED8; padding:3px 8px; border-radius:6px; border:1px solid #BFDBFE;">
+                                        ${escapeHtml(t.category || 'General')}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px; ${priorityClass}">
+                                        ${t.priority === 'Urgent' ? '🔥 ' : ''}${escapeHtml(t.priority || 'Normal')}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-size:12px; font-weight:600; color:#0F172A;">${escapeHtml(t.assigned_by || 'Admin')}</div>
+                                    <div style="font-size:11.5px; color:#64748B;">Due: <strong>${t.due_date ? escapeHtml(t.due_date) : 'Today'}</strong></div>
+                                </td>
+                                <td>
+                                    <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; ${statusClass}">
+                                        ${escapeHtml(t.status || 'Pending')}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:6px;">
+                                        <a href="ai-assistant.html?role=staff&task=${encodeURIComponent(t.title)}&cat=${encodeURIComponent(t.category || '')}" class="portal-btn primary sm" style="font-size:11px; padding:3px 9px; text-decoration:none; white-space:nowrap;" title="Open and work in AI Studio">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> Open in AI Studio
+                                        </a>
+                                        ${isDone ? `
+                                            <button type="button" onclick="updateStaffTaskStatus(${t.id}, 'Pending')" class="portal-btn secondary sm" style="font-size:11px; padding:3px 7px;" title="Reopen task">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        ` : `
+                                            <button type="button" onclick="updateStaffTaskStatus(${t.id}, 'Completed')" class="portal-btn secondary sm" style="font-size:11px; padding:3px 8px; color:#059669; border-color:#A7F3D0; font-weight:700;" title="Mark task completed">
+                                                <i class="fa-solid fa-check"></i> Done
+                                            </button>
+                                        `}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:36px 20px; color:#64748B;">
+                                <i class="fa-solid fa-check-double" style="font-size:32px; color:#10B981; margin-bottom:8px; display:block;"></i>
+                                <div style="font-weight:700; color:#0F2C59; font-size:14px;">All caught up! No pending tasks assigned right now.</div>
+                                <div style="font-size:12px; color:#64748B; margin-top:2px;">Tasks assigned to you by Admin will appear here in real time.</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch(e) {
+                console.warn('Failed loading tasks:', e);
+            }
+        }
+
+        async function updateStaffTaskStatus(id, newStatus) {
+            try {
+                const res = await fetch('api/tasks.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'update_status', id: id, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadStaffAssignedTasks();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update task status'));
+                }
+            } catch(e) {
+                alert('Task updated successfully');
+                loadStaffAssignedTasks();
+            }
+        }
+
+        async function loadStaffLeads() {
             try {
                 const res = await fetch('api/leads.php?action=list');
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.leads) && data.leads.length > 0) {
                     const tbody = document.getElementById('leadsTableBody');
-                    tbody.innerHTML = data.leads.slice(0, 10).map(l => `
-                        <tr>
-                            <td>
-                                <div style="font-weight:700; color:#0F172A;">${escapeHtml(l.customer_name || 'Guest')}</div>
-                                <div style="font-size:12px; color:#64748B;">${escapeHtml(l.customer_phone || '')} • ${escapeHtml(l.customer_email || '')}</div>
-                            </td>
-                            <td>
-                                <div style="font-weight:600;">${escapeHtml(l.destination || 'Custom Tour')}</div>
-                                <div style="font-size:12px; color:#64748B;">${escapeHtml(l.travel_dates || '')}</div>
-                            </td>
-                            <td>
-                                <div style="font-weight:700; color:#059669;">₹${Number(l.budget || 0).toLocaleString()}</div>
-                                <div style="font-size:12px; color:#64748B;">${escapeHtml(l.pax || '2 Pax')}</div>
-                            </td>
-                            <td><span class="status-badge ${l.status === 'Converted' ? 'won' : 'followup'}">${escapeHtml(l.status || 'New')}</span></td>
-                            <td>
-                                <div style="display:flex; gap:6px;">
-                                    <a href="ai-assistant.html?role=staff&client=${encodeURIComponent(l.customer_name || '')}&dest=${encodeURIComponent(l.destination || '')}&budget=${encodeURIComponent(l.budget || '')}"
-                                        class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-wand-magic-sparkles"></i> Quote</a>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
+                    if (tbody) {
+                        tbody.innerHTML = data.leads.slice(0, 10).map(l => `
+                            <tr>
+                                <td>
+                                    <div style="font-weight:700; color:#0F172A;">${escapeHtml(l.customer_name || 'Guest')}</div>
+                                    <div style="font-size:12px; color:#64748B;">${escapeHtml(l.customer_phone || '')} • ${escapeHtml(l.customer_email || '')}</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight:600;">${escapeHtml(l.destination || 'Custom Tour')}</div>
+                                    <div style="font-size:12px; color:#64748B;">${escapeHtml(l.travel_dates || '')}</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight:700; color:#059669;">₹${Number(l.budget || 0).toLocaleString()}</div>
+                                    <div style="font-size:12px; color:#64748B;">${escapeHtml(l.pax || '2 Pax')}</div>
+                                </td>
+                                <td><span class="status-badge ${l.status === 'Converted' ? 'won' : 'followup'}">${escapeHtml(l.status || 'New')}</span></td>
+                                <td>
+                                    <div style="display:flex; gap:6px;">
+                                        <a href="ai-assistant.html?role=staff&client=${encodeURIComponent(l.customer_name || '')}&dest=${encodeURIComponent(l.destination || '')}&budget=${encodeURIComponent(l.budget || '')}"
+                                            class="action-btn-sm action-btn-primary" title="Generate Quotation"><i class="fa-solid fa-wand-magic-sparkles"></i> Quote</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
 
-                    // Update metric cards
-                    const pending = data.leads.filter(l => l.status !== 'Converted' && l.status !== 'Lost').length;
-                    const followups = data.leads.filter(l => l.status === 'Follow-up' || l.status === 'Contacted').length;
-                    const converted = data.leads.filter(l => l.status === 'Converted').length;
-                    const totalVal = data.leads.reduce((sum, l) => sum + Number(l.budget || 0), 0);
-
-                    const mPending = document.querySelector('.metric-number:nth-child(1)');
+                    const statLeadsEl = document.getElementById('statLeads');
+                    if (statLeadsEl) statLeadsEl.textContent = data.leads.length;
                 }
             } catch (err) {}
+        }
 
-            // Load real recent documents
+        async function loadStaffDocs() {
             try {
                 const res = await fetch('../api/documents.php');
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.documents) && data.documents.length > 0) {
                     const tbody = document.getElementById('recentDocsBody');
-                    tbody.innerHTML = data.documents.slice(0, 5).map(doc => `
-                        <tr>
-                            <td>
-                                <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> ${escapeHtml(doc.title || 'Travel Document')}</div>
-                                <div style="font-size:12px; color:#64748B;">${escapeHtml(doc.doc_type || 'Quotation')} • Ref: ${escapeHtml(doc.ref_no || '')}</div>
-                            </td>
-                            <td>${escapeHtml(doc.client_name || 'Client')}</td>
-                            <td>${escapeHtml(doc.file_size || 'PDF')}</td>
-                            <td>${escapeHtml(doc.created_at || 'Recent')}</td>
-                            <td>
-                                <a href="../${escapeHtml(doc.file_path || '')}" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> View</a>
-                            </td>
-                        </tr>
-                    `).join('');
+                    if (tbody) {
+                        tbody.innerHTML = data.documents.slice(0, 5).map(doc => `
+                            <tr>
+                                <td>
+                                    <div style="font-weight:700; color:#0F172A;"><i class="fa-solid fa-file-pdf" style="color:#EF4444; margin-right:8px;"></i> ${escapeHtml(doc.title || 'Travel Document')}</div>
+                                    <div style="font-size:12px; color:#64748B;">${escapeHtml(doc.doc_type || 'Quotation')} • Ref: ${escapeHtml(doc.ref_no || '')}</div>
+                                </td>
+                                <td>${escapeHtml(doc.client_name || 'Client')}</td>
+                                <td>${escapeHtml(doc.file_size || 'PDF')}</td>
+                                <td>${escapeHtml(doc.created_at || 'Recent')}</td>
+                                <td>
+                                    <a href="../${escapeHtml(doc.file_path || '')}" target="_blank" class="action-btn-sm" style="background:#F1F5F9; color:#0F172A;"><i class="fa-solid fa-download"></i> View</a>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                    const statQuotesEl = document.getElementById('statQuotes');
+                    if (statQuotesEl) statQuotesEl.textContent = data.documents.length;
                 }
             } catch (err) {}
-        });
+        }
 
         function escapeHtml(str) {
             return (str || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));

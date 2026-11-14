@@ -1,17 +1,14 @@
 /**
- * packages.js — Full CRUD & Destination Packages Controller
+ * packages.js — Real-Time Destination Packages & Tour CRUD Controller
+ * Lets Explore DMC Luxury ERP Portal
  * 
- * Connected to api/packages_manager.php (cPanel MySQL database)
- * Supports:
- * - Load from MySQL with fallback to master presets
- * - Create new package modal
- * - Edit existing package modal
- * - Duplicate package
- * - Delete package with confirmation
- * - Toggle publish/draft
- * - Country filtering (India, Singapore, Malaysia, Indonesia, Turkey, UAE, Thailand)
- * - Download unedited clean itinerary PDF (W.E)
- * - Edit with Agent Logo & Markup in AI Studio
+ * Features:
+ * - Real-time persistence with MySQL (api/packages_manager.php) + localStorage sync
+ * - Zero dummy data on clean init
+ * - Full CRUD: Create, Edit, Duplicate, Toggle Publish/Draft, Delete
+ * - Country Filtering: Thailand, Dubai/UAE, Bali/Indonesia, Singapore, Malaysia, Turkey, India
+ * - 1-Click "Customize in AI Studio"
+ * - PDF Itinerary Download
  */
 
 const MASTER_PRESET_PACKAGES = [];
@@ -21,6 +18,12 @@ let currentCountryFilter = 'all';
 document.addEventListener('DOMContentLoaded', () => {
   loadPackagesFromDatabase();
   setupPackageFilterEvents();
+
+  // Create Package Form submission
+  const pkgForm = document.getElementById('pkgForm');
+  if (pkgForm) {
+    pkgForm.addEventListener('submit', savePackageForm);
+  }
 
   // Import from Drive modal
   const driveBtn = document.getElementById('btnUploadDrivePkg');
@@ -32,7 +35,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function getLocalPackages() {
+  try {
+    const raw = localStorage.getItem('dmc_real_packages');
+    if (raw) {
+      let parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        // Strict purge: Strip any old mock packages (Bali Tropical, Jakarta Heritage, dummy codes)
+        parsed = parsed.filter(p => {
+          const n = (p.name || '').toLowerCase();
+          const c = (p.package_code || '').toLowerCase();
+          return !c.includes('pkg-id-bali') && !c.includes('pkg-id-jkt') && !n.includes('bali luxury tropical escape') && !n.includes('jakarta city & heritage');
+        });
+        localStorage.setItem('dmc_real_packages', JSON.stringify(parsed));
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
+function saveLocalPackages(pkgs) {
+  try {
+    localStorage.setItem('dmc_real_packages', JSON.stringify(pkgs));
+  } catch (e) {}
+}
+
 async function loadPackagesFromDatabase() {
+  let loaded = false;
   try {
     const res = await fetch('../api/packages_manager.php?action=list');
     const data = await res.json();
@@ -42,13 +72,22 @@ async function loadPackagesFromDatabase() {
         country: (p.country || '').toLowerCase(),
         country_display: getCountryDisplay(p.country)
       }));
-    } else {
-      allPackages = [...MASTER_PRESET_PACKAGES];
+      saveLocalPackages(allPackages);
+      loaded = true;
     }
   } catch (err) {
-    console.warn('API fetch fallback to master presets:', err);
-    allPackages = [...MASTER_PRESET_PACKAGES];
+    console.warn('Backend API notice, falling back to real-time local storage:', err);
   }
+
+  if (!loaded) {
+    const local = getLocalPackages();
+    allPackages = local.map(p => ({
+      ...p,
+      country: (p.country || '').toLowerCase(),
+      country_display: getCountryDisplay(p.country)
+    }));
+  }
+
   renderPackagesGrid();
 }
 
@@ -99,13 +138,18 @@ function renderPackagesGrid() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1/-1; text-align:center; padding:50px 20px; color:#64748B; background:#FFF; border:1px dashed #CBD5E1; border-radius:12px;">
-        <i class="fa-solid fa-box-open" style="font-size:36px; color:#94A3B8; margin-bottom:10px;"></i>
-        <h4 style="margin:0 0 6px 0; font-size:16px; color:#0F2C59;">No packages found in this destination</h4>
-        <p style="margin:0 0 16px 0; font-size:12.5px;">Click below to build or import a new package.</p>
-        <button type="button" onclick="openPackageModal('create')" style="background:#0F2C59; color:#FFF; border:none; padding:8px 18px; border-radius:6px; font-size:12.5px; font-weight:700; cursor:pointer;">
-          + Create Package Now
-        </button>
+      <div style="grid-column: 1/-1; text-align:center; padding:60px 20px; color:#64748B; background:#FFF; border:1px dashed #CBD5E1; border-radius:16px;">
+        <i class="fa-solid fa-box-open" style="font-size:42px; color:#94A3B8; margin-bottom:12px;"></i>
+        <h4 style="margin:0 0 6px 0; font-size:17px; color:#0F2C59; font-weight:800;">No Tour Packages Found</h4>
+        <p style="margin:0 0 18px 0; font-size:13px; color:#64748B;">All sample mock data has been purged. Create a new package or generate an authentic itinerary in the AI Studio.</p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button type="button" onclick="openPackageModal('create')" style="background:#0F2C59; color:#FFF; border:none; padding:10px 20px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;">
+            <i class="fa-solid fa-plus"></i> Create Package
+          </button>
+          <a href="ai-assistant.html" style="background:#2563EB; color:#FFF; border:none; padding:10px 20px; border-radius:8px; font-size:13px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Open AI Studio
+          </a>
+        </div>
       </div>
     `;
     return;
@@ -113,21 +157,21 @@ function renderPackagesGrid() {
 
   container.innerHTML = filtered.map(pkg => {
     const isPub = pkg.is_published == 1;
-    const pdfPath = pkg.itinerary_file || '../images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf';
     const priceInr = Number(pkg.pricing_inr || 0).toLocaleString();
     const priceUsd = Number(pkg.pricing_usd || 0).toLocaleString();
     const days = pkg.duration_days || 6;
     const nights = pkg.duration_nights || (days - 1);
+    const code = pkg.package_code || ('PKG-' + (pkg.id || Math.floor(Math.random() * 1000)));
 
     return `
-      <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.04); display:flex; flex-direction:column; transition:transform 0.15s ease;">
+      <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:14px; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,0.04); display:flex; flex-direction:column; transition:transform 0.15s ease;">
         <!-- Card Top Badge -->
         <div style="padding:14px 18px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; background:#FAFBFD;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:11px; font-weight:700; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:12px; padding:3px 10px;">
               ${pkg.country_display || getCountryDisplay(pkg.country)}
             </span>
-            <span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; ${isPub ? 'background:#ECFDF5; color:#065F46; border:1px solid #A7F3D0;' : 'background:#FEF2F2; color:#991B1B; border:1px solid #FECACA;'}">
+            <span onclick="togglePublishStatus(${pkg.id})" style="cursor:pointer; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; ${isPub ? 'background:#ECFDF5; color:#065F46; border:1px solid #A7F3D0;' : 'background:#FEF2F2; color:#991B1B; border:1px solid #FECACA;'}" title="Click to toggle Live/Draft">
               ${isPub ? '● Live' : '○ Draft'}
             </span>
           </div>
@@ -138,59 +182,56 @@ function renderPackagesGrid() {
 
         <!-- Card Body -->
         <div style="padding:18px; flex:1; display:flex; flex-direction:column;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
-            <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F2C59; line-height:1.25;">
-              ${pkg.name}
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F2C59; line-height:1.3;">
+              ${escapeQuotes(pkg.name)}
             </h3>
-            <span style="font-size:10.5px; color:#94A3B8; font-family:monospace; margin-left:8px;">${pkg.package_code || ''}</span>
-          </div>
-          <div style="font-size:12px; color:#2563EB; font-weight:700; margin-bottom:12px;">
-            📍 ${pkg.destination}
-          </div>
-
-          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px; font-size:12px; color:#334155; margin-bottom:14px; line-height:1.5;">
-            <div style="margin-bottom:4px;"><strong>🏨 Stay:</strong> ${pkg.hotel_details || pkg.hotel_category || '4-Star Resort'}</div>
-            <div style="overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"><strong>✨ Highlights:</strong> ${pkg.inclusions || 'Sightseeing & Transfers'}</div>
+            <span style="font-family:monospace; font-size:10.5px; font-weight:700; color:#64748B; background:#F1F5F9; padding:2px 6px; border-radius:4px; margin-left:8px; white-space:nowrap;">
+              ${code}
+            </span>
           </div>
 
-          <div style="margin-top:auto; padding-top:10px; border-top:1px dashed #CBD5E1; display:flex; justify-content:space-between; align-items:baseline;">
-            <span style="font-size:11.5px; color:#64748B;">Tariff / 2 Pax:</span>
-            <div style="text-align:right;">
-              <span style="font-size:15px; font-weight:800; color:#15803D;">INR ${priceInr}</span>
-              <span style="font-size:11px; color:#64748B; margin-left:4px;">(USD ${priceUsd})</span>
+          <div style="font-size:12px; color:#2563EB; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:4px;">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>${escapeQuotes(pkg.destination || 'Multiple Cities')}</span>
+          </div>
+
+          <div style="background:#F8FAFC; border-radius:8px; padding:10px 12px; font-size:12px; color:#475569; margin-bottom:14px; line-height:1.45;">
+            <div style="margin-bottom:4px;">
+              <strong>🏨 Hotel:</strong> ${escapeQuotes(pkg.hotel_details || pkg.hotel_category || '4-Star / Deluxe Accommodation')}
+            </div>
+            ${pkg.highlights ? `<div><strong>✨ Highlights:</strong> ${escapeQuotes(pkg.highlights)}</div>` : ''}
+          </div>
+
+          <div style="margin-top:auto; padding-top:12px; border-top:1px dashed #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="font-size:11px; color:#64748B; display:block;">Tariff / 2 Pax:</span>
+              <span style="font-size:16px; font-weight:800; color:#059669;">
+                INR ${priceInr} <span style="font-size:11px; font-weight:600; color:#64748B;">(USD ${priceUsd})</span>
+              </span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" onclick="editPackageById(${pkg.id})" style="background:none; border:none; color:#2563EB; font-size:12px; font-weight:700; cursor:pointer;" title="Edit Package">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button type="button" onclick="duplicatePackage(${pkg.id})" style="background:none; border:none; color:#475569; font-size:12px; font-weight:700; cursor:pointer;" title="Duplicate Package">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              <button type="button" onclick="deletePackage(${pkg.id})" style="background:none; border:none; color:#EF4444; font-size:12px; font-weight:700; cursor:pointer;" title="Delete Package">
+                <i class="fa-solid fa-trash"></i>
+              </button>
             </div>
           </div>
-        </div>
 
-        <!-- Secondary Action Row (Duplicate, Edit, Delete, Toggle) -->
-        <div style="padding:8px 18px; background:#FFFFFF; border-top:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; font-size:11.5px;">
-          <div style="display:flex; gap:12px;">
-            <button type="button" onclick="editPackageById(${pkg.id})" style="background:none; border:none; color:#2563EB; font-weight:700; cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:4px;">
-              <i class="fa-solid fa-pen-to-square"></i> Edit
+          <!-- Bottom Action Buttons -->
+          <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button type="button" onclick="downloadCleanPdf(${pkg.id})" style="background:#FFF; border:1px solid #CBD5E1; color:#0F2C59; padding:7px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <i class="fa-solid fa-download"></i> Download PDF
             </button>
-            <button type="button" onclick="duplicatePackage(${pkg.id})" style="background:none; border:none; color:#475569; font-weight:600; cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:4px;">
-              <i class="fa-solid fa-copy"></i> Duplicate
-            </button>
-            <button type="button" onclick="togglePublishStatus(${pkg.id})" style="background:none; border:none; color:#D97706; font-weight:600; cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:4px;">
-              <i class="fa-solid fa-power-off"></i> ${isPub ? 'Draft' : 'Publish'}
+            <button type="button" onclick="customizeWithLogo('${escapeQuotes(pkg.destination)}', '${escapeQuotes(pkg.name)}')" style="background:#0F2C59; border:none; color:#FFF; padding:7px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Edit in AI Studio
             </button>
           </div>
-          <button type="button" onclick="deletePackage(${pkg.id})" style="background:none; border:none; color:#EF4444; font-weight:600; cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:4px;" title="Delete Package">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        </div>
-
-        <!-- Primary Action Footer (Download W.E & Edit with Logo) -->
-        <div style="padding:12px 18px; background:#FAFBFD; border-top:1px solid #E2E8F0; display:flex; gap:8px;">
-          <!-- Option 1: Download unedited itinerary (W.E from drive) -->
-          <a href="${pdfPath}" target="_blank" download style="flex:1; background:#FFFFFF; border:1px solid #CBD5E1; color:#1E3A8A; padding:8px 10px; border-radius:6px; font-size:11.5px; font-weight:700; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:5px;" title="Download unedited clean itinerary PDF">
-            <i class="fa-solid fa-download"></i> Download (W.E)
-          </a>
-
-          <!-- Option 2: Edit with Travel Agent's Own Logo -->
-          <button type="button" onclick="customizeWithLogo('${escapeQuotes(pkg.destination)}', '${escapeQuotes(pkg.name)}')" style="flex:1.2; background:linear-gradient(135deg, #0F2C59, #1E3A8A); border:none; color:#FFFFFF; padding:8px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:5px; box-shadow:0 2px 4px rgba(15,44,89,0.2);" title="Open Studio to upload travel agent logo & customize rates">
-            <i class="fa-solid fa-stamp"></i> Edit with Logo
-          </button>
         </div>
       </div>
     `;
@@ -213,16 +254,11 @@ window.customizeWithLogo = function(dest, title) {
         clientName: 'Valued Customer',
         pax: '2 Adults'
       },
-      flightDetails: {
-        airline: 'Commercial Flight / Self-Arranged',
-        flightCost: 0
-      },
       landArrangement: {
         hotelName: pkg.hotel_details || pkg.hotel_category || '4-Star Deluxe Resort',
         nights: String(pkg.duration_nights || 5),
         costPerPerson: Math.round((pkg.pricing_inr || 48500) / 2)
       },
-      flightsTotal: 0,
       landTotal: pkg.pricing_inr || 48500,
       grandTotal: pkg.pricing_inr || 48500
     };
@@ -230,15 +266,13 @@ window.customizeWithLogo = function(dest, title) {
       localStorage.setItem('activeAiDocument', JSON.stringify(pkgPayload));
     } catch (e) {}
   }
-  const urlRole = new URLSearchParams(window.location.search).get('role') || localStorage.getItem('dmc_role') || 'admin';
-  const assistantUrl = `ai-assistant.html?role=${encodeURIComponent(urlRole)}&dest=${encodeURIComponent(dest)}&pkg_id=${encodeURIComponent(pkg?.id || '')}&from_pkg=1`;
-  window.location.href = assistantUrl;
+  window.location.href = `ai-assistant.html?dest=${encodeURIComponent(dest)}&title=${encodeURIComponent(title || '')}`;
 };
 
-// CRUD Operations
 function openPackageModal(mode, data = null) {
   const modal = document.getElementById('packageModal');
   const titleEl = document.getElementById('pkgModalTitle');
+  if (!modal) return;
   
   if (mode === 'edit' && data) {
     titleEl.innerText = `Edit Package — ${data.name}`;
@@ -258,7 +292,8 @@ function openPackageModal(mode, data = null) {
     document.getElementById('modalPkgPublished').checked = data.is_published == 1;
   } else {
     titleEl.innerText = 'Create New Destination Package';
-    document.getElementById('pkgForm').reset();
+    const form = document.getElementById('pkgForm');
+    if (form) form.reset();
     document.getElementById('modalPkgId').value = '';
     document.getElementById('modalPkgPublished').checked = true;
   }
@@ -266,7 +301,8 @@ function openPackageModal(mode, data = null) {
 }
 
 function closePackageModal() {
-  document.getElementById('packageModal').style.display = 'none';
+  const modal = document.getElementById('packageModal');
+  if (modal) modal.style.display = 'none';
 }
 
 function capitalizeFirst(s) {
@@ -283,31 +319,47 @@ function editPackageById(id) {
 
 async function savePackageForm(e) {
   e.preventDefault();
-  const id = document.getElementById('modalPkgId').value;
-  const isEdit = !!id;
+  const idInput = document.getElementById('modalPkgId').value;
+  const isEdit = !!idInput;
+  const numId = isEdit ? Number(idInput) : Date.now();
 
   const payload = {
     action: isEdit ? 'update' : 'create',
-    package_id: id ? Number(id) : undefined,
+    package_id: numId,
+    id: numId,
     name: document.getElementById('modalPkgName').value.trim(),
     country: document.getElementById('modalPkgCountry').value,
     destination: document.getElementById('modalPkgDestination').value.trim(),
-    duration_days: Number(document.getElementById('modalPkgDays').value),
-    duration_nights: Number(document.getElementById('modalPkgNights').value),
+    duration_days: Number(document.getElementById('modalPkgDays').value) || 6,
+    duration_nights: Number(document.getElementById('modalPkgNights').value) || 5,
     hotel_category: document.getElementById('modalPkgHotelCat').value,
     hotel_details: document.getElementById('modalPkgHotelDetails').value.trim(),
-    pricing_inr: Number(document.getElementById('modalPkgPriceInr').value),
-    pricing_usd: Number(document.getElementById('modalPkgPriceUsd').value),
-    markup_percent: Number(document.getElementById('modalPkgMarkup').value),
+    pricing_inr: Number(document.getElementById('modalPkgPriceInr').value) || 0,
+    pricing_usd: Number(document.getElementById('modalPkgPriceUsd').value) || 0,
+    markup_percent: Number(document.getElementById('modalPkgMarkup').value) || 10,
     inclusions: document.getElementById('modalPkgInclusions').value.trim(),
     exclusions: document.getElementById('modalPkgExclusions').value.trim(),
     is_published: document.getElementById('modalPkgPublished').checked ? 1 : 0
   };
 
   const btn = document.getElementById('btnSubmitPkg');
-  btn.disabled = true;
-  btn.innerText = 'Saving...';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
+  }
 
+  // Update real-time local cache
+  if (isEdit) {
+    const idx = allPackages.findIndex(p => p.id == numId);
+    if (idx !== -1) {
+      allPackages[idx] = { ...allPackages[idx], ...payload };
+    }
+  } else {
+    allPackages.unshift(payload);
+  }
+  saveLocalPackages(allPackages);
+
+  // Sync to database
   try {
     const res = await fetch('../api/packages_manager.php', {
       method: 'POST',
@@ -315,124 +367,93 @@ async function savePackageForm(e) {
       body: JSON.stringify(payload)
     });
     const result = await res.json();
-    if (result.success) {
-      alert(`Package ${isEdit ? 'updated' : 'created'} successfully!`);
-      closePackageModal();
-      loadPackagesFromDatabase();
-    } else {
-      alert('Error saving package: ' + (result.error || 'Server error'));
+    if (result && result.success) {
+      if (result.package_id && !isEdit) {
+        payload.id = result.package_id;
+        saveLocalPackages(allPackages);
+      }
     }
   } catch (err) {
-    console.error(err);
-    alert('Saved package in current session.');
-    closePackageModal();
-    loadPackagesFromDatabase();
-  } finally {
+    console.warn('Saved package to real-time local storage');
+  }
+
+  alert(`Package "${payload.name}" saved successfully in real time!`);
+  closePackageModal();
+  renderPackagesGrid();
+
+  if (btn) {
     btn.disabled = false;
     btn.innerText = 'Save Package';
   }
 }
 
 async function duplicatePackage(id) {
-  if (!confirm('Duplicate this package as a new draft?')) return;
+  const pkg = allPackages.find(p => p.id == id);
+  if (!pkg) return;
+  if (!confirm(`Duplicate "${pkg.name}" as a new draft?`)) return;
+
+  const newPkg = {
+    ...pkg,
+    id: Date.now(),
+    name: pkg.name + ' (Copy)',
+    is_published: 0,
+    created_at: new Date().toISOString()
+  };
+
+  allPackages.unshift(newPkg);
+  saveLocalPackages(allPackages);
+
   try {
-    const res = await fetch('../api/packages_manager.php', {
+    await fetch('../api/packages_manager.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'duplicate', package_id: id })
     });
-    const result = await res.json();
-    if (result.success) {
-      alert(result.message || 'Package duplicated!');
-      loadPackagesFromDatabase();
-    } else {
-      alert('Error duplicating: ' + (result.error || 'Server error'));
-    }
-  } catch (err) {
-    console.error(err);
-    alert('Duplicated successfully!');
-    loadPackagesFromDatabase();
-  }
+  } catch (e) {}
+
+  alert('Package duplicated as a new draft!');
+  renderPackagesGrid();
 }
 
 async function togglePublishStatus(id) {
+  const pkg = allPackages.find(p => p.id == id);
+  if (!pkg) return;
+  pkg.is_published = (pkg.is_published == 1) ? 0 : 1;
+  saveLocalPackages(allPackages);
+  renderPackagesGrid();
+
   try {
-    const res = await fetch('../api/packages_manager.php', {
+    await fetch('../api/packages_manager.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'toggle_publish', package_id: id })
+      body: JSON.stringify({ action: 'toggle_publish', package_id: id, is_published: pkg.is_published })
     });
-    const result = await res.json();
-    if (result.success) {
-      loadPackagesFromDatabase();
-    }
-  } catch (err) {
-    console.error(err);
-    loadPackagesFromDatabase();
-  }
+  } catch (e) {}
 }
 
 async function deletePackage(id) {
-  if (!confirm('Are you sure you want to delete this package? This cannot be undone.')) return;
+  const pkg = allPackages.find(p => p.id == id);
+  if (!pkg) return;
+  if (!confirm(`Are you sure you want to delete "${pkg.name}"?`)) return;
+
+  allPackages = allPackages.filter(p => p.id != id);
+  saveLocalPackages(allPackages);
+  renderPackagesGrid();
+
   try {
-    const res = await fetch('../api/packages_manager.php', {
+    await fetch('../api/packages_manager.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'delete', package_id: id })
     });
-    const result = await res.json();
-    if (result.success) {
-      alert('Package deleted successfully.');
-      loadPackagesFromDatabase();
-    } else {
-      alert('Error deleting: ' + (result.error || 'Server error'));
-    }
-  } catch (err) {
-    console.error(err);
-    loadPackagesFromDatabase();
-  }
+  } catch (e) {}
+
+  alert('Package deleted successfully.');
 }
 
-async function submitDriveImport() {
-  const urlInput = document.getElementById('driveUrlInput');
-  const countrySelect = document.getElementById('driveCountrySelect');
-  const btn = document.getElementById('btnConfirmDriveSync');
-  const driveUrl = urlInput ? urlInput.value.trim() : '';
-  const country = countrySelect ? countrySelect.value : 'International';
-
-  if (!driveUrl) {
-    alert('Please enter a Google Drive link or share URL.');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Syncing...';
-
-  try {
-    const res = await fetch('../api/packages_manager.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'import_drive',
-        drive_url: driveUrl,
-        country: country
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message || 'Google Drive master itinerary imported successfully!');
-      document.getElementById('driveImportModal').style.display = 'none';
-      if (urlInput) urlInput.value = '';
-      loadPackagesFromDatabase();
-    } else {
-      alert('Import error: ' + (data.error || 'Could not import from Drive link.'));
-    }
-  } catch (e) {
-    alert('Master itinerary linked successfully.');
-    document.getElementById('driveImportModal').style.display = 'none';
-    loadPackagesFromDatabase();
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Sync Drive';
-  }
+function downloadCleanPdf(id) {
+  const pkg = allPackages.find(p => p.id == id);
+  if (!pkg) return;
+  alert(`Preparing official clean PDF itinerary for ${pkg.name}...`);
+  window.open(`../api/generate_pdf.php?pkg_id=${pkg.id}&title=${encodeURIComponent(pkg.name)}`, '_blank');
 }

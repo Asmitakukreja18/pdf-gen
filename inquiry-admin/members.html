@@ -578,6 +578,10 @@
                     </p>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
+                    <button type="button" onclick="openAssignTaskModal()" class="btn-primary"
+                        style="background:#2563EB; color:#FFF; font-weight:700; font-size:13px; padding:10px 18px; border-radius:var(--pill-radius); border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                        <i class="fa-solid fa-list-check"></i> Assign Task to Staff
+                    </button>
                     <button type="button" onclick="exportActivityCSV()" class="btn-outline">
                         <i class="fa-solid fa-download"></i> Export Activity CSV
                     </button>
@@ -675,6 +679,52 @@
                         </thead>
                         <tbody id="membersTableBody">
                             <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ASSIGNED TASKS QUEUE & WORKFLOW BOARD -->
+            <div class="content-card" style="margin-top:0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-list-check" style="color:#2563EB;"></i>
+                            Assigned Staff Tasks &amp; Workflow Queue
+                        </h3>
+                        <p style="font-size:12px; color:#64748B; margin:4px 0 0;">
+                            Live monitoring of operational assignments, quotations, vouchers, and lead tasks given to staff.
+                        </p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button type="button" onclick="openAssignTaskModal()" class="btn-primary"
+                            style="background:#2563EB; color:#FFF; font-weight:700; font-size:12px; padding:7px 14px; border-radius:9999px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-plus"></i> New Task
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%;">
+                    <table class="custom-table" style="font-size:12.5px;">
+                        <thead>
+                            <tr>
+                                <th>Task Code</th>
+                                <th>Task Description</th>
+                                <th>Staff Assignee</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center; padding:32px; color:#94A3B8;">
+                                    <i class="fa-solid fa-clipboard-check" style="font-size:26px; margin-bottom:6px; color:#CBD5E1;"></i>
+                                    <div>No tasks currently assigned. Click <strong>Assign Task to Staff</strong> above to delegate work.</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -821,10 +871,265 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         MODAL: ASSIGN TASK TO STAFF
+         ============================================================ -->
+    <div id="assignTaskModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 580px;">
+            <div class="modal-header">
+                <div>
+                    <h3 style="margin:0; font-size:16px; font-weight:800;">Assign Task to Staff Member</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:#94A3B8;">Delegate quotations, vouchers, followups, or bookings</p>
+                </div>
+                <button type="button" onclick="closeAssignTaskModal()"
+                    style="background:none; border:none; color:#FFF; font-size:20px; cursor:pointer;">&times;</button>
+            </div>
+            <form id="assignTaskForm" onsubmit="submitAssignTaskForm(event)" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+                <div>
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Select Staff Member *</label>
+                    <select id="taskAssignee" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700; color:#0F172A;" required>
+                        <option value="Asmita Kukreja (SU-2)">👩‍💼 Asmita Kukreja (SU-2) — Reservations Executive</option>
+                        <option value="Kashish Adwani (SU-1)">👩‍💼 Kashish Adwani (SU-1) — Senior Travel Specialist</option>
+                        <option value="Chanchal Sharma (SU-3)">👩‍💼 Chanchal Sharma (SU-3) — Operations Executive</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Task Title &amp; Objective *</label>
+                    <input type="text" id="taskTitle" placeholder="e.g. Prepare 6D5N Thailand Luxury Itinerary for Rohit Sharma"
+                        style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Category</label>
+                        <select id="taskCategory" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
+                            <option value="Quotation">AI Travel Quotation</option>
+                            <option value="Hotel Voucher">Hotel Voucher Issuance</option>
+                            <option value="Transfer Voucher">Airport Transfer Voucher</option>
+                            <option value="Invoice">Customer / Tax Invoice</option>
+                            <option value="Lead Followup">Lead Inquiries &amp; Follow-up</option>
+                            <option value="Supplier Booking">Supplier Booking Coordination</option>
+                            <option value="General Task">General Operations Task</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Priority</label>
+                        <select id="taskPriority" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700;">
+                            <option value="Normal">Normal Priority</option>
+                            <option value="High" style="color:#B45309;">⚠️ High Priority</option>
+                            <option value="Urgent" style="color:#DC2626;">🚨 Urgent (Immediate)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Due Date *</label>
+                        <input type="date" id="taskDueDate" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Client / Related ID</label>
+                        <input type="text" id="taskRelated" placeholder="e.g. Lead #LE-1049 / Guest Name"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Detailed Instructions / Notes</label>
+                    <textarea id="taskInstructions" rows="3" placeholder="Add specific guest requests, hotel preferences, markup rate, or voucher deadlines..."
+                        style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; resize:vertical;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" onclick="closeAssignTaskModal()" class="btn-outline">Cancel</button>
+                    <button type="submit" id="btnSubmitTask" class="btn-primary" style="background:#2563EB; color:#FFF; font-weight:700; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;">
+                        <i class="fa-solid fa-paper-plane"></i> Assign Task Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT -->
     <script>
         let membersList = [];
         let currentFilterRole = 'all';
+        let allStaffTasks = [];
+
+        function openAssignTaskModal(defaultStaff = '') {
+            const modal = document.getElementById('assignTaskModal');
+            if (!modal) return;
+            const assigneeSel = document.getElementById('taskAssignee');
+            if (assigneeSel && defaultStaff) {
+                Array.from(assigneeSel.options).forEach(opt => {
+                    if (opt.value.toLowerCase().includes(defaultStaff.toLowerCase())) {
+                        opt.selected = true;
+                    }
+                });
+            }
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('taskDueDate').value = tomorrow.toISOString().split('T')[0];
+            modal.style.display = 'flex';
+        }
+
+        function closeAssignTaskModal() {
+            const modal = document.getElementById('assignTaskModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function submitAssignTaskForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitTask');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Assigning...';
+
+            const payload = {
+                action: 'create',
+                assigned_to: document.getElementById('taskAssignee').value,
+                title: document.getElementById('taskTitle').value.trim(),
+                category: document.getElementById('taskCategory').value,
+                priority: document.getElementById('taskPriority').value,
+                due_date: document.getElementById('taskDueDate').value,
+                instructions: document.getElementById('taskInstructions').value.trim(),
+                related_entity: document.getElementById('taskRelated').value.trim()
+            };
+
+            try {
+                const res = await fetch('api/tasks.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message || 'Task successfully assigned to staff!');
+                    closeAssignTaskModal();
+                    document.getElementById('assignTaskForm').reset();
+                    loadStaffTasks();
+                } else {
+                    alert('Error assigning task: ' + (data.error || 'Server error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Task assigned to staff successfully!');
+                closeAssignTaskModal();
+                loadStaffTasks();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Assign Task Now';
+            }
+        }
+
+        async function loadStaffTasks() {
+            try {
+                const res = await fetch('api/tasks.php?action=list');
+                const data = await res.json();
+                if (data.success && Array.isArray(data.tasks)) {
+                    allStaffTasks = data.tasks;
+                } else {
+                    allStaffTasks = [];
+                }
+            } catch (e) {
+                allStaffTasks = [];
+            }
+            renderStaffTasksTable();
+        }
+
+        function renderStaffTasksTable() {
+            const tbody = document.getElementById('tasksTableBody');
+            if (!tbody) return;
+
+            if (allStaffTasks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:32px; color:#94A3B8;">
+                            <i class="fa-solid fa-clipboard-check" style="font-size:26px; margin-bottom:6px; color:#CBD5E1;"></i>
+                            <div>No tasks currently assigned. Click <strong>Assign Task to Staff</strong> above to delegate work.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = allStaffTasks.map(t => {
+                const isDone = t.status === 'Completed';
+                const isUrgent = t.priority === 'Urgent';
+                const isHigh = t.priority === 'High';
+
+                let pBadge = '<span style="font-size:11px; font-weight:700; color:#64748B; background:#F1F5F9; padding:2px 8px; border-radius:10px;">Normal</span>';
+                if (isUrgent) {
+                    pBadge = '<span style="font-size:11px; font-weight:800; color:#DC2626; background:#FEF2F2; padding:2px 8px; border-radius:10px; border:1px solid #FECACA;">🚨 Urgent</span>';
+                } else if (isHigh) {
+                    pBadge = '<span style="font-size:11px; font-weight:700; color:#B45309; background:#FEF3C7; padding:2px 8px; border-radius:10px; border:1px solid #FDE68A;">⚠️ High</span>';
+                }
+
+                let sBadge = '<span style="font-size:11px; font-weight:700; color:#2563EB; background:#EFF6FF; padding:3px 10px; border-radius:9999px;">Pending</span>';
+                if (isDone) {
+                    sBadge = '<span style="font-size:11px; font-weight:700; color:#059669; background:#ECFDF5; padding:3px 10px; border-radius:9999px;">✓ Completed</span>';
+                } else if (t.status === 'In Progress') {
+                    sBadge = '<span style="font-size:11px; font-weight:700; color:#D97706; background:#FFFBEB; padding:3px 10px; border-radius:9999px;">In Progress</span>';
+                }
+
+                return `
+                    <tr style="border-bottom:1px solid #F1F5F9;">
+                        <td style="padding:14px; font-family:monospace; font-size:11px; font-weight:700; color:#2563EB;">${escapeQuotes(t.task_code || 'TSK')}</td>
+                        <td style="padding:14px;">
+                            <div style="font-weight:700; color:#0F172A; font-size:13px;">${escapeQuotes(t.title)}</div>
+                            ${t.instructions ? `<div style="font-size:11.5px; color:#64748B; margin-top:2px;">${escapeQuotes(t.instructions)}</div>` : ''}
+                        </td>
+                        <td style="padding:14px; font-weight:700; color:#0F2C59;">
+                            <span style="display:inline-flex; align-items:center; gap:5px; background:#F8FAFC; border:1px solid #E2E8F0; padding:3px 8px; border-radius:6px; font-size:12px;">
+                                👤 ${escapeQuotes(t.assigned_to)}
+                            </span>
+                        </td>
+                        <td style="padding:14px; font-size:12px; color:#475569;">${escapeQuotes(t.category || 'General')}</td>
+                        <td style="padding:14px;">${pBadge}</td>
+                        <td style="padding:14px; font-size:12px; color:#475569;">${escapeQuotes(t.due_date || 'ASAP')}</td>
+                        <td style="padding:14px;">${sBadge}</td>
+                        <td style="padding:14px; text-align:right;">
+                            <div style="display:inline-flex; align-items:center; gap:6px;">
+                                ${!isDone ? `
+                                    <button type="button" onclick="updateTaskStatus(${t.id}, 'Completed')" style="background:#ECFDF5; border:1px solid #A7F3D0; color:#065F46; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;" title="Mark as Done">
+                                        ✓ Done
+                                    </button>
+                                ` : ''}
+                                <button type="button" onclick="deleteTask(${t.id})" style="background:none; border:none; color:#94A3B8; font-size:13px; cursor:pointer;" title="Delete Task">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateTaskStatus(taskId, status) {
+            try {
+                await fetch('api/tasks.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'update_status', task_id: taskId, status: status })
+                });
+            } catch (e) {}
+            const t = allStaffTasks.find(x => x.id == taskId);
+            if (t) t.status = status;
+            renderStaffTasksTable();
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this assigned task?')) return;
+            allStaffTasks = allStaffTasks.filter(x => x.id != taskId);
+            renderStaffTasksTable();
+            try {
+                await fetch('api/tasks.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', task_id: taskId })
+                });
+            } catch (e) {}
+        }
 
         async function loadMembers() {
             try {

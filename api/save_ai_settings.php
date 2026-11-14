@@ -31,9 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'success' => true,
         'has_claude_key' => (!empty($claudeKey) && strpos($claudeKey, 'YOUR_') === false),
         'claude_key_masked' => $mask($claudeKey),
+        'claude_model' => $settings['claude_model'] ?? 'claude-3-5-sonnet-20241022',
         'has_gemini_key' => (!empty($geminiKey) && strpos($geminiKey, 'YOUR_') === false),
         'gemini_key_masked' => $mask($geminiKey),
-        'default_provider' => $settings['default_provider'] ?? 'auto'
+        'default_provider' => $settings['default_provider'] ?? 'claude'
     ]);
     exit;
 }
@@ -134,6 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 2. SAVE SETTINGS ACTION
     if (isset($input['claude_api_key']) && !empty(trim($input['claude_api_key']))) {
         $existing['claude_api_key'] = trim($input['claude_api_key']);
+    }
+    if (isset($input['claude_model']) && !empty(trim($input['claude_model']))) {
+        $existing['claude_model'] = trim($input['claude_model']);
     }
     if (isset($input['gemini_api_key']) && !empty(trim($input['gemini_api_key']))) {
         $existing['gemini_api_key'] = trim($input['gemini_api_key']);

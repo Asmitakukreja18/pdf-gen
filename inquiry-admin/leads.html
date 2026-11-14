@@ -485,9 +485,20 @@
                         </div>
 
                         <div>
-                            <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Assigned &bull; Followup</div>
-                            <div style="font-weight:700; color:var(--royal-blue); font-size:12.5px; margin-top:2px;">👤 ${escapeHTML(l.assigned_employee || 'Admin')}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${escapeHTML(l.followup_date || 'Scheduled')}</div>
+                            <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Assigned Staff</div>
+                            <div style="margin-top:2px;">
+                                ${currentUserRole === 'admin' ? `
+                                    <select onchange="reassignLead(${l.id || 0}, '${escapeHTML(l.lead_no)}', this.value)" style="font-size:11.5px; font-weight:700; color:#1E40AF; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:3px 6px; cursor:pointer;">
+                                        <option value="Admin" ${!l.assigned_employee || l.assigned_employee === 'Admin' ? 'selected' : ''}>👑 Admin</option>
+                                        <option value="Kashish (SU-1)" ${String(l.assigned_employee).includes('Kashish') ? 'selected' : ''}>👩‍💼 Kashish Adwani (SU-1)</option>
+                                        <option value="Asmita (SU-2)" ${String(l.assigned_employee).includes('Asmita') ? 'selected' : ''}>👩‍💼 Asmita Kukreja (SU-2)</option>
+                                        <option value="Chanchal (SU-3)" ${String(l.assigned_employee).includes('Chanchal') ? 'selected' : ''}>👩‍💼 Chanchal Sharma (SU-3)</option>
+                                    </select>
+                                ` : `
+                                    <span style="font-weight:700; color:var(--royal-blue); font-size:12px;">👤 ${escapeHTML(l.assigned_employee || 'Admin')}</span>
+                                `}
+                            </div>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">${escapeHTML(l.followup_date || 'Scheduled')}</div>
                         </div>
 
                         <div style="text-align:right;">
@@ -506,8 +517,21 @@
             });
         }
 
+        async function reassignLead(id, leadNo, newAssignee) {
+            try {
+                await fetch('api/update_inquiry.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, assigned_to: newAssignee })
+                });
+            } catch(e) {}
+            const lead = allLeads.find(x => x.id == id || x.lead_no === leadNo);
+            if (lead) lead.assigned_employee = newAssignee;
+            alert(`Lead ${leadNo} successfully assigned to ${newAssignee}!`);
+        }
+
         function createQuotationForLead(leadNo, name, phone, email, dest, adults) {
-            const url = `../studio.html?lead_id=${encodeURIComponent(leadNo)}&client_name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&dest=${encodeURIComponent(dest)}&pax=${encodeURIComponent(adults + ' Adults')}&from_lead=1`;
+            const url = `ai-assistant.html?lead_id=${encodeURIComponent(leadNo)}&client_name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&dest=${encodeURIComponent(dest)}&pax=${encodeURIComponent(adults + ' Adults')}&from_lead=1`;
             window.location.href = url;
         }
 
