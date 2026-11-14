@@ -841,17 +841,14 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
         </div>
 
         <nav class="drawer-nav-list">
-            <a href="website/index.html#packages" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+                <i class="fa-solid fa-globe"></i> Official Website (letsexploredmc.com)
+            </a>
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-box-open"></i> Tour Packages
             </a>
-            <a href="website/index.html#destinations" class="drawer-link" onclick="toggleGatewayDrawer(false)">
+            <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="drawer-link" onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-earth-americas"></i> Destinations
-            </a>
-            <a href="website/index.html#about" class="drawer-link" onclick="toggleGatewayDrawer(false)">
-                <i class="fa-solid fa-shield-halved"></i> About DMC
-            </a>
-            <a href="website/index.html#inquiry" class="drawer-link" onclick="toggleGatewayDrawer(false)">
-                <i class="fa-solid fa-paper-plane"></i> Plan My Holiday
             </a>
             <a href="studio.html" class="drawer-link" onclick="toggleGatewayDrawer(false)">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quotation Studio
@@ -882,11 +879,11 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
 
         <div style="display:flex; align-items:center; gap:12px;">
             <div class="header-nav-tags">
-                <a href="website/index.html#packages" style="color:inherit; text-decoration:none;">Travel</a>
+                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;">Travel</a>
                 <span class="dot">&bull;</span>
-                <a href="website/index.html#destinations" style="color:inherit; text-decoration:none;">Explore</a>
+                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;">Explore</a>
                 <span class="dot">&bull;</span>
-                <a href="website/index.html#about" style="color:inherit; text-decoration:none;">Experience</a>
+                <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;">letsexploredmc.com <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
             </div>
             <a href="studio.html" style="background:#0F172A; color:#FFFFFF; padding:8px 16px; border-radius:9999px; font-size:12.5px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(197,160,89,0.3);">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color:#FDE68A;"></i> AI Studio

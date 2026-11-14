@@ -5,13 +5,19 @@
     <script>
 (function(){
   try {
+    var params = new URLSearchParams(window.location.search);
+    var urlRole = (params.get('role') || '').toLowerCase();
     var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+    var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
     var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+    if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
+      try { localStorage.setItem('dmc_role', 'executive'); } catch(e){}
+    }
     document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
   } catch(e) {}
 })();
 </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documents &amp; Proposals — Let's Explore DMC</title>
@@ -30,9 +36,9 @@
         <!-- ============================================================
              LEFT SIDEBAR NAVIGATION (MODERN LUXURY DARK-NAVY)
              ============================================================ -->
-        <aside class="portal-sidebar" id="portalSidebar">
+                <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
-                <a href="dashboard.html" class="sidebar-brand">
+                <a href="dashboard.html" class="sidebar-brand" id="sidebarBrandLink">
                     <div class="brand-icon-box">
                         <i class="fa-solid fa-plane-departure"></i>
                     </div>
@@ -43,71 +49,70 @@
             </div>
 
             <nav class="sidebar-menu">
-                    <!-- Dashboard for Admin -->
-                    <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <!-- My Workspace for Staff -->
-                    <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
-                        <i class="fa-solid fa-desktop"></i>
-                        <span>My Workspace</span>
-                    </a>
-                    <!-- Core Travel Operations (Common) -->
-                    <a href="leads.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Leads &amp; Inquiries</span>
-                    </a>
-                    <a href="customers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-user-group"></i>
-                        <span>Customers</span>
-                    </a>
-                    <a href="ai-assistant.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Quotation Studio</span>
-                    </a>
-                    <a href="packages.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-box-open"></i>
-                        <span>Tour Packages</span>
-                    </a>
-                    <a href="trips.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>Running Trips</span>
-                    </a>
-                    <a href="suppliers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-handshake"></i>
-                        <span>Suppliers</span>
-                    </a>
-                    <a href="invoices.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Invoices &amp; Vouchers</span>
-                    </a>
-                    <a href="documents.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Documents &amp; PDFs</span>
-                    </a>
-                    <!-- Admin Only Management -->
-                    <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Analytics</span>
-                    </a>
-                    <a href="website.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-globe"></i>
-                        <span>Website CMS</span>
-                    </a>
-                    <a href="members.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-id-card-clip"></i>
-                        <span>Staff Management</span>
-                    </a>
-                    <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </nav>
+                <!-- Dashboard for Admin -->
+                <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <!-- My Workspace for Staff -->
+                <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>My Workspace</span>
+                </a>
+                <!-- Core Travel Operations (Common) -->
+                <a href="leads.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
+                </a>
+                <a href="packages.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Tour Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="invoices.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="documents.html" class="nav-link nav-link-item active">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
+                </a>
+                <!-- Admin Only Management -->
+                <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="website.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
+                <a href="members.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
 
-            <div class="sidebar-logout-wrap"
-                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
-                <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
+            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+                <a href="../api/logout.php" class="nav-link nav-link-item" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
@@ -140,7 +145,7 @@
                         <input type="text" id="topSearchInput" placeholder="Search documents, proposals..."
                             style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
-                    <a href="../website/index.html" class="topbar-action-btn" title="View Public Website"
+                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
                         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
                         <span class="hide-mobile">Public Site</span>

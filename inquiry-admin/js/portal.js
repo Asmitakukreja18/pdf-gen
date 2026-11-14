@@ -19,7 +19,22 @@
     syncUserIdentity();
     highlightActiveSidebarLink();
     initSidebarControls();
+    syncPublicSiteLinks();
   });
+
+  /**
+   * Automatically normalizes all Public Site links to official live URL
+   */
+  function syncPublicSiteLinks() {
+    try {
+      var links = document.querySelectorAll('a[href*="website/index.html"], a[title*="Public Website"], a[title*="Public Site"]');
+      links.forEach(function (a) {
+        a.setAttribute('href', 'https://letsexploredmc.com/');
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      });
+    } catch(e) {}
+  }
 
   /**
    * Sanitizes user session and blocks Staff from accessing Admin pages
@@ -32,6 +47,9 @@
     } catch (e) {
       storedUser = null;
     }
+
+    var params = new URLSearchParams(window.location.search);
+    var urlRole = (params.get('role') || '').toLowerCase();
 
     // Auto-sanitize legacy or placeholder names from localStorage
     if (storedUser) {
@@ -57,8 +75,7 @@
       } catch (err) {}
     }
 
-    var role = (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin';
-    role = role.toLowerCase();
+    var role = (urlRole || (storedUser && storedUser.role) || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
     var isStaff = (role === 'staff' || role === 'user' || role === 'executive' || role === 'agent');
 
     // Instantly tag <html> for CSS zero-flicker visibility
@@ -68,6 +85,21 @@
     } else {
       document.documentElement.classList.remove('is-staff');
       document.documentElement.classList.add('is-admin');
+    }
+
+    // Hard JavaScript DOM enforcement for zero sidebar leakage
+    if (isStaff) {
+      var hideTimer = setInterval(function() {
+        var adminLinks = document.querySelectorAll('.admin-only-nav, a[href="website.html"], a[href="analytics.html"], a[href="members.html"], a[href="settings.html"]');
+        adminLinks.forEach(function(el) {
+          el.style.setProperty('display', 'none', 'important');
+        });
+        var staffLinks = document.querySelectorAll('.staff-only-nav');
+        staffLinks.forEach(function(el) {
+          el.style.setProperty('display', 'flex', 'important');
+        });
+      }, 50);
+      setTimeout(function() { clearInterval(hideTimer); }, 1500);
     }
 
     var currentFile = window.location.pathname.split('/').pop().toLowerCase();

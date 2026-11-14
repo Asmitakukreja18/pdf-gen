@@ -5,13 +5,28 @@
     <script>
 (function(){
   try {
+    var params = new URLSearchParams(window.location.search);
+    var urlRole = (params.get('role') || '').toLowerCase();
     var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+    var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
     var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+    if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
+      try { localStorage.setItem('dmc_role', 'executive'); } catch(e){}
+    }
     document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
   } catch(e) {}
 })();
 </script>
+    <script>
+        (function () {
+            try {
+                var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+                var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+                document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+            } catch (e) { }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Management &amp; Employee Activity Tracking — Let's Explore DMC</title>
@@ -430,9 +445,9 @@
         <!-- ============================================================
              LEFT SIDEBAR (MATCHING REFERENCE IMAGE)
              ============================================================ -->
-        <aside class="portal-sidebar" id="portalSidebar">
+                <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
-                <a href="dashboard.html" class="sidebar-brand">
+                <a href="dashboard.html" class="sidebar-brand" id="sidebarBrandLink">
                     <div class="brand-icon-box">
                         <i class="fa-solid fa-plane-departure"></i>
                     </div>
@@ -443,70 +458,70 @@
             </div>
 
             <nav class="sidebar-menu">
-                    <!-- Dashboard for Admin -->
-                    <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <!-- My Workspace for Staff -->
-                    <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
-                        <i class="fa-solid fa-desktop"></i>
-                        <span>My Workspace</span>
-                    </a>
-                    <!-- Core Travel Operations (Common) -->
-                    <a href="leads.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Leads &amp; Inquiries</span>
-                    </a>
-                    <a href="customers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-user-group"></i>
-                        <span>Customers</span>
-                    </a>
-                    <a href="ai-assistant.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Quotation Studio</span>
-                    </a>
-                    <a href="packages.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-box-open"></i>
-                        <span>Tour Packages</span>
-                    </a>
-                    <a href="trips.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>Running Trips</span>
-                    </a>
-                    <a href="suppliers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-handshake"></i>
-                        <span>Suppliers</span>
-                    </a>
-                    <a href="invoices.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Invoices &amp; Vouchers</span>
-                    </a>
-                    <a href="documents.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Documents &amp; PDFs</span>
-                    </a>
-                    <!-- Admin Only Management -->
-                    <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Analytics</span>
-                    </a>
-                    <a href="website.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-globe"></i>
-                        <span>Website CMS</span>
-                    </a>
-                    <a href="members.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-id-card-clip"></i>
-                        <span>Staff Management</span>
-                    </a>
-                    <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </nav>
+                <!-- Dashboard for Admin -->
+                <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <!-- My Workspace for Staff -->
+                <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>My Workspace</span>
+                </a>
+                <!-- Core Travel Operations (Common) -->
+                <a href="leads.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
+                </a>
+                <a href="packages.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Tour Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="invoices.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="documents.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
+                </a>
+                <!-- Admin Only Management -->
+                <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="website.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
+                <a href="members.html" class="nav-link nav-link-item admin-only-nav active">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
 
-            <div class="sidebar-logout-wrap">
-                <a href="../api/logout.php" class="nav-link-item" style="color:#EF4444;">
+            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+                <a href="../api/logout.php" class="nav-link nav-link-item" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
@@ -540,7 +555,7 @@
                             placeholder="Search staff..."
                             style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
-                    <a href="../website/index.html" class="topbar-action-btn" title="View Public Website"
+                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
                         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
                         <span class="hide-mobile">Public Site</span>
@@ -553,7 +568,8 @@
                     <div class="profile-pill-item"
                         style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            LE</div>
                         <div class="profile-text-wrap hide-mobile"
                             style="display:flex; flex-direction:column; line-height:1.2;">
                             <span class="profile-name" id="topbarUserName"
@@ -686,14 +702,17 @@
 
             <!-- ASSIGNED TASKS QUEUE & WORKFLOW BOARD -->
             <div class="content-card" style="margin-top:0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
                     <div>
-                        <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0; display:flex; align-items:center; gap:8px;">
+                        <h3
+                            style="font-size:16px; font-weight:800; color:#0F172A; margin:0; display:flex; align-items:center; gap:8px;">
                             <i class="fa-solid fa-list-check" style="color:#2563EB;"></i>
                             Assigned Staff Tasks &amp; Workflow Queue
                         </h3>
                         <p style="font-size:12px; color:#64748B; margin:4px 0 0;">
-                            Live monitoring of operational assignments, quotations, vouchers, and lead tasks given to staff.
+                            Live monitoring of operational assignments, quotations, vouchers, and lead tasks given to
+                            staff.
                         </p>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -721,8 +740,10 @@
                         <tbody id="tasksTableBody">
                             <tr>
                                 <td colspan="8" style="text-align:center; padding:32px; color:#94A3B8;">
-                                    <i class="fa-solid fa-clipboard-check" style="font-size:26px; margin-bottom:6px; color:#CBD5E1;"></i>
-                                    <div>No tasks currently assigned. Click <strong>Assign Task to Staff</strong> above to delegate work.</div>
+                                    <i class="fa-solid fa-clipboard-check"
+                                        style="font-size:26px; margin-bottom:6px; color:#CBD5E1;"></i>
+                                    <div>No tasks currently assigned. Click <strong>Assign Task to Staff</strong> above
+                                        to delegate work.</div>
                                 </td>
                             </tr>
                         </tbody>
@@ -879,31 +900,46 @@
             <div class="modal-header">
                 <div>
                     <h3 style="margin:0; font-size:16px; font-weight:800;">Assign Task to Staff Member</h3>
-                    <p style="margin:2px 0 0; font-size:12px; color:#94A3B8;">Delegate quotations, vouchers, followups, or bookings</p>
+                    <p style="margin:2px 0 0; font-size:12px; color:#94A3B8;">Delegate quotations, vouchers, followups,
+                        or bookings</p>
                 </div>
                 <button type="button" onclick="closeAssignTaskModal()"
                     style="background:none; border:none; color:#FFF; font-size:20px; cursor:pointer;">&times;</button>
             </div>
-            <form id="assignTaskForm" onsubmit="submitAssignTaskForm(event)" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <form id="assignTaskForm" onsubmit="submitAssignTaskForm(event)"
+                style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Select Staff Member *</label>
-                    <select id="taskAssignee" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700; color:#0F172A;" required>
-                        <option value="Asmita Kukreja (SU-2)">👩‍💼 Asmita Kukreja (SU-2) — Reservations Executive</option>
-                        <option value="Kashish Adwani (SU-1)">👩‍💼 Kashish Adwani (SU-1) — Senior Travel Specialist</option>
-                        <option value="Chanchal Sharma (SU-3)">👩‍💼 Chanchal Sharma (SU-3) — Operations Executive</option>
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Select
+                        Staff Member *</label>
+                    <select id="taskAssignee"
+                        style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700; color:#0F172A;"
+                        required>
+                        <option value="Asmita Kukreja (SU-2)">👩‍💼 Asmita Kukreja (SU-2) — Reservations Executive
+                        </option>
+                        <option value="Kashish Adwani (SU-1)">👩‍💼 Kashish Adwani (SU-1) — Senior Travel Specialist
+                        </option>
+                        <option value="Chanchal Sharma (SU-3)">👩‍💼 Chanchal Sharma (SU-3) — Operations Executive
+                        </option>
                     </select>
                 </div>
 
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Task Title &amp; Objective *</label>
-                    <input type="text" id="taskTitle" placeholder="e.g. Prepare 6D5N Thailand Luxury Itinerary for Rohit Sharma"
-                        style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Task
+                        Title &amp; Objective *</label>
+                    <input type="text" id="taskTitle"
+                        placeholder="e.g. Prepare 6D5N Thailand Luxury Itinerary for Rohit Sharma"
+                        style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                        required>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Category</label>
-                        <select id="taskCategory" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Category</label>
+                        <select id="taskCategory"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:600;">
                             <option value="Quotation">AI Travel Quotation</option>
                             <option value="Hotel Voucher">Hotel Voucher Issuance</option>
                             <option value="Transfer Voucher">Airport Transfer Voucher</option>
@@ -914,8 +950,10 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Priority</label>
-                        <select id="taskPriority" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Priority</label>
+                        <select id="taskPriority"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; font-weight:700;">
                             <option value="Normal">Normal Priority</option>
                             <option value="High" style="color:#B45309;">⚠️ High Priority</option>
                             <option value="Urgent" style="color:#DC2626;">🚨 Urgent (Immediate)</option>
@@ -925,25 +963,35 @@
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Due Date *</label>
-                        <input type="date" id="taskDueDate" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;" required>
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Due
+                            Date *</label>
+                        <input type="date" id="taskDueDate"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;"
+                            required>
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Client / Related ID</label>
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Client
+                            / Related ID</label>
                         <input type="text" id="taskRelated" placeholder="e.g. Lead #LE-1049 / Guest Name"
                             style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                     </div>
                 </div>
 
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Detailed Instructions / Notes</label>
-                    <textarea id="taskInstructions" rows="3" placeholder="Add specific guest requests, hotel preferences, markup rate, or voucher deadlines..."
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Detailed
+                        Instructions / Notes</label>
+                    <textarea id="taskInstructions" rows="3"
+                        placeholder="Add specific guest requests, hotel preferences, markup rate, or voucher deadlines..."
                         style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; resize:vertical;"></textarea>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
                     <button type="button" onclick="closeAssignTaskModal()" class="btn-outline">Cancel</button>
-                    <button type="submit" id="btnSubmitTask" class="btn-primary" style="background:#2563EB; color:#FFF; font-weight:700; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;">
+                    <button type="submit" id="btnSubmitTask" class="btn-primary"
+                        style="background:#2563EB; color:#FFF; font-weight:700; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;">
                         <i class="fa-solid fa-paper-plane"></i> Assign Task Now
                     </button>
                 </div>
@@ -1112,7 +1160,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'update_status', task_id: taskId, status: status })
                 });
-            } catch (e) {}
+            } catch (e) { }
             const t = allStaffTasks.find(x => x.id == taskId);
             if (t) t.status = status;
             renderStaffTasksTable();
@@ -1128,7 +1176,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'delete', task_id: taskId })
                 });
-            } catch (e) {}
+            } catch (e) { }
         }
 
         async function loadMembers() {
@@ -1147,7 +1195,7 @@
             loadActivityLogs();
         }
 
-                function getFallbackMembers() {
+        function getFallbackMembers() {
             return [
                 {
                     id: 1,
