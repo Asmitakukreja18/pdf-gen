@@ -481,9 +481,62 @@
             background: #1EBE5D;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 992px) {
+            .portal-wrapper {
+                display: block !important;
+                position: relative !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+            }
+            .portal-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -320px !important;
+                bottom: 0 !important;
+                width: 280px !important;
+                max-width: 85vw !important;
+                height: 100vh !important;
+                z-index: 99999 !important;
+                transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                box-shadow: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .portal-sidebar.mobile-open,
+            .portal-sidebar.open,
+            .portal-sidebar.active {
+                left: 0 !important;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.7) !important;
+                visibility: visible !important;
+            }
+            .portal-sidebar-backdrop {
+                display: none;
+                position: fixed !important;
+                inset: 0 !important;
+                background: rgba(15, 23, 42, 0.7) !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
+                z-index: 99998 !important;
+                opacity: 0;
+                transition: opacity 0.25s ease !important;
+            }
+            .portal-sidebar-backdrop.active {
+                display: block !important;
+                opacity: 1 !important;
+            }
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+            .search-pill-box {
+                width: 100% !important;
+                max-width: 220px !important;
+            }
+            .portal-topbar {
+                padding: 0 16px !important;
+            }
+            .work-header, .content-body {
+                padding: 20px 16px !important;
             }
         }
     </style>
@@ -582,6 +635,7 @@
                 <div style="display:flex; align-items:center; gap:12px; flex:1;">
                     <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         title="Toggle Navigation Menu" aria-label="Toggle Navigation Menu"
+                        onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;">
                         <i class="fa-solid fa-bars"></i>
                     </button>

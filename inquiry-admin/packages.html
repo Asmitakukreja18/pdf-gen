@@ -1,51 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <script>
-(function(){
-  try {
-    var params = new URLSearchParams(window.location.search);
-    var urlRole = (params.get('role') || '').toLowerCase();
-    var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
-    var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
-    if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
-      try { localStorage.setItem('dmc_role', 'executive'); } catch(e){}
-    }
-    document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
-  } catch(e) {}
-})();
-</script>
-    
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var urlRole = (params.get('role') || '').toLowerCase();
+                var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+                var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+                if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
+                    try { localStorage.setItem('dmc_role', 'executive'); } catch (e) { }
+                }
+                document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+            } catch (e) { }
+        })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Packages &amp; Itineraries  Let's Explore DMC</title>
+    <title>Packages &amp; Itineraries Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
     <!-- Strict Authentication Guard -->
     <script>
-        (function() {
+        (function () {
             try {
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
                     window.location.replace('index.html?auth=required&dest=packages.html');
                 }
-            } catch(e) {
+            } catch (e) {
                 window.location.replace('index.html?auth=required');
             }
         })();
     </script>
 </head>
+
 <body>
 
     <div class="portal-wrapper">
         <!-- ============================================================
              LEFT SIDEBAR NAVIGATION
              ============================================================ -->
-                <aside class="portal-sidebar" id="portalSidebar">
+        <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand" id="sidebarBrandLink">
                     <div class="brand-icon-box">
@@ -120,7 +124,8 @@
                 </a>
             </nav>
 
-            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="sidebar-logout-wrap"
+                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link nav-link-item" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
@@ -137,7 +142,7 @@
                 <div style="display:flex; align-items:center; gap:16px;">
                     <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
-                        title="Toggle Sidebar">
+                        title="Toggle Sidebar" onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="breadcrumb-trail" style="display:flex; align-items:center; gap:8px; font-size:13px;">
@@ -148,11 +153,14 @@
                 </div>
 
                 <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">
-                    <div class="search-pill-box" style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:7px 16px; width:280px;">
+                    <div class="search-pill-box"
+                        style="display:flex; align-items:center; gap:10px; background:#F1F5F9; border-radius:9999px; padding:7px 16px; width:280px;">
                         <i class="fa-solid fa-magnifying-glass" style="color:#94A3B8;"></i>
-                        <input type="text" id="topSearchInput" placeholder="Search packages, destinations..." style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
+                        <input type="text" id="topSearchInput" placeholder="Search packages, destinations..."
+                            style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
-                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
+                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer"
+                        class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
                         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
                         <span class="hide-mobile">Public Site</span>
@@ -162,12 +170,17 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span class="hide-mobile">AI Studio</span>
                     </a>
-                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                    <div class="profile-pill-item"
+                        style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
-                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
-                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            LE</div>
+                        <div class="profile-text-wrap hide-mobile"
+                            style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName"
+                                style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
+                            <span class="profile-role" id="topbarUserRole"
+                                style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -175,19 +188,21 @@
 
             <!-- PAGE BODY -->
             <main class="portal-body">
-                
+
                 <!-- Page Header -->
                 <div class="page-header">
                     <div>
                         <h1 class="page-title">Destination Packages &amp; Ready Itineraries</h1>
-                        <p class="page-subtitle">Create, manage and publish travel packages for your direct customers &amp; B2B travel agents.</p>
+                        <p class="page-subtitle">Create, manage and publish travel packages for your direct customers
+                            &amp; B2B travel agents.</p>
                     </div>
                     <div class="header-actions">
                         <button type="button" id="btnUploadDrivePkg" class="btn btn-secondary">
                             <i class="fa-brands fa-google-drive" style="color:var(--royal-blue);"></i> Import Drive
                         </button>
                         <a href="ai-assistant.html" class="btn btn-secondary">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--royal-blue);"></i> AI Assistant
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--royal-blue);"></i> AI
+                            Assistant
                         </a>
                         <button type="button" onclick="openPackageModal('create')" class="btn btn-primary">
                             <i class="fa-solid fa-plus"></i> + Create Package
@@ -224,9 +239,11 @@
                 </div>
 
                 <!-- Packages Grid Container -->
-                <div id="packagesGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px;">
+                <div id="packagesGrid"
+                    style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px;">
                     <div style="grid-column: 1/-1; text-align:center; padding:50px 20px; color:var(--text-secondary);">
-                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:var(--royal-blue);"></i>
+                        <i class="fa-solid fa-circle-notch fa-spin"
+                            style="font-size:24px; color:var(--royal-blue);"></i>
                         <div style="margin-top:10px; font-weight:600;">Loading packages from MySQL database...</div>
                     </div>
                 </div>
@@ -238,25 +255,34 @@
     <!-- ============================================================
          CREATE / EDIT PACKAGE MODAL (FULL CRUD)
          ============================================================ -->
-    <div id="packageModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.6); align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
-        <div style="background:#FFF; border-radius:14px; width:100%; max-width:760px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); display:flex; flex-direction:column;">
-            
-            <div style="padding:18px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#FFF; z-index:10;">
+    <div id="packageModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.6); align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:760px; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); display:flex; flex-direction:column;">
+
+            <div
+                style="padding:18px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#FFF; z-index:10;">
                 <div>
-                    <h3 id="pkgModalTitle" style="margin:0; font-size:17px; font-weight:800; color:var(--primary-navy);">Create Destination Package</h3>
-                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-secondary);">Persists to MySQL database and syncs with live public website.</p>
+                    <h3 id="pkgModalTitle"
+                        style="margin:0; font-size:17px; font-weight:800; color:var(--primary-navy);">Create Destination
+                        Package</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-secondary);">Persists to MySQL database
+                        and syncs with live public website.</p>
                 </div>
-                <button type="button" onclick="closePackageModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                <button type="button" onclick="closePackageModal()"
+                    style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
 
-            <form id="pkgForm" onsubmit="savePackageForm(event)" style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+            <form id="pkgForm" onsubmit="savePackageForm(event)"
+                style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
                 <input type="hidden" id="modalPkgId" value="">
 
                 <!-- Title & Country -->
                 <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px;">
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Package Title *</label>
-                        <input type="text" id="modalPkgName" class="form-control" required placeholder="e.g. 5D4N Luxury Holiday Itinerary">
+                        <input type="text" id="modalPkgName" class="form-control" required
+                            placeholder="e.g. 5D4N Luxury Holiday Itinerary">
                     </div>
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Country *</label>
@@ -277,7 +303,8 @@
                 <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px;">
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Destination / Cities *</label>
-                        <input type="text" id="modalPkgDestination" class="form-control" required placeholder="e.g. Ubud & Seminyak & Nusa Penida">
+                        <input type="text" id="modalPkgDestination" class="form-control" required
+                            placeholder="e.g. Ubud & Seminyak & Nusa Penida">
                     </div>
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Days</label>
@@ -302,7 +329,8 @@
                     </div>
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Hotel Details &amp; Stays</label>
-                        <input type="text" id="modalPkgHotelDetails" class="form-control" placeholder="e.g. 3N Private Pool Villa Ubud + 2N Kuta Beach Resort">
+                        <input type="text" id="modalPkgHotelDetails" class="form-control"
+                            placeholder="e.g. 3N Private Pool Villa Ubud + 2N Kuta Beach Resort">
                     </div>
                 </div>
 
@@ -325,21 +353,27 @@
                 <!-- Inclusions & Exclusions -->
                 <div class="form-group" style="margin:0;">
                     <label class="form-label">Key Inclusions &amp; Highlights</label>
-                    <textarea id="modalPkgInclusions" class="form-control" rows="2">Ubud Swing, Kintamani Volcano, Tanah Lot Sunset, Nusa Penida Speedboat Tour, Daily Breakfast, Private AC Transfers</textarea>
+                    <textarea id="modalPkgInclusions" class="form-control"
+                        rows="2">Ubud Swing, Kintamani Volcano, Tanah Lot Sunset, Nusa Penida Speedboat Tour, Daily Breakfast, Private AC Transfers</textarea>
                 </div>
 
                 <div class="form-group" style="margin:0;">
                     <label class="form-label">Key Exclusions</label>
-                    <textarea id="modalPkgExclusions" class="form-control" rows="2">International Airfare, Visa on arrival fees, Personal expenses, Travel Insurance</textarea>
+                    <textarea id="modalPkgExclusions" class="form-control"
+                        rows="2">International Airfare, Visa on arrival fees, Personal expenses, Travel Insurance</textarea>
                 </div>
 
                 <!-- Publish Toggle -->
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:8px;">
                     <div>
-                        <div style="font-size:12.5px; font-weight:700; color:var(--primary-navy);">Publish on Public Website</div>
-                        <div style="font-size:11px; color:var(--text-secondary);">Showcase under Handcrafted Packages on the live site</div>
+                        <div style="font-size:12.5px; font-weight:700; color:var(--primary-navy);">Publish on Public
+                            Website</div>
+                        <div style="font-size:11px; color:var(--text-secondary);">Showcase under Handcrafted Packages on
+                            the live site</div>
                     </div>
-                    <input type="checkbox" id="modalPkgPublished" checked style="width:18px; height:18px; cursor:pointer;">
+                    <input type="checkbox" id="modalPkgPublished" checked
+                        style="width:18px; height:18px; cursor:pointer;">
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
@@ -352,28 +386,37 @@
     </div>
 
     <!-- GOOGLE DRIVE & ITINERARY IMPORTER MODAL -->
-    <div id="driveImportModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
-        <div style="background:#FFF; border-radius:16px; width:100%; max-width:680px; max-height:92vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
-            
-            <div style="padding:20px 24px; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border-radius:16px 16px 0 0;">
+    <div id="driveImportModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+        <div
+            style="background:#FFF; border-radius:16px; width:100%; max-width:680px; max-height:92vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
+
+            <div
+                style="padding:20px 24px; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border-radius:16px 16px 0 0;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:40px; height:40px; border-radius:10px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; font-size:20px;">
+                    <div
+                        style="width:40px; height:40px; border-radius:10px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; font-size:20px;">
                         <i class="fa-brands fa-google-drive"></i>
                     </div>
                     <div>
-                        <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Google Drive &amp; Itinerary Importer</h3>
-                        <p style="margin:2px 0 0; font-size:12px; color:#64748B;">Connected Folder: <strong>Shared with me &gt; pakages</strong></p>
+                        <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Google Drive &amp;
+                            Itinerary Importer</h3>
+                        <p style="margin:2px 0 0; font-size:12px; color:#64748B;">Connected Folder: <strong>Shared with
+                                me &gt; pakages</strong></p>
                     </div>
                 </div>
-                <button type="button" onclick="closeDriveImportModal()" style="background:none; border:none; font-size:22px; cursor:pointer; color:#94A3B8;">&times;</button>
+                <button type="button" onclick="closeDriveImportModal()"
+                    style="background:none; border:none; font-size:22px; cursor:pointer; color:#94A3B8;">&times;</button>
             </div>
 
             <!-- Modal Tabs -->
             <div style="display:flex; border-bottom:1px solid #E2E8F0; background:#FFF; padding:0 24px;">
-                <button type="button" id="tabDriveFolder" onclick="switchDriveTab('folder')" style="padding:12px 16px; border:none; background:none; font-size:13px; font-weight:700; color:#2563EB; border-bottom:2px solid #2563EB; cursor:pointer;">
+                <button type="button" id="tabDriveFolder" onclick="switchDriveTab('folder')"
+                    style="padding:12px 16px; border:none; background:none; font-size:13px; font-weight:700; color:#2563EB; border-bottom:2px solid #2563EB; cursor:pointer;">
                     <i class="fa-solid fa-folder-open"></i> Drive "pakages" Folder (6 Detected)
                 </button>
-                <button type="button" id="tabDriveCustom" onclick="switchDriveTab('custom')" style="padding:12px 16px; border:none; background:none; font-size:13px; font-weight:600; color:#64748B; border-bottom:2px solid transparent; cursor:pointer;">
+                <button type="button" id="tabDriveCustom" onclick="switchDriveTab('custom')"
+                    style="padding:12px 16px; border:none; background:none; font-size:13px; font-weight:600; color:#64748B; border-bottom:2px solid transparent; cursor:pointer;">
                     <i class="fa-solid fa-link"></i> Custom URL / Upload PDF
                 </button>
             </div>
@@ -382,89 +425,128 @@
                 <!-- TAB 1: PRE-DETECTED DRIVE PACKAGES -->
                 <div id="driveTabFolderContent">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                        <span style="font-size:12.5px; font-weight:700; color:#334155;">Select Itineraries to Import into System:</span>
+                        <span style="font-size:12.5px; font-weight:700; color:#334155;">Select Itineraries to Import
+                            into System:</span>
                         <div style="display:flex; gap:8px;">
-                            <button type="button" onclick="selectAllDriveItems(true)" style="background:#F1F5F9; border:none; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#475569; cursor:pointer;">Select All</button>
-                            <button type="button" onclick="selectAllDriveItems(false)" style="background:#F1F5F9; border:none; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#475569; cursor:pointer;">Deselect All</button>
+                            <button type="button" onclick="selectAllDriveItems(true)"
+                                style="background:#F1F5F9; border:none; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#475569; cursor:pointer;">Select
+                                All</button>
+                            <button type="button" onclick="selectAllDriveItems(false)"
+                                style="background:#F1F5F9; border:none; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#475569; cursor:pointer;">Deselect
+                                All</button>
                         </div>
                     </div>
 
-                    <div style="display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto; padding-right:4px;" id="driveFolderList">
+                    <div style="display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto; padding-right:4px;"
+                        id="driveFolderList">
                         <!-- 1: Alibag 3N4D -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-ALIBAG" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-ALIBAG"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">Alibag_3N4D_Lets_Explore_DMC.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">4D/3N &bull; Alibaug, Maharashtra &bull; Mansha Tropicana Resort &bull; INR 32,500</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                                    Alibag_3N4D_Lets_Explore_DMC.pdf</div>
+                                <div style="font-size:11.5px; color:#64748B;">4D/3N &bull; Alibaug, Maharashtra &bull;
+                                    Mansha Tropicana Resort &bull; INR 32,500</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
 
                         <!-- 2: Anya Tours Alibaug -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-ANYA-ALIBG" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-ANYA-ALIBG"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">Anya_Tours_Alibaug_Group_Tour.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">4D/3N Group Tour &bull; 5 Adults + 3 Kids &bull; 27-Seater Coach &bull; INR 45,000</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                                    Anya_Tours_Alibaug_Group_Tour.pdf</div>
+                                <div style="font-size:11.5px; color:#64748B;">4D/3N Group Tour &bull; 5 Adults + 3 Kids
+                                    &bull; 27-Seater Coach &bull; INR 45,000</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
 
                         <!-- 3: Dubai & Abu Dhabi -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-UAE-DXB8D" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-UAE-DXB8D"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">LetsExploreDMC_Dubai_AbuDhabi_8D7N.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">8D/7N &bull; Dubai + Abu Dhabi &bull; Desert Safari, Yacht, Burj Khalifa &bull; INR 68,000</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                                    LetsExploreDMC_Dubai_AbuDhabi_8D7N.pdf</div>
+                                <div style="font-size:11.5px; color:#64748B;">8D/7N &bull; Dubai + Abu Dhabi &bull;
+                                    Desert Safari, Yacht, Burj Khalifa &bull; INR 68,000</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
 
                         <!-- 4: Maharashtra Tour -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-MAH7D" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-IN-MAH7D"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">Maharashtra_7D6N_Tour.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">7D/6N &bull; Mumbai, Alibaug, Lonavala, Mahabaleshwar &bull; INR 42,500</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">Maharashtra_7D6N_Tour.pdf
+                                </div>
+                                <div style="font-size:11.5px; color:#64748B;">7D/6N &bull; Mumbai, Alibaug, Lonavala,
+                                    Mahabaleshwar &bull; INR 42,500</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
 
                         <!-- 5: Pattaya Tomorrowland -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-TH-PTY4N" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-TH-PTY4N"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">Pattaya_Tomorrowland_Package_Quotation_4N.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">5D/4N &bull; Pattaya &amp; Bangkok &bull; Tomorrowland Passes &bull; INR 52,000</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                                    Pattaya_Tomorrowland_Package_Quotation_4N.pdf</div>
+                                <div style="font-size:11.5px; color:#64748B;">5D/4N &bull; Pattaya &amp; Bangkok &bull;
+                                    Tomorrowland Passes &bull; INR 52,000</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
 
                         <!-- 6: Maldives Villa Nautica -->
-                        <label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
-                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-MDV-VILLA" style="width:16px; height:16px;">
+                        <label
+                            style="display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC; cursor:pointer;">
+                            <input type="checkbox" class="drive-item-chk" checked data-code="PKG-MDV-VILLA"
+                                style="width:16px; height:16px;">
                             <i class="fa-solid fa-file-pdf" style="color:#EF4444; font-size:18px;"></i>
                             <div style="flex:1;">
-                                <div style="font-size:13px; font-weight:700; color:#0F172A;">LetsExploreDMC_VillaNautica_Dining_Quote.pdf</div>
-                                <div style="font-size:11.5px; color:#64748B;">5D/4N &bull; Villa Nautica Maldives &bull; Speedboat &amp; Full Board &bull; INR 128,000</div>
+                                <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                                    LetsExploreDMC_VillaNautica_Dining_Quote.pdf</div>
+                                <div style="font-size:11.5px; color:#64748B;">5D/4N &bull; Villa Nautica Maldives &bull;
+                                    Speedboat &amp; Full Board &bull; INR 128,000</div>
                             </div>
-                            <span style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
+                            <span
+                                style="font-size:11px; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:6px; font-weight:700;">Ready</span>
                         </label>
                     </div>
 
-                    <div style="margin-top:16px; padding:12px; background:#EFF6FF; border-radius:8px; border:1px solid #BFDBFE; font-size:12px; color:#1E40AF; display:flex; align-items:center; gap:8px;">
+                    <div
+                        style="margin-top:16px; padding:12px; background:#EFF6FF; border-radius:8px; border:1px solid #BFDBFE; font-size:12px; color:#1E40AF; display:flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>Once imported, each itinerary can be <strong>directly downloaded (unmodified W.E)</strong> OR <strong>edited in AI Studio</strong> with custom markup &amp; client logo.</span>
+                        <span>Once imported, each itinerary can be <strong>directly downloaded (unmodified W.E)</strong>
+                            OR <strong>edited in AI Studio</strong> with custom markup &amp; client logo.</span>
                     </div>
 
                     <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
                         <button type="button" onclick="closeDriveImportModal()" class="btn btn-secondary">Close</button>
-                        <button type="button" onclick="importSelectedDrivePackages()" id="btnImportSelected" class="btn btn-primary" style="background:#2563EB; font-weight:700;">
+                        <button type="button" onclick="importSelectedDrivePackages()" id="btnImportSelected"
+                            class="btn btn-primary" style="background:#2563EB; font-weight:700;">
                             <i class="fa-solid fa-cloud-arrow-down"></i> Import Selected Itineraries
                         </button>
                     </div>
@@ -473,23 +555,37 @@
                 <!-- TAB 2: CUSTOM URL / FILE UPLOAD -->
                 <div id="driveTabCustomContent" style="display:none;">
                     <div style="margin-bottom:14px;">
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Google Drive Share Link</label>
-                        <input type="text" id="customDriveUrlInput" placeholder="https://drive.google.com/file/d/..." class="form-control" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Google
+                            Drive Share Link</label>
+                        <input type="text" id="customDriveUrlInput" placeholder="https://drive.google.com/file/d/..."
+                            class="form-control"
+                            style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                     </div>
 
                     <div style="margin-bottom:14px;">
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">OR Upload Itinerary PDF / DOCX from Computer</label>
-                        <input type="file" id="localItineraryFile" accept=".pdf,.docx,.doc" class="form-control" style="width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">OR
+                            Upload Itinerary PDF / DOCX from Computer</label>
+                        <input type="file" id="localItineraryFile" accept=".pdf,.docx,.doc" class="form-control"
+                            style="width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
                         <div>
-                            <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Package Title</label>
-                            <input type="text" id="customPkgTitle" placeholder="e.g. Dubai 5D4N Luxury Escape" class="form-control" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                            <label
+                                style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Package
+                                Title</label>
+                            <input type="text" id="customPkgTitle" placeholder="e.g. Dubai 5D4N Luxury Escape"
+                                class="form-control"
+                                style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                         </div>
                         <div>
-                            <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Country / Destination</label>
-                            <select id="customPkgCountry" class="form-control" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
+                            <label
+                                style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:5px;">Country
+                                / Destination</label>
+                            <select id="customPkgCountry" class="form-control"
+                                style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px;">
                                 <option value="India">🇮🇳 India</option>
                                 <option value="UAE">🇦🇪 UAE / Dubai</option>
                                 <option value="Thailand">🇹🇭 Thailand</option>
@@ -501,8 +597,10 @@
                     </div>
 
                     <div style="display:flex; justify-content:flex-end; gap:10px;">
-                        <button type="button" onclick="closeDriveImportModal()" class="btn btn-secondary">Cancel</button>
-                        <button type="button" onclick="submitCustomDriveImport()" class="btn btn-primary" style="background:#2563EB; font-weight:700;">
+                        <button type="button" onclick="closeDriveImportModal()"
+                            class="btn btn-secondary">Cancel</button>
+                        <button type="button" onclick="submitCustomDriveImport()" class="btn btn-primary"
+                            style="background:#2563EB; font-weight:700;">
                             <i class="fa-solid fa-cloud-arrow-down"></i> Import &amp; Sync Package
                         </button>
                     </div>
@@ -517,4 +615,5 @@
     <script src="js/packages.js?v=9.0"></script>
     <script src="js/idle-tracker.js?v=9.0"></script>
 </body>
+
 </html>

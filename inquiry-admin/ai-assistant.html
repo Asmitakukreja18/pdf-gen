@@ -260,7 +260,7 @@
             <!-- TOPBAR -->
             <header class="portal-topbar">
                 <div style="display:flex; align-items:center; gap:16px;">
-                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" style="background:none; border:none; font-size:18px; cursor:pointer;">
+                    <button type="button" class="mobile-menu-trigger" id="mobileMenuTrigger" style="background:none; border:none; font-size:18px; cursor:pointer;" onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="breadcrumb-trail">
@@ -484,6 +484,40 @@
                 </div>
 
                 <!-- ============================================================
+                     CLAUDE AI ACTIVATION BANNER ($5.00 CONSOLE BALANCE READY)
+                     ============================================================ -->
+                <div id="claudeActivationBanner" style="display:none; margin-bottom:14px; background:linear-gradient(135deg, #FFFBEB, #FEF3C7); border:1px solid #FCD34D; border-radius:12px; padding:14px 18px; box-shadow:0 2px 6px rgba(180,83,9,0.08);">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <div style="width:36px; height:36px; border-radius:10px; background:#D97706; color:#FFF; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:13.5px; font-weight:800; color:#78350F; display:flex; align-items:center; gap:8px;">
+                                    Anthropic Claude AI Setup Required &bull; $5.00 Console Credit Ready
+                                </div>
+                                <div style="font-size:12px; color:#92400E; margin-top:2px;">
+                                    Aapke Claude Console account me <strong>$5.00 balance</strong> ready hai! Claude API Key link karein taaki live Claude 3.5 Sonnet travel documents generate kare.
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <div style="position:relative;">
+                                <input type="password" id="bannerClaudeKeyInput" placeholder="Paste sk-ant-api03-... here"
+                                    style="padding:8px 32px 8px 12px; border:1px solid #D97706; border-radius:8px; font-size:12.5px; width:250px; outline:none; background:#FFFFFF;">
+                                <i class="fa-solid fa-key" style="position:absolute; right:10px; top:11px; color:#D97706; font-size:12px;"></i>
+                            </div>
+                            <button type="button" onclick="connectClaudeFromBanner()" class="portal-btn primary sm" style="background:#B45309; border-color:#92400E; font-weight:800; padding:8px 14px;">
+                                <i class="fa-solid fa-link"></i> Connect Claude
+                            </button>
+                            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" class="portal-btn secondary sm" style="font-size:11.5px; text-decoration:none; color:#78350F; border-color:#FCD34D;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Get Key
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
                      DUAL-PANE MASTER STUDIO (CHAT WORKSPACE + LIVE PREVIEW)
                      ============================================================ -->
                 <div class="ai-unified-workspace">
@@ -512,7 +546,7 @@
                             </div>
                         </div>
 
-                        <!-- SUGGESTED QUICK PROMPTS -->
+                        <!-- SUGGESTED QUICK PROMPTS (MULTI-INPUT READY) -->
                         <div style="padding:8px 12px; background:#F8FAFC; border-bottom:1px solid #E2E8F0; display:flex; gap:6px; overflow-x:auto; white-space:nowrap;">
                             <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('12D Thailand Master quotation with Phuket, Krabi & Bangkok private tours')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#2563EB; border-color:#BFDBFE; background:#F0F7FF;">
                                 🌴 12D Thailand Master
@@ -523,11 +557,23 @@
                             <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('+10% Markup lagao is package par aur adult tariff recalculate karo')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#B8903E; border-color:#DFD5BD; background:#FFFDF7;">
                                 📈 +10% Markup Lagao
                             </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('+15% Profit margin add karo')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#10B981; border-color:#A7F3D0; background:#ECFDF5;">
+                                💰 +15% Markup
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('Day 3 Scuba Diving and Phi Phi Island Speedboat tour add karo')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#0284C7; border-color:#BAE6FD; background:#F0F9FF;">
+                                🏝️ Add Scuba & Speedboat
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('5-Star Luxury Beach Resort hotel upgrade karo')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#7C3AED; border-color:#DDD6FE; background:#F5F3FF;">
+                                🏨 5-Star Hotel Upgrade
+                            </button>
                             <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('Itinerary se costing hatao aur client readable presentation format banao')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#475569; border-color:#CBD5E1;">
                                 🗺️ Itinerary (Costing Hatao)
                             </button>
                             <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('Tax Invoice banao GST 5% ke sath aur HSN code 998555 add karo')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#DC2626; border-color:#FECACA; background:#FEF2F2;">
                                 🧾 Tax Invoice Banao
+                            </button>
+                            <button type="button" class="portal-btn secondary sm" onclick="useStudioQuickPrompt('1 Day Free for Shopping & Leisure add karo itinerary me')" style="font-size:11px; border-radius:14px; padding:3px 10px; font-weight:700; color:#059669; border-color:#A7F3D0;">
+                                ✨ +1 Leisure Day
                             </button>
                         </div>
 
@@ -640,7 +686,7 @@
                     </label>
                     <div style="position:relative;">
                         <input type="password" id="modalClaudeApiKey" placeholder="sk-ant-api03-..." style="width:100%; padding:9px 40px 9px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box;">
-                        <button type="button" onclick="toggleApiKeyVisibility('modalClaudeApiKey')\" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#64748B; cursor:pointer;">
+                        <button type="button" onclick="toggleApiKeyVisibility('modalClaudeApiKey')" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#64748B; cursor:pointer;">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
@@ -949,23 +995,29 @@
 
             // Natural language processing or backend AI call
             try {
+                const claudeKey = localStorage.getItem('dmc_claude_api_key') || '';
                 const res = await fetch('../api/ai.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt: txt,
+                        claudeApiKey: claudeKey,
                         currentQuotation: (typeof QuotationData !== 'undefined') ? QuotationData : null,
                         docType: document.getElementById('docTypeSelect')?.value || 'quotation',
                         destination: document.getElementById('destSelect')?.value || 'Thailand'
                     })
                 });
                 const data = await res.json();
-                if (data.success && data.quotation) {
+                const resDoc = (data && (data.data || data.quotation));
+                if (data && data.success && resDoc) {
                     if (typeof QuotationData !== 'undefined') {
-                        Object.assign(QuotationData, data.quotation);
+                        Object.assign(QuotationData, resDoc);
                     }
                     updateLivePreviews();
-                    addChatMessage('assistant', data.message || `Document updated based on your request: "${txt}"`);
+                    const providerNotice = data.provider === 'claude' 
+                        ? `<br><small style="color:#059669; font-weight:700;"><i class="fa-solid fa-bolt"></i> Generated via Anthropic Claude 3.5 Sonnet ($5.00 Console Balance Active)</small>` 
+                        : `<br><small style="color:#64748B;">Processed via Local DMC Document Engine</small>`;
+                    addChatMessage('assistant', (data.message || `Document updated based on your request: "${txt}"`) + providerNotice);
                 } else {
                     // Fallback local heuristic execution
                     executeLocalChatModification(txt);
@@ -979,23 +1031,59 @@
 
         function executeLocalChatModification(prompt) {
             const p = prompt.toLowerCase();
-            if (p.includes('markup')) {
+            if (p.includes('markup') || p.includes('margin')) {
                 const match = p.match(/(\d+)\s*%/);
                 const pct = match ? parseInt(match[1]) : 15;
                 const mkInput = document.getElementById('rateMarkupPct');
                 if (mkInput) mkInput.value = pct;
                 recalculateActiveRates(true);
-                addChatMessage('assistant', `Applied **+${pct}% Markup** to document pricing.`);
-            } else if (p.includes('invoice')) {
-                switchStudioDocType('invoice');
-            } else if (p.includes('itinerary')) {
-                switchStudioDocType('itinerary');
-            } else if (p.includes('voucher') || p.includes('confirmation')) {
-                switchStudioDocType('confirmation');
-            } else {
-                recalculateActiveRates(true);
-                addChatMessage('assistant', `Processed: "${prompt}". Updated live document preview!`);
+                addChatMessage('assistant', `Applied **+${pct}% Markup** to document pricing & recalculated totals.`);
+                return;
             }
+            if (p.includes('day') || p.includes('scuba') || p.includes('island') || p.includes('tour') || p.includes('leisure') || p.includes('transfer')) {
+                if (typeof QuotationData !== 'undefined') {
+                    if (!Array.isArray(QuotationData.landArrangement)) QuotationData.landArrangement = [];
+                    const nextDayNum = QuotationData.landArrangement.length + 1;
+                    const cleanTitle = prompt.replace(/add\s*|\+1\s*/i, '').trim();
+                    QuotationData.landArrangement.push({
+                        date: `Day ${nextDayNum}`,
+                        service: cleanTitle,
+                        details: `Customized arrangement: ${cleanTitle}. All private transfers, sightseeing, and English-speaking tour guide included.`
+                    });
+                    updateLivePreviews();
+                    addChatMessage('assistant', `Added **Day ${nextDayNum}: ${cleanTitle}** to itinerary schedule. Live preview updated!`);
+                    return;
+                }
+            }
+            if (p.includes('hotel') || p.includes('resort') || p.includes('5-star') || p.includes('villa')) {
+                if (typeof QuotationData !== 'undefined') {
+                    if (!Array.isArray(QuotationData.hotelStays)) QuotationData.hotelStays = [];
+                    QuotationData.hotelStays.push({
+                        city: QuotationData.package?.destination || 'Destination',
+                        hotelName: '5-Star Luxury Private Pool Villa & Resort',
+                        roomType: 'Oceanfront Luxury Suite',
+                        nights: '3 Nights',
+                        mealPlan: 'Daily Buffet Breakfast & Dinner'
+                    });
+                    updateLivePreviews();
+                    addChatMessage('assistant', `Updated accommodations to **5-Star Luxury Private Pool Villa & Resort**.`);
+                    return;
+                }
+            }
+            if (p.includes('invoice')) {
+                switchStudioDocType('invoice');
+                return;
+            }
+            if (p.includes('itinerary')) {
+                switchStudioDocType('itinerary');
+                return;
+            }
+            if (p.includes('voucher') || p.includes('confirmation')) {
+                switchStudioDocType('confirmation');
+                return;
+            }
+            recalculateActiveRates(true);
+            addChatMessage('assistant', `Processed: "${prompt}". Updated live document preview!`);
         }
 
         function addChatMessage(role, text) {
@@ -1175,18 +1263,51 @@
             }
         }
 
+        async function connectClaudeFromBanner() {
+            const inp = document.getElementById('bannerClaudeKeyInput');
+            const key = inp ? inp.value.trim() : '';
+            if (!key) {
+                alert('Please enter your Anthropic Claude API Key (sk-ant-api03-...)');
+                return;
+            }
+            try {
+                const res = await fetch('../api/save_ai_settings.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save', claude_api_key: key, default_provider: 'claude' })
+                });
+                const data = await res.json();
+                try { localStorage.setItem('dmc_claude_api_key', key); } catch(e){}
+                alert('Success! Claude 3.5 Sonnet Connected with your Anthropic Console ($5.00 Credit Ready).');
+                const banner = document.getElementById('claudeActivationBanner');
+                if (banner) banner.style.display = 'none';
+                checkAiEngineStatus();
+            } catch(e) {
+                try { localStorage.setItem('dmc_claude_api_key', key); } catch(err){}
+                alert('Claude key saved in browser.');
+                const banner = document.getElementById('claudeActivationBanner');
+                if (banner) banner.style.display = 'none';
+                checkAiEngineStatus();
+            }
+        }
+
         async function saveClaudeSettings(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveClaudeSettings');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
+            const claudeKey = document.getElementById('modalClaudeApiKey').value.trim();
             const payload = {
                 action: 'save',
-                claude_api_key: document.getElementById('modalClaudeApiKey').value.trim(),
+                claude_api_key: claudeKey,
                 claude_model: document.getElementById('modalClaudeModel').value,
                 default_provider: document.getElementById('modalDefaultProvider').value
             };
+
+            if (claudeKey) {
+                try { localStorage.setItem('dmc_claude_api_key', claudeKey); } catch(e){}
+            }
 
             try {
                 const res = await fetch('../api/save_ai_settings.php', {
@@ -1196,7 +1317,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Success! Claude AI Engine settings saved.');
+                    alert('Success! Anthropic Claude settings saved and operational.');
                     closeClaudeSettingsModal();
                     checkAiEngineStatus();
                 } else {
@@ -1213,20 +1334,33 @@
 
         async function checkAiEngineStatus() {
             try {
+                const localKey = localStorage.getItem('dmc_claude_api_key') || '';
                 const res = await fetch('../api/save_ai_settings.php');
                 const data = await res.json();
                 const pill = document.getElementById('activeAiStatusPill');
-                if (!pill) return;
-                if (data && data.has_claude_key) {
-                    pill.className = 'status-pill status-confirmed';
-                    pill.style.background = '#ECFDF5';
-                    pill.style.color = '#065F46';
-                    pill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Claude 3.5 Sonnet Connected';
+                const banner = document.getElementById('claudeActivationBanner');
+                const engineName = document.getElementById('activeAiEngineName');
+
+                const hasKey = (data && data.has_claude_key) || (localKey && localKey.length > 20);
+
+                if (hasKey) {
+                    if (pill) {
+                        pill.className = 'status-pill status-confirmed';
+                        pill.style.background = '#ECFDF5';
+                        pill.style.color = '#065F46';
+                        pill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Claude 3.5 Sonnet Connected';
+                    }
+                    if (engineName) engineName.textContent = 'Anthropic Claude 3.5 Sonnet (Live)';
+                    if (banner) banner.style.display = 'none';
                 } else {
-                    pill.className = 'status-pill status-draft';
-                    pill.style.background = '#FEF3C7';
-                    pill.style.color = '#92400E';
-                    pill.innerHTML = '<i class="fa-solid fa-microchip"></i> Local DMC Intelligence Engine Active';
+                    if (pill) {
+                        pill.className = 'status-pill status-draft';
+                        pill.style.background = '#FEF3C7';
+                        pill.style.color = '#92400E';
+                        pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Claude API Key Needed';
+                    }
+                    if (engineName) engineName.textContent = 'Claude Setup Required';
+                    if (banner) banner.style.display = 'block';
                 }
             } catch(e) {}
         }

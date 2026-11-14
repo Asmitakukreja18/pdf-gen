@@ -1093,21 +1093,21 @@ button {
 /* Backdrop Overlay for Mobile Drawer */
 .portal-sidebar-backdrop {
   display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 9998;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  z-index: 99998 !important;
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.25s ease !important;
   pointer-events: none;
 }
 
 .portal-sidebar-backdrop.active {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 /* Sidebar Close Button on Mobile */
@@ -1202,23 +1202,26 @@ div[style*="overflow-x: auto"]>table {
     position: fixed !important;
     top: 0 !important;
     bottom: 0 !important;
-    left: -290px !important;
-    width: 275px !important;
+    left: -320px !important;
+    width: 280px !important;
     max-width: 85vw !important;
     height: 100vh !important;
-    z-index: 9999 !important;
+    z-index: 99999 !important;
     background: #0F172A !important;
     transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     box-shadow: none !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .portal-sidebar.mobile-open,
   .portal-sidebar.open,
   .portal-sidebar.active {
     left: 0 !important;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.7) !important;
+    visibility: visible !important;
   }
 
   .sidebar-close-btn {

@@ -14,13 +14,46 @@
   // 1. Immediate page access control before DOM finishes rendering
   enforcePageAccessRules();
 
-  document.addEventListener('DOMContentLoaded', function () {
+  // Expose global mobile sidebar toggle so ANY button or inline onclick works instantly
+  window.toggleDmcMobileSidebar = function (open) {
+    var sidebar = document.getElementById('portalSidebar') || document.querySelector('.portal-sidebar');
+    var backdrop = document.getElementById('portalSidebarBackdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'portalSidebarBackdrop';
+      backdrop.className = 'portal-sidebar-backdrop';
+      backdrop.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.toggleDmcMobileSidebar(false);
+      });
+      document.body.appendChild(backdrop);
+    }
+    if (!sidebar) return;
+    var isOpen = typeof open === 'boolean' ? open : !sidebar.classList.contains('mobile-open');
+    if (isOpen) {
+      sidebar.classList.add('mobile-open', 'open', 'active');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      sidebar.classList.remove('mobile-open', 'open', 'active');
+      backdrop.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  };
+
+  function bootPortal() {
     initPortalTheme();
     syncUserIdentity();
     highlightActiveSidebarLink();
     initSidebarControls();
     syncPublicSiteLinks();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootPortal);
+  } else {
+    bootPortal();
+  }
 
   /**
    * Automatically normalizes all Public Site links to official live URL
@@ -248,30 +281,20 @@
       backdrop = document.createElement('div');
       backdrop.id = 'portalSidebarBackdrop';
       backdrop.className = 'portal-sidebar-backdrop';
+      backdrop.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.toggleDmcMobileSidebar(false);
+      });
       document.body.appendChild(backdrop);
-    }
-
-    function toggleMobileDrawer(open) {
-      if (!sidebar) return;
-      var isOpen = typeof open === 'boolean' ? open : !sidebar.classList.contains('mobile-open');
-      if (isOpen) {
-        sidebar.classList.add('mobile-open', 'open', 'active');
-        if (backdrop) backdrop.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      } else {
-        sidebar.classList.remove('mobile-open', 'open', 'active');
-        if (backdrop) backdrop.classList.remove('active');
-        document.body.style.overflow = '';
-      }
     }
 
     triggers.forEach(function (btn) {
       if (!btn) return;
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+      // Add direct onclick fallback to ensure mobile touch works
+      btn.onclick = function (e) {
+        if (e && e.preventDefault) e.preventDefault();
         if (window.innerWidth <= 992) {
-          toggleMobileDrawer();
+          window.toggleDmcMobileSidebar();
         } else {
           if (sidebar) {
             sidebar.classList.toggle('collapsed');
@@ -280,15 +303,8 @@
             } catch (err) { }
           }
         }
-      });
+      };
     });
-
-    if (backdrop) {
-      backdrop.addEventListener('click', function (e) {
-        e.preventDefault();
-        toggleMobileDrawer(false);
-      });
-    }
 
     if (sidebar) {
       var header = sidebar.querySelector('.sidebar-header');
@@ -299,11 +315,10 @@
         closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         closeBtn.title = 'Close Navigation Menu';
         closeBtn.setAttribute('aria-label', 'Close Navigation Menu');
-        closeBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleMobileDrawer(false);
-        });
+        closeBtn.onclick = function (e) {
+          if (e && e.preventDefault) e.preventDefault();
+          window.toggleDmcMobileSidebar(false);
+        };
         header.appendChild(closeBtn);
       }
 
@@ -311,7 +326,7 @@
       navLinks.forEach(function (link) {
         link.addEventListener('click', function () {
           if (window.innerWidth <= 992) {
-            toggleMobileDrawer(false);
+            window.toggleDmcMobileSidebar(false);
           }
         });
       });
@@ -319,7 +334,7 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && sidebar && (sidebar.classList.contains('mobile-open') || sidebar.classList.contains('open'))) {
-        toggleMobileDrawer(false);
+        window.toggleDmcMobileSidebar(false);
       }
     });
 
