@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <script>
-(function(){
-  try {
-    var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
-    var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
-    document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
-  } catch(e) {}
-})();
-</script>
+        (function () {
+            try {
+                var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                var r = (u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+                var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+                document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+            } catch (e) { }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running Trips & Operations — Let's Explore DMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=14.0">
     <!-- Strict Authentication Guard -->
     <script>
-        (function() {
+        (function () {
             try {
                 var stored = localStorage.getItem('dmc_user');
                 if (!stored) {
                     window.location.replace('index.html?auth=required&dest=trips.html');
                 }
-            } catch(e) {
+            } catch (e) {
                 window.location.replace('index.html?auth=required');
             }
         })();
@@ -39,12 +42,14 @@
             --brand-gold: #D97706;
             --bg-ivory: #F8FAFC;
         }
+
         body {
             background-color: var(--bg-ivory);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #0F172A;
             margin: 0;
         }
+
         .portal-sidebar {
             background: var(--sidebar-navy);
             width: 260px;
@@ -52,16 +57,19 @@
             flex-direction: column;
             transition: all 0.28s ease;
         }
+
         .sidebar-header {
             padding: 24px 22px 18px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         }
+
         .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
         }
+
         .brand-icon-box {
             width: 38px;
             height: 38px;
@@ -73,13 +81,18 @@
             justify-content: center;
             font-size: 18px;
         }
+
         .brand-text-gold {
             font-size: 17px;
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: -0.02em;
         }
-        .brand-text-gold span { color: var(--brand-gold); }
+
+        .brand-text-gold span {
+            color: var(--brand-gold);
+        }
+
         .sidebar-menu {
             padding: 16px 14px;
             display: flex;
@@ -87,6 +100,7 @@
             gap: 4px;
             flex: 1;
         }
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -99,28 +113,41 @@
             text-decoration: none;
             transition: all 0.2s ease;
         }
-        .nav-link:hover { color: #FFFFFF; background: rgba(255,255,255,0.06); }
+
+        .nav-link:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
         .nav-link.active {
             background: var(--brand-blue);
             color: #FFFFFF;
             font-weight: 700;
             box-shadow: 0 4px 15px -2px rgba(37, 99, 235, 0.4);
         }
-        .nav-link i { width: 18px; font-size: 15px; text-align: center; }
+
+        .nav-link i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
+
         .trip-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
             border-radius: 14px;
             padding: 18px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
             transition: transform 0.2s, box-shadow 0.2s;
         }
+
         .trip-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.08);
         }
     </style>
 </head>
+
 <body>
 
     <div class="portal-wrapper">
@@ -138,69 +165,70 @@
             </div>
 
             <nav class="sidebar-menu">
-                    <!-- Dashboard for Admin -->
-                    <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <!-- My Workspace for Staff -->
-                    <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
-                        <i class="fa-solid fa-desktop"></i>
-                        <span>My Workspace</span>
-                    </a>
-                    <!-- Core Travel Operations (Common) -->
-                    <a href="leads.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Leads &amp; Inquiries</span>
-                    </a>
-                    <a href="customers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-user-group"></i>
-                        <span>Customers</span>
-                    </a>
-                    <a href="ai-assistant.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>AI Quotation Studio</span>
-                    </a>
-                    <a href="packages.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-box-open"></i>
-                        <span>Tour Packages</span>
-                    </a>
-                    <a href="trips.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>Running Trips</span>
-                    </a>
-                    <a href="suppliers.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-handshake"></i>
-                        <span>Suppliers</span>
-                    </a>
-                    <a href="invoices.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>Invoices &amp; Vouchers</span>
-                    </a>
-                    <a href="documents.html" class="nav-link nav-link-item">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Documents &amp; PDFs</span>
-                    </a>
-                    <!-- Admin Only Management -->
-                    <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Analytics</span>
-                    </a>
-                    <a href="website.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-globe"></i>
-                        <span>Website CMS</span>
-                    </a>
-                    <a href="members.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-id-card-clip"></i>
-                        <span>Staff Management</span>
-                    </a>
-                    <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </nav>
+                <!-- Dashboard for Admin -->
+                <a href="dashboard.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <!-- My Workspace for Staff -->
+                <a href="staff.html" class="nav-link nav-link-item staff-only-nav">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>My Workspace</span>
+                </a>
+                <!-- Core Travel Operations (Common) -->
+                <a href="leads.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Leads &amp; Inquiries</span>
+                </a>
+                <a href="customers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Quotation Studio</span>
+                </a>
+                <a href="packages.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Tour Packages</span>
+                </a>
+                <a href="trips.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Running Trips</span>
+                </a>
+                <a href="suppliers.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Suppliers</span>
+                </a>
+                <a href="invoices.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Invoices &amp; Vouchers</span>
+                </a>
+                <a href="documents.html" class="nav-link nav-link-item">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Documents &amp; PDFs</span>
+                </a>
+                <!-- Admin Only Management -->
+                <a href="analytics.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="website.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website CMS</span>
+                </a>
+                <a href="members.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a href="settings.html" class="nav-link nav-link-item admin-only-nav">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
 
-            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="sidebar-logout-wrap"
+                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
@@ -221,7 +249,8 @@
                     <div class="breadcrumb-trail" style="display:flex; align-items:center; gap:8px; font-size:13px;">
                         <span class="crumb-root" style="color:#94A3B8; font-weight:500;">Let's Explore DMC</span>
                         <i class="fa-solid fa-chevron-right crumb-sep" style="font-size:10px; color:#CBD5E1;"></i>
-                        <span class="crumb-current" style="color:#0F172A; font-weight:700;">Running Trips Operations</span>
+                        <span class="crumb-current" style="color:#0F172A; font-weight:700;">Running Trips
+                            Operations</span>
                     </div>
                 </div>
                 <div class="topbar-actions-group" style="display:flex; align-items:center; gap:14px;">
@@ -240,12 +269,17 @@
                         <i class="fa-solid fa-plus"></i>
                         <span>Add Running Trip</span>
                     </button>
-                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                    <div class="profile-pill-item"
+                        style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
-                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
-                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            LE</div>
+                        <div class="profile-text-wrap hide-mobile"
+                            style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName"
+                                style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
+                            <span class="profile-role" id="topbarUserRole"
+                                style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -253,40 +287,57 @@
 
             <main class="portal-content" style="padding:28px 32px;">
                 <!-- STATS -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;">
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Active On-Ground Trips</div>
-                        <div id="activeTripsCount" style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">--</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Active
+                            On-Ground Trips</div>
+                        <div id="activeTripsCount"
+                            style="font-size:26px; font-weight:800; color:#0F172A; margin-top:6px;">--</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Upcoming Departures</div>
-                        <div id="upcomingTripsCount" style="font-size:26px; font-weight:800; color:#2563EB; margin-top:6px;">--</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">Upcoming
+                            Departures</div>
+                        <div id="upcomingTripsCount"
+                            style="font-size:26px; font-weight:800; color:#2563EB; margin-top:6px;">--</div>
                     </div>
                     <div style="background:#FFF; padding:18px; border-radius:14px; border:1px solid #E2E8F0;">
-                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">On-Ground Coordinators</div>
-                        <div id="coordinatorsCount" style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">0 Active</div>
+                        <div style="font-size:12px; color:#64748B; font-weight:600; text-transform:uppercase;">On-Ground
+                            Coordinators</div>
+                        <div id="coordinatorsCount"
+                            style="font-size:26px; font-weight:800; color:#10B981; margin-top:6px;">0 Active</div>
                     </div>
                 </div>
 
                 <!-- RUNNING TRIPS LIST -->
-                <div style="background:#FFF; border-radius:16px; border:1px solid #E2E8F0; padding:22px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+                <div
+                    style="background:#FFF; border-radius:16px; border:1px solid #E2E8F0; padding:22px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                         <div>
-                            <h2 style="margin:0; font-size:18px; font-weight:800; color:#0F172A;">Guest Tracking &amp; On-Ground Status</h2>
-                            <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Flight sectors, hotel vouchers, and 24x7 coordinator support tracking</p>
+                            <h2 style="margin:0; font-size:18px; font-weight:800; color:#0F172A;">Guest Tracking &amp;
+                                On-Ground Status</h2>
+                            <p style="margin:4px 0 0; font-size:12.5px; color:#64748B;">Flight sectors, hotel vouchers,
+                                and 24x7 coordinator support tracking</p>
                         </div>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" id="tripSearchInput" oninput="filterTripsTable()" placeholder="Search client, sector, coordinator..." style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
-                            <button type="button" onclick="loadTrips()" class="btn btn-secondary btn-sm" style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;" title="Refresh">
+                            <input type="text" id="tripSearchInput" oninput="filterTripsTable()"
+                                placeholder="Search client, sector, coordinator..."
+                                style="padding:8px 14px; border:1px solid #CBD5E1; border-radius:8px; font-size:12.5px; width:260px; outline:none;">
+                            <button type="button" onclick="loadTrips()" class="btn btn-secondary btn-sm"
+                                style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:8px; background:#FFF; cursor:pointer;"
+                                title="Refresh">
                                 <i class="fa-solid fa-rotate"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="table-responsive" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
-                        <table class="portal-table" style="width:100%; min-width:700px; border-collapse:collapse; text-align:left; font-size:13px;">
+                        <table class="portal-table"
+                            style="width:100%; min-width:700px; border-collapse:collapse; text-align:left; font-size:13px;">
                             <thead>
-                                <tr style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#64748B; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
+                                <tr
+                                    style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; color:#64748B; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
                                     <th style="padding:12px 14px;">Client Name / Guest</th>
                                     <th style="padding:12px 14px;">Destination</th>
                                     <th style="padding:12px 14px;">Flight Details (Sector)</th>
@@ -299,7 +350,8 @@
                             <tbody id="tripsTableBody">
                                 <tr>
                                     <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
-                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
+                                        <i class="fa-solid fa-circle-notch fa-spin"
+                                            style="font-size:20px; color:#2563EB;"></i>
                                         <div style="margin-top:8px;">Loading running trips from database...</div>
                                     </td>
                                 </tr>
@@ -312,50 +364,82 @@
     </div>
 
     <!-- Add Trip Modal -->
-    <div id="addTripModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.6); align-items:center; justify-content:center; padding:20px;">
-        <div style="background:#FFF; border-radius:14px; width:100%; max-width:540px; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #E2E8F0; padding-bottom:10px;">
+    <div id="addTripModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.6); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:540px; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #E2E8F0; padding-bottom:10px;">
                 <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F172A;">Add Running Tour Trip</h3>
-                <button type="button" onclick="document.getElementById('addTripModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
+                <button type="button" onclick="document.getElementById('addTripModal').style.display='none'"
+                    style="background:none; border:none; font-size:20px; cursor:pointer; color:#94A3B8;">&times;</button>
             </div>
-            <form id="addTripForm" onsubmit="submitTripForm(event)" style="display:flex; flex-direction:column; gap:14px;">
+            <form id="addTripForm" onsubmit="submitTripForm(event)"
+                style="display:flex; flex-direction:column; gap:14px;">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Client Name *</label>
-                        <input type="text" id="tripClientName" class="form-control" required placeholder="Enter guest/client name" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Client
+                            Name *</label>
+                        <input type="text" id="tripClientName" class="form-control" required
+                            placeholder="Enter guest/client name"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination *</label>
-                        <input type="text" id="tripDestination" class="form-control" required placeholder="e.g. Dubai &amp; Abu Dhabi" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Destination
+                            *</label>
+                        <input type="text" id="tripDestination" class="form-control" required
+                            placeholder="e.g. Dubai &amp; Abu Dhabi"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Flight Details (Sector)</label>
-                        <input type="text" id="tripSector" class="form-control" placeholder="Mum - Mum (BOM-DXB-BOM)" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Flight
+                            Details (Sector)</label>
+                        <input type="text" id="tripSector" class="form-control" placeholder="Mum - Mum (BOM-DXB-BOM)"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Coordinator *</label>
-                        <input type="text" id="tripCoordinator" class="form-control" placeholder="e.g. Ground Team / Coordinator Name" required style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Coordinator
+                            *</label>
+                        <input type="text" id="tripCoordinator" class="form-control"
+                            placeholder="e.g. Ground Team / Coordinator Name" required
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Start Date</label>
-                        <input type="date" id="tripStartDate" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Start
+                            Date</label>
+                        <input type="date" id="tripStartDate" class="form-control"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">End Date</label>
-                        <input type="date" id="tripEndDate" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                        <label
+                            style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">End
+                            Date</label>
+                        <input type="date" id="tripEndDate" class="form-control"
+                            style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                     </div>
                 </div>
                 <div>
-                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Guest / Group Details</label>
-                    <input type="text" id="tripGuestInfo" placeholder="e.g. 2 Adults, 1 Child &bull; Agency Name" style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+                    <label
+                        style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Guest
+                        / Group Details</label>
+                    <input type="text" id="tripGuestInfo" placeholder="e.g. 2 Adults, 1 Child &bull; Agency Name"
+                        style="width:100%; padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
-                    <button type="button" onclick="document.getElementById('addTripModal').style.display='none'" class="btn btn-secondary btn-sm" style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
-                    <button type="submit" id="btnSaveTrip" class="btn btn-primary btn-sm" style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
+                    <button type="button" onclick="document.getElementById('addTripModal').style.display='none'"
+                        class="btn btn-secondary btn-sm"
+                        style="padding:8px 16px; border:1px solid #CBD5E1; border-radius:6px; background:#FFF; cursor:pointer;">Cancel</button>
+                    <button type="submit" id="btnSaveTrip" class="btn btn-primary btn-sm"
+                        style="padding:8px 18px; border:none; border-radius:6px; background:#2563EB; color:#FFF; font-weight:700; cursor:pointer;">
                         Save Trip
                     </button>
                 </div>
@@ -487,9 +571,9 @@
             }
             const filtered = allTrips.filter(t => {
                 return (t.client_name || '').toLowerCase().includes(q) ||
-                       (t.destination || '').toLowerCase().includes(q) ||
-                       (t.flight_details || '').toLowerCase().includes(q) ||
-                       (t.coordinator || '').toLowerCase().includes(q);
+                    (t.destination || '').toLowerCase().includes(q) ||
+                    (t.flight_details || '').toLowerCase().includes(q) ||
+                    (t.coordinator || '').toLowerCase().includes(q);
             });
             renderTrips(filtered);
         }
@@ -551,4 +635,5 @@
     </script>
     <script src="js/portal.js"></script>
 </body>
+
 </html>

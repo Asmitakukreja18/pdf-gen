@@ -118,6 +118,21 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
             }));
         }
 
+        // Count active tasks from JSON if available
+        $tasksFile = __DIR__ . '/../../data/staff_tasks.json';
+        if (file_exists($tasksFile)) {
+            $jsonTasks = json_decode(@file_get_contents($tasksFile), true) ?: [];
+            foreach ($fallbackMembers as &$fm) {
+                $fmName = strtolower($fm['name'] ?? '');
+                $fmUser = strtolower($fm['username'] ?? '');
+                $fm['active_tasks'] = count(array_filter($jsonTasks, function($t) use ($fmName, $fmUser) {
+                    $ass = strtolower($t['assigned_to'] ?? '');
+                    $st = strtolower($t['status'] ?? '');
+                    return ($st !== 'completed') && (strpos($ass, $fmUser) !== false || strpos($ass, $fmName) !== false);
+                }));
+            }
+        }
+
         jsonSuccess(['members' => $fallbackMembers, 'source' => 'fallback']);
     }
 
@@ -153,7 +168,8 @@ if ($method === 'GET' || $action === 'list' || $action === 'staff_monitoring') {
                 u.last_activity, 
                 u.created_at,
                 (SELECT COUNT(*) FROM `leads` l WHERE l.assigned_employee = u.name OR l.assigned_employee = u.username) AS total_leads,
-                (SELECT COUNT(*) FROM `user_activity_logs` a WHERE a.user_id = u.id AND a.action LIKE '%quotation%') AS total_quotes
+                (SELECT COUNT(*) FROM `user_activity_logs` a WHERE a.user_id = u.id AND a.action LIKE '%quotation%') AS total_quotes,
+                (SELECT COUNT(*) FROM `staff_tasks` st WHERE (st.assigned_to = u.name OR st.assigned_to = u.username) AND st.status != 'Completed') AS active_tasks
             FROM `users` u
             $whereClause
             ORDER BY u.id ASC
