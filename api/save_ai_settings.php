@@ -148,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $existing['updated_at'] = date('Y-m-d H:i:s');
 
+    @mkdir(dirname($dataFile), 0777, true);
     @file_put_contents($dataFile, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     echo json_encode([

@@ -215,7 +215,14 @@ $usedModel = null;
 
 foreach ($providersToTry as $prov) {
     if ($prov === 'claude') {
-        $claudeKey = !empty($payload['claudeApiKey']) ? trim($payload['claudeApiKey']) : (defined('CLAUDE_API_KEY') ? CLAUDE_API_KEY : '');
+        $claudeKey = !empty($payload['claudeApiKey']) ? trim($payload['claudeApiKey']) : '';
+        if (empty($claudeKey) && file_exists(__DIR__ . '/../data/ai_settings.json')) {
+            $dynSettings = json_decode(@file_get_contents(__DIR__ . '/../data/ai_settings.json'), true);
+            $claudeKey = trim($dynSettings['claude_api_key'] ?? '');
+        }
+        if (empty($claudeKey) && defined('CLAUDE_API_KEY')) {
+            $claudeKey = CLAUDE_API_KEY;
+        }
         if ($claudeKey && strpos($claudeKey, 'YOUR_') === false) {
             $res = callClaude($systemPrompt, $contextText, $prompt, $attachments, $claudeKey);
             if ($res['success']) {
@@ -273,6 +280,7 @@ if ($finalResult !== null) {
         'provider' => $successfulProvider,
         'model' => $usedModel,
         'data' => $finalResult,
+        'quotation' => $finalResult,
         'fallbackNotes' => !empty($errors) ? $errors : null
     ]);
 } else {
@@ -283,6 +291,7 @@ if ($finalResult !== null) {
         'provider' => 'local-intelligence',
         'model' => 'smart-travel-heuristic-v2',
         'data' => $localData,
+        'quotation' => $localData,
         'fallbackNotes' => !empty($errors) ? $errors : ['notice' => 'Generated via local DMC multi-template travel engine']
     ]);
 }
@@ -292,7 +301,7 @@ if ($finalResult !== null) {
 // ==========================================
 
 function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
-    $models = ['claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'];
+    $models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'];
     $lastError = null;
 
     $userContent = [];
