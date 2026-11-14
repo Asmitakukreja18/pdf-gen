@@ -832,7 +832,7 @@ const App = (() => {
     val('bInvFromMobile', inv.fromMobile || '8007586871');
     val('bInvFromAddress', inv.fromAddress || 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603');
     val('bInvFromGst', inv.fromGst || '27BVYPT1131M1ZT');
-    val('bInvToName', inv.toCustomerName || inv.billTo || QuotationData.package.clientName || 'akash dewani');
+    val('bInvToName', inv.toCustomerName || inv.billTo || QuotationData.package.clientName || 'Valued Client');
     val('bInvToMobile', inv.toCustomerMobile || QuotationData.package.clientContact || '');
     val('bInvToAddress', inv.toCustomerAddress || 'Amravati, Maharashtra, India, 444603');
     val('bInvNotes', inv.notes || 'Full payment is due prior to departure. All remittances should reference the invoice number above.');

@@ -1095,7 +1095,7 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
                 tabAdmin.classList.remove('active');
                 modalTitle.textContent = 'Staff / User Sign In';
                 modalSubtitle.textContent = 'Enter your staff credentials (executive / agent)';
-                usernameInput.placeholder = 'chanchal / ritesh / operations';
+                usernameInput.placeholder = 'kashish / asmita / chanchal';
             }
         }
 
@@ -1141,8 +1141,8 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
             const knownAccounts = {
                 'admin': { id: 1, username: 'admin', name: 'Main Admin', role: 'admin', email: 'admin@letsexploredmc.com' },
                 'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com' },
-                'ritesh': { id: 3, username: 'ritesh', name: 'Ritesh Verma', role: 'executive', email: 'ritesh@letsexploredmc.com' },
-                'operations': { id: 4, username: 'operations', name: 'Operations Desk', role: 'agent', email: 'ops@letsexploredmc.com' }
+                
+                
             };
 
             try {

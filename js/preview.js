@@ -888,7 +888,7 @@ const Preview = (() => {
           </div>
           <div class="inv-party-col inv-party-to">
             <h4>Invoice To:</h4>
-            <div><strong>Customer Name:</strong> ${escapeHTML(inv.toCustomerName || pkg.clientName || 'akash dewani')}</div>
+            <div><strong>Customer Name:</strong> ${escapeHTML(inv.toCustomerName || pkg.clientName || 'Valued Client')}</div>
             <div>${escapeHTML(inv.toCustomerAddress || 'Amravati, Maharashtra, India, 444603').replace(/\n/g, '<br>')}</div>
             ${inv.toCustomerMobile ? `<div><strong>Mobile No:</strong> ${escapeHTML(inv.toCustomerMobile)}</div>` : ''}
             ${inv.toCustomerEmail ? `<div><strong>Email:</strong> ${escapeHTML(inv.toCustomerEmail)}</div>` : ''}

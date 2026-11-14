@@ -536,7 +536,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
       country: 'India',
       city: 'Central Reservations',
       company: 'Let\'s Explore DMC Pvt. Ltd.',
-      contactPerson: 'Mr. Ritesh & Reservations Team',
+      contactPerson: 'Let\'s Explore Reservations Team',
       designation: 'B2B Partner Support',
       address: 'Corporate Reservations Desk, Maharashtra & New Delhi',
       phone: '+91 80075 86881 | +91 95459 55966',
@@ -710,7 +710,7 @@ const DEMO_REFERENCE_THAILAND_12D = {
     fromGst: '27BVYPT1131M1ZT',
 
     // Invoice To
-    toCustomerName: 'akash dewani',
+    toCustomerName: 'Valued Client',
     toCustomerAddress: 'Amravati, Maharashtra, India, 444603',
     toCustomerMobile: '',
     toCustomerEmail: '',
@@ -1095,7 +1095,7 @@ const DEMO_DUBAI_DATA = {
       country: 'India',
       city: 'Central Reservations',
       company: 'Let\'s Explore DMC Pvt. Ltd.',
-      contactPerson: 'Mr. Ritesh & Reservations Team',
+      contactPerson: 'Let\'s Explore Reservations Team',
       designation: 'B2B Partner Support',
       address: 'Corporate Reservations Desk, Maharashtra & New Delhi',
       phone: '+91 80075 86881 | +91 95459 55966',
@@ -1372,7 +1372,7 @@ const DEMO_KASHMIR_DATA = {
       country: 'India',
       city: 'Central Reservations',
       company: 'Let\'s Explore DMC Pvt. Ltd.',
-      contactPerson: 'Mr. Ritesh & Reservations Team',
+      contactPerson: 'Let\'s Explore Reservations Team',
       designation: 'B2B Partner Support',
       address: 'Corporate Reservations Desk, Maharashtra & New Delhi',
       phone: '+91 80075 86881 | +91 95459 55966',
@@ -1685,7 +1685,7 @@ function loadSampleDataset(key) {
       fromMobile: '8007586871',
       fromAddress: 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603',
       fromGst: '27BVYPT1131M1ZT',
-      toCustomerName: 'akash dewani',
+      toCustomerName: 'Valued Client',
       toCustomerMobile: '8007586871',
       toCustomerAddress: 'Amravati, Maharashtra, India, 444603',
       notes: 'Full payment is due prior to service commencement. All payments reference invoice #090587.',
@@ -1706,7 +1706,7 @@ function loadSampleDataset(key) {
     clone.activeDocType = 'confirmation';
     clone.confirmation = {
       bookingId: 'AANAY-VOUCH-7821',
-      guestName: 'akash dewani',
+      guestName: 'Valued Guest',
       hotelName: 'Hilton Phuket Arcadia Resort & Spa',
       checkIn: '7 Jan 2027',
       checkOut: '9 Jan 2027',

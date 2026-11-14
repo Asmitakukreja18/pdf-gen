@@ -40,8 +40,6 @@ $userAliases = [
     'kashish'    => ['kashish', 'kashish adwani', 'kashishadwani', 'kashish@letsexploredmc.com', 'kashish@123'],
     'asmita'     => ['asmita', 'asmita kukreja', 'asmitakukreja', 'asmita@letsexploredmc.com', 'asmita@123'],
     'chanchal'   => ['chanchal', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
-    'ritesh'     => ['ritesh', 'ritesh verma', 'riteshverma', 'ritesh@letsexploredmc.com'],
-    'operations' => ['operations', 'ops', 'operations team', 'ops@letsexploredmc.com']
 ];
 
 $canonicalUser = $uClean;
@@ -112,26 +110,6 @@ $staticStaff = [
         'phone'    => '+91 98765 00004',
         'pass'     => 'chanchal@123',
         'hash'     => '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm'
-    ],
-    'ritesh' => [
-        'id'       => 5,
-        'username' => 'ritesh',
-        'email'    => 'ritesh@letsexploredmc.com',
-        'role'     => 'executive',
-        'name'     => 'Ritesh Verma',
-        'phone'    => '+91 98765 00005',
-        'pass'     => 'ritesh@123',
-        'hash'     => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG'
-    ],
-    'operations' => [
-        'id'       => 6,
-        'username' => 'operations',
-        'email'    => 'ops@letsexploredmc.com',
-        'role'     => 'agent',
-        'name'     => 'Operations Desk',
-        'phone'    => '+91 98765 00006',
-        'pass'     => 'ops@123',
-        'hash'     => '$2y$10$YDGHsqlStaf2yETHfneDIuDDP15MoKT1YnJ4dwxybn6OIcVxe3sCG'
     ],
 ];
 

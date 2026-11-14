@@ -9,7 +9,7 @@ zip_targets = [
 ]
 base_dir = r"d:\aipdfgenrater"
 
-included_dirs = ['api', 'css', 'images', 'inquiry-admin', 'js', 'uploads', 'data', 'website']
+included_dirs = ['admin', 'api', 'css', 'data', 'images', 'inquiry-admin', 'js', 'sql', 'uploads', 'website']
 included_files = ['index.html', 'index.php', 'studio.html', 'view.html', 'dashboard.html', 'staff.html', '.htaccess', '.user.ini', 'php.ini', 'database.sql']
 
 print(f"Building deployment ZIP archives...")

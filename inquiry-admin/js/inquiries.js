@@ -352,7 +352,7 @@ function renderLeadsList() {
             <select class="lead-inline-select" onchange="changeLeadAssignee(${lead.id}, this.value)">
               <option value="Admin" ${lead.assignedTo === 'Admin' ? 'selected' : ''}>Admin ▾</option>
               <option value="chanchal" ${lead.assignedTo === 'chanchal' ? 'selected' : ''}>chanchal ▾</option>
-              <option value="ritesh" ${lead.assignedTo === 'ritesh' ? 'selected' : ''}>ritesh ▾</option>
+              <option value="kashish" ${lead.assignedTo === 'kashish' ? 'selected' : ''}>kashish ▾</option><option value="asmita" ${lead.assignedTo === 'asmita' ? 'selected' : ''}>asmita ▾</option>
             </select>
           </div>
         </div>
@@ -370,7 +370,7 @@ function renderLeadsList() {
           <div class="lead-total-num">${escapeHTML(lead.totalAmount || 'INR 0.00 Total')}</div>
           <div class="lead-time-stamp" style="display:flex; flex-direction:column; align-items:flex-start; gap:3px;">
             <span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#1E3A8A; font-size:10px; background:#EFF6FF; padding:2px 7px; border-radius:4px; border:1px solid #BFDBFE;">
-              <i class="fa-solid fa-user-tag" style="font-size:9px; color:#2563EB;"></i> ${escapeHTML(lead.subUser || (lead.assignedTo === 'chanchal' ? 'SU1 (Chanchal)' : (lead.assignedTo === 'ritesh' ? 'SU2 (Ritesh)' : 'U1 (Admin)')))}
+              <i class="fa-solid fa-user-tag" style="font-size:9px; color:#2563EB;"></i> ${escapeHTML(lead.subUser || (lead.assignedTo === 'chanchal' ? 'SU1 (Chanchal)' : (lead.assignedTo === 'kashish' ? 'SU1 (Kashish)' : (lead.assignedTo === 'asmita' ? 'SU2 (Asmita)' : 'U1 (Admin)')))}
             </span>
             <span style="color:#64748B; font-size:10.5px;"><i class="fa-regular fa-clock" style="font-size:10px;"></i> ${escapeHTML(lead.createdOn || '11:00 AM')}</span>
           </div>

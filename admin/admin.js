@@ -6,123 +6,23 @@
 // State
 let currentUser = { id: 1, username: 'Admin', role: 'admin' };
 let categoriesList = [
-    { id: 'quotation', name: 'Quotations', document_count: 8 },
-    { id: 'itinerary', name: 'Itineraries', document_count: 6 },
-    { id: 'invoice', name: 'Invoices', document_count: 5 },
-    { id: 'summary', name: 'Package Summaries', document_count: 2 },
-    { id: 'voucher', name: 'Hotel Vouchers', document_count: 2 },
-    { id: 'costing', name: 'Hotel Costings', document_count: 1 }
+    { id: 'quotation', name: 'Quotations', document_count: 0 },
+    { id: 'itinerary', name: 'Itineraries', document_count: 0 },
+    { id: 'invoice', name: 'Invoices', document_count: 0 },
+    { id: 'summary', name: 'Package Summaries', document_count: 0 },
+    { id: 'voucher', name: 'Hotel Vouchers', document_count: 0 },
+    { id: 'costing', name: 'Hotel Costings', document_count: 0 }
 ];
 
-// Pre-seeded Corporate Showcase Records matching Reference Design (Image 2)
-const DEFAULT_CORPORATE_DOCS = [
-    {
-        id: 'corp-1',
-        title: 'Thailand Holiday Quotation',
-        category: 'Quotation',
-        ref: 'LEDMC-2025-001',
-        customer: 'Priya Sharma',
-        date: '15 Apr 2025',
-        file_size: 245 * 1024,
-        file_path: '../images/pdf/Thailand_12D11N_Itinerary_Without_Rates.pdf',
-        status: 'Active',
-        comment_count: 2,
-        description: 'Complete 12-day Thailand luxury package quotation for 2 adults (Krabi, Phuket & Koh Yao Yai).'
-    },
-    {
-        id: 'corp-2',
-        title: 'Dubai Travel Itinerary',
-        category: 'Itinerary',
-        ref: 'LEDMC-2025-002',
-        customer: 'Rohan Mehta',
-        date: '12 Apr 2025',
-        file_size: 320 * 1024,
-        file_path: '../images/pdf/LetsExploreDMC_Dubai_AbuDhabi_6D5N (2).pdf',
-        status: 'Active',
-        comment_count: 3,
-        description: '6 Days / 5 Nights Dubai & Abu Dhabi premium itinerary with desert safari and yacht cruise.'
-    },
-    {
-        id: 'corp-3',
-        title: 'Tax Invoice',
-        category: 'Invoice',
-        ref: 'LEDMC-2025-003',
-        customer: 'Neha Kapoor',
-        date: '10 Apr 2025',
-        file_size: 210 * 1024,
-        file_path: '../images/pdf/akash Dewani.pdf',
-        status: 'Active',
-        comment_count: 1,
-        description: 'Commercial corporate GST tax invoice with INR & USD banking wire details.'
-    },
-    {
-        id: 'corp-4',
-        title: 'Europe Package Summary',
-        category: 'Package Summary',
-        ref: 'LEDMC-2025-004',
-        customer: 'Amit Verma',
-        date: '08 Apr 2025',
-        file_size: 278 * 1024,
-        file_path: '../images/pdf/anaytours.pdf',
-        status: 'Active',
-        comment_count: 2,
-        description: 'Executive Europe tour package overview, hotel comparison and inclusions summary.'
-    },
-    {
-        id: 'corp-5',
-        title: 'Hotel Booking Voucher',
-        category: 'Voucher',
-        ref: 'LEDMC-2025-005',
-        customer: 'Sneha Patel',
-        date: '05 Apr 2025',
-        file_size: 190 * 1024,
-        file_path: '../images/pdf/anaytours.pdf',
-        status: 'Active',
-        comment_count: 2,
-        description: 'Confirmed luxury hotel reservation voucher with room category and occupancy voucher rules.'
-    },
-    {
-        id: 'corp-6',
-        title: 'Hotel Costing Report',
-        category: 'Costing',
-        ref: 'LEDMC-2025-006',
-        customer: 'Karan Malhotra',
-        date: '03 Apr 2025',
-        file_size: 220 * 1024,
-        file_path: '../images/pdf/akash Dewani.pdf',
-        status: 'Active',
-        comment_count: 2,
-        description: 'Multi-tier hotel tariff comparison, supplier net rates, and 10% commercial markup structure.'
-    }
-];
+// Clean Corporate Document Store (Zero Dummy Records)
+const DEFAULT_CORPORATE_DOCS = [];
 
-let allDocuments = [...DEFAULT_CORPORATE_DOCS];
+let allDocuments = [];
 let selectedUploadFile = null;
 let currentViewMode = 'grid'; // 'grid' | 'list'
 
 // Internal Notes Store
-const internalNotesStore = {
-    'corp-1': [
-        { author: 'Admin', date: '15 Apr 2025, 11:30 AM', text: 'Quotation sent to client via WhatsApp and Email. Follow-up scheduled for tomorrow.' },
-        { author: 'Operations', date: '15 Apr 2025, 02:15 PM', text: 'Confirmed hotel allotment with Krabi resort team.' }
-    ],
-    'corp-2': [
-        { author: 'Admin', date: '12 Apr 2025, 10:00 AM', text: 'Guest requested private yacht on Day 3 afternoon.' },
-        { author: 'Admin', date: '12 Apr 2025, 04:30 PM', text: 'Itinerary revised and approved.' }
-    ],
-    'corp-3': [
-        { author: 'Accounts', date: '10 Apr 2025, 05:00 PM', text: 'Payment advance received: 50% via RTGS transfer.' }
-    ],
-    'corp-4': [
-        { author: 'Admin', date: '08 Apr 2025, 03:20 PM', text: 'Package shared with sub-agent for pricing review.' }
-    ],
-    'corp-5': [
-        { author: 'Operations', date: '05 Apr 2025, 01:15 PM', text: 'Hotel voucher issued and copy saved to archive.' }
-    ],
-    'corp-6': [
-        { author: 'Admin', date: '03 Apr 2025, 04:45 PM', text: 'Tariff finalized with DMC ground handler.' }
-    ]
-};
+const internalNotesStore = {};
 
 // Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', async () => {
