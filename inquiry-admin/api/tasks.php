@@ -233,3 +233,4 @@ if ($action === 'delete') {
 }
 
 echo json_encode(['success' => false, 'error' => 'Invalid action.']);
+
