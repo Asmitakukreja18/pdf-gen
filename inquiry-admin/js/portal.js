@@ -5,7 +5,7 @@ hahiy/**
  * STRICT ROLE SEPARATION:
  * - ADMIN (Sir / Owner): Oversight, Revenue KPIs, Employee Tracking, CMS, Settings.
  *   Admin NEVER times out. Admin NEVER enters operational queues like normal staff.
- * - STAFF / SUB-USERS (Chanchal SU-1, Ritesh SU-2, Operations SU-3): Daily operations,
+ * - STAFF / SUB-USERS (Kashish, Asmita, Chanchal): Daily operations,
  *   leads, AI quote generation, vouchers, suppliers, trips.
  *   Staff NEVER sees Admin Dashboard, Company Revenue, Staff Tracking, or System Settings.
  *   Staff has mandatory 15-min idle lock with OTP.

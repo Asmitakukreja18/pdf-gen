@@ -199,12 +199,14 @@
                                 VIEW:</span>
                             <button type="button" class="filter-tab user-btn active" data-user="all"><i
                                     class="fa-solid fa-earth-americas"></i> Overall Team</button>
-                            <button type="button" class="filter-tab user-btn" data-user="su1"><i
-                                    class="fa-solid fa-user"></i> SU-1 (Chanchal)</button>
-                            <button type="button" class="filter-tab user-btn" data-user="su2"><i
-                                    class="fa-solid fa-user"></i> SU-2 (Ritesh)</button>
                             <button type="button" class="filter-tab user-btn" data-user="admin"><i
                                     class="fa-solid fa-crown"></i> Admin (U1)</button>
+                            <button type="button" class="filter-tab user-btn" data-user="kashish"><i
+                                    class="fa-solid fa-user"></i> SU-1 (Kashish)</button>
+                            <button type="button" class="filter-tab user-btn" data-user="asmita"><i
+                                    class="fa-solid fa-user"></i> SU-2 (Asmita)</button>
+                            <button type="button" class="filter-tab user-btn" data-user="chanchal"><i
+                                    class="fa-solid fa-user"></i> SU-3 (Chanchal)</button>
                         </div>
                     </div>
                 </div>
@@ -216,7 +218,7 @@
                             <span class="widget-title">Total Inquiries</span>
                             <div class="widget-icon icon-navy"><i class="fa-solid fa-users-viewfinder"></i></div>
                         </div>
-                        <div class="widget-value" id="kpiTotalInquiries">160</div>
+                        <div class="widget-value" id="kpiTotalInquiries">0</div>
                         <div class="widget-trend up">
                             <i class="fa-solid fa-arrow-trend-up"></i>
                             <span>Active Inbound Pipeline</span>
@@ -228,7 +230,7 @@
                             <span class="widget-title">Quotations Sent</span>
                             <div class="widget-icon icon-blue"><i class="fa-solid fa-paper-plane"></i></div>
                         </div>
-                        <div class="widget-value" id="kpiQuotesSent">124</div>
+                        <div class="widget-value" id="kpiQuotesSent">0</div>
                         <div class="widget-trend" style="color:var(--text-secondary);">
                             <span>Via AI Master Document Studio</span>
                         </div>
@@ -239,10 +241,10 @@
                             <span class="widget-title">Confirmed Bookings</span>
                             <div class="widget-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
                         </div>
-                        <div class="widget-value" id="kpiConfirmedBookings">29</div>
+                        <div class="widget-value" id="kpiConfirmedBookings">0</div>
                         <div class="widget-trend up">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>Conversion Rate: <strong id="kpiConversionRate">18.1%</strong></span>
+                            <span>Conversion Rate: <strong id="kpiConversionRate">0.0%</strong></span>
                         </div>
                     </div>
 
@@ -251,9 +253,7 @@
                             <span class="widget-title">Gross Booking Value</span>
                             <div class="widget-icon icon-purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                         </div>
-                        <div class="widget-value" id="kpiTotalRevenue"
-                            style="font-size:clamp(18px, 1.6vw, 24px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                            ₹ 24,85,000</div>
+                        <div class="widget-value" id="kpiTotalRevenue" style="font-size:clamp(18px, 1.6vw, 24px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">₹ 0</div>
                         <div class="widget-trend" style="color:var(--text-secondary);">
                             <span>Dual Currency INR + USD</span>
                         </div>
@@ -287,63 +287,51 @@
                             <tbody id="userPerformanceTbody">
                                 <tr>
                                     <td>
-                                        <div style="font-weight:700; color:var(--primary-navy);">SU-1 — Chanchal</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Central Reservations
-                                            Specialist</div>
-                                    </td>
-                                    <td style="font-weight:700;">84</td>
-                                    <td style="color:var(--royal-blue); font-weight:700;">68</td>
-                                    <td style="color:var(--success); font-weight:700;">14</td>
-                                    <td>
-                                        <span class="status-pill status-confirmed">16.6%</span>
-                                    </td>
-                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 11,40,000</td>
-                                    <td style="text-align:center; color:var(--text-secondary);">18 mins</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="font-weight:700; color:var(--primary-navy);">SU-2 — Ritesh</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Corporate &amp; B2B
-                                            Partner Desk</div>
-                                    </td>
-                                    <td style="font-weight:700;">48</td>
-                                    <td style="color:var(--royal-blue); font-weight:700;">41</td>
-                                    <td style="color:var(--success); font-weight:700;">9</td>
-                                    <td>
-                                        <span class="status-pill status-confirmed">18.7%</span>
-                                    </td>
-                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 8,25,000</td>
-                                    <td style="text-align:center; color:var(--text-secondary);">14 mins</td>
-                                </tr>
-                                <tr>
-                                    <td>
                                         <div style="font-weight:700; color:var(--primary-navy);">U-1 — Admin</div>
-                                        <div style="font-size:11.5px; color:var(--text-secondary);">Master Operations
-                                            &amp; High-Value Leads</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Master Operations</div>
                                     </td>
-                                    <td style="font-weight:700;">28</td>
-                                    <td style="color:var(--royal-blue); font-weight:700;">25</td>
-                                    <td style="color:var(--success); font-weight:700;">6</td>
-                                    <td>
-                                        <span class="status-pill status-confirmed">21.4%</span>
-                                    </td>
-                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 5,20,000</td>
-                                    <td style="text-align:center; color:var(--text-secondary);">8 mins</td>
+                                    <td style="font-weight:700;">0</td>
+                                    <td style="color:var(--royal-blue); font-weight:700;">0</td>
+                                    <td style="color:var(--success); font-weight:700;">0</td>
+                                    <td><span class="status-pill status-draft">0.0%</span></td>
+                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 0</td>
+                                    <td style="text-align:center; color:var(--text-secondary);">—</td>
                                 </tr>
-                                <tr style="background:#F8FAFC; font-weight:800;">
-                                    <td style="color:var(--primary-navy);">
-                                        <i class="fa-solid fa-users"
-                                            style="color:var(--royal-blue); margin-right:6px;"></i> Team Overall Total
-                                    </td>
-                                    <td>160</td>
-                                    <td style="color:var(--royal-blue);">134</td>
-                                    <td style="color:var(--success);">29</td>
+                                <tr>
                                     <td>
-                                        <span class="status-pill"
-                                            style="background:var(--primary-navy); color:#FFF;">18.1%</span>
+                                        <div style="font-weight:700; color:var(--primary-navy);">SU-1 — Kashish Adwani</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Reservations Executive</div>
                                     </td>
-                                    <td style="color:#B45309;">₹ 24,85,000</td>
-                                    <td style="text-align:center; color:var(--text-secondary);">13 mins</td>
+                                    <td style="font-weight:700;">0</td>
+                                    <td style="color:var(--royal-blue); font-weight:700;">0</td>
+                                    <td style="color:var(--success); font-weight:700;">0</td>
+                                    <td><span class="status-pill status-draft">0.0%</span></td>
+                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 0</td>
+                                    <td style="text-align:center; color:var(--text-secondary);">—</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:var(--primary-navy);">SU-2 — Asmita Kukreja</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Reservations Executive</div>
+                                    </td>
+                                    <td style="font-weight:700;">0</td>
+                                    <td style="color:var(--royal-blue); font-weight:700;">0</td>
+                                    <td style="color:var(--success); font-weight:700;">0</td>
+                                    <td><span class="status-pill status-draft">0.0%</span></td>
+                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 0</td>
+                                    <td style="text-align:center; color:var(--text-secondary);">—</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700; color:var(--primary-navy);">SU-3 — Chanchal Sharma</div>
+                                        <div style="font-size:11.5px; color:var(--text-secondary);">Reservations Executive</div>
+                                    </td>
+                                    <td style="font-weight:700;">0</td>
+                                    <td style="color:var(--royal-blue); font-weight:700;">0</td>
+                                    <td style="color:var(--success); font-weight:700;">0</td>
+                                    <td><span class="status-pill status-draft">0.0%</span></td>
+                                    <td style="font-weight:700; color:var(--primary-navy);">₹ 0</td>
+                                    <td style="text-align:center; color:var(--text-secondary);">—</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -444,8 +432,7 @@
                                             style="color:var(--royal-blue); margin-right:6px;"></i> Public Website
                                         Form</span>
                                     <span
-                                        style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">64
-                                        leads (40%)</span>
+                                        style="background:#EFF6FF; color:var(--royal-blue); font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">0 leads (0%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div
@@ -459,8 +446,7 @@
                                     <span><i class="fa-solid fa-handshake" style="color:#16A34A; margin-right:6px;"></i>
                                         Travel Agent B2B Desk</span>
                                     <span
-                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">48
-                                        leads (30%)</span>
+                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">0 leads (0%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#16A34A; width:30%; height:100%; border-radius:6px;"></div>
@@ -472,8 +458,7 @@
                                     <span><i class="fa-brands fa-whatsapp" style="color:#22C55E; margin-right:6px;"></i>
                                         WhatsApp Business Chat</span>
                                     <span
-                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">32
-                                        leads (20%)</span>
+                                        style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">0 leads (0%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#22C55E; width:20%; height:100%; border-radius:6px;"></div>
@@ -485,8 +470,7 @@
                                     <span><i class="fa-solid fa-users" style="color:#D97706; margin-right:6px;"></i>
                                         Direct Referral / Repeat B2C</span>
                                     <span
-                                        style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">16
-                                        leads (10%)</span>
+                                        style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px;">0 leads (0%)</span>
                                 </div>
                                 <div style="background:#EEF2F6; height:10px; border-radius:6px; overflow:hidden;">
                                     <div style="background:#D97706; width:10%; height:100%; border-radius:6px;"></div>
@@ -504,19 +488,20 @@
     <script src="js/portal.js?v=9.5"></script>
     <script src="js/idle-tracker.js?v=7.3"></script>
     <script>
-        const PERIOD_STATS = {
-            '1': { leads: 38, quotes: 31, bookings: 7, conv: '18.4%', rev: '₹ 5,80,000' },
-            '3': { leads: 92, quotes: 78, bookings: 16, conv: '17.3%', rev: '₹ 13,40,000' },
-            '6': { leads: 135, quotes: 112, bookings: 24, conv: '17.7%', rev: '₹ 19,60,000' },
-            '12': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' },
-            'all': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' }
+                const PERIOD_STATS = {
+            '1': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            '3': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            '6': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            '12': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            'all': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' }
         };
 
         const USER_STATS = {
-            'su1': { leads: 84, quotes: 68, bookings: 14, conv: '16.6%', rev: '₹ 11,40,000' },
-            'su2': { leads: 48, quotes: 41, bookings: 9, conv: '18.7%', rev: '₹ 8,25,000' },
-            'admin': { leads: 28, quotes: 25, bookings: 6, conv: '21.4%', rev: '₹ 5,20,000' },
-            'all': { leads: 160, quotes: 134, bookings: 29, conv: '18.1%', rev: '₹ 24,85,000' }
+            'admin': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            'kashish': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            'asmita': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            'chanchal': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' },
+            'all': { leads: 0, quotes: 0, bookings: 0, conv: '0.0%', rev: '₹ 0' }
         };
 
         let selectedPeriod = 'all';

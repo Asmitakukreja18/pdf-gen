@@ -277,7 +277,7 @@ OUTPUT JSON SCHEMA:
     "fromPhone": "8007586871",
     "fromAddress": "Sahakar Nagar Opp New Cotton Market, Amravati, Maharashtra, 444603",
     "fromGst": "27BVYPT1131M1ZT",
-    "toCustomerName": "akash dewani",
+    "toCustomerName": "Valued Client",
     "toCustomerAddress": "Amravati, Maharashtra, India, 444603",
     "toCustomerGst": "",
     "items": [
@@ -303,7 +303,7 @@ OUTPUT JSON SCHEMA:
   },
   "confirmation": {
     "bookingId": "LE-VOUCHER-9842",
-    "guestName": "akash dewani",
+    "guestName": "Valued Guest",
     "hotelName": "Ramada By Wyndham",
     "checkIn": "2 Jan 2027",
     "checkOut": "5 Jan 2027",
@@ -411,7 +411,7 @@ OUTPUT JSON SCHEMA:
     const fileName = (attachment?.name || '').toLowerCase();
 
     // ── 1. Document Type Intelligence ──
-    const isInvoice = /invoice|tax\s*invoice|bill\s*no|invoice\s*no|gstin|hsn\/sac|taxable\s*value|cgst|sgst|akash\s*dewani|amravati|passport\s*bill/i.test(fullText) ||
+    const isInvoice = /invoice|tax\s*invoice|bill\s*no|invoice\s*no|gstin|hsn\/sac|taxable\s*value|cgst|sgst\s*dewani|amravati|passport\s*bill/i.test(fullText) ||
                       /invoice|bill|receipt/i.test(fileName);
     const isVoucher = /booking\s*voucher|confirmation\s*voucher|hotel\s*voucher|booking\s*id|check-in.*check-out|guest\s*voucher|room\s*type|hilton|aanay\s*tours?|aanay|viraj\s*gaglani/i.test(fullText) ||
                       /voucher|confirmation|aanay/i.test(fileName);
@@ -617,7 +617,7 @@ OUTPUT JSON SCHEMA:
       }
     });
 
-    // ── 7. Real Invoice Extraction (for Akash Dewani & GST Billing) ──
+    // ── 7. Real Invoice Extraction (for GST Billing & Tax Invoice) ──
     const invNumMatch = fullText.match(/(?:Invoice\s*(?:No\.?|Number|#)|Bill\s*No\.?)[:\s]*([0-9A-Za-z\-_]+)/i);
     const invoiceNumber = invNumMatch && !/detail|from|to|for|invoice/i.test(invNumMatch[1]) ? invNumMatch[1].trim() : '090587';
 

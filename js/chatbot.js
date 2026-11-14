@@ -1690,7 +1690,7 @@ const Chatbot = (() => {
       if (!QuotationData.invoice) QuotationData.invoice = {};
       const inv = QuotationData.invoice;
       const pkg = QuotationData.package || {};
-      inv.toCustomerName = inv.toCustomerName || pkg.clientName || 'Akash Dewani';
+      inv.toCustomerName = inv.toCustomerName || pkg.clientName || 'Valued Client';
       inv.invoiceNumber = inv.invoiceNumber || 'INV-' + Math.floor(100000 + Math.random() * 900000);
       inv.grandTotal = inv.grandTotal || QuotationData.summary?.totalINR || 2992.50;
       inv.items = inv.items && inv.items.length ? inv.items : [
