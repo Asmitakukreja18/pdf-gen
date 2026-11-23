@@ -477,32 +477,59 @@
                 .replace(/'/g, '&#39;');
         }
 
-        async function loadTrips() {
-            const tbody = document.getElementById('tripsTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" style="padding:30px; text-align:center; color:#94A3B8;">
-                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:20px; color:#2563EB;"></i>
-                        <div style="margin-top:8px;">Loading running trips from database...</div>
-                    </td>
-                </tr>
-            `;
+        function getLocalTrips() {
+            try {
+                const s = localStorage.getItem('dmc_all_trips');
+                return s ? JSON.parse(s) : [];
+            } catch(e) { return []; }
+        }
 
+        function saveLocalTrips(list) {
+            try {
+                localStorage.setItem('dmc_all_trips', JSON.stringify(list));
+            } catch(e) {}
+        }
+
+        async function loadTrips() {
+            // 1. Immediately render cached trips so UI never flashes empty on refresh
+            const local = getLocalTrips();
+            if (local && local.length > 0) {
+                allTrips = local;
+                renderTrips(allTrips);
+                updateTripMetrics(allTrips);
+            }
+
+            // 2. Fetch live from server and merge
             try {
                 const res = await fetch('api/trips.php');
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.trips)) {
-                    allTrips = data.trips;
-                } else {
-                    allTrips = [];
+                    if (data.trips.length > 0) {
+                        const serverTrips = data.trips;
+                        const sMap = new Map();
+                        serverTrips.forEach(t => {
+                            if (t.trip_code) sMap.set(t.trip_code, t);
+                            if (t.id) sMap.set(String(t.id), t);
+                        });
+                        const localOnly = (local || []).filter(t => !sMap.has(t.trip_code) && !sMap.has(String(t.id)));
+                        allTrips = [...serverTrips, ...localOnly];
+                        saveLocalTrips(allTrips);
+                    } else if (local && local.length > 0) {
+                        allTrips = local;
+                    } else {
+                        allTrips = [];
+                    }
+                    renderTrips(allTrips);
+                    updateTripMetrics(allTrips);
                 }
             } catch (err) {
-                console.warn('Trips fetch failed:', err);
-                allTrips = [];
+                console.warn('Trips fetch note, using persistent local cache:', err);
+                if (local && local.length > 0) {
+                    allTrips = local;
+                    renderTrips(allTrips);
+                    updateTripMetrics(allTrips);
+                }
             }
-
-            renderTrips(allTrips);
-            updateTripMetrics(allTrips);
         }
 
         function updateTripMetrics(trips) {
@@ -610,6 +637,23 @@
                 status: 'upcoming'
             };
 
+            const newTrip = {
+                id: Date.now(),
+                trip_code: 'TRIP-' + Math.floor(1000 + Math.random() * 9000),
+                ...payload,
+                duration_text: (payload.start_date && payload.end_date) ? (payload.start_date + ' to ' + payload.end_date) : 'Upcoming Trip'
+            };
+
+            // 1. Immediately store locally and render
+            allTrips.unshift(newTrip);
+            saveLocalTrips(allTrips);
+            renderTrips(allTrips);
+            updateTripMetrics(allTrips);
+            document.getElementById('addTripModal').style.display = 'none';
+            document.getElementById('addTripForm').reset();
+            document.getElementById('tripCoordinator').value = '';
+
+            // 2. Sync with backend API
             try {
                 const res = await fetch('api/trips.php', {
                     method: 'POST',
@@ -617,26 +661,14 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (data && data.success) {
-                    document.getElementById('addTripModal').style.display = 'none';
-                    document.getElementById('addTripForm').reset();
-                    document.getElementById('tripCoordinator').value = '';
-                    loadTrips();
-                } else {
-                    alert('Error saving trip: ' + (data.message || 'Unknown error'));
+                if (data && data.success && data.trip) {
+                    Object.assign(newTrip, data.trip);
+                    saveLocalTrips(allTrips);
+                    renderTrips(allTrips);
+                    updateTripMetrics(allTrips);
                 }
             } catch (err) {
-                console.error('Trip save error:', err);
-                // Graceful local save
-                allTrips.unshift({
-                    id: Date.now(),
-                    ...payload,
-                    duration_text: 'Upcoming Trip'
-                });
-                document.getElementById('addTripModal').style.display = 'none';
-                document.getElementById('addTripForm').reset();
-                renderTrips(allTrips);
-                updateTripMetrics(allTrips);
+                console.warn('Trip backend sync queued, safely saved locally:', err);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Save Trip';

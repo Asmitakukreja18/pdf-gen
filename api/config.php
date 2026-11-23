@@ -53,25 +53,69 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // ==========================================
-// AI PROVIDER CONFIGURATION (Claude, Gemini, OpenAI)
+// SECURE AI PROVIDER CONFIGURATION (Server-Side Only)
 // ==========================================
-$aiSettingsFile = __DIR__ . '/../data/ai_settings.json';
-$dynamicAiSettings = file_exists($aiSettingsFile) ? json_decode(file_get_contents($aiSettingsFile), true) : [];
+// Safe resolution helper for private AI credentials (strictly outside public web root)
+if (!function_exists('getSecureAiSettingsPath')) {
+    function getSecureAiSettingsPath($createDirIfPossible = false) {
+        $cpanelPrivate = '/home/ihpyruhe/private/dmc-ai/ai_settings.json';
+        $cpanelDir = '/home/ihpyruhe/private/dmc-ai';
+        
+        // 1. Primary secure location: cPanel private folder outside public_html/document root
+        if (file_exists($cpanelPrivate)) {
+            return $cpanelPrivate;
+        }
+        if (is_dir($cpanelDir) && is_writable($cpanelDir)) {
+            return $cpanelPrivate;
+        }
+        if ($createDirIfPossible && @is_dir('/home/ihpyruhe/private') && @mkdir($cpanelDir, 0750, true)) {
+            return $cpanelPrivate;
+        }
+        
+        // 2. Relative check outside DOCUMENT_ROOT if cPanel structure differs
+        $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+        if (!empty($docRoot)) {
+            $outsideRoot = dirname(rtrim($docRoot, '/\\')) . '/private/dmc-ai';
+            $outsideFile = $outsideRoot . '/ai_settings.json';
+            if (file_exists($outsideFile)) {
+                return $outsideFile;
+            }
+            if ($createDirIfPossible && @is_dir(dirname($outsideRoot)) && @mkdir($outsideRoot, 0750, true)) {
+                return $outsideFile;
+            }
+        }
+        
+        // 3. Fallback for local development or non-cPanel environments (protected by .htaccess)
+        $localFallback = __DIR__ . '/../data/ai_settings.json';
+        if ($createDirIfPossible) {
+            @mkdir(dirname($localFallback), 0755, true);
+        }
+        return $localFallback;
+    }
+}
 
-// Anthropic Claude API Key (Complex reasoning & long documents)
+$aiSettingsFile = getSecureAiSettingsPath(false);
+$dynamicAiSettings = file_exists($aiSettingsFile) ? json_decode(file_get_contents($aiSettingsFile), true) : [];
+if (!is_array($dynamicAiSettings)) $dynamicAiSettings = [];
+
+// Anthropic Claude API Key (Server-side secret, never transmitted to browser)
 $savedClaudeKey = !empty($dynamicAiSettings['claude_api_key']) ? trim($dynamicAiSettings['claude_api_key']) : '';
 defined('CLAUDE_API_KEY') or define('CLAUDE_API_KEY', $savedClaudeKey ?: (getenv('CLAUDE_API_KEY') ?: 'YOUR_CLAUDE_API_KEY_HERE'));
 
-// Google Gemini API Key (Multimodal Vision, PDF/Image extraction)
+// Google Gemini API Key (Server-side secret)
 $savedGeminiKey = !empty($dynamicAiSettings['gemini_api_key']) ? trim($dynamicAiSettings['gemini_api_key']) : '';
 defined('GEMINI_API_KEY') or define('GEMINI_API_KEY', $savedGeminiKey ?: (getenv('GEMINI_API_KEY') ?: 'YOUR_GEMINI_API_KEY_HERE'));
 
 // OpenAI API Key (Optional)
-defined('OPENAI_API_KEY') or define('OPENAI_API_KEY', '');
+defined('OPENAI_API_KEY') or define('OPENAI_API_KEY', !empty($dynamicAiSettings['openai_api_key']) ? trim($dynamicAiSettings['openai_api_key']) : '');
 
-// Default AI Provider: 'auto' (Try Claude then Gemini), 'gemini', 'claude', 'openai'
-$savedProvider = !empty($dynamicAiSettings['default_provider']) ? trim($dynamicAiSettings['default_provider']) : 'auto';
-defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', $savedProvider ?: (getenv('DEFAULT_AI_PROVIDER') ?: 'auto'));
+// Default AI Provider: 'claude', 'gemini', 'openai', or 'auto'
+$savedProvider = !empty($dynamicAiSettings['default_provider']) ? trim($dynamicAiSettings['default_provider']) : 'claude';
+defined('DEFAULT_AI_PROVIDER') or define('DEFAULT_AI_PROVIDER', $savedProvider ?: (getenv('DEFAULT_AI_PROVIDER') ?: 'claude'));
+
+// Configured Claude Model ID (Configurable server-side, validated against official Anthropic docs)
+$savedClaudeModel = !empty($dynamicAiSettings['claude_model']) ? trim($dynamicAiSettings['claude_model']) : 'claude-sonnet-5-5';
+defined('CLAUDE_MODEL_ID') or define('CLAUDE_MODEL_ID', $savedClaudeModel);
 
 // Local Fallback Data Storage for Quotations (when database is offline)
 defined('LOCAL_FALLBACK_FILE') or define('LOCAL_FALLBACK_FILE', __DIR__ . '/../data/saved_quotations.json');

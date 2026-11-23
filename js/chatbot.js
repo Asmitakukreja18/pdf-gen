@@ -1,5 +1,5 @@
 /**
- * chatbot.js — Intelligent Task-Oriented AI Agent for Let's Explore DMC
+ * chatbot.js — Intelligent Task-Oriented AI Agent for Let\'s Explore DMC
  * Upgraded Conversational Agent:
  * - Natural Language Understanding (Hindi, Hinglish, English)
  * - Real Task Execution (Markup, Hotel changes, Company branding, Format switching, PDF extraction)
@@ -45,11 +45,11 @@ const Chatbot = (() => {
 
   // DOM Refs & Utilities
   const $ = (id) => document.getElementById(id);
-  const msgs = () => $('chatMessages');
-  const typing = () => $('typingIndicator');
+  const msgs = () => $('studioChatHistory') || $('chatMessages');
+  const typing = () => $('studioTyping') || $('typingIndicator');
   const replies = () => $('quickReplies');
-  const input = () => $('chatInput');
-  const sendBtn = () => $('btnSend');
+  const input = () => $('studioPromptInput') || $('chatInput');
+  const sendBtn = () => $('btnStudioSend') || $('btnSend');
 
   function escapeHTML(str) {
     if (str === null || str === undefined) return '';
@@ -103,7 +103,7 @@ const Chatbot = (() => {
           { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
           { label: '🌟 Dubai 6D Itinerary', val: 'Dubai 6D itinerary with rates' },
           { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
-          { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+          { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
           { label: '🗺️ Itinerary (No Rates)', val: 'Itinerary se costing hatao' }
         ], true);
         if (typeof showToast === 'function') showToast('Sample tasks loaded in quick actions', 'info');
@@ -160,7 +160,7 @@ const Chatbot = (() => {
       { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
       { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
       { label: '📈 +10% Markup Lagao', val: 'Add 10% markup to this package' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Costing Hatao)', val: 'Itinerary se costing hatao' },
       { label: '🧾 Tax Invoice Banao', val: 'Tax invoice banao' }
     ];
@@ -381,7 +381,7 @@ const Chatbot = (() => {
             primary: true 
           },
           { 
-            label: '📈 Let's Explore DMC 10% Markup Table', 
+            label: '📈 Let\'s Explore DMC 10% Markup Table', 
             val: `[2:45 pm, 31/10/2026] Chanchal: Aanay tours ki details k sath edit karo\n[2:45 pm, 31/10/2026] Chanchal: 10 percent markup anay tours ki details ke sath details k sath edit karke dena unki details hata dena DETSILS DALO INKI HATAO AND COLOR THEME BHI FORMAT BHI` 
           },
           { 
@@ -470,6 +470,11 @@ const Chatbot = (() => {
   function setupInputHandlers() {
     const inp = input(), btn = sendBtn();
     if (!inp || !btn) return;
+
+    // Guard: If inquiry-admin/ai-assistant.html is active with its own chatForm submit handler, do not intercept!
+    if ($('chatForm') || (typeof window !== 'undefined' && typeof window.handleStudioChatSubmit === 'function')) {
+      return;
+    }
 
     inp.addEventListener('input', () => {
       inp.style.height = 'auto';
@@ -578,31 +583,6 @@ const Chatbot = (() => {
 
     const attsCount = (attachments && attachments.length > 0) ? attachments.length : (attachment ? 1 : 0);
 
-    // 2.5 Specific Multi-File Workflow: Phuket + Krabi (6D5N) + 15% Markup + Rajasthan Format
-    const isPhuketKrabi = /(?:phuket|krabi|6\s*days\s*5\s*nights|budget\s*\.docx)/i.test(t);
-    const isRajasthanFormat = /(?:third\s*pdf|3rd\s*pdf|rajasthan|rajasthan\s*quote|format\s*third)/i.test(t);
-    const is15Percent = /(?:15\s*(?:%|percent)|15percent)/i.test(t);
-    const isOurCompany = /(?:humari\s*company|second\s*pdf|2nd\s*pdf|only\s*addd?\s*company|let'?s\s*explore)/i.test(t);
-
-    if (
-      (isPhuketKrabi && (is15Percent || isRajasthanFormat || isOurCompany)) ||
-      (isRajasthanFormat && (is15Percent || isOurCompany)) ||
-      /(?:second\s*pdf.*?third\s*pdf|format\s*third\s*pdf|rajasthan\s*quote)/i.test(t)
-    ) {
-      const pctMatchEarly = t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)/i);
-      return {
-        type: 'PHUKET_KRABI_RAJASTHAN_15PCT',
-        percent: pctMatchEarly ? parseFloat(pctMatchEarly[1]) : 15,
-        format: 'rajasthan_land_package',
-        attachmentsCount: attsCount > 0 ? attsCount : 3,
-        rawText: raw,
-        cleanText: t
-      };
-    }
-
-    // 3. Check for COMPOUND Task: Markup (% or fixed) + Partner Rebrand OR User's Benchmark request ("same output as like mujhe chahiye")
-    const isClaudeBenchmarkQuery = /(?:same\s*output|mujhe\s*chahiye|claude\s*output|screenshot\s*jaise|multi\s*pdf\s*output|options?\s*table|centara|olhuveli)/i.test(t);
-
     const pctMatch = t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|margin|extra)?/i) ||
                      t.match(/(?:markup|margin|increase|badhao|bada).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
     const fixedMatch = t.match(/(?:increase|bada|badhao|add|extra|pass|passes|amount).*?(\d{4,})/i) ||
@@ -610,19 +590,6 @@ const Chatbot = (() => {
     const isAanay = /(?:aanay|aanay\s*tours?|viraj|gaglani)/i.test(t);
     const isRebrand = /(?:company\s*details?|branding|partner|logo|rebrand|details\s*dalo|unki\s*details\s*hata|white-?label|color\s*theme|format\s*bhi)/i.test(t);
     const isCostingHatao = /(?:costing|rates?|pricing|paise|amount|tariff)\s*(?:hata|hatao|remove|hide|nikal|mat\s*dikhao|bina)/i.test(t);
-
-    if (isClaudeBenchmarkQuery || ((pctMatch || fixedMatch) && (isAanay || isRebrand))) {
-      return {
-        type: 'COMPOUND_MARKUP_AND_REBRAND',
-        percent: pctMatch ? parseFloat(pctMatch[1]) : 10,
-        fixedINR: fixedMatch ? parseInt(fixedMatch[1], 10) : 0,
-        isAanay: isAanay || isClaudeBenchmarkQuery,
-        partner: (isAanay || isClaudeBenchmarkQuery) ? 'Let's Explore DMC' : 'Partner',
-        attachmentsCount: attsCount > 0 ? attsCount : 2,
-        rawText: raw,
-        cleanText: t
-      };
-    }
 
     // 4. Standalone Markup & Price Modification
     // e.g. "Add 10% markup to this package", "10 percent markup", "markup 10%", "passes ka amount 20000 increase kar do"
@@ -640,7 +607,7 @@ const Chatbot = (() => {
     if (isAanay || isRebrand) {
       return {
         type: 'COMPANY_REBRAND',
-        partner: isAanay ? 'Let's Explore DMC' : 'Partner',
+        partner: isAanay ? 'Let\'s Explore DMC' : 'Partner',
         isAanay: isAanay,
         rawText: t
       };
@@ -732,11 +699,7 @@ const Chatbot = (() => {
       return;
     }
     if (intent.type === 'DIRECT_STUDIO') {
-      if (typeof App !== 'undefined') {
-        App.showSection('generator');
-        if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-        if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
-      }
+      openStudioEditor();
       appendAI('Opening Studio Builder! All details are populated and ready for manual edits.');
       return;
     }
@@ -757,25 +720,13 @@ const Chatbot = (() => {
     const taskLog = [];
 
     try {
-      // TASK A.-1: PHUKET + KRABI (6D5N) + 15% MARKUP + RAJASTHAN FORMAT WORKFLOW
-      if (intent.type === 'PHUKET_KRABI_RAJASTHAN_15PCT') {
-        await executePhuketKrabiRajasthanWorkflow(intent, taskLog, allAttachments);
-        return;
-      }
-
-      // TASK A.0: COMPOUND WORKFLOW (MARKUP + AANAY TOURS REBRAND + THEME/FORMAT)
-      if (intent.type === 'COMPOUND_MARKUP_AND_REBRAND') {
-        await executeCompoundWorkflow(intent, taskLog, allAttachments);
-        return;
-      }
-
       // TASK A: MARKUP & PRICING MODIFICATION
       if (intent.type === 'MARKUP_ADJUSTMENT') {
         await executeMarkupWorkflow(intent, taskLog);
         return;
       }
 
-      // TASK B: COMPANY REBRANDING (Let's Explore DMC / White-label)
+      // TASK B: COMPANY REBRANDING (Let\'s Explore DMC / White-label)
       if (intent.type === 'COMPANY_REBRAND') {
         await executeRebrandWorkflow(intent, taskLog);
         return;
@@ -820,394 +771,6 @@ const Chatbot = (() => {
   // ==========================================
   // 7. REAL WORKFLOW IMPLEMENTATIONS
   // ==========================================
-
-  /**
-   * 7.-1 PHUKET + KRABI (6D/5N) + 15% MARKUP + RAJASTHAN FORMAT WORKFLOW
-   * Matches Claude benchmark in user screenshots:
-   * - Progress pill: "Comparing company details with the Rajasthan quote's structure >"
-   * - Interim note: "Teeno files ko dekhta hoon: pehle details nikalta hoon, phir 15% markup lagakar company details aur Rajasthan quote ke format mein banata hoon."
-   * - Tool step pill: "Reading a file 14s > 📄📄" & "Shared a file, read 4 files, and 5 more steps >"
-   * - Lead: "Phuket + Krabi (6D/5N) ka quotation ab Let's Explore DMC ke Rajasthan quote ke format mein ban gaya hai. Isme aapki company details aur 15% markup hai."
-   * - Subhead: "Pricing (USD, 15% markup ke baad)"
-   * - Rates: Per Adult $632.88 USD, Total $1,265.76 USD (₹1,09,488 INR)
-   * - Updates live preview on right pane with exact Rajasthan Land Package format
-   */
-  async function executePhuketKrabiRajasthanWorkflow(intent, taskLog, attachments = []) {
-    const pct = intent.percent > 0 ? intent.percent : 15;
-    const factor = 1 + (pct / 100);
-    const filesCount = (attachments && attachments.length > 0) ? attachments.length : (intent.attachmentsCount || 3);
-
-    setTyping(true, '🔍 Comparing company details with the Rajasthan quote\'s structure...', `Reading ${filesCount} files: Phuket+Krabi DOCX, Company details PDF, Rajasthan format PDF...`);
-    await sleep(400);
-
-    // Interim Claude progress note:
-    appendAI(
-      `<div style="font-size:13.5px; line-height:1.6; color:#1E293B; margin-bottom:12px;">` +
-      `<strong>Teeno files ko dekhta hoon:</strong> pehle details nikalta hoon, phir ${pct}% markup lagakar company details aur Rajasthan quote ke format mein banata hoon.` +
-      `</div>` +
-      `<div class="claude-step-pill">` +
-      `<span>Reading a file 14s</span> <span style="font-size:14px; margin-left:4px;">📄📄</span>` +
-      `</div>`
-    );
-
-    await sleep(500);
-
-    setTyping(true, '⚙️ Applying 15% markup and generating Rajasthan Land Package structure...', 'Recalculating USD land tariffs and structuring hotel & transfer blocks...');
-    await sleep(400);
-
-    // Pricing calculation
-    const baseRateUSD = 550.33;
-    const markupRateUSD = +(baseRateUSD * factor).toFixed(2); // 632.88
-    const totalPackageUSD = +(markupRateUSD * 2).toFixed(2);  // 1265.76
-    const totalINR = Math.round(totalPackageUSD * 86.5);       // approx 109,488 INR
-
-    // Update QuotationData to Let's Explore DMC branding
-    QuotationData.company = {
-      name: "Let's Explore DMC",
-      tagline: 'CAPTURING YOUR DREAMS',
-      phone: '+91 98765 43210',
-      contactPerson: 'Operations Desk',
-      email: 'info@letsexploredmc.com',
-      website: 'www.letsexploredmc.com',
-      isPartner: false,
-      isWhitelabel: false
-    };
-
-    if (!QuotationData.package) QuotationData.package = {};
-    QuotationData.package.title = 'LAND PACKAGE QUOTATION - Phuket + Krabi';
-    QuotationData.package.destinations = 'Phuket + Krabi';
-    QuotationData.package.subtitle = '5 Nights / 6 Days · Hotels + Private Transfers + Tours';
-    QuotationData.package.checkIn = '10 Dec 2026';
-    QuotationData.package.checkOut = '15 Dec 2026';
-    QuotationData.package.duration = '5 Nights / 6 Days';
-    QuotationData.package.travellers = '2 Adults';
-    QuotationData.package.isRajasthanFormat = true;
-    QuotationData.package.docType = 'rajasthan_land_package';
-    QuotationData.activeDocType = 'rajasthan_land_package';
-
-    QuotationData.package.baseRateUSD = baseRateUSD;
-    QuotationData.package.markupPct = pct;
-    QuotationData.package.ratePerAdultUSD = markupRateUSD;
-    QuotationData.package.totalPackageUSD = totalPackageUSD;
-    QuotationData.package.totalINR = totalINR;
-
-    // Hotels
-    QuotationData.hotels = [
-      {
-        section: '1st, 2nd & 3rd Nights – Phuket',
-        name: 'Ashlee Plaza Hotel, Phuket',
-        roomType: 'Superior Room (2 Adults)',
-        mealPlan: 'Breakfast + Buffet Dinner',
-        checkIn: '10 Dec 2026',
-        checkOut: '13 Dec 2026',
-        nights: 3
-      },
-      {
-        section: '4th & 5th Nights – Krabi (Ao Nang)',
-        name: 'GLOW Ao Nang Krabi',
-        roomType: 'Superior Room (2 Adults)',
-        mealPlan: 'Breakfast + Buffet Dinner',
-        checkIn: '13 Dec 2026',
-        checkOut: '15 Dec 2026',
-        nights: 2
-      }
-    ];
-
-    // Transportation
-    QuotationData.transportation = [
-      { day: 'Day 1 – Thu, 10 Dec', route: 'Phuket Airport to Ashlee Plaza Hotel – Private transfer' },
-      { day: 'Day 2 – Fri, 11 Dec', route: 'Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)' },
-      { day: 'Day 3 – Sat, 12 Dec', route: 'James Bond Island tour by Big Boat (lunch + NPF included)' },
-      { day: 'Day 4 – Sun, 13 Dec', route: 'Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City Tour' },
-      { day: 'Day 5 – Mon, 14 Dec', route: '4 Island Tour by Long Tail Boat (lunch + NPF included)' },
-      { day: 'Day 6 – Tue, 15 Dec', route: 'GLOW Ao Nang Krabi to Phuket Airport – Private transfer' }
-    ];
-
-    // Inclusions
-    QuotationData.inclusions = [
-      'Private transfers by car as specified in the itinerary',
-      'Accommodation in Superior rooms (twin / double sharing) as mentioned',
-      'Daily breakfast at the hotel; buffet dinner on Days 1–5; buffet lunch on Day 6 (departure)',
-      'Lunch on all sea tour days (Day 2, Day 3 and Day 5)',
-      'Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond Island big boat tour, 4 Island long tail boat tour',
-      'Krabi City Tour by car (6 hrs)',
-      'All entrance fees and National Park Fee (NPF) for the tours mentioned',
-      'English-speaking local tour guide during day tours',
-      '24/7 on-ground assistance by Let\'s Explore DMC Thailand desk'
-    ];
-
-    // Update live previews
-    if (typeof App !== 'undefined' && App.updateLivePreviews) {
-      App.updateLivePreviews();
-    }
-    const previewTitle = $('previewDocTitleText');
-    if (previewTitle) {
-      previewTitle.textContent = 'Letsexploredmc phuket krabi quote · PDF';
-    }
-
-    setTyping(false);
-
-    // Build the Claude response card
-    const outFileName = 'Letsexploredmc_phuket_krabi_quote.pdf';
-    const cardHTML = `
-      <div style="font-size:14px; line-height:1.6; color:#0F172A;">
-        <div class="claude-step-pill" style="margin-bottom:12px;">
-          <span>Shared a file, read 4 files, and 5 more steps</span> <span style="font-size:12px; margin-left:4px;">&gt;</span>
-          <span style="margin-left:auto; font-size:12px; color:#64748B;">+1 📄📄📄</span>
-        </div>
-
-        <p style="margin-bottom:14px; font-weight:600; font-size:14.5px; color:#1E293B;">
-          <strong>Phuket + Krabi (6D/5N)</strong> ka quotation ab Let's Explore DMC ke Rajasthan quote ke format mein ban gaya hai. Isme aapki company details aur ${pct}% markup hai.
-        </p>
-
-        <h4 style="margin:14px 0 8px 0; font-size:13.5px; font-weight:800; color:#0F2C59; text-transform:uppercase; letter-spacing:0.5px;">
-          Pricing (USD, ${pct}% markup ke baad)
-        </h4>
-
-        <div style="border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; margin-bottom:14px;">
-          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
-            <thead>
-              <tr style="background:#0F2C59; color:#FFFFFF;">
-                <th style="padding:8px 12px; text-align:left;">Description</th>
-                <th style="padding:8px 12px; text-align:right;">Rate (USD)</th>
-                <th style="padding:8px 12px; text-align:right;">Per Person</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#FFFFFF;">
-                <td style="padding:8px 12px;"><strong>Per Adult</strong> &ndash; Twin / double sharing, hotels + private transfers + tours + meals as mentioned</td>
-                <td style="padding:8px 12px; text-align:right; font-weight:700; color:#15803D;">$${markupRateUSD.toFixed(2)}</td>
-                <td style="padding:8px 12px; text-align:right;">$${markupRateUSD.toFixed(2)}</td>
-              </tr>
-              <tr style="background:#F8FAFC; font-weight:800;">
-                <td style="padding:10px 12px; color:#0F2C59;">TOTAL PACKAGE COST (2 Adults)</td>
-                <td style="padding:10px 12px; text-align:right; color:#0F2C59; font-size:14px;" colspan="2">
-                  $${totalPackageUSD.toFixed(2)} USD <span style="font-size:11.5px; color:#64748B; font-weight:500;">(₹${totalINR.toLocaleString('en-IN')})</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div style="padding:6px 12px; font-size:11px; color:#64748B; background:#F1F5F9; border-top:1px solid #E2E8F0;">
-            * Original base rate was $${baseRateUSD.toFixed(2)} USD per adult. Applied +${pct}% markup = $${markupRateUSD.toFixed(2)} USD. Domestic / international airfare is not included.
-          </div>
-        </div>
-
-        <div style="background:#FAFBFD; border:1px solid #E2E8F0; border-radius:8px; padding:12px; margin-bottom:14px;">
-          <strong style="font-size:12px; color:#0F2C59;">Changes &amp; Structure Applied:</strong>
-          <ul style="margin:6px 0 0 18px; padding:0; font-size:12px; color:#334155; line-height:1.6;">
-            <li><strong>Format:</strong> Structured exactly like the Rajasthan Land Package quote (4-color header stripe, metadata boxes, separate Hotel and Transportation tables, bulleted inclusions).</li>
-            <li><strong>Company:</strong> Set to <em>Let's Explore DMC</em> ("CAPTURING YOUR DREAMS").</li>
-            <li><strong>Markup:</strong> Added 15% markup to ground package ($550.33 &rarr; $632.88 USD per adult, Total $1,265.76 USD).</li>
-            <li><strong>Preserved:</strong> Full 6 Days / 5 Nights itinerary, Ashlee Plaza Hotel (Phuket 3N), GLOW Ao Nang (Krabi 2N), speedboats, Big Boat tour, 4 Island tour, transfers and meals.</li>
-          </ul>
-        </div>
-
-        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-          <button type="button" class="btn-download-pdf-pill" onclick="if(window.App && App.downloadPDF){App.downloadPDF();}else{window.print();}"
-            style="display:inline-flex; align-items:center; gap:6px; background:#0F2C59; color:#FFFFFF; border:none; padding:8px 16px; border-radius:20px; font-size:12.5px; font-weight:700; cursor:pointer;">
-            <span>⬇️</span> Download PDF (${outFileName})
-          </button>
-          <button type="button" onclick="const p=document.getElementById('previewPanel'); if(p) p.scrollIntoView({behavior:'smooth'});"
-            style="display:inline-flex; align-items:center; gap:6px; background:#F1F5F9; border:1px solid #CBD5E1; color:#0F172A; padding:8px 14px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">
-            <span>👁️</span> View Live Preview
-          </button>
-        </div>
-      </div>
-    `;
-
-    appendAI(cardHTML);
-    showReplies([
-      'Download PDF',
-      'Change Markup to 20%',
-      'Add Flight Costing',
-      'Switch back to Thailand Master'
-    ]);
-  }
-
-  /**
-   * 7.0 COMPOUND WORKFLOW: MARKUP + AANAY TOURS REBRANDING + COLOR THEME
-   * Replicates the exact Claude task execution flow:
-   * - Tool progress pills: "Ran 3 commands, read 2 files >", "Read a file, shared files >"
-   * - Natural interim status: "Maldives wali Let's Explore DMC PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga."
-   * - Header: "Maldives ki quote Let's Explore DMC ke format mein ready hai: LetsExplore_Maldives_5D4N.pdf"
-   * - Subhead: "Markup (10% add kiya)"
-   * - Option Comparison Table: Option | Supplier ka rate | Aapka rate (couple) | Per person
-   * - Replaces Let's Explore DMC details with Let's Explore DMC, suppresses supplier contacts, updates Live Preview and file download.
-   */
-  async function executeCompoundWorkflow(intent, taskLog, attachments = []) {
-    const pct = intent.percent > 0 ? intent.percent : 10;
-    const factor = 1 + (pct / 100);
-    const filesCount = (attachments && attachments.length > 0) ? attachments.length : (intent.attachmentsCount || 2);
-
-    setTyping(true, '🔍 Checking active document &amp; reference files...', `Reading ${filesCount > 1 ? `${filesCount} reference documents and ` : ''}Maldives resort rates and supplier costing details...`);
-    await sleep(400);
-    taskLog.push(`Ran 3 commands, read ${filesCount} file${filesCount > 1 ? 's' : ''}`);
-    taskLog.push(`Inspected Maldives luxury resort accommodations and pricing streams`);
-
-    setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring Let's Explore DMC identity and suppressing supplier details...');
-    await sleep(350);
-
-    // 1. Company Rebrand
-    QuotationData.company = {
-      name: 'Let's Explore DMC',
-      tagline: 'Luxury Travel Concierge',
-      phone: '7709123187',
-      contactPerson: 'Let's Explore Reservations Team',
-      email: 'ops@letsexploredmc.com',
-      isPartner: true,
-      isWhitelabel: true
-    };
-    Object.assign(AgentMemory.activeCompany, QuotationData.company);
-    taskLog.push(`Replaced DMC details with <strong>Let's Explore DMC</strong> (Contact: Let's Explore Reservations Team - 7709123187)`);
-
-    // 2. Suppress Supplier Contacts in footer
-    if (!QuotationData.footerSettings) QuotationData.footerSettings = {};
-    QuotationData.footerSettings.companyName = 'Let's Explore DMC';
-    QuotationData.footerSettings.companyPhone = '7709123187';
-    QuotationData.footerSettings.website = '';
-    QuotationData.footerSettings.instagram = '';
-    taskLog.push(`Suppressed internal DMC supplier details from client headers and footers`);
-
-    // 3. Theme Preset (Luxury Navy & Gold)
-    if (typeof THEME_PRESETS !== 'undefined' && THEME_PRESETS['luxury-navy']) {
-      QuotationData.theme = JSON.parse(JSON.stringify(THEME_PRESETS['luxury-navy']));
-    }
-
-    // 4. Update Package Details
-    if (!QuotationData.package) QuotationData.package = {};
-    QuotationData.package.title = 'Maldives Luxury Island Atolls';
-    QuotationData.package.destinations = 'Maldives';
-    QuotationData.package.duration = '5 Days / 4 Nights';
-    QuotationData.package.travellers = '2 Adults (Couple)';
-    QuotationData.package.clientName = QuotationData.package.clientName || 'Valued Guest';
-
-    // 5. 3 Maldives Resort Options with Supplier vs Markup Rates
-    const maldivesResorts = [
-      {
-        option: 'Option 1: Centara Grand Island Resort & Spa Maldives',
-        supplierRate: 230000,
-        markupRate: Math.round(230000 * factor),
-        perPerson: Math.round((230000 * factor) / 2),
-        room: 'Duplex Beach Villa with Private Jacuzzi'
-      },
-      {
-        option: 'Option 2: Sun Siyam Olhuveli Maldives',
-        supplierRate: 210000,
-        markupRate: Math.round(210000 * factor),
-        perPerson: Math.round((210000 * factor) / 2),
-        room: 'Deluxe Water Villa with Lagoon Access'
-      },
-      {
-        option: 'Option 3: Villa Nautica Paradise Island',
-        supplierRate: 195000,
-        markupRate: Math.round(195000 * factor),
-        perPerson: Math.round((195000 * factor) / 2),
-        room: 'Superior Beach Bungalow'
-      }
-    ];
-
-    setTyping(true, '⚡ Applying +10% markup mathematically...', 'Recalculating couple and per-person pricing across all resort options...');
-    await sleep(400);
-
-    // Apply primary selected hotel (Option 1) to QuotationData
-    QuotationData.hotels = [
-      {
-        name: 'Centara Grand Island Resort & Spa Maldives',
-        city: 'South Ari Atoll',
-        checkIn: 'Day 1',
-        checkOut: 'Day 5',
-        nights: 4,
-        roomType: 'Duplex Beach Villa with Private Jacuzzi',
-        mealPlan: 'All Inclusive (Dine Around)',
-        amountINR: maldivesResorts[0].markupRate,
-        amountUSD: Math.round(maldivesResorts[0].markupRate / 87.5)
-      }
-    ];
-
-    QuotationData.summary = {
-      items: [
-        { name: 'Centara Grand Island Resort (4 Nights All Inclusive)', amountINR: maldivesResorts[0].markupRate, amountUSD: Math.round(maldivesResorts[0].markupRate / 87.5) },
-        { name: 'Return Seaplane / Speedboat Island Transfers (Couple)', amountINR: 0, amountUSD: 0 },
-        { name: 'Maldives Green Taxes, Tourism Goods & Service Tax (TGST)', amountINR: 0, amountUSD: 0 }
-      ],
-      totalINR: maldivesResorts[0].markupRate,
-      totalUSD: Math.round(maldivesResorts[0].markupRate / 87.5)
-    };
-
-    taskLog.push(`Applied <strong>+${pct}% markup</strong> mathematically to couple and per-person rates`);
-
-    setTyping(true, '📋 Validating and synchronizing Live Preview...', 'Finalizing LetsExplore_Maldives_5D4N.pdf...');
-    await sleep(300);
-
-    if (typeof App !== 'undefined') {
-      if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
-      if (typeof App.renderSummaryEditor === 'function') App.renderSummaryEditor();
-      App.updateLivePreviews();
-    }
-    if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
-    }
-
-    setTyping(false);
-
-    const fileName = 'LetsExplore_Maldives_5D4N.pdf';
-    AgentMemory.lastGeneratedFile = { name: fileName, timestamp: new Date() };
-
-    // Build the exact comparison table HTML
-    const tableHtml = `
-      <table class="agent-options-table">
-        <thead>
-          <tr>
-            <th>Option</th>
-            <th style="text-align:right;">Supplier ka rate</th>
-            <th style="text-align:right;">Aapka rate (couple)</th>
-            <th style="text-align:right;">Per person</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${maldivesResorts.map(r => `
-            <tr>
-              <td><strong>${escapeHTML(r.option)}</strong></td>
-              <td style="text-align:right; color:#64748B;">₹ ${r.supplierRate.toLocaleString('en-IN')}</td>
-              <td style="text-align:right;" class="rate-highlight">₹ ${r.markupRate.toLocaleString('en-IN')}</td>
-              <td style="text-align:right; font-weight:600; color:#15803D;">₹ ${r.perPerson.toLocaleString('en-IN')}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-
-    const changesList = [
-      `Added <strong>${pct}% markup</strong> to all resort options (couple and per-person rates).`,
-      `Updated company details to <strong>Let's Explore DMC</strong> (Contact: Let's Explore Reservations Team - 7709123187).`,
-      `Suppressed Let's Explore DMC internal supplier costing and contact details.`,
-      `Applied Luxury Navy & Warm Gold color theme with white-label headers & footers.`,
-      `Synchronized Live Studio Preview and generated verified PDF reference.`
-    ];
-
-    const responseHtml = renderAgentResponseCard({
-      tasks: taskLog,
-      toolPillTop: `Ran 3 commands, read ${filesCount} file${filesCount > 1 ? 's' : ''} >`,
-      interimNote: 'Maldives wali Let's Explore DMC PDF ka page 2 check kar raha hoon. Price summary ab ek saath aani chahiye, uske baad file aapko de dunga.',
-      toolPillBottom: 'Read a file, shared files >',
-      leadText: `Maldives ki quote Let's Explore DMC ke format mein ready hai: <strong>${fileName}</strong>`,
-      subhead: `Markup (${pct}% add kiya)`,
-      changes: changesList,
-      calcTable: tableHtml,
-      preserved: 'Original luxury water villa itinerary, transfer inclusions, meal plans and official A4 pagination strictly preserved.',
-      fileName: fileName
-    });
-
-    appendAI(responseHtml);
-
-    showReplies([
-      { label: '🖨️ Download PDF (Let's Explore DMC)', val: '__PDF__', primary: true },
-      { label: '👁️ View Live Preview', val: '__PREVIEW__' },
-      { label: '📄 Word DOCX', val: '__DOCX__' },
-      { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' },
-      { label: '🏨 Change Resort', val: 'Change hotel to Sun Siyam Olhuveli Maldives' }
-    ]);
-  }
 
   /**
    * 7.1 MARKUP & PRICING WORKFLOW
@@ -1384,34 +947,36 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📄 Download Word DOCX', val: '__DOCX__' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
     ]);
   }
 
   /**
-   * 7.2 COMPANY REBRANDING WORKFLOW (Let's Explore DMC / White-label)
-   * Replaces Let's Explore DMC contact info with partner details while preserving package & rates
+   * 7.2 COMPANY REBRANDING WORKFLOW (Let\'s Explore DMC / White-label)
+   * Replaces Let\'s Explore DMC contact info with partner details while preserving package & rates
    */
   async function executeRebrandWorkflow(intent, taskLog) {
     setTyping(true, '🏢 Updating company branding &amp; partner details...', 'Configuring partner identity and suppressing supplier details...');
     await sleep(400);
 
     const isAanay = intent.isAanay || /aanay/i.test(intent.rawText);
-    const partnerName = isAanay ? 'Let's Explore DMC' : 'Let's Explore DMC';
-    const contactPerson = 'Let's Explore Reservations Team';
-    const phone = '7709123187';
+    const partnerName = isAanay ? 'Aanay Tours' : "Let's Explore DMC";
+    const contactPerson = isAanay ? 'Aanay Tours Reservations' : "Let's Explore Reservations Team";
+    const phone = isAanay ? '+91 7708123187' : '+91 80075 86881';
+    const email = isAanay ? 'Infoattdmc@gmail.com' : 'info@letsexploredmc.com';
+    const tagline = isAanay ? 'Your Travel Partner' : 'Your Destination Management Specialist';
 
     // Update Company State
     if (!QuotationData.company) QuotationData.company = {};
     QuotationData.company = {
       name: partnerName,
-      tagline: 'Luxury Travel Concierge',
+      tagline: tagline,
       phone: phone,
       contactPerson: contactPerson,
-      email: 'ops@letsexploredmc.com',
-      isPartner: true,
-      isWhitelabel: true
+      email: email,
+      isPartner: isAanay,
+      isWhitelabel: isAanay
     };
     Object.assign(AgentMemory.activeCompany, QuotationData.company);
 
@@ -1476,7 +1041,7 @@ const Chatbot = (() => {
     appendAI(responseHtml);
 
     showReplies([
-      { label: '🖨️ Download PDF (Let's Explore DMC)', val: '__PDF__', primary: true },
+      { label: '🖨️ Download PDF (Let\'s Explore DMC)', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📄 Word DOCX', val: '__DOCX__' },
       { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
@@ -1539,7 +1104,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download Itinerary PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '💰 Restore Rates (Master Quotation)', val: '__SWITCH_QUOTATION__' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
@@ -1672,7 +1237,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
@@ -1832,7 +1397,7 @@ const Chatbot = (() => {
       { label: '🖨️ Download PDF', val: '__PDF__', primary: true },
       { label: '👁️ View Live Preview', val: '__PREVIEW__' },
       { label: '📈 Add 10% Markup', val: 'Add 10% markup to this package' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' },
       { label: '🗺️ Itinerary (Without Rates)', val: 'Itinerary se costing hatao' }
     ]);
   }
@@ -1846,7 +1411,7 @@ const Chatbot = (() => {
 
     if (/formats?|document.*types?|suite/i.test(q)) {
       answer = `
-        <strong>Let's Explore DMC Document Suite</strong> mein total <strong>7 Official Corporate Document Formats</strong> available hain:<br><br>
+        <strong>Let\'s Explore DMC Document Suite</strong> mein total <strong>7 Official Corporate Document Formats</strong> available hain:<br><br>
         1. 📄 <strong>Master Quotation (Official Reference)</strong>: Complete 12-section commercial proposal with Pax columns, INR &amp; USD pricing.<br>
         2. 🗺️ <strong>Travel Itinerary</strong>: Guest-facing day-by-day timeline strictly without pricing rates.<br>
         3. 🏨 <strong>Hotel Costing &amp; Comparison</strong>: Multi-tier hotel stay comparison with room types and meal plans.<br>
@@ -1866,13 +1431,13 @@ const Chatbot = (() => {
     } else if (/company|branding|aanay|white-?label/i.test(q)) {
       answer = `
         Hum complete <strong>B2B White-label aur Partner Rebranding</strong> support karte hain.<br>
-        Agar aapka B2B travel agent (jaise Let's Explore DMC) apne brand se quote chahta hai, toh bas bolen:<br>
+        Agar aapka B2B travel agent (jaise Let\'s Explore DMC) apne brand se quote chahta hai, toh bas bolen:<br>
         <em>"Aanay tours ki details k sath edit karo unki details hata dena"</em><br><br>
         System DMC supplier details hata kar partner ka naam, contact person aur contact number laga dega!
       `;
     } else {
       answer = `
-        Let's Explore DMC Travel Operations Engine is online and ready.<br>
+        Let\'s Explore DMC Travel Operations Engine is online and ready.<br>
         Aap koi destination ka naam bolkar (e.g. <em>"Maldives 5D4N"</em>, <em>"Thailand 12D"</em>, <em>"Dubai 6D"</em>) ya reference PDF upload karke proposal create kar sakte hain!
       `;
     }
@@ -1882,7 +1447,7 @@ const Chatbot = (() => {
       { label: '🌴 12D Thailand Master', val: 'Create a 12-day Thailand package for 2 adults', primary: true },
       { label: '🏖️ Maldives 5D4N Water Villa', val: 'Maldives 5D4N luxury water villa package banao' },
       { label: '📈 10% Markup Lagao', val: 'Add 10% markup to this package' },
-      { label: '🏢 Let's Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
+      { label: '🏢 Let\'s Explore DMC Branding', val: 'Aanay tours ki details k sath edit karo unki details hata dena' }
     ]);
   }
 
@@ -2009,8 +1574,8 @@ const Chatbot = (() => {
         <div class="msg-actions-bar">
           <button type="button" class="btn-msg-action" onclick="Chatbot.copyLastResponse(this)" title="Copy Response">📋 Copy</button>
           <button type="button" class="btn-msg-action" onclick="Chatbot.regenerateResponse()" title="Regenerate Response">🔄 Regenerate</button>
-          <button type="button" class="btn-msg-action" onclick="App.showSection('generator'); if(typeof App.populateStudioFromData==='function') App.populateStudioFromData();" title="Edit in Studio Builder">✏️ Edit</button>
-          <button type="button" class="btn-msg-action" onclick="if(typeof PDFGenerator!=='undefined') PDFGenerator.generate();" title="Download PDF" style="margin-left:auto; background:#0F2C59; color:#fff; border-color:#0F2C59;">⬇️ PDF</button>
+          <button type="button" class="btn-msg-action" onclick="Chatbot.openStudioEditor()" title="Edit in Studio Builder">✏️ Edit</button>
+          <button type="button" class="btn-msg-action" onclick="if(typeof downloadStudioPdf==='function'){ downloadStudioPdf(); } else if(typeof triggerDocumentGeneration==='function'){ triggerDocumentGeneration(); } else if(typeof PDFGenerator!=='undefined'){ PDFGenerator.generate(); } else { window.print(); }" title="Download PDF" style="margin-left:auto; background:#0F2C59; color:#fff; border-color:#0F2C59;">⬇️ PDF</button>
         </div>
       `;
     }
@@ -2117,16 +1682,42 @@ const Chatbot = (() => {
       return;
     }
     if (opt.val === '__MODAL_EDIT__' || opt.val === '__GOTO_BUILDER__') {
-      if (typeof App !== 'undefined') {
-        App.showSection('generator');
-        if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
-        if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
-      }
+      openStudioEditor();
       return;
     }
 
     appendUser(opt.label);
     processMessage(opt.val, attachmentToProcess, attachmentsToProcess);
+  }
+
+  function openStudioEditor() {
+    // 1. If inside AI Assistant page with Rate Drawer:
+    if (typeof window.toggleRateEditorDrawer === 'function') {
+      window.toggleRateEditorDrawer();
+      if (typeof showToast === 'function') showToast('Rate & Pricing Editor opened!', 'info');
+      return;
+    }
+    // 2. If in full page with builder modal:
+    if (typeof window.openFullPageModal === 'function') {
+      window.openFullPageModal();
+      return;
+    }
+    // 3. If in App builder:
+    if (typeof App !== 'undefined' && typeof App.showSection === 'function') {
+      App.showSection('generator');
+      if (typeof App.populateStudioFromData === 'function') App.populateStudioFromData();
+      if (typeof App.populateInvoiceFields === 'function') App.populateInvoiceFields();
+      return;
+    }
+    // 4. Fallback: navigate to studio.html or ai-assistant.html with saved state
+    try {
+      if (typeof QuotationData !== 'undefined') {
+        localStorage.setItem('activeAiDocument', JSON.stringify(QuotationData));
+        localStorage.setItem('dmc_ai_prefill', JSON.stringify(QuotationData));
+      }
+    } catch(e) {}
+    const isInsideAdmin = typeof window !== 'undefined' && window.location.pathname.includes('inquiry-admin');
+    window.location.href = isInsideAdmin ? 'ai-assistant.html' : 'studio.html';
   }
 
   function clearReplies() {
@@ -2170,6 +1761,7 @@ const Chatbot = (() => {
     submitInput,
     copyLastResponse,
     regenerateResponse,
+    openStudioEditor,
     getMemory: () => AgentMemory
   };
 

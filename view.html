@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document Viewer — Let's Explore DMC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -26,17 +29,20 @@
       gap: 12px;
       flex-wrap: wrap;
     }
+
     .viewer-brand {
       display: flex;
       align-items: center;
       gap: 12px;
       font-family: 'Inter', sans-serif;
     }
+
     .viewer-brand strong {
       color: #17365D;
       font-size: 15px;
       font-weight: 800;
     }
+
     .viewer-badge {
       display: inline-block;
       padding: 3px 10px;
@@ -47,11 +53,13 @@
       font-weight: 700;
       font-family: monospace;
     }
+
     .viewer-actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
+
     .btn-viewer-action {
       display: inline-flex;
       align-items: center;
@@ -65,28 +73,34 @@
       transition: all 0.2s ease;
       border: none;
     }
+
     .btn-download-pdf {
       background: #16A34A;
       color: #FFFFFF;
       box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
     }
+
     .btn-download-pdf:hover {
       background: #15803D;
       transform: translateY(-1px);
     }
+
     .btn-print {
       background: #3977B8;
       color: #FFFFFF;
       box-shadow: 0 2px 8px rgba(57, 119, 184, 0.25);
     }
+
     .btn-print:hover {
       background: #2D6298;
     }
+
     .btn-edit {
       background: #F4F7FB;
       border: 1px solid #DCE4EF;
       color: #17365D;
     }
+
     .btn-edit:hover {
       background: #E2E8F0;
     }
@@ -99,6 +113,7 @@
       overflow-x: auto;
       padding: 4px 8px;
     }
+
     .btn-fmt-pill {
       display: inline-flex;
       align-items: center;
@@ -114,11 +129,13 @@
       transition: all 0.15s ease;
       white-space: nowrap;
     }
+
     .btn-fmt-pill:hover {
       background: #E2E8F0;
       color: #0F172A;
       border-color: #CBD5E1;
     }
+
     .btn-fmt-pill.active {
       background: #17365D;
       color: #FFFFFF;
@@ -132,6 +149,7 @@
       margin: 24px auto 60px;
       padding: 0 16px;
     }
+
     .printable-sheet {
       background: #FFFFFF;
       box-shadow: 0 10px 30px rgba(23, 54, 93, 0.1);
@@ -152,11 +170,13 @@
       .viewer-bar {
         display: none !important;
       }
+
       .document-viewport {
         max-width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
       }
+
       .printable-sheet {
         box-shadow: none !important;
         border: none !important;
@@ -165,12 +185,14 @@
     }
   </style>
 </head>
+
 <body style="background: #F4F7FB; margin: 0; padding: 0;">
 
   <!-- Floating Control Bar -->
   <div class="viewer-bar" id="viewerBar">
     <div class="viewer-brand">
-      <a href="inquiry-admin/inquiries.html" style="text-decoration:none; color:#17365D; display:flex; align-items:center; gap:8px;">
+      <a href="inquiry-admin/inquiries.html"
+        style="text-decoration:none; color:#17365D; display:flex; align-items:center; gap:8px;">
         <i class="fa-solid fa-arrow-left" style="font-size:13px; color:#64748B;"></i>
         <strong>Let's Explore DMC</strong>
       </a>
@@ -179,35 +201,48 @@
 
     <!-- Quick Format Switcher in Viewer -->
     <div class="viewer-formats" id="viewerFormats">
-      <button class="btn-fmt-pill active" data-doctype="quotation" onclick="switchViewerFormat('quotation')" title="Master Commercial Quotation">
+      <button class="btn-fmt-pill active" data-doctype="quotation" onclick="switchViewerFormat('quotation')"
+        title="Master Commercial Quotation">
         📄 Quotation
       </button>
-      <button class="btn-fmt-pill" data-doctype="itinerary" onclick="switchViewerFormat('itinerary')" title="Day-by-day Travel Itinerary">
+      <button class="btn-fmt-pill" data-doctype="itinerary" onclick="switchViewerFormat('itinerary')"
+        title="Day-by-day Travel Itinerary">
         🗺️ Itinerary
       </button>
-      <button class="btn-fmt-pill" data-doctype="hotel_costing" onclick="switchViewerFormat('hotel_costing')" title="3-Tier Hotel Costing Sheet">
+      <button class="btn-fmt-pill" data-doctype="hotel_costing" onclick="switchViewerFormat('hotel_costing')"
+        title="3-Tier Hotel Costing Sheet">
         🏨 Hotel Costing
       </button>
-      <button class="btn-fmt-pill" data-doctype="summary" onclick="switchViewerFormat('summary')" title="Package Summary">
+      <button class="btn-fmt-pill" data-doctype="summary" onclick="switchViewerFormat('summary')"
+        title="Package Summary">
         📋 Summary
       </button>
-      <button class="btn-fmt-pill" data-doctype="confirmation" onclick="switchViewerFormat('confirmation')" title="Official Luxury Hotel Booking Voucher">
+      <button class="btn-fmt-pill" data-doctype="confirmation" onclick="switchViewerFormat('confirmation')"
+        title="Official Luxury Hotel Booking Voucher">
         🏨 Hotel Voucher
       </button>
-      <button class="btn-fmt-pill" data-doctype="invoice" onclick="switchViewerFormat('invoice')" title="Corporate Tax Invoice">
+      <button class="btn-fmt-pill" data-doctype="invoice" onclick="switchViewerFormat('invoice')"
+        title="Corporate Tax Invoice">
         🧾 Tax Invoice
       </button>
     </div>
 
     <div class="viewer-actions">
       <!-- Direct 1-Click PDF Download Button -->
-      <button class="btn-viewer-action btn-download-pdf" onclick="downloadPdfDirect()" title="Download PDF directly to your device">
+      <button class="btn-viewer-action btn-download-pdf" onclick="downloadPdfDirect()"
+        title="Download PDF directly to your device">
         <i class="fa-solid fa-download"></i> Download PDF
+      </button>
+      <!-- Direct 1-Click DOCX Download Button -->
+      <button class="btn-viewer-action btn-download-docx" onclick="downloadDocxDirect()"
+        title="Download Word DOCX file directly" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer;">
+        <i class="fa-solid fa-file-word"></i> Download DOCX
       </button>
       <button class="btn-viewer-action btn-print" onclick="window.print()" title="Print or Save as Vector PDF">
         <i class="fa-solid fa-print"></i> Print / Save
       </button>
-      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="studio.html" title="Open this document in AI Studio">
+      <a class="btn-viewer-action btn-edit" id="btnEditStudio" href="studio.html"
+        title="Open this document in AI Studio">
         <i class="fa-solid fa-pen-to-square"></i> Edit in Studio
       </a>
     </div>
@@ -233,16 +268,340 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
+      const pkgId = urlParams.get('package_id');
+      const title = urlParams.get('title') || '';
+      const destination = urlParams.get('dest') || urlParams.get('destination') || '';
+      const autoPrint = urlParams.get('print') === '1';
+
+      const loadingDiv = document.getElementById('loadingState');
+      const contentDiv = document.getElementById('documentContent');
+
+      // 0. PRIORITY 1: Direct lookup by package_id from authoritative cPanel API
+      if (pkgId) {
+        let matchedPkg = null;
+        try {
+          const res = await fetch(`api/packages_manager.php?action=get&id=${encodeURIComponent(pkgId)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.package) {
+              matchedPkg = data.package;
+            }
+          }
+        } catch (e) { }
+
+        if (!matchedPkg) {
+          try {
+            const localPkgs = JSON.parse(localStorage.getItem('dmc_real_packages') || '[]');
+            matchedPkg = localPkgs.find(p => p.id == pkgId);
+          } catch (e) { }
+        }
+
+        if (matchedPkg) {
+          const isDining = (matchedPkg.id == 100 || (matchedPkg.package_code && matchedPkg.package_code.includes('VN-DINING')) || (matchedPkg.name && matchedPkg.name.toLowerCase().includes('villa nautica')));
+          
+          document.getElementById('refBadge').textContent = matchedPkg.package_code || ('PKG-' + matchedPkg.id);
+          document.getElementById('btnEditStudio').href = `inquiry-admin/ai-assistant.html?pkg_id=${matchedPkg.id}`;
+
+          if (isDining) {
+            document.getElementById('refBadge').textContent = 'PKG-MLE-VN-DINING';
+            if (typeof loadSampleDataset === 'function') loadSampleDataset('reference');
+            if (typeof QuotationData !== 'undefined') {
+              QuotationData.activeDocType = 'villa_nautica_dining';
+              if (!QuotationData.package) QuotationData.package = {};
+              QuotationData.package.id = 100;
+              QuotationData.package.package_code = 'PKG-MLE-VN-DINING';
+              QuotationData.package.isVillaNauticaDining = true;
+              QuotationData.package.title = 'Villa Nautica Paradise Island Maldives - Special Dining Experiences';
+              QuotationData.package.destinations = 'Paradise Island, Maldives';
+              QuotationData.package.destination = 'Maldives';
+              QuotationData.package.country = 'Maldives';
+              QuotationData.package.duration = 'Romantic Dining Guide';
+              QuotationData.package.travellers = 'Per Couple (2 Adults)';
+              QuotationData.package.paxCount = 2;
+              QuotationData.package.totalCostINR = 35000;
+              QuotationData.package.totalCostUSD = 400;
+              window.currentQuotationData = QuotationData;
+              window.QuotationData = QuotationData;
+              if (typeof Preview !== 'undefined' && typeof Preview.buildQuotationHTML === 'function') {
+                contentDiv.innerHTML = Preview.buildQuotationHTML(QuotationData, true);
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                if (autoPrint) setTimeout(() => window.print(), 800);
+                return;
+              }
+            }
+          }
+
+          // Dynamic Rendering: Render exact package using full_data, itinerary_json, or synthesized QuotationData
+          let pkgQuotation = null;
+          if (matchedPkg.full_data) {
+            pkgQuotation = typeof matchedPkg.full_data === 'string' ? JSON.parse(matchedPkg.full_data) : matchedPkg.full_data;
+          } else if (matchedPkg.itinerary_json) {
+            try {
+              pkgQuotation = typeof matchedPkg.itinerary_json === 'string' ? JSON.parse(matchedPkg.itinerary_json) : matchedPkg.itinerary_json;
+            } catch (e) { }
+          }
+
+          if (!pkgQuotation) {
+            if (typeof loadSampleDataset === 'function') loadSampleDataset('reference');
+            if (typeof QuotationData !== 'undefined') {
+              pkgQuotation = JSON.parse(JSON.stringify(QuotationData));
+              pkgQuotation.package.title = matchedPkg.name || pkgQuotation.package.title;
+              pkgQuotation.package.destination = matchedPkg.destination || pkgQuotation.package.destination;
+              pkgQuotation.package.destinations = matchedPkg.destination || pkgQuotation.package.destinations;
+              pkgQuotation.package.country = matchedPkg.country || pkgQuotation.package.country;
+              pkgQuotation.package.duration = `${matchedPkg.duration_days || 5} Days / ${matchedPkg.duration_nights || 4} Nights`;
+              if (matchedPkg.pricing_inr) {
+                pkgQuotation.package.totalCostINR = matchedPkg.pricing_inr;
+                pkgQuotation.package.ratePerAdult = Math.round(matchedPkg.pricing_inr / 2);
+                if (pkgQuotation.pricing) {
+                  pkgQuotation.pricing.grandTotal = matchedPkg.pricing_inr;
+                  pkgQuotation.pricing.totalINR = matchedPkg.pricing_inr;
+                  pkgQuotation.pricing.perPersonINR = Math.round(matchedPkg.pricing_inr / 2);
+                }
+              }
+              if (matchedPkg.pricing_usd) {
+                pkgQuotation.package.totalCostUSD = matchedPkg.pricing_usd;
+                if (pkgQuotation.pricing) {
+                  pkgQuotation.pricing.grandTotalUSD = matchedPkg.pricing_usd;
+                  pkgQuotation.pricing.totalUSD = matchedPkg.pricing_usd;
+                  pkgQuotation.pricing.perPersonUSD = Math.round(matchedPkg.pricing_usd / 2);
+                }
+              }
+              if (matchedPkg.hotel_details) {
+                pkgQuotation.hotels = [{
+                  name: matchedPkg.hotel_details,
+                  city: matchedPkg.destination || 'Hotel',
+                  roomType: 'Deluxe Room',
+                  mealPlan: 'Breakfast Included',
+                  pax: 2,
+                  amountINR: Math.round((matchedPkg.pricing_inr || 50000) * 0.45)
+                }];
+              }
+            }
+          }
+
+          if (pkgQuotation && typeof Preview !== 'undefined' && typeof Preview.buildQuotationHTML === 'function') {
+            window.currentQuotationData = pkgQuotation;
+            window.QuotationData = pkgQuotation;
+            const html = Preview.buildQuotationHTML(pkgQuotation, true);
+            contentDiv.innerHTML = html;
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+            if (autoPrint) setTimeout(() => window.print(), 800);
+            return;
+          }
+        }
+      }
+
+      // 1. PRIORITY 2: Check active document from AI Studio (when opened from Studio session without package_id)
+      const fromStudio = urlParams.get('from_studio') === '1';
+      let aiDoc = null;
+      try {
+        aiDoc = JSON.parse(localStorage.getItem('activeAiDocument') || 'null');
+      } catch (e) {}
+
+      if (aiDoc && (fromStudio || (!pkgId && (title || destination)))) {
+        const pkg = aiDoc.package || {};
+        window.currentQuotationData = aiDoc;
+        window.QuotationData = aiDoc;
+        document.getElementById('refBadge').textContent = pkg.quotationNo || pkg.quoteRef || ('LE-DOC-' + Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('btnEditStudio').href = `inquiry-admin/ai-assistant.html?dest=${encodeURIComponent(pkg.destination || '')}&title=${encodeURIComponent(pkg.title || '')}&doctype=${aiDoc.activeDocType || 'quotation'}`;
+
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+
+        if (typeof Preview !== 'undefined' && typeof Preview.buildQuotationHTML === 'function') {
+          contentDiv.innerHTML = Preview.buildQuotationHTML(aiDoc, true);
+          if (autoPrint) setTimeout(() => window.print(), 800);
+          return;
+        }
+      }
+
+      // 1. Immediate Villa Nautica Maldives Dining In-Place Rendering (Never Redirect to raw uploads/!)
+      const isDining = (pkgId == '100') ||
+        (title && title.toLowerCase().includes('villa nautica')) ||
+        (destination && destination.toLowerCase().includes('maldives') && title.toLowerCase().includes('dining'));
+
+      if (isDining) {
+        document.getElementById('refBadge').textContent = 'LEDMC-MLE-DIN-8821';
+        document.getElementById('btnEditStudio').href = 'inquiry-admin/ai-assistant.html?doctype=villa_nautica_dining&title=' + encodeURIComponent('Villa Nautica Maldives — Candle Light & Beach Dining Experiences (With Decoration)');
+
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+
+        if (typeof loadSampleDataset === 'function') {
+          loadSampleDataset('reference');
+        }
+        if (typeof QuotationData !== 'undefined') {
+          QuotationData.activeDocType = 'villa_nautica_dining';
+          if (!QuotationData.package) QuotationData.package = {};
+          QuotationData.package.isVillaNauticaDining = true;
+          QuotationData.package.title = 'Villa Nautica Paradise Island Maldives - Special Dining Experiences';
+          QuotationData.package.destinations = 'Paradise Island, Maldives';
+          QuotationData.package.destination = 'Maldives';
+          QuotationData.package.country = 'Maldives';
+          QuotationData.package.duration = 'Romantic Dining Guide';
+          QuotationData.package.travellers = 'Per Couple (2 Adults)';
+          QuotationData.package.paxCount = 2;
+          QuotationData.package.totalCostINR = 35000;
+          QuotationData.package.totalCostUSD = 400;
+          window.currentQuotationData = QuotationData;
+          window.QuotationData = QuotationData;
+
+          if (typeof Preview !== 'undefined' && typeof Preview.buildQuotationHTML === 'function') {
+            contentDiv.innerHTML = Preview.buildQuotationHTML(QuotationData, true);
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+            if (autoPrint) setTimeout(() => window.print(), 800);
+            return;
+          }
+        }
+
+        // Secondary fallback: safely fetch formatted HTML content
+        try {
+          const fetchRes = await fetch('format/VillaNautica_Maldives_Dining_Experiences_Doubled.html');
+          if (fetchRes.ok) {
+            contentDiv.innerHTML = await fetchRes.text();
+            if (autoPrint) setTimeout(() => window.print(), 800);
+            return;
+          }
+        } catch (e) { }
+      }
+
+      // 2. Direct lookup of authentic package quotation files
+      if (pkgId) {
+        let matchedPkg = null;
+        try {
+          const localPkgs = JSON.parse(localStorage.getItem('dmc_real_packages') || '[]');
+          matchedPkg = localPkgs.find(p => p.id == pkgId);
+        } catch (e) { }
+
+        if (!matchedPkg) {
+          try {
+            const res = await fetch('api/packages_manager.php?action=list');
+            const data = await res.json();
+            if (data && data.packages) {
+              matchedPkg = data.packages.find(p => p.id == pkgId);
+            }
+          } catch (e) { }
+        }
+
+        if (matchedPkg) {
+          const fp = matchedPkg.file_path || '';
+          const fpLower = fp.toLowerCase();
+          const destCombined = ((matchedPkg.destination || '') + ' ' + (matchedPkg.country || '') + ' ' + (matchedPkg.name || '')).toLowerCase();
+          const isFileMismatch = (fpLower.includes('kerala') && !destCombined.includes('kerala')) ||
+                                 (fpLower.includes('bali') && !destCombined.includes('bali')) ||
+                                 (fpLower.includes('dubai') && !destCombined.includes('dubai')) ||
+                                 ((destCombined.includes('thailand') || destCombined.includes('phuket')) && fpLower.includes('kerala'));
+
+          document.getElementById('refBadge').textContent = matchedPkg.package_code || ('PKG-' + matchedPkg.id);
+          document.getElementById('btnEditStudio').href = `inquiry-admin/ai-assistant.html?dest=${encodeURIComponent(matchedPkg.destination || '')}&title=${encodeURIComponent(matchedPkg.name || '')}&pkg_id=${matchedPkg.id}`;
+
+          // If authentic matched PDF exists and not mismatched
+          if (!isFileMismatch && fp && fp.endsWith('.pdf')) {
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+            contentDiv.innerHTML = `
+              <div style="padding:16px 20px; background:#F8FAFC; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; border-radius:8px 8px 0 0;">
+                <div>
+                  <h3 style="margin:0; font-size:16px; font-weight:800; color:#0F2C59;">${matchedPkg.name || 'Official Travel Itinerary'}</h3>
+                  <div style="font-size:12px; color:#64748B;">📍 ${matchedPkg.destination || 'Destination'} • Official Verified DMC Proposal</div>
+                </div>
+                <a href="${fp}" download class="btn-viewer-action btn-download-pdf" style="font-size:12px; text-decoration:none;">
+                  <i class="fa-solid fa-download"></i> Direct File Download
+                </a>
+              </div>
+              <iframe src="${fp}" style="width:100%; height:920px; border:none; background:#FFF; border-radius:0 0 8px 8px;"></iframe>
+            `;
+            if (autoPrint) setTimeout(() => window.print(), 800);
+            return;
+          }
+
+          if (!isFileMismatch && fp && (fp.endsWith('.html') || fp.endsWith('.htm'))) {
+            try {
+              const r = await fetch(fp);
+              if (r.ok) {
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                contentDiv.innerHTML = await r.text();
+                if (autoPrint) setTimeout(() => window.print(), 800);
+                return;
+              }
+            } catch (e) { }
+          }
+
+          // Dynamic Rendering Fallback: Render exact package using full_data, itinerary_json, or synthesized QuotationData
+          let pkgQuotation = null;
+          if (matchedPkg.full_data) {
+            pkgQuotation = typeof matchedPkg.full_data === 'string' ? JSON.parse(matchedPkg.full_data) : matchedPkg.full_data;
+          } else if (matchedPkg.itinerary_json) {
+            try {
+              pkgQuotation = typeof matchedPkg.itinerary_json === 'string' ? JSON.parse(matchedPkg.itinerary_json) : matchedPkg.itinerary_json;
+            } catch (e) { }
+          }
+
+          if (!pkgQuotation) {
+            if (typeof loadSampleDataset === 'function') loadSampleDataset('reference');
+            if (typeof QuotationData !== 'undefined') {
+              pkgQuotation = JSON.parse(JSON.stringify(QuotationData));
+              pkgQuotation.package.title = matchedPkg.name || pkgQuotation.package.title;
+              pkgQuotation.package.destination = matchedPkg.destination || pkgQuotation.package.destination;
+              pkgQuotation.package.destinations = matchedPkg.destination || pkgQuotation.package.destinations;
+              pkgQuotation.package.country = matchedPkg.country || pkgQuotation.package.country;
+              pkgQuotation.package.duration = `${matchedPkg.duration_days || 5} Days / ${matchedPkg.duration_nights || 4} Nights`;
+              if (matchedPkg.pricing_inr) {
+                pkgQuotation.package.totalCostINR = matchedPkg.pricing_inr;
+                pkgQuotation.package.ratePerAdult = Math.round(matchedPkg.pricing_inr / 2);
+                if (pkgQuotation.pricing) {
+                  pkgQuotation.pricing.grandTotal = matchedPkg.pricing_inr;
+                  pkgQuotation.pricing.totalINR = matchedPkg.pricing_inr;
+                  pkgQuotation.pricing.perPersonINR = Math.round(matchedPkg.pricing_inr / 2);
+                }
+              }
+              if (matchedPkg.pricing_usd) {
+                pkgQuotation.package.totalCostUSD = matchedPkg.pricing_usd;
+                if (pkgQuotation.pricing) {
+                  pkgQuotation.pricing.grandTotalUSD = matchedPkg.pricing_usd;
+                  pkgQuotation.pricing.totalUSD = matchedPkg.pricing_usd;
+                  pkgQuotation.pricing.perPersonUSD = Math.round(matchedPkg.pricing_usd / 2);
+                }
+              }
+              if (matchedPkg.hotel_details) {
+                pkgQuotation.hotels = [{
+                  name: matchedPkg.hotel_details,
+                  city: matchedPkg.destination || 'Hotel',
+                  roomType: 'Deluxe Room',
+                  mealPlan: 'Breakfast Included',
+                  pax: 2,
+                  amountINR: Math.round((matchedPkg.pricing_inr || 50000) * 0.45)
+                }];
+              }
+            }
+          }
+
+          if (pkgQuotation && typeof Preview !== 'undefined' && typeof Preview.buildQuotationHTML === 'function') {
+            window.currentQuotationData = pkgQuotation;
+            window.QuotationData = pkgQuotation;
+            const html = Preview.buildQuotationHTML(pkgQuotation, true);
+            contentDiv.innerHTML = html;
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
+            if (autoPrint) setTimeout(() => window.print(), 800);
+            return;
+          }
+        }
+      }
+
       const quoteRef = urlParams.get('ref') || urlParams.get('load') || 'LEDMC-DOCUMENT';
       const clientName = urlParams.get('client') || urlParams.get('client_name') || urlParams.get('name') || '';
       const clientPhone = urlParams.get('phone') || urlParams.get('client_phone') || '';
       const clientEmail = urlParams.get('email') || urlParams.get('client_email') || '';
-      const destination = urlParams.get('dest') || urlParams.get('destination') || '';
       const paxCount = urlParams.get('pax') || '2';
       const travelDate = urlParams.get('date') || urlParams.get('travel_date') || '';
       const returnDate = urlParams.get('return_date') || '';
       const initialDocType = urlParams.get('doctype') || 'quotation';
-      const autoPrint = urlParams.get('print') === '1';
 
       document.getElementById('refBadge').textContent = quoteRef;
       document.getElementById('btnEditStudio').href = `studio.html?load_client=${encodeURIComponent(clientName)}&dest=${encodeURIComponent(destination)}&lead_id=${encodeURIComponent(quoteRef)}&phone=${encodeURIComponent(clientPhone)}&email=${encodeURIComponent(clientEmail)}&pax=${encodeURIComponent(paxCount)}`;
@@ -267,14 +626,14 @@
         try {
           const localList = JSON.parse(localStorage.getItem('dmc_saved_quotations_v1') || '[]');
           quotation = localList.find(q => q.quote_ref === quoteRef);
-        } catch (e) {}
+        } catch (e) { }
       }
 
       // 3. Smart Dynamic Generation for ANY Client/Proposal (Never fail with 'Not Found')
       if (!quotation) {
         // Load master template structure
         loadSampleDataset('reference');
-        
+
         if (typeof QuotationData !== 'undefined') {
           if (clientName) QuotationData.package.clientName = clientName;
           if (quoteRef) QuotationData.package.quotationNo = quoteRef;
@@ -292,9 +651,6 @@
         }
       }
 
-      const loadingDiv = document.getElementById('loadingState');
-      const contentDiv = document.getElementById('documentContent');
-
       // Render the official printable document
       try {
         const fullData = (quotation && quotation.full_data) ? quotation.full_data : (quotation || QuotationData);
@@ -302,7 +658,6 @@
         window.QuotationData = fullData;
 
         // Check Client Gating: If Draft and not previewing internally
-        const urlParams = new URLSearchParams(window.location.search);
         const isInternalPreview = urlParams.get('preview') === '1' || urlParams.get('from_admin') === '1';
         const qStatus = quotation?.status || fullData?.status || 'Confirmed';
 
@@ -371,6 +726,19 @@
     }
 
     /**
+     * Download DOCX Directly using DocxGenerator
+     */
+    function downloadDocxDirect() {
+      const data = window.currentQuotationData || window.QuotationData;
+      if (!data) return;
+      if (typeof DocxGenerator !== 'undefined' && typeof DocxGenerator.download === 'function') {
+        DocxGenerator.download(data);
+      } else {
+        alert('Preparing DOCX export for ' + (data?.package?.title || 'Quotation') + '...');
+      }
+    }
+
+    /**
      * Switch format directly from viewer bar
      */
     function switchViewerFormat(docType) {
@@ -390,4 +758,5 @@
     }
   </script>
 </body>
+
 </html>

@@ -1,7 +1,8 @@
 <?php
 /**
- * api/packages_manager.php — Packages Full CRUD and Real-Time Publishing Gateway
- * Supports MySQL DB with automatic sync to data/packages.json fallback.
+ * api/packages_manager.php — Single Source of Truth for Master Packages & Documents
+ * Supports MySQL DB with automatic schema sync, version tracking (package_versions),
+ * and persistent sync to data/packages.json fallback.
  */
 
 require_once __DIR__ . '/config.php';
@@ -29,7 +30,59 @@ function saveFallbackPackages($filePath, $data) {
     @file_put_contents($filePath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
-// 1. LIST PACKAGES
+// -------------------------------------------------------------
+// 1. GET SINGLE PACKAGE (By ID or Package Code)
+// -------------------------------------------------------------
+if ($action === 'get') {
+    $pkgId = (int)($input['package_id'] ?? ($input['id'] ?? ($_GET['id'] ?? ($_GET['package_id'] ?? 0))));
+    $code = trim($input['package_code'] ?? ($input['code'] ?? ($_GET['code'] ?? ($_GET['package_code'] ?? ''))));
+
+    $found = null;
+
+    if ($pdo && ($pkgId > 0 || !empty($code))) {
+        try {
+            if ($pkgId > 0) {
+                $stmt = $pdo->prepare("SELECT * FROM `packages` WHERE `id` = ? LIMIT 1");
+                $stmt->execute([$pkgId]);
+            } else {
+                $stmt = $pdo->prepare("SELECT * FROM `packages` WHERE `package_code` = ? LIMIT 1");
+                $stmt->execute([$code]);
+            }
+            $found = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {}
+    }
+
+    if (!$found) {
+        $allJson = getFallbackPackages($packagesJsonPath);
+        foreach ($allJson as $p) {
+            if (($pkgId > 0 && ($p['id'] == $pkgId)) || (!empty($code) && strcasecmp($p['package_code'] ?? '', $code) === 0)) {
+                $found = $p;
+                break;
+            }
+        }
+    }
+
+    if ($found) {
+        // Parse JSON strings to objects if needed
+        if (!empty($found['itinerary_json']) && is_string($found['itinerary_json'])) {
+            $parsedItin = json_decode($found['itinerary_json'], true);
+            if ($parsedItin) $found['itinerary_json'] = $parsedItin;
+        }
+        if (!empty($found['full_data']) && is_string($found['full_data'])) {
+            $parsedFull = json_decode($found['full_data'], true);
+            if ($parsedFull) $found['full_data'] = $parsedFull;
+        }
+        echo json_encode(['success' => true, 'package' => $found]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Package not found']);
+    }
+    exit;
+}
+
+// -------------------------------------------------------------
+// 2. LIST PACKAGES
+// -------------------------------------------------------------
 if ($method === 'GET' || $action === 'list') {
     $country = strtolower(trim($_GET['country'] ?? 'all'));
     $status = strtolower(trim($_GET['status'] ?? 'all'));
@@ -101,7 +154,9 @@ if ($method === 'GET' || $action === 'list') {
     exit;
 }
 
-// 2. CREATE NEW PACKAGE
+// -------------------------------------------------------------
+// 3. CREATE NEW PACKAGE (With Version 1 Initialization)
+// -------------------------------------------------------------
 if ($action === 'create') {
     $name = trim($input['name'] ?? '');
     $country = trim($input['country'] ?? 'India');
@@ -116,9 +171,25 @@ if ($action === 'create') {
     $pricingInr = (float)($input['pricing_inr'] ?? 0);
     $pricingUsd = (float)($input['pricing_usd'] ?? ($pricingInr / 83.5));
     $markup = (float)($input['markup_percent'] ?? 10.0);
+    $clientName = trim($input['client_name'] ?? 'Valued Traveler');
+    $clientPhone = trim($input['client_phone'] ?? '');
+    $clientEmail = trim($input['client_email'] ?? '');
+    $docType = trim($input['doc_type'] ?? 'quotation');
+    $changeSummary = trim($input['change_summary'] ?? 'Initial creation');
     $isPublished = isset($input['is_published']) ? (int)$input['is_published'] : 1;
     $status = ($isPublished === 1) ? 'active' : 'inactive';
-    $code = 'PKG-' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $country), 0, 2)) . '-' . strtoupper(substr(uniqid(), -4));
+    $version = 1;
+
+    $isDining = (stripos($name, 'villa nautica') !== false || (stripos($destination, 'maldives') !== false && stripos($name, 'dining') !== false));
+    $countryCode = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $country), 0, 2));
+    if (empty($countryCode)) $countryCode = 'XX';
+    $code = !empty($input['package_code']) ? trim($input['package_code']) : ($isDining ? 'PKG-MLE-VN-DINING' : ('PKG-' . $countryCode . '-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 4))));
+
+    $filePath = trim($input['file_path'] ?? '');
+    if (empty($filePath) && $isDining) {
+        $filePath = 'uploads/VillaNautica_Maldives_Dining_Experiences_Doubled.html';
+    }
+    $sourceDriveFile = !empty($filePath) ? basename($filePath) : '';
 
     if (empty($name) || empty($destination)) {
         http_response_code(400);
@@ -126,8 +197,14 @@ if ($action === 'create') {
         exit;
     }
 
+    $fullData = !empty($input['full_data']) ? $input['full_data'] : null;
+    $itineraryJson = !empty($input['itinerary_json']) ? $input['itinerary_json'] : ($fullData ? $fullData : null);
+
+    $fullDataStr = $fullData ? (is_string($fullData) ? $fullData : json_encode($fullData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
+    $itineraryJsonStr = $itineraryJson ? (is_string($itineraryJson) ? $itineraryJson : json_encode($itineraryJson, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
+
     $newPkg = [
-        'id' => time(),
+        'id' => $isDining ? 100 : time(),
         'package_code' => $code,
         'name' => $name,
         'country' => $country,
@@ -142,42 +219,102 @@ if ($action === 'create') {
         'pricing_inr' => $pricingInr,
         'pricing_usd' => $pricingUsd,
         'markup_percent' => $markup,
+        'client_name' => $clientName,
+        'client_phone' => $clientPhone,
+        'client_email' => $clientEmail,
+        'doc_type' => $docType,
+        'version' => $version,
+        'full_data' => $fullData,
+        'itinerary_json' => $itineraryJson,
         'is_published' => $isPublished,
         'status' => $status,
-        'created_at' => date('Y-m-d H:i:s')
+        'file_path' => $filePath,
+        'source_drive_file' => $sourceDriveFile,
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+        'history' => [
+            [
+                'version' => 1,
+                'change_summary' => $changeSummary,
+                'created_at' => date('Y-m-d H:i:s'),
+                'pricing_inr' => $pricingInr,
+                'pricing_usd' => $pricingUsd
+            ]
+        ]
     ];
 
     if ($pdo) {
         try {
             $stmt = $pdo->prepare("
                 INSERT INTO `packages` 
-                (`package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `hotel_category`, `hotel_details`, `inclusions`, `exclusions`, `highlights`, `pricing_inr`, `pricing_usd`, `markup_percent`, `is_published`, `status`, `created_at`)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                (`package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `hotel_category`, `hotel_details`, `inclusions`, `exclusions`, `highlights`, `itinerary_json`, `full_data`, `pricing_inr`, `pricing_usd`, `markup_percent`, `client_name`, `client_phone`, `client_email`, `doc_type`, `version`, `file_path`, `source_drive_file`, `is_published`, `status`, `created_at`, `updated_at`)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
             $stmt->execute([
-                $code, $name, $country, $destination, $durationDays, $durationNights, $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights, $pricingInr, $pricingUsd, $markup, $isPublished, $status
+                $code, $name, $country, $destination, $durationDays, $durationNights, $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights, $itineraryJsonStr, $fullDataStr, $pricingInr, $pricingUsd, $markup, $clientName, $clientPhone, $clientEmail, $docType, $version, $filePath, $sourceDriveFile, $isPublished, $status
             ]);
             $newPkg['id'] = (int)$pdo->lastInsertId();
-        } catch (Exception $e) {}
+
+            // Store Version 1 snapshot
+            try {
+                $vStmt = $pdo->prepare("
+                    INSERT INTO `package_versions`
+                    (`package_id`, `package_code`, `version`, `change_summary`, `doc_type`, `full_data`, `pricing_inr`, `pricing_usd`, `created_by`, `created_at`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'AI Studio', NOW())
+                ");
+                $vStmt->execute([
+                    $newPkg['id'], $code, 1, $changeSummary, $docType, ($fullDataStr ?: $itineraryJsonStr ?: '{}'), $pricingInr, $pricingUsd
+                ]);
+            } catch (Exception $ve) {}
+
+        } catch (Exception $e) {
+            // Fallback insert if any column missing in legacy DB
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO `packages` 
+                    (`package_code`, `name`, `country`, `destination`, `duration_days`, `duration_nights`, `hotel_category`, `hotel_details`, `inclusions`, `exclusions`, `highlights`, `itinerary_json`, `pricing_inr`, `pricing_usd`, `markup_percent`, `is_published`, `status`, `created_at`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                ");
+                $stmt->execute([
+                    $code, $name, $country, $destination, $durationDays, $durationNights, $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights, $itineraryJsonStr, $pricingInr, $pricingUsd, $markup, $isPublished, $status
+                ]);
+                $newPkg['id'] = (int)$pdo->lastInsertId();
+            } catch (Exception $e2) {}
+        }
     }
 
     // Sync to JSON
     $jsonPkgs = getFallbackPackages($packagesJsonPath);
-    array_unshift($jsonPkgs, $newPkg);
+    $found = false;
+    foreach ($jsonPkgs as &$jp) {
+        if ($jp['package_code'] === $code || ($code === 'PKG-MLE-VN-DINING' && stripos($jp['name'], 'villa nautica') !== false)) {
+            $jp = array_merge($jp, $newPkg);
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        array_unshift($jsonPkgs, $newPkg);
+    }
     saveFallbackPackages($packagesJsonPath, $jsonPkgs);
 
     echo json_encode([
         'success' => true,
-        'message' => "Package '$name' created successfully!",
+        'message' => "Package '$name' created successfully (v1)!",
         'package_id' => $newPkg['id'],
+        'package_code' => $newPkg['package_code'],
+        'version' => 1,
         'package' => $newPkg
     ]);
     exit;
 }
 
-// 3. UPDATE PACKAGE
+// -------------------------------------------------------------
+// 4. UPDATE PACKAGE (With Automatic Version Bumping v1 -> v2 -> v3)
+// -------------------------------------------------------------
 if ($action === 'update') {
     $pkgId = (int)($input['package_id'] ?? ($input['id'] ?? 0));
+    $code = trim($input['package_code'] ?? ($input['code'] ?? ''));
     $name = trim($input['name'] ?? '');
     $country = trim($input['country'] ?? 'India');
     $destination = trim($input['destination'] ?? '');
@@ -191,28 +328,90 @@ if ($action === 'update') {
     $pricingInr = (float)($input['pricing_inr'] ?? 0);
     $pricingUsd = (float)($input['pricing_usd'] ?? ($pricingInr / 83.5));
     $markup = (float)($input['markup_percent'] ?? 10.0);
+    $clientName = trim($input['client_name'] ?? 'Valued Traveler');
+    $clientPhone = trim($input['client_phone'] ?? '');
+    $clientEmail = trim($input['client_email'] ?? '');
+    $docType = trim($input['doc_type'] ?? 'quotation');
+    $changeSummary = trim($input['change_summary'] ?? 'Updated in Studio');
     $isPublished = isset($input['is_published']) ? (int)$input['is_published'] : 1;
     $status = ($isPublished === 1) ? 'active' : 'inactive';
+    $filePath = trim($input['file_path'] ?? '');
 
-    if ($pdo) {
+    $fullData = !empty($input['full_data']) ? $input['full_data'] : null;
+    $itineraryJson = !empty($input['itinerary_json']) ? $input['itinerary_json'] : ($fullData ? $fullData : null);
+
+    $fullDataStr = $fullData ? (is_string($fullData) ? $fullData : json_encode($fullData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
+    $itineraryJsonStr = $itineraryJson ? (is_string($itineraryJson) ? $itineraryJson : json_encode($itineraryJson, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
+
+    // Retrieve current version
+    $currentVersion = 1;
+    if ($pdo && $pkgId > 0) {
+        try {
+            $vCheck = $pdo->prepare("SELECT `version`, `package_code` FROM `packages` WHERE `id` = ?");
+            $vCheck->execute([$pkgId]);
+            $row = $vCheck->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $currentVersion = (int)($row['version'] ?? 1);
+                if (empty($code)) $code = $row['package_code'] ?? '';
+            }
+        } catch (Exception $e) {}
+    }
+    $newVersion = $currentVersion + 1;
+
+    // Update in MySQL
+    if ($pdo && $pkgId > 0) {
         try {
             $stmt = $pdo->prepare("
                 UPDATE `packages` 
                 SET `name` = ?, `country` = ?, `destination` = ?, `duration_days` = ?, `duration_nights` = ?, 
                     `hotel_category` = ?, `hotel_details` = ?, `inclusions` = ?, `exclusions` = ?, `highlights` = ?,
-                    `pricing_inr` = ?, `pricing_usd` = ?, `markup_percent` = ?, `is_published` = ?, `status` = ?, `updated_at` = NOW()
+                    `itinerary_json` = ?, `full_data` = ?, `pricing_inr` = ?, `pricing_usd` = ?, `markup_percent` = ?,
+                    `client_name` = ?, `client_phone` = ?, `client_email` = ?, `doc_type` = ?, `version` = ?,
+                    `file_path` = ?, `is_published` = ?, `status` = ?, `updated_at` = NOW()
                 WHERE `id` = ?
             ");
             $stmt->execute([
-                $name, $country, $destination, $durationDays, $durationNights, $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights, $pricingInr, $pricingUsd, $markup, $isPublished, $status, $pkgId
+                $name, $country, $destination, $durationDays, $durationNights,
+                $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights,
+                $itineraryJsonStr, $fullDataStr, $pricingInr, $pricingUsd, $markup,
+                $clientName, $clientPhone, $clientEmail, $docType, $newVersion,
+                $filePath, $isPublished, $status, $pkgId
             ]);
-        } catch (Exception $e) {}
+
+            // Save version record
+            try {
+                $vStmt = $pdo->prepare("
+                    INSERT INTO `package_versions`
+                    (`package_id`, `package_code`, `version`, `change_summary`, `doc_type`, `full_data`, `pricing_inr`, `pricing_usd`, `created_by`, `created_at`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'AI Studio', NOW())
+                ");
+                $vStmt->execute([
+                    $pkgId, $code, $newVersion, $changeSummary, $docType, ($fullDataStr ?: $itineraryJsonStr ?: '{}'), $pricingInr, $pricingUsd
+                ]);
+            } catch (Exception $ve) {}
+
+        } catch (Exception $e) {
+            // Fallback update without new columns
+            try {
+                $stmt = $pdo->prepare("
+                    UPDATE `packages` 
+                    SET `name` = ?, `country` = ?, `destination` = ?, `duration_days` = ?, `duration_nights` = ?, 
+                        `hotel_category` = ?, `hotel_details` = ?, `inclusions` = ?, `exclusions` = ?, `highlights` = ?,
+                        `itinerary_json` = ?, `pricing_inr` = ?, `pricing_usd` = ?, `markup_percent` = ?, `is_published` = ?, `status` = ?, `updated_at` = NOW()
+                    WHERE `id` = ?
+                ");
+                $stmt->execute([
+                    $name, $country, $destination, $durationDays, $durationNights, $hotelCat, $hotelDetails, $inclusions, $exclusions, $highlights, $itineraryJsonStr, $pricingInr, $pricingUsd, $markup, $isPublished, $status, $pkgId
+                ]);
+            } catch (Exception $e2) {}
+        }
     }
 
     // Sync to JSON
     $jsonPkgs = getFallbackPackages($packagesJsonPath);
+    $updatedPkg = null;
     foreach ($jsonPkgs as &$p) {
-        if ($p['id'] == $pkgId) {
+        if ($p['id'] == $pkgId || (!empty($code) && ($p['package_code'] ?? '') === $code)) {
             $p['name'] = $name;
             $p['country'] = $country;
             $p['destination'] = $destination;
@@ -226,18 +425,75 @@ if ($action === 'update') {
             $p['pricing_inr'] = $pricingInr;
             $p['pricing_usd'] = $pricingUsd;
             $p['markup_percent'] = $markup;
+            $p['client_name'] = $clientName;
+            $p['client_phone'] = $clientPhone;
+            $p['client_email'] = $clientEmail;
+            $p['doc_type'] = $docType;
+            $p['version'] = $newVersion;
             $p['is_published'] = $isPublished;
             $p['status'] = $status;
+            $p['updated_at'] = date('Y-m-d H:i:s');
+            if ($fullData) $p['full_data'] = $fullData;
+            if ($itineraryJson) $p['itinerary_json'] = $itineraryJson;
+            if ($filePath) $p['file_path'] = $filePath;
+
+            if (!isset($p['history']) || !is_array($p['history'])) $p['history'] = [];
+            array_unshift($p['history'], [
+                'version' => $newVersion,
+                'change_summary' => $changeSummary,
+                'created_at' => date('Y-m-d H:i:s'),
+                'pricing_inr' => $pricingInr,
+                'pricing_usd' => $pricingUsd
+            ]);
+            $updatedPkg = $p;
             break;
         }
     }
     saveFallbackPackages($packagesJsonPath, $jsonPkgs);
 
-    echo json_encode(['success' => true, 'message' => "Package updated successfully!"]);
+    echo json_encode([
+        'success' => true,
+        'message' => "Package updated successfully to version v$newVersion!",
+        'package_id' => $pkgId,
+        'package_code' => $code,
+        'version' => $newVersion,
+        'package' => $updatedPkg
+    ]);
     exit;
 }
 
-// 4. TOGGLE PUBLISH / ACTIVE STATUS
+// -------------------------------------------------------------
+// 5. GET PACKAGE VERSION HISTORY
+// -------------------------------------------------------------
+if ($action === 'versions') {
+    $pkgId = (int)($input['package_id'] ?? ($input['id'] ?? ($_GET['id'] ?? ($_GET['package_id'] ?? 0))));
+    $versions = [];
+
+    if ($pdo && $pkgId > 0) {
+        try {
+            $stmt = $pdo->prepare("SELECT id, package_id, package_code, version, change_summary, doc_type, pricing_inr, pricing_usd, created_by, created_at FROM `package_versions` WHERE `package_id` = ? ORDER BY `version` DESC");
+            $stmt->execute([$pkgId]);
+            $versions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {}
+    }
+
+    if (empty($versions)) {
+        $allJson = getFallbackPackages($packagesJsonPath);
+        foreach ($allJson as $p) {
+            if ($p['id'] == $pkgId && !empty($p['history'])) {
+                $versions = $p['history'];
+                break;
+            }
+        }
+    }
+
+    echo json_encode(['success' => true, 'package_id' => $pkgId, 'versions' => $versions]);
+    exit;
+}
+
+// -------------------------------------------------------------
+// 6. TOGGLE PUBLISH / ACTIVE STATUS
+// -------------------------------------------------------------
 if ($action === 'toggle_publish' || $action === 'toggle_status') {
     $pkgId = (int)($input['package_id'] ?? ($input['id'] ?? 0));
     $newPublished = 1;
@@ -266,7 +522,9 @@ if ($action === 'toggle_publish' || $action === 'toggle_status') {
     exit;
 }
 
-// 5. DELETE PACKAGE
+// -------------------------------------------------------------
+// 7. DELETE PACKAGE
+// -------------------------------------------------------------
 if ($action === 'delete') {
     $pkgId = (int)($input['package_id'] ?? ($input['id'] ?? 0));
 
@@ -287,7 +545,9 @@ if ($action === 'delete') {
     exit;
 }
 
-// 6. IMPORT SINGLE OR BATCH FROM GOOGLE DRIVE / ITINERARY FILES
+// -------------------------------------------------------------
+// 8. IMPORT SINGLE OR BATCH FROM GOOGLE DRIVE / ITINERARY FILES
+// -------------------------------------------------------------
 if ($action === 'import_drive' || $action === 'batch_import_drive') {
     $items = $input['items'] ?? null;
     if (!$items) {
@@ -327,7 +587,9 @@ if ($action === 'import_drive' || $action === 'batch_import_drive') {
         $exclusions = trim($item['exclusions'] ?? '');
         $driveFile = trim($item['source_drive_file'] ?? '');
 
-        $code = 'PKG-' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $country), 0, 2)) . '-' . strtoupper(substr(uniqid(), -4));
+        $countryCode = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $country), 0, 2));
+        if (empty($countryCode)) $countryCode = 'XX';
+        $code = 'PKG-' . $countryCode . '-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 4));
 
         $newEntry = [
             'id' => time() + rand(1, 999),
@@ -348,7 +610,9 @@ if ($action === 'import_drive' || $action === 'batch_import_drive') {
             'is_published' => 1,
             'status' => 'active',
             'source_drive_file' => $driveFile,
-            'created_at' => date('Y-m-d H:i:s')
+            'version' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         // Check if package already exists by name

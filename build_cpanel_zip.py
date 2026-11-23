@@ -10,7 +10,7 @@ zip_targets = [
 base_dir = r"d:\aipdfgenrater"
 
 included_dirs = ['admin', 'api', 'css', 'data', 'format', 'images', 'inquiry-admin', 'js', 'sql', 'uploads', 'website']
-included_files = ['index.html', 'index.php', 'studio.html', 'view.html', 'dashboard.html', 'staff.html', '.htaccess', '.user.ini', 'php.ini', 'database.sql']
+included_files = ['index.html', 'index.php', 'studio.html', 'view.html', 'view.php', 'dashboard.html', 'staff.html', '.htaccess', '.user.ini', 'php.ini', 'database.sql']
 
 print(f"Building deployment ZIP archives...")
 
@@ -34,7 +34,7 @@ with zipfile.ZipFile(primary_zip, 'w', zipfile.ZIP_DEFLATED) as zf:
         if os.path.exists(dp):
             for root, dirs, files in os.walk(dp):
                 for file in files:
-                    if file.endswith(('.py', '.pyc', '.log', '.tmp')):
+                    if file.endswith(('.py', '.pyc', '.log', '.tmp', '.bak')) or '.bak_' in file or file.startswith('.'):
                         continue
                     full_p = os.path.join(root, file)
                     rel_p = os.path.relpath(full_p, base_dir)

@@ -1,6 +1,7 @@
 {
     "claude_api_key": "",
+    "claude_model": "claude-3-5-sonnet-20241022",
     "gemini_api_key": "",
-    "default_provider": "auto"
+    "default_provider": "claude",
+    "updated_at": "2026-11-23 17:55:00"
 }
-

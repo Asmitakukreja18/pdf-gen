@@ -50,10 +50,10 @@ $pdo->exec("
 
 // 2. Insert test user: Chanchal (SU-1)
 $passHash = password_hash('Admin@123', PASSWORD_DEFAULT);
-$pdo->prepare("INSERT INTO users (id, username, name, email, password_hash, role, status) VALUES (2, 'chanchal', 'Chanchal Sharma', 'chanchal@letsexploredmc.com', ?, 'executive', 'active')")
+$pdo->prepare("INSERT INTO users (id, username, name, email, password_hash, role, status) VALUES (2, 'chanchal', 'Chanchal Chandani', 'chanchal@letsexploredmc.com', ?, 'executive', 'active')")
     ->execute([$passHash]);
 
-echo "[SETUP] Created test user Chanchal Sharma (ID: 2)\n";
+echo "[SETUP] Created test user Chanchal Chandani (ID: 2)\n";
 
 // Function simulating login logic in inquiry-admin/api/login.php
 function simulateLogin($pdo, $username, $mockTime = null) {

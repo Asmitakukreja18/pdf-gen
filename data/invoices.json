@@ -1,0 +1,131 @@
+[
+  {
+    "id": 1,
+    "invoice_no": "LEDMC-INV-2026-081",
+    "invoice_type": "billing",
+    "customer_name": "Ramesh Kumar & Family",
+    "invoice_date": "2026-11-16",
+    "due_date": "2026-11-23",
+    "billing_description": "Phuket & Krabi 6D5N Land Package with 4-Star Accommodation & Private Transfers",
+    "hsn_code": "998555",
+    "gst_rate": 5.0,
+    "subtotal": 79900.0,
+    "tax_amount": 3995.0,
+    "grand_total": 83895.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Phuket 3 Nights Hotel + Tours", "amount": 42000.0},
+      {"item": "Krabi 2 Nights Hotel + 4 Islands Tour", "amount": 28000.0},
+      {"item": "Airport & Inter-city Private AC Transfers", "amount": 9900.0}
+    ],
+    "payment_status": "Paid",
+    "created_by": "Admin",
+    "created_at": "2026-11-16 11:20:00"
+  },
+  {
+    "id": 2,
+    "invoice_no": "LEDMC-INV-2026-082",
+    "invoice_type": "billing",
+    "customer_name": "Direct Guest / Couple (Villa Nautica Maldives)",
+    "invoice_date": "2026-11-17",
+    "due_date": "2026-11-20",
+    "billing_description": "Villa Nautica Maldives Romantic Candle Light Beach Dining & Decoration Package",
+    "hsn_code": "998555",
+    "gst_rate": 5.0,
+    "subtotal": 35000.0,
+    "tax_amount": 1750.0,
+    "grand_total": 36750.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Private Beachfront Dining for 2 Adults", "amount": 28000.0},
+      {"item": "Canopy Setup & Floral Romantic Decoration", "amount": 7000.0}
+    ],
+    "payment_status": "Paid",
+    "created_by": "Admin",
+    "created_at": "2026-11-17 14:15:00"
+  },
+  {
+    "id": 3,
+    "invoice_no": "LEDMC-VCH-2026-104",
+    "invoice_type": "hotel",
+    "customer_name": "Ramesh Kumar (2 Adults, 1 Child)",
+    "invoice_date": "2026-11-16",
+    "due_date": "2026-11-16",
+    "billing_description": "Hotel Voucher: Ramada by Wyndham Phuket (Superior Room, 3 Nights, Breakfast Included)",
+    "hsn_code": "998555",
+    "gst_rate": 0.0,
+    "subtotal": 24500.0,
+    "tax_amount": 0.0,
+    "grand_total": 24500.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Check-in: 10 Dec 2026 | Check-out: 13 Dec 2026", "amount": 24500.0}
+    ],
+    "payment_status": "Confirmed",
+    "created_by": "Admin",
+    "created_at": "2026-11-16 11:45:00"
+  },
+  {
+    "id": 4,
+    "invoice_no": "LEDMC-VCH-2026-105",
+    "invoice_type": "hotel",
+    "customer_name": "Ramesh Kumar (2 Adults, 1 Child)",
+    "invoice_date": "2026-11-16",
+    "due_date": "2026-11-16",
+    "billing_description": "Hotel Voucher: GLOW Ao Nang Krabi (Deluxe Room, 2 Nights, Breakfast Included)",
+    "hsn_code": "998555",
+    "gst_rate": 0.0,
+    "subtotal": 18200.0,
+    "tax_amount": 0.0,
+    "grand_total": 18200.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Check-in: 13 Dec 2026 | Check-out: 15 Dec 2026", "amount": 18200.0}
+    ],
+    "payment_status": "Confirmed",
+    "created_by": "Admin",
+    "created_at": "2026-11-16 11:50:00"
+  },
+  {
+    "id": 5,
+    "invoice_no": "LEDMC-VCH-2026-209",
+    "invoice_type": "cab",
+    "customer_name": "Ramesh Kumar (2 Adults, 1 Child)",
+    "invoice_date": "2026-11-16",
+    "due_date": "2026-11-16",
+    "billing_description": "Transport Voucher: Phuket Airport - Hotel - Laemtong Pier Transfer Chain (Private Van)",
+    "hsn_code": "998555",
+    "gst_rate": 0.0,
+    "subtotal": 12500.0,
+    "tax_amount": 0.0,
+    "grand_total": 12500.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Private AC Van + Ferry SIC Ticket Chain", "amount": 12500.0}
+    ],
+    "payment_status": "Confirmed",
+    "created_by": "Admin",
+    "created_at": "2026-11-16 12:00:00"
+  },
+  {
+    "id": 6,
+    "invoice_no": "LEDMC-INV-2026-083",
+    "invoice_type": "billing",
+    "customer_name": "Mohit Kodwani",
+    "invoice_date": "2026-11-18",
+    "due_date": "2026-11-25",
+    "billing_description": "Bali & Malaysia 7D6N Twin-Destination Executive Holiday Package",
+    "hsn_code": "998555",
+    "gst_rate": 5.0,
+    "subtotal": 68000.0,
+    "tax_amount": 3400.0,
+    "grand_total": 71400.0,
+    "currency": "INR",
+    "particulars_json": [
+      {"item": "Kuala Lumpur 3N + Bali 3N Package", "amount": 68000.0}
+    ],
+    "payment_status": "Pending",
+    "created_by": "Admin",
+    "created_at": "2026-11-18 10:30:00"
+  }
+]

@@ -210,6 +210,7 @@ const DOCXGenerator = (() => {
 
   return {
     generate,
+    generateDOCX: generate,
     buildWordHTMLDocument
   };
 

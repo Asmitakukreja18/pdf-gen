@@ -32,9 +32,45 @@ if (!in_array($source, $validSources)) {
     $source = 'Website';
 }
 
+function getInquiriesJsonPath() {
+    $dir = __DIR__ . '/../../data';
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    return $dir . '/inquiries.json';
+}
+
+function loadLocalInquiries() {
+    $file = getInquiriesJsonPath();
+    if (file_exists($file)) {
+        $json = @file_get_contents($file);
+        $arr = json_decode($json, true);
+        if (is_array($arr)) return $arr;
+    }
+    return [];
+}
+
+function saveLocalInquiries($items) {
+    $file = getInquiriesJsonPath();
+    @file_put_contents($file, json_encode(array_values($items), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
+$newInquiry = [
+    'id' => time(),
+    'name' => $name,
+    'phone' => $phone,
+    'email' => $email,
+    'source' => $source,
+    'destination' => $destination,
+    'message' => $message,
+    'status' => $status,
+    'created_at' => date('Y-m-d H:i:s')
+];
+
 $pdo = getDb();
 if (!$pdo) {
-    jsonError('Database connection unavailable', 500);
+    $all = loadLocalInquiries();
+    array_unshift($all, $newInquiry);
+    saveLocalInquiries($all);
+    jsonSuccess(['inquiry' => $newInquiry], 'Inquiry recorded successfully (Local Storage Sync).');
 }
 
 try {
@@ -44,22 +80,21 @@ try {
     ");
     $stmt->execute([$name, $phone, $email, $source, $destination, $message, $status]);
     $newId = $pdo->lastInsertId();
+    $newInquiry['id'] = (int)$newId;
+
+    // Sync to local json cache as well
+    $all = loadLocalInquiries();
+    array_unshift($all, $newInquiry);
+    saveLocalInquiries($all);
 
     jsonSuccess([
-        'inquiry' => [
-            'id' => (int)$newId,
-            'name' => $name,
-            'phone' => $phone,
-            'email' => $email,
-            'source' => $source,
-            'destination' => $destination,
-            'message' => $message,
-            'status' => $status,
-            'created_at' => date('Y-m-d H:i:s')
-        ]
+        'inquiry' => $newInquiry
     ], 'Inquiry recorded successfully.');
 
-} catch (\PDOException $e) {
-    error_log("Add inquiry error: " . $e->getMessage());
-    jsonError('Failed to record inquiry in database', 500);
+} catch (\Throwable $e) {
+    error_log("Add inquiry DB error: " . $e->getMessage());
+    $all = loadLocalInquiries();
+    array_unshift($all, $newInquiry);
+    saveLocalInquiries($all);
+    jsonSuccess(['inquiry' => $newInquiry], 'Inquiry recorded successfully (Fallback Storage).');
 }

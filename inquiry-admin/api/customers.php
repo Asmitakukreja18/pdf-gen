@@ -15,13 +15,34 @@ header('Content-Type: application/json; charset=utf-8');
 $activeUser = checkSessionActivity();
 $pdo = getDb();
 
-if (!$pdo) {
-    jsonSuccess(['customers' => [], 'total' => 0, 'source' => 'standby_mode']);
+function getCustomersJsonPath() {
+    $dir = __DIR__ . '/../../data';
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    return $dir . '/customers.json';
+}
+
+function loadLocalCustomers() {
+    $file = getCustomersJsonPath();
+    if (file_exists($file)) {
+        $json = @file_get_contents($file);
+        $arr = json_decode($json, true);
+        if (is_array($arr)) return $arr;
+    }
+    return [];
+}
+
+function saveLocalCustomers($customers) {
+    $file = getCustomersJsonPath();
+    @file_put_contents($file, json_encode(array_values($customers), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    if (!$pdo) {
+        $local = loadLocalCustomers();
+        jsonSuccess(['customers' => $local, 'total' => count($local), 'source' => 'local_storage']);
+    }
     try {
         // Query official customers table and join inquiry stats if available
         $stmt = $pdo->query("
@@ -60,8 +81,8 @@ if ($method === 'GET') {
 
         jsonSuccess(['customers' => $customers]);
     } catch (\Throwable $e) {
-        error_log("Get customers error: " . $e->getMessage());
-        jsonError('Failed to fetch customers', 500);
+        $local = loadLocalCustomers();
+        jsonSuccess(['customers' => $local, 'total' => count($local), 'source' => 'fallback']);
     }
 }
 
@@ -80,8 +101,31 @@ if ($method === 'POST') {
         jsonError('Name and phone number are required.', 400);
     }
 
+    $custCode = 'CUST-' . strtoupper(substr(uniqid(), -6));
+    $newRecord = [
+        'id' => time(),
+        'customer_code' => $custCode,
+        'name' => $name,
+        'company_name' => $company,
+        'email' => $email,
+        'phone' => $phone,
+        'city' => $city,
+        'customer_type' => $category,
+        'category' => $category,
+        'notes' => $notes,
+        'created_at' => date('Y-m-d H:i:s'),
+        'total_inquiries' => 1,
+        'converted_trips' => 0
+    ];
+
+    if (!$pdo) {
+        $local = loadLocalCustomers();
+        array_unshift($local, $newRecord);
+        saveLocalCustomers($local);
+        jsonSuccess($newRecord, 'Customer profile saved successfully.');
+    }
+
     try {
-        $custCode = 'CUST-' . strtoupper(substr(uniqid(), -6));
         $stmt = $pdo->prepare("
             INSERT INTO `customers` (`customer_code`, `name`, `company_name`, `email`, `phone`, `city`, `customer_type`, `notes`, `created_at`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
@@ -93,19 +137,19 @@ if ($method === 'POST') {
                 `city` = VALUES(`city`)
         ");
         $stmt->execute([$custCode, $name, $company, $email, $phone, $city, $category, $notes]);
-        $newId = $pdo->lastInsertId();
+        $newId = (int)$pdo->lastInsertId();
+        $newRecord['id'] = $newId;
 
-        jsonSuccess([
-            'id' => $newId,
-            'customer_code' => $custCode,
-            'name' => $name,
-            'phone' => $phone,
-            'category' => $category,
-            'company_name' => $company
-        ], 'Customer profile saved successfully.');
+        $local = loadLocalCustomers();
+        array_unshift($local, $newRecord);
+        saveLocalCustomers($local);
+
+        jsonSuccess($newRecord, 'Customer profile saved successfully.');
     } catch (\Throwable $e) {
-        error_log("Add customer error: " . $e->getMessage());
-        jsonError('Failed to save customer profile', 500);
+        $local = loadLocalCustomers();
+        array_unshift($local, $newRecord);
+        saveLocalCustomers($local);
+        jsonSuccess($newRecord, 'Customer profile saved successfully.');
     }
 }
 

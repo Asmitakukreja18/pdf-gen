@@ -41,7 +41,7 @@ async function loadLeads() {
         if (!ids.has(l.id)) loaded.push(l);
       });
     }
-  } catch (e) {}
+  } catch (e) { }
 
   // 3. If empty, seed initial leads matching screenshot
   if (loaded.length === 0) {
@@ -80,7 +80,7 @@ function normalizeApiLead(inq) {
 function saveToLocalStorage(leads) {
   try {
     localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(leads));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function initCrmEvents() {
@@ -90,7 +90,7 @@ function initCrmEvents() {
       document.querySelectorAll('.crm-sidebar-item').forEach(i => i.classList.remove('active'));
       item.classList.add('active');
       currentFilter = item.dataset.filterStatus;
-      
+
       const filterLabel = item.querySelector('span')?.textContent || 'All Leads';
       document.getElementById('filterNameDisplay').textContent = filterLabel;
       renderLeadsList();
@@ -182,7 +182,7 @@ function initCrmEvents() {
           assigned_to: newLead.assignedTo
         })
       });
-    } catch (err) {}
+    } catch (err) { }
 
     if (modal) modal.style.display = 'none';
     showToast(`Lead ${newLead.ref} (${newLead.name}) created successfully!`, 'success');
@@ -261,10 +261,10 @@ function renderLeadsList() {
     // Search filter
     if (searchTerm) {
       const match = (lead.name || '').toLowerCase().includes(searchTerm) ||
-                    (lead.phone || '').toLowerCase().includes(searchTerm) ||
-                    (lead.email || '').toLowerCase().includes(searchTerm) ||
-                    (lead.destination || '').toLowerCase().includes(searchTerm) ||
-                    (lead.ref || '').toLowerCase().includes(searchTerm);
+        (lead.phone || '').toLowerCase().includes(searchTerm) ||
+        (lead.email || '').toLowerCase().includes(searchTerm) ||
+        (lead.destination || '').toLowerCase().includes(searchTerm) ||
+        (lead.ref || '').toLowerCase().includes(searchTerm);
       if (!match) return false;
     }
 
@@ -370,7 +370,7 @@ function renderLeadsList() {
           <div class="lead-total-num">${escapeHTML(lead.totalAmount || 'INR 0.00 Total')}</div>
           <div class="lead-time-stamp" style="display:flex; flex-direction:column; align-items:flex-start; gap:3px;">
             <span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#1E3A8A; font-size:10px; background:#EFF6FF; padding:2px 7px; border-radius:4px; border:1px solid #BFDBFE;">
-              <i class="fa-solid fa-user-tag" style="font-size:9px; color:#2563EB;"></i> ${escapeHTML(lead.subUser || (lead.assignedTo === 'chanchal' ? 'SU1 (Chanchal)' : (lead.assignedTo === 'kashish' ? 'SU1 (Kashish)' : (lead.assignedTo === 'asmita' ? 'SU2 (Asmita)' : 'U1 (Admin)')))}
+              <i class="fa-solid fa-user-tag" style="font-size:9px; color:#2563EB;"></i> ${escapeHTML(lead.subUser || (lead.assignedTo === 'chanchal' ? 'SU1 (Chanchal)' : (lead.assignedTo === 'kashish' ? 'SU1 (Kashish)' : (lead.assignedTo === 'asmita' ? 'SU2 (Asmita)' : 'U1 (Admin)'))))}
             </span>
             <span style="color:#64748B; font-size:10.5px;"><i class="fa-regular fa-clock" style="font-size:10px;"></i> ${escapeHTML(lead.createdOn || '11:00 AM')}</span>
           </div>
@@ -395,14 +395,14 @@ function renderLeadsList() {
   }).join('');
 }
 
-window.openDocumentView = function(id) {
+window.openDocumentView = function (id) {
   const lead = allLeads.find(l => l.id === id);
   if (!lead) return;
   const viewUrl = `../view.html?ref=${encodeURIComponent(lead.ref || '#LEDMC' + lead.id)}&client=${encodeURIComponent(lead.name)}&dest=${encodeURIComponent(lead.destination)}&phone=${encodeURIComponent(lead.phone)}&email=${encodeURIComponent(lead.email)}&pax=${lead.travellers?.adults || 2}&date=${encodeURIComponent(lead.travelDate || '')}&return_date=${encodeURIComponent(lead.returnDate || '')}`;
   window.open(viewUrl, '_blank');
 };
 
-window.changeLeadStatus = function(id, newStatus) {
+window.changeLeadStatus = function (id, newStatus) {
   if (!newStatus) return;
   const lead = allLeads.find(l => l.id === id);
   if (lead) {
@@ -417,11 +417,11 @@ window.changeLeadStatus = function(id, newStatus) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: lead.id, status: newStatus })
-    }).catch(() => {});
+    }).catch(() => { });
   }
 };
 
-window.changeLeadAssignee = function(id, newAssignee) {
+window.changeLeadAssignee = function (id, newAssignee) {
   if (!newAssignee) return;
   const lead = allLeads.find(l => l.id === id);
   if (lead) {
@@ -434,11 +434,11 @@ window.changeLeadAssignee = function(id, newAssignee) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: lead.id, assigned_to: newAssignee })
-    }).catch(() => {});
+    }).catch(() => { });
   }
 };
 
-window.viewLeadDetails = function(id) {
+window.viewLeadDetails = function (id) {
   const lead = allLeads.find(l => l.id === id);
   if (!lead) return;
 
@@ -479,12 +479,12 @@ window.viewLeadDetails = function(id) {
   if (modal) modal.style.display = 'flex';
 };
 
-window.sendQuotationFromStudio = function(id) {
+window.sendQuotationFromStudio = function (id) {
   const lead = allLeads.find(l => l.id === id);
   if (!lead) return;
 
   // Pass customer details in URL params to AI Quotation Studio
-  const studioUrl = `../index.html?load_client=${encodeURIComponent(lead.name)}&lead_id=${encodeURIComponent(lead.ref || '#LEDMC' + lead.id)}&client_phone=${encodeURIComponent(lead.phone)}&client_email=${encodeURIComponent(lead.email)}&dest=${encodeURIComponent(lead.destination)}&pax=${lead.travellers?.adults || 2}`;
+  const studioUrl = `ai-assistant.html?client=${encodeURIComponent(lead.name)}&phone=${encodeURIComponent(lead.phone)}&email=${encodeURIComponent(lead.email)}&dest=${encodeURIComponent(lead.destination)}&pax=${lead.travellers?.adults || 2}&task=${encodeURIComponent('Create Quotation for ' + lead.name)}`;
   window.location.href = studioUrl;
 };
 

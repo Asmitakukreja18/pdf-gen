@@ -33,7 +33,7 @@ $userAliases = [
     'admin'      => ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'],
     'kashish'    => ['kashish', 'kashish adwani', 'kashishadwani', 'kashish@letsexploredmc.com', 'kashish@123'],
     'asmita'     => ['asmita', 'asmita kukreja', 'asmitakukreja', 'asmita@letsexploredmc.com', 'asmita@123'],
-    'chanchal'   => ['chanchal', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
+    'chanchal'   => ['chanchal', 'chanchal chandani', 'chanchalchandani', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
 ];
 
 $canonicalUser = $uClean;
@@ -103,7 +103,7 @@ $staticStaff = [
         'username' => 'chanchal',
         'email'    => 'chanchal@letsexploredmc.com',
         'role'     => 'executive',
-        'name'     => 'Chanchal Sharma',
+        'name'     => 'Chanchal Chandani',
         'phone'    => '+91 98765 00004',
         'pass'     => 'chanchal@123',
         'hash'     => '$2y$10$ECppqLfvvnXgrtJDNLxSDOjM2UneJFuBnDE2g5FD3kqdK.lRbqOBm'

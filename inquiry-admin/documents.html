@@ -3,21 +3,21 @@
 
 <head>
     <script>
-(function(){
-  try {
-    var params = new URLSearchParams(window.location.search);
-    var urlRole = (params.get('role') || '').toLowerCase();
-    var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
-    var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
-    if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
-      try { localStorage.setItem('dmc_role', 'executive'); } catch(e){}
-    }
-    document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
-  } catch(e) {}
-})();
-</script>
-    
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var urlRole = (params.get('role') || '').toLowerCase();
+                var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+                var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+                if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
+                    try { localStorage.setItem('dmc_role', 'executive'); } catch (e) { }
+                }
+                document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+            } catch (e) { }
+        })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documents &amp; Proposals — Let's Explore DMC</title>
@@ -28,6 +28,84 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/portal.css?v=12.0">
+    <style>
+        .doc-action-btn {
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            color: #0F2C59;
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease-in-out;
+            text-decoration: none;
+        }
+
+        .doc-action-btn:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+            background: #F8FAFC;
+            transform: translateY(-1px);
+        }
+
+        .doc-action-btn.delete-btn {
+            color: #EF4444;
+            border-color: #FECACA;
+        }
+
+        .doc-action-btn.delete-btn:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+            border-color: #EF4444;
+        }
+
+        .doc-action-btn.studio-btn {
+            color: #2563EB;
+            border-color: #BFDBFE;
+            background: #EFF6FF;
+        }
+
+        .doc-action-btn.share-btn {
+            color: #059669;
+            border-color: #A7F3D0;
+            background: #ECFDF5;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .status-pill.success,
+        .status-pill.active {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .status-pill.info,
+        .status-pill.draft {
+            background: #E0E7FF;
+            color: #3730A3;
+        }
+
+        .status-pill.warning,
+        .status-pill.sent {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-pill.archived {
+            background: #F1F5F9;
+            color: #64748B;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,7 +114,7 @@
         <!-- ============================================================
              LEFT SIDEBAR NAVIGATION (MODERN LUXURY DARK-NAVY)
              ============================================================ -->
-                <aside class="portal-sidebar" id="portalSidebar">
+        <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand" id="sidebarBrandLink">
                     <div class="brand-icon-box">
@@ -111,7 +189,8 @@
                 </a>
             </nav>
 
-            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="sidebar-logout-wrap"
+                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link nav-link-item" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
@@ -128,13 +207,15 @@
                 <div style="display:flex; align-items:center; gap:16px;">
                     <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
-                        title="Toggle Sidebar" onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
+                        title="Toggle Sidebar"
+                        onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="breadcrumb-trail" style="display:flex; align-items:center; gap:8px; font-size:13px;">
                         <span class="crumb-root" style="color:#94A3B8; font-weight:500;">Let's Explore DMC</span>
                         <i class="fa-solid fa-chevron-right crumb-sep" style="font-size:10px; color:#CBD5E1;"></i>
-                        <span class="crumb-current" style="color:#0F172A; font-weight:700;">Documents &amp; Proposals</span>
+                        <span class="crumb-current" style="color:#0F172A; font-weight:700;">Documents &amp;
+                            Proposals</span>
                     </div>
                 </div>
 
@@ -145,7 +226,8 @@
                         <input type="text" id="topSearchInput" placeholder="Search documents, proposals..."
                             style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
-                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
+                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer"
+                        class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
                         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
                         <span class="hide-mobile">Public Site</span>
@@ -155,12 +237,17 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span class="hide-mobile">AI Studio</span>
                     </a>
-                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                    <div class="profile-pill-item"
+                        style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
-                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
-                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            LE</div>
+                        <div class="profile-text-wrap hide-mobile"
+                            style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName"
+                                style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
+                            <span class="profile-role" id="topbarUserRole"
+                                style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -169,23 +256,26 @@
             <!-- PAGE BODY -->
             <main class="portal-body">
 
-                <!-- Page Header -->
+                <!-- Page Header with CRUD actions -->
                 <div class="page-header">
                     <div>
                         <h1 class="page-title">Documents &amp; Proposals</h1>
                         <p class="page-subtitle">Centralized document management repository for travel quotations,
                             client itineraries, costing sheets, and tax invoices.</p>
                     </div>
-                    <div class="header-actions">
+                    <div class="header-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
                         <a href="leads.html" class="btn btn-secondary">
                             <i class="fa-solid fa-users-viewfinder"></i> Leads Pipeline
                         </a>
-                        <button type="button" onclick="document.getElementById('uploadPdfModal').style.display='flex'"
-                            class="btn btn-secondary">
-                            <i class="fa-solid fa-upload"></i> Upload PDF
+                        <button type="button" onclick="openUploadModal()" class="btn btn-secondary">
+                            <i class="fa-solid fa-upload"></i> Upload PDF / Doc
                         </button>
-                        <a href="../studio.html" class="btn btn-primary">
-                            <i class="fa-solid fa-plus"></i> + Create New Document
+                        <button type="button" onclick="openDocModal('create')" class="btn btn-primary"
+                            style="background:#0F2C59;">
+                            <i class="fa-solid fa-plus"></i> Create Document
+                        </button>
+                        <a href="ai-assistant.html" class="btn btn-primary" style="background:#2563EB;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Open AI Studio
                         </a>
                     </div>
                 </div>
@@ -196,29 +286,29 @@
                     <div class="stat-widget">
                         <div class="stat-icon navy"><i class="fa-solid fa-folder-open"></i></div>
                         <div class="stat-content">
-                            <div class="stat-val" id="countAllDocs">--</div>
+                            <div class="stat-val" id="countAllDocs">0</div>
                             <div class="stat-label">Total Documents</div>
                         </div>
                     </div>
                     <div class="stat-widget">
                         <div class="stat-icon blue"><i class="fa-solid fa-file-invoice"></i></div>
                         <div class="stat-content">
-                            <div class="stat-val" id="countQuotations">--</div>
+                            <div class="stat-val" id="countQuotations">0</div>
                             <div class="stat-label">Quotations</div>
                         </div>
                     </div>
                     <div class="stat-widget">
                         <div class="stat-icon amber"><i class="fa-solid fa-map-location-dot"></i></div>
                         <div class="stat-content">
-                            <div class="stat-val" id="countItineraries">--</div>
+                            <div class="stat-val" id="countItineraries">0</div>
                             <div class="stat-label">Itineraries</div>
                         </div>
                     </div>
                     <div class="stat-widget">
                         <div class="stat-icon green"><i class="fa-solid fa-receipt"></i></div>
                         <div class="stat-content">
-                            <div class="stat-val" id="countInvoices">--</div>
-                            <div class="stat-label">Invoices</div>
+                            <div class="stat-val" id="countInvoices">0</div>
+                            <div class="stat-label">Invoices / Vouchers</div>
                         </div>
                     </div>
                 </div>
@@ -227,21 +317,31 @@
                 <div class="card" style="padding:14px; margin-bottom:18px;">
                     <div
                         style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-                        <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:280px;">
-                            <div style="position:relative; flex:1;">
+                        <div
+                            style="display:flex; align-items:center; gap:10px; flex:1; min-width:280px; flex-wrap:wrap;">
+                            <div style="position:relative; flex:1; min-width:220px;">
                                 <i class="fa-solid fa-magnifying-glass"
                                     style="position:absolute; left:12px; top:11px; color:var(--text-muted);"></i>
                                 <input type="text" id="docSearchInput" class="form-control"
-                                    placeholder="Search by document ID, customer name, destination..."
+                                    placeholder="Search by doc ID, title, customer, destination..."
                                     style="padding-left:36px;" oninput="filterDocumentsTable()">
                             </div>
-                            <select id="docTypeFilter" class="form-control" style="width:160px;"
+                            <select id="docTypeFilter" class="form-control" style="width:165px;"
                                 onchange="filterDocumentsTable()">
                                 <option value="all">All Document Types</option>
                                 <option value="quotation">Quotations</option>
                                 <option value="itinerary">Itineraries</option>
                                 <option value="invoice">Invoices</option>
                                 <option value="voucher">Vouchers</option>
+                                <option value="package">Packages / Brochures</option>
+                            </select>
+                            <select id="docStatusFilter" class="form-control" style="width:130px;"
+                                onchange="filterDocumentsTable()">
+                                <option value="all">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="draft">Draft</option>
+                                <option value="sent">Sent</option>
+                                <option value="archived">Archived</option>
                             </select>
                         </div>
                         <div style="display:flex; gap:8px;">
@@ -254,18 +354,19 @@
                 </div>
 
                 <!-- Documents Data Table -->
-                <div class="table-container">
+                <div class="table-container"
+                    style="background:#FFF; border-radius:12px; border:1px solid #E2E8F0; overflow:hidden;">
                     <table class="portal-table">
                         <thead>
                             <tr>
-                                <th>Doc ID &amp; Type</th>
+                                <th style="width:160px;">Doc ID &amp; Type</th>
                                 <th>Document Title</th>
                                 <th>Customer / Partner</th>
                                 <th>Destination</th>
                                 <th>Created Date</th>
                                 <th>Created By</th>
                                 <th>Status</th>
-                                <th style="text-align:right;">Actions</th>
+                                <th style="text-align:right; min-width:190px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="documentsTableBody">
@@ -283,27 +384,251 @@
         </div>
     </div>
 
-    <!-- Upload PDF Modal -->
-    <div id="uploadPdfModal"
-        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.6); align-items:center; justify-content:center;">
+    <!-- ============================================================
+         MODAL 1: CREATE / EDIT DOCUMENT MODAL (FULL CRUD)
+         ============================================================ -->
+    <div id="docModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.65); align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
         <div
-            style="background:#FFF; border-radius:12px; width:90%; max-width:460px; padding:22px; box-shadow:var(--shadow-lg);">
+            style="background:#FFF; border-radius:14px; width:100%; max-width:680px; max-height:92vh; overflow-y:auto; box-shadow:var(--shadow-lg); display:flex; flex-direction:column;">
+
             <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--primary-navy);">Upload Document PDF
-                </h3>
-                <button type="button" onclick="document.getElementById('uploadPdfModal').style.display='none'"
-                    style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                style="padding:18px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#FFF; z-index:10;">
+                <div>
+                    <h3 id="docModalTitle"
+                        style="margin:0; font-size:17px; font-weight:800; color:var(--primary-navy);">Create Document /
+                        Proposal</h3>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-secondary);">Syncs with MySQL backend
+                        database and persistent storage.</p>
+                </div>
+                <button type="button" onclick="closeDocModal()"
+                    style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
-            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">
-                Upload a client quotation or supplier itinerary PDF. Stored on server &amp; metadata added to MySQL.
-            </p>
-            <input type="file" id="modalPdfFile" accept=".pdf" class="form-control" style="margin-bottom:14px;">
-            <div style="display:flex; justify-content:flex-end; gap:8px;">
-                <button type="button" onclick="document.getElementById('uploadPdfModal').style.display='none'"
-                    class="btn btn-secondary btn-sm">Cancel</button>
-                <button type="button" onclick="handleModalPdfUpload()" class="btn btn-primary btn-sm">Upload &amp;
-                    Save</button>
+
+            <form id="docForm" onsubmit="saveDocumentForm(event)"
+                style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" id="modalDocId" value="">
+                <input type="hidden" id="modalDocNo" value="">
+
+                <!-- Title & Type -->
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Document Title *</label>
+                        <input type="text" id="modalDocTitle" class="form-control" required
+                            placeholder="e.g. 6D5N Phuket & Krabi Luxury Itinerary (+15% Markup)">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Document Type *</label>
+                        <select id="modalDocType" class="form-control" required>
+                            <option value="quotation">Quotation</option>
+                            <option value="itinerary">Itinerary Proposal</option>
+                            <option value="invoice">Tax Invoice</option>
+                            <option value="voucher">Hotel / Cab Voucher</option>
+                            <option value="package">Package Brochure</option>
+                            <option value="dining_brochure">Dining Brochure</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Customer Name, Phone & Destination -->
+                <div style="display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Customer / B2B Partner
+                            *</label>
+                        <input type="text" id="modalDocCustomer" class="form-control" required
+                            placeholder="e.g. Ramesh Kumar & Family / Direct Guest">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">WhatsApp Phone</label>
+                        <input type="text" id="modalDocPhone" class="form-control" placeholder="e.g. +91 98765 43210">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Destination *</label>
+                        <input type="text" id="modalDocDestination" class="form-control" required
+                            placeholder="e.g. Thailand / Maldives">
+                    </div>
+                </div>
+
+                <!-- File Path / Link & Status -->
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">File Path or Document
+                            Link</label>
+                        <input type="text" id="modalDocFilePath" class="form-control"
+                            placeholder="e.g. uploads/Rajasthan_Style_Phuket_Krabi_15Percent_Markup.pdf">
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Status *</label>
+                        <select id="modalDocStatus" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Draft">Draft</option>
+                            <option value="Sent">Sent</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes / Remarks -->
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12.5px;">Internal Notes &amp;
+                        Remarks</label>
+                    <textarea id="modalDocRemarks" class="form-control" rows="3"
+                        placeholder="Additional details, markup notes, client specifics..."></textarea>
+                </div>
+
+                <div
+                    style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid #E2E8F0;">
+                    <button type="button" onclick="closeDocModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" id="btnSubmitDocForm" class="btn btn-primary" style="background:#0F2C59;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Document
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: UPLOAD PDF / ATTACHMENT MODAL
+         ============================================================ -->
+    <div id="uploadPdfModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.65); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:520px; padding:24px; box-shadow:var(--shadow-lg);">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--primary-navy);">
+                    <i class="fa-solid fa-cloud-arrow-up" style="color:#2563EB;"></i> Upload Document / PDF
+                </h3>
+                <button type="button" onclick="closeUploadModal()"
+                    style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+            </div>
+
+            <form id="uploadDocForm" onsubmit="handleDocFileUpload(event)"
+                style="display:flex; flex-direction:column; gap:14px;">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12.5px;">Select Document File * (PDF,
+                        HTML, DOCX, Images)</label>
+                    <input type="file" id="uploadModalFile" accept=".pdf,.html,.htm,.doc,.docx,.png,.jpg,.jpeg"
+                        class="form-control" required onchange="onUploadFileSelected(this)">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12.5px;">Document Title</label>
+                    <input type="text" id="uploadModalTitle" class="form-control"
+                        placeholder="Auto-generated from file name or custom title">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Document Type</label>
+                        <select id="uploadModalDocType" class="form-control">
+                            <option value="quotation">Quotation</option>
+                            <option value="itinerary">Itinerary Proposal</option>
+                            <option value="invoice">Tax Invoice</option>
+                            <option value="voucher">Hotel / Cab Voucher</option>
+                            <option value="package">Package Brochure</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" style="font-weight:700; font-size:12.5px;">Destination</label>
+                        <input type="text" id="uploadModalDestination" class="form-control"
+                            placeholder="e.g. Thailand / Dubai">
+                    </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12.5px;">Customer / B2B Partner</label>
+                    <input type="text" id="uploadModalCustomer" class="form-control"
+                        placeholder="e.g. Direct Guest / Partner Name">
+                </div>
+
+                <div
+                    style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px; padding-top:12px; border-top:1px solid #E2E8F0;">
+                    <button type="button" onclick="closeUploadModal()" class="btn btn-secondary btn-sm">Cancel</button>
+                    <button type="submit" id="btnSubmitUpload" class="btn btn-primary btn-sm"
+                        style="background:#2563EB;">
+                        <i class="fa-solid fa-upload"></i> Upload &amp; Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: WHATSAPP & DIRECT SHARE MODAL (NO BROWSER PROMPT ALERTS)
+         ============================================================ -->
+    <div id="waDocModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.65); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden;">
+            <div
+                style="background:#0F2C59; color:#FFF; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fa-brands fa-whatsapp" style="font-size:24px; color:#25D366;"></i>
+                    <h4 style="margin:0; font-size:16px; font-weight:800;">Send Document via WhatsApp</h4>
+                </div>
+                <button type="button" onclick="closeWaDocModal()"
+                    style="background:none; border:none; color:#FFF; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+                <div>
+                    <span id="waDocBadge"
+                        style="font-size:11px; font-weight:700; color:#2563EB; background:#EFF6FF; padding:3px 8px; border-radius:6px;"></span>
+                    <h4 id="waDocTitle" style="margin:6px 0 2px; font-size:14px; font-weight:800; color:#0F172A;"></h4>
+                    <p id="waDocDest" style="margin:0; font-size:12px; color:#64748B;"></p>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12px; color:#0F2C59;">Client WhatsApp
+                        Number (with country code):</label>
+                    <input type="text" id="waDocPhoneInput" class="form-control" placeholder="e.g. 919876543210">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12px; color:#0F2C59;">Direct Document
+                        Link:</label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="waDocLinkInput" class="form-control" readonly
+                            style="background:#F8FAFC; font-size:12px;">
+                        <button type="button" onclick="copyWaDocLink()" class="btn btn-secondary btn-sm"
+                            title="Copy Document Link">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-weight:700; font-size:12px; color:#0F2C59;">Message
+                        Preview:</label>
+                    <textarea id="waDocMsgPreview" class="form-control" rows="3" readonly
+                        style="font-size:11.5px; background:#F8FAFC; color:#334155; line-height:1.4;"></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
+                    <button type="button" onclick="closeWaDocModal()" class="btn btn-secondary btn-sm">Close</button>
+                    <button type="button" onclick="executeSendWaDoc()" class="btn btn-sm"
+                        style="background:#25D366; color:#FFF; font-weight:700; padding:8px 16px;">
+                        <i class="fa-brands fa-whatsapp"></i> Send on WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 4: DELETE CONFIRMATION MODAL
+         ============================================================ -->
+    <div id="deleteDocModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(16,43,80,0.65); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#FFF; border-radius:14px; width:100%; max-width:420px; padding:22px; box-shadow:var(--shadow-lg); text-align:center;">
+            <div
+                style="width:54px; height:54px; border-radius:50%; background:#FEE2E2; color:#DC2626; font-size:24px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px;">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 style="margin:0 0 6px; font-size:17px; font-weight:800; color:#0F172A;">Delete Document?</h3>
+            <p id="deleteDocName"
+                style="margin:0 0 16px; font-size:13px; color:#64748B; line-height:1.4; word-break:break-word;"></p>
+            <input type="hidden" id="deleteDocTargetId" value="">
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button type="button" onclick="closeDeleteDocModal()" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="btnConfirmDeleteDoc" onclick="executeDeleteDoc()" class="btn btn-danger"
+                    style="background:#DC2626;">
+                    <i class="fa-solid fa-trash"></i> Yes, Delete
+                </button>
             </div>
         </div>
     </div>
@@ -314,139 +639,27 @@
     <script>
         let allDocs = [];
 
-        document.addEventListener('DOMContentLoaded', loadDocumentsFromApi);
-
-        async function loadDocumentsFromApi() {
-            const tbody = document.getElementById('documentsTableBody');
+        function getLocalDocuments() {
             try {
-                const res = await fetch('api/documents.php?action=list');
-                const data = await res.json();
-                if (data.success && Array.isArray(data.documents) && data.documents.length > 0) {
-                    allDocs = data.documents;
-                    renderDocumentsTable(allDocs);
-                    updateDocCounts(allDocs);
-                } else {
-                    useDefaultSampleDocs();
-                }
-            } catch (err) {
-                console.error(err);
-                useDefaultSampleDocs();
-            }
+                const s = localStorage.getItem('dmc_all_documents');
+                return s ? JSON.parse(s) : [];
+            } catch (e) { return []; }
         }
 
-        function useDefaultSampleDocs() {
-            allDocs = [];
-            renderDocumentsTable(allDocs);
-            updateDocCounts(allDocs);
-        }
-
-        function updateDocCounts(docs) {
-            document.getElementById('countAllDocs').innerText = docs.length;
-            document.getElementById('countQuotations').innerText = docs.filter(d => (d.doc_type || '').includes('quot')).length;
-            document.getElementById('countItineraries').innerText = docs.filter(d => (d.doc_type || '').includes('itin')).length;
-            document.getElementById('countInvoices').innerText = docs.filter(d => (d.doc_type || '').includes('inv')).length;
-        }
-
-        function renderDocumentsTable(docs) {
-            const tbody = document.getElementById('documentsTableBody');
-            if (docs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">No documents matching your search.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = docs.map(d => {
-                const filePath = d.file_path ? (d.file_path.startsWith('http') || d.file_path.startsWith('../') ? d.file_path : '../' + d.file_path) : '#';
-                return `
-                    <tr>
-                        <td>
-                            <div style="font-family:monospace; font-weight:700; color:var(--royal-blue);">${d.doc_no || 'DOC-' + d.id}</div>
-                            <span class="status-pill info" style="font-size:10px; margin-top:2px;">${(d.doc_type || 'document').toUpperCase()}</span>
-                        </td>
-                        <td style="font-weight:700; color:var(--primary-navy); max-width:260px;">${d.title}</td>
-                        <td style="font-weight:600;">${d.customer_name || 'Valued Guest'}</td>
-                        <td>📍 ${d.destination || 'International'}</td>
-                        <td style="font-size:12px; color:var(--text-secondary);">${(d.created_at || '').substring(0, 10)}</td>
-                        <td style="font-size:12px;">${d.created_by_name || 'Admin'}</td>
-                        <td><span class="status-pill success">${d.status || 'Active'}</span></td>
-                        <td style="text-align:right;">
-                            <div style="display:inline-flex; gap:6px;">
-                                <a href="${filePath}" target="_blank" class="btn btn-secondary btn-sm" title="View PDF">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="${filePath}" download class="btn btn-secondary btn-sm" title="Download PDF">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                                <button type="button" onclick="sendDocumentModal('${d.doc_no || d.id}', '${escapeQuotes(d.customer_name)}')" class="btn btn-royal btn-sm" title="Send Email / WhatsApp">
-                                    <i class="fa-solid fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function escapeQuotes(str) {
-            return (str || '').replace(/'/g, "\\'");
-        }
-
-        function filterDocumentsTable() {
-            const query = document.getElementById('docSearchInput').value.toLowerCase();
-            const type = document.getElementById('docTypeFilter').value;
-
-            const filtered = allDocs.filter(d => {
-                const matchesQ = (d.title || '').toLowerCase().includes(query) ||
-                    (d.customer_name || '').toLowerCase().includes(query) ||
-                    (d.destination || '').toLowerCase().includes(query) ||
-                    (d.doc_no || '').toLowerCase().includes(query);
-                const matchesT = (type === 'all') || (d.doc_type || '').toLowerCase().includes(type);
-                return matchesQ && matchesT;
-            });
-            renderDocumentsTable(filtered);
-        }
-
-        async function handleModalPdfUpload() {
-            const input = document.getElementById('modalPdfFile');
-            if (!input.files || input.files.length === 0) {
-                alert('Please select a PDF file first.');
-                return;
-            }
-            const file = input.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'quotation');
-
+        function saveLocalDocuments(docs) {
             try {
-                const res = await fetch('../api/upload_attachment.php', { method: 'POST', body: formData });
-                const data = await res.json();
-                if (data.success) {
-                    alert('PDF uploaded successfully!');
-                    document.getElementById('uploadPdfModal').style.display = 'none';
-                    loadDocumentsFromApi();
-                } else {
-                    alert('Error: ' + (data.error || 'Upload failed'));
-                }
-            } catch (err) {
-                alert('Upload completed.');
-                document.getElementById('uploadPdfModal').style.display = 'none';
-                loadDocumentsFromApi();
-            }
+                localStorage.setItem('dmc_all_documents', JSON.stringify(docs));
+            } catch (e) { }
         }
 
-        function sendDocumentModal(docId, customer) {
-            const channel = prompt(`Send document [${docId}] to ${customer} via:\n1. Email\n2. WhatsApp\nType 1 or 2:`, '2');
-            if (channel === '2') {
-                const phone = prompt('Enter customer WhatsApp phone number:');
-                if (phone) {
-                    const waUrl = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${customer}, here is your travel quotation from Let's Explore DMC (Ref: ${docId}). Have a wonderful trip!`)}`;
-                    window.open(waUrl, '_blank');
-                }
-            } else if (channel === '1') {
-                alert(`Quotation ${docId} queued for email delivery to ${customer}!`);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDocumentsFromApi();
+            initSessionGuard();
+            // Silent heartbeat
+            setInterval(() => fetch('api/auth.php?action=heartbeat').catch(() => { }), 45000);
+        });
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        async function initSessionGuard() {
             try {
                 const res = await fetch('api/login.php');
                 const data = await res.json();
@@ -459,23 +672,444 @@
                     if (document.getElementById('topbarAvatar')) document.getElementById('topbarAvatar').textContent = name.substring(0, 2).toUpperCase();
 
                     if (role !== 'admin') {
-                        const dashLink = document.getElementById('navItemDashboard');
-                        if (dashLink) {
-                            dashLink.href = 'staff.html';
-                            dashLink.innerHTML = '<i class="fa-solid fa-desktop"></i> <span>My Workspace</span>';
-                        }
                         document.querySelectorAll('.admin-only-nav').forEach(el => el.style.display = 'none');
                     }
                 }
             } catch (e) { }
+        }
 
-            loadDocumentsFromApi();
+        async function loadDocumentsFromApi() {
+            // 1. Immediately render cached documents so UI never flashes empty
+            const local = getLocalDocuments();
+            if (local && local.length > 0) {
+                allDocs = local;
+                renderDocumentsTable(allDocs);
+                updateDocCounts(allDocs);
+            }
 
-            // Silent heartbeat
-            setInterval(() => fetch('api/auth.php?action=heartbeat').catch(() => { }), 45000);
-        });
+            // 2. Fetch live data from backend and merge
+            try {
+                const res = await fetch('api/documents.php?action=list', { credentials: 'include' });
+                const data = await res.json();
+                if (data.success && Array.isArray(data.documents) && data.documents.length > 0) {
+                    const serverDocs = data.documents;
+                    const sMap = new Map();
+                    serverDocs.forEach(d => {
+                        if (d.doc_no) sMap.set(d.doc_no, d);
+                        if (d.id) sMap.set(String(d.id), d);
+                    });
+                    const localOnly = (local || []).filter(d => !sMap.has(d.doc_no) && !sMap.has(String(d.id)));
+                    allDocs = [...serverDocs, ...localOnly];
+                    saveLocalDocuments(allDocs);
+                    renderDocumentsTable(allDocs);
+                    updateDocCounts(allDocs);
+                } else if (local && local.length > 0) {
+                    allDocs = local;
+                    renderDocumentsTable(allDocs);
+                    updateDocCounts(allDocs);
+                }
+            } catch (err) {
+                console.warn('Documents API notice, using persistent local cache:', err);
+                if (local && local.length > 0) {
+                    allDocs = local;
+                    renderDocumentsTable(allDocs);
+                    updateDocCounts(allDocs);
+                }
+            }
+        }
+
+        function updateDocCounts(docs) {
+            document.getElementById('countAllDocs').innerText = docs.length;
+            document.getElementById('countQuotations').innerText = docs.filter(d => (d.doc_type || '').toLowerCase().includes('quot')).length;
+            document.getElementById('countItineraries').innerText = docs.filter(d => (d.doc_type || '').toLowerCase().includes('itin')).length;
+            document.getElementById('countInvoices').innerText = docs.filter(d => {
+                const t = (d.doc_type || '').toLowerCase();
+                return t.includes('inv') || t.includes('vouch');
+            }).length;
+        }
+
+        function resolveDocFilePath(d) {
+            const title = (d.title || '').toLowerCase();
+            const fp = (d.file_path || '').toLowerCase();
+            const isDining = title.includes('villa nautica') || fp.includes('villanautica') || d.doc_no === 'LEDMC-MLE-DIN-8821';
+            
+            if (isDining) {
+                return `../view.html?package_id=100&doctype=villa_nautica_dining&ref=${encodeURIComponent(d.doc_no || 'LEDMC-MLE-DIN-8821')}&title=${encodeURIComponent(d.title || '')}`;
+            }
+
+            if (d.file_path && d.file_path !== '#' && d.file_path !== '') {
+                if (d.file_path.startsWith('http://') || d.file_path.startsWith('https://')) return d.file_path;
+                if (d.file_path.endsWith('.html') || d.file_path.endsWith('.htm')) {
+                    return `../view.html?file=${encodeURIComponent(d.file_path)}&title=${encodeURIComponent(d.title || '')}`;
+                }
+                if (d.file_path.startsWith('../')) return d.file_path;
+                return '../' + d.file_path.replace(/^\/+/, '');
+            }
+            return `../view.html?ref=${encodeURIComponent(d.doc_no || d.id || '')}&title=${encodeURIComponent(d.title || '')}&client=${encodeURIComponent(d.customer_name || '')}&dest=${encodeURIComponent(d.destination || '')}`;
+        }
+
+        function renderDocumentsTable(docs) {
+            const tbody = document.getElementById('documentsTableBody');
+            if (!docs || docs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:35px; color:var(--text-secondary);">No documents matching your search. Click <strong>+ Create Document</strong> or <strong>Upload PDF</strong> to add one.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = docs.map(d => {
+                const filePath = resolveDocFilePath(d);
+                const isHtmlDoc = (d.file_path || '').toLowerCase().endsWith('.html') || (d.mime_type || '').includes('html');
+                const studioEditUrl = `ai-assistant.html?dest=${encodeURIComponent(d.destination || '')}&title=${encodeURIComponent(d.title || '')}&client=${encodeURIComponent(d.customer_name || '')}&doc_id=${encodeURIComponent(d.doc_no || d.id || '')}`;
+                const statusClass = (d.status || 'Active').toLowerCase();
+                const docTypeUpper = (d.doc_type || 'document').toUpperCase();
+
+                return `
+                    <tr id="doc-row-${d.id}">
+                        <td>
+                            <div style="font-family:monospace; font-weight:700; color:#2563EB; font-size:12.5px;">${d.doc_no || 'DOC-' + d.id}</div>
+                            <span class="status-pill info" style="font-size:10px; margin-top:3px;">${docTypeUpper}</span>
+                        </td>
+                        <td style="font-weight:700; color:#0F2C59; max-width:280px;">
+                            <a href="${filePath}" target="_blank" style="color:inherit; text-decoration:none;" title="Open document in new tab">
+                                ${escapeHtml(d.title)}
+                            </a>
+                            ${d.admin_remarks ? `<div style="font-size:11px; font-weight:400; color:#64748B; margin-top:2px;">${escapeHtml(d.admin_remarks)}</div>` : ''}
+                        </td>
+                        <td style="font-weight:600; color:#334155;">
+                            <div>${escapeHtml(d.customer_name || 'Direct Guest')}</div>
+                            ${d.customer_phone ? `<div style="font-size:11px; color:#64748B;">📱 ${escapeHtml(d.customer_phone)}</div>` : ''}
+                        </td>
+                        <td style="font-weight:500;">📍 ${escapeHtml(d.destination || 'International')}</td>
+                        <td style="font-size:12px; color:#64748B;">${(d.created_at || '').substring(0, 10)}</td>
+                        <td style="font-size:12px; color:#475569;">${escapeHtml(d.created_by_name || 'Admin')}</td>
+                        <td><span class="status-pill ${statusClass}">${escapeHtml(d.status || 'Active')}</span></td>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
+                                <a href="${filePath}" target="_blank" class="doc-action-btn" title="View Document / Brochure">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <button type="button" onclick="openDocModal('edit', '${d.id}')" class="doc-action-btn" title="Edit Document Details">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <a href="${studioEditUrl}" class="doc-action-btn studio-btn" title="Edit in AI Studio">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </a>
+                                <a href="${filePath}" download class="doc-action-btn" title="Download Document">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                                <button type="button" onclick="openWaDocModal('${d.id}')" class="doc-action-btn share-btn" title="Send via WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </button>
+                                <button type="button" onclick="confirmDeleteDoc('${d.id}')" class="doc-action-btn delete-btn" title="Delete Document">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function (m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        function filterDocumentsTable() {
+            const query = (document.getElementById('docSearchInput').value || '').toLowerCase();
+            const type = document.getElementById('docTypeFilter').value;
+            const status = document.getElementById('docStatusFilter').value;
+
+            const filtered = allDocs.filter(d => {
+                const matchesQ = !query ||
+                    (d.title || '').toLowerCase().includes(query) ||
+                    (d.customer_name || '').toLowerCase().includes(query) ||
+                    (d.destination || '').toLowerCase().includes(query) ||
+                    (d.doc_no || '').toLowerCase().includes(query) ||
+                    (d.admin_remarks || '').toLowerCase().includes(query);
+                const matchesT = (type === 'all') || (d.doc_type || '').toLowerCase().includes(type);
+                const matchesS = (status === 'all') || (d.status || '').toLowerCase() === status.toLowerCase();
+                return matchesQ && matchesT && matchesS;
+            });
+            renderDocumentsTable(filtered);
+        }
+
+        // ============================================================
+        // CREATE / EDIT MODAL WORKFLOW
+        // ============================================================
+        function openDocModal(mode, docId = null) {
+            const modal = document.getElementById('docModal');
+            const titleEl = document.getElementById('docModalTitle');
+            if (!modal) return;
+
+            if (mode === 'edit' && docId) {
+                const doc = allDocs.find(d => String(d.id) === String(docId) || d.doc_no === docId);
+                if (!doc) return;
+                titleEl.innerText = `Edit Document — ${doc.title}`;
+                document.getElementById('modalDocId').value = doc.id || '';
+                document.getElementById('modalDocNo').value = doc.doc_no || '';
+                document.getElementById('modalDocTitle').value = doc.title || '';
+                document.getElementById('modalDocType').value = doc.doc_type || 'quotation';
+                document.getElementById('modalDocCustomer').value = doc.customer_name || '';
+                document.getElementById('modalDocPhone').value = doc.customer_phone || '';
+                document.getElementById('modalDocDestination').value = doc.destination || '';
+                document.getElementById('modalDocFilePath').value = doc.file_path || '';
+                document.getElementById('modalDocStatus').value = doc.status || 'Active';
+                document.getElementById('modalDocRemarks').value = doc.admin_remarks || doc.description || '';
+            } else {
+                titleEl.innerText = 'Create Document / Proposal';
+                document.getElementById('modalDocId').value = '';
+                document.getElementById('modalDocNo').value = '';
+                document.getElementById('modalDocTitle').value = '';
+                document.getElementById('modalDocType').value = 'quotation';
+                document.getElementById('modalDocCustomer').value = '';
+                document.getElementById('modalDocPhone').value = '';
+                document.getElementById('modalDocDestination').value = '';
+                document.getElementById('modalDocFilePath').value = '';
+                document.getElementById('modalDocStatus').value = 'Active';
+                document.getElementById('modalDocRemarks').value = '';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeDocModal() {
+            const modal = document.getElementById('docModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function saveDocumentForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitDocForm');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            const idVal = document.getElementById('modalDocId').value;
+            const isEdit = !!idVal;
+            const docId = isEdit ? idVal : Date.now();
+            const docNo = document.getElementById('modalDocNo').value || ('LEDMC-DOC-' + Math.floor(1000 + Math.random() * 9000));
+
+            const docData = {
+                action: isEdit ? 'update' : 'create',
+                id: docId,
+                doc_no: docNo,
+                title: document.getElementById('modalDocTitle').value.trim(),
+                doc_type: document.getElementById('modalDocType').value,
+                customer_name: document.getElementById('modalDocCustomer').value.trim(),
+                customer_phone: document.getElementById('modalDocPhone').value.trim(),
+                destination: document.getElementById('modalDocDestination').value.trim(),
+                file_path: document.getElementById('modalDocFilePath').value.trim(),
+                status: document.getElementById('modalDocStatus').value,
+                admin_remarks: document.getElementById('modalDocRemarks').value.trim(),
+                created_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            };
+
+            // 1. Immediately update Local Cache & UI
+            if (isEdit) {
+                const idx = allDocs.findIndex(d => String(d.id) === String(docId) || d.doc_no === docNo);
+                if (idx !== -1) {
+                    allDocs[idx] = { ...allDocs[idx], ...docData };
+                }
+            } else {
+                allDocs.unshift(docData);
+            }
+            saveLocalDocuments(allDocs);
+            renderDocumentsTable(allDocs);
+            updateDocCounts(allDocs);
+            closeDocModal();
+
+            // 2. Persist to Backend API
+            try {
+                const res = await fetch('api/documents.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(docData)
+                });
+                const data = await res.json();
+                if (data.success && data.document) {
+                    // Refresh with server record
+                    const idx = allDocs.findIndex(d => String(d.id) === String(docId) || d.doc_no === docNo);
+                    if (idx !== -1) {
+                        allDocs[idx] = { ...allDocs[idx], ...data.document };
+                        saveLocalDocuments(allDocs);
+                        renderDocumentsTable(allDocs);
+                    }
+                }
+            } catch (err) {
+                console.warn('Backend sync notice (saved locally):', err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        // ============================================================
+        // UPLOAD MODAL WORKFLOW
+        // ============================================================
+        function openUploadModal() {
+            const modal = document.getElementById('uploadPdfModal');
+            if (modal) {
+                document.getElementById('uploadDocForm').reset();
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeUploadModal() {
+            const modal = document.getElementById('uploadPdfModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function onUploadFileSelected(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const rawName = file.name.replace(/\.[^/.]+$/, "");
+                const cleanTitle = rawName.replace(/[_\-]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const titleInput = document.getElementById('uploadModalTitle');
+                if (titleInput && !titleInput.value) {
+                    titleInput.value = cleanTitle;
+                }
+            }
+        }
+
+        async function handleDocFileUpload(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('uploadModalFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitUpload');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', document.getElementById('uploadModalTitle').value.trim());
+            formData.append('doc_type', document.getElementById('uploadModalDocType').value);
+            formData.append('destination', document.getElementById('uploadModalDestination').value.trim());
+            formData.append('customer_name', document.getElementById('uploadModalCustomer').value.trim());
+            formData.append('status', 'Active');
+            formData.append('action', 'upload');
+
+            try {
+                const res = await fetch('api/documents.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeUploadModal();
+                    await loadDocumentsFromApi();
+                } else {
+                    alert('Upload notice: ' + (data.error || 'Failed to upload'));
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                closeUploadModal();
+                await loadDocumentsFromApi();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        // ============================================================
+        // DELETE WORKFLOW
+        // ============================================================
+        function confirmDeleteDoc(docId) {
+            const doc = allDocs.find(d => String(d.id) === String(docId) || d.doc_no === docId);
+            if (!doc) return;
+
+            document.getElementById('deleteDocTargetId').value = doc.id;
+            document.getElementById('deleteDocName').innerText = `"${doc.title}" (${doc.doc_no || 'ID:' + doc.id})`;
+            document.getElementById('deleteDocModal').style.display = 'flex';
+        }
+
+        function closeDeleteDocModal() {
+            document.getElementById('deleteDocModal').style.display = 'none';
+        }
+
+        async function executeDeleteDoc() {
+            const docId = document.getElementById('deleteDocTargetId').value;
+            const btn = document.getElementById('btnConfirmDeleteDoc');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting...';
+
+            // 1. Immediately remove from local table
+            allDocs = allDocs.filter(d => String(d.id) !== String(docId) && d.doc_no !== docId);
+            saveLocalDocuments(allDocs);
+            renderDocumentsTable(allDocs);
+            updateDocCounts(allDocs);
+            closeDeleteDocModal();
+
+            // 2. API Call
+            try {
+                await fetch('api/documents.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: docId })
+                });
+            } catch (err) {
+                console.warn('API delete error:', err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash"></i> Yes, Delete';
+            }
+        }
+
+        // ============================================================
+        // WHATSAPP SHARE MODAL WORKFLOW
+        // ============================================================
+        let currentShareDoc = null;
+
+        function openWaDocModal(docId) {
+            const doc = allDocs.find(d => String(d.id) === String(docId) || d.doc_no === docId);
+            if (!doc) return;
+            currentShareDoc = doc;
+
+            let fileLink = resolveDocFilePath(doc);
+            if (!fileLink.startsWith('http://') && !fileLink.startsWith('https://')) {
+                const base = window.location.origin;
+                fileLink = base + (fileLink.startsWith('/') ? fileLink : '/' + fileLink.replace(/^\.\.\//, ''));
+            }
+
+            document.getElementById('waDocBadge').innerText = (doc.doc_type || 'PROPOSAL').toUpperCase();
+            document.getElementById('waDocTitle').innerText = doc.title;
+            document.getElementById('waDocDest').innerText = `📍 ${doc.destination || 'International'} · Ref: ${doc.doc_no || doc.id}`;
+            document.getElementById('waDocPhoneInput').value = (doc.customer_phone || '').replace(/[^0-9]/g, '');
+            document.getElementById('waDocLinkInput').value = fileLink;
+
+            const clientName = doc.customer_name || 'Valued Guest';
+            const msg = `Dear ${clientName},\n\nGreetings from Let's Explore DMC!\nHere is your official proposal document:\n📄 *${doc.title}*\n📍 *Destination:* ${doc.destination || 'International'}\n\n🔗 View / Download Document:\n${fileLink}\n\nPlease review and let us know if you need any adjustments. Have a wonderful trip!`;
+            document.getElementById('waDocMsgPreview').value = msg;
+
+            document.getElementById('waDocModal').style.display = 'flex';
+        }
+
+        function closeWaDocModal() {
+            document.getElementById('waDocModal').style.display = 'none';
+        }
+
+        function copyWaDocLink() {
+            const input = document.getElementById('waDocLinkInput');
+            input.select();
+            document.execCommand('copy');
+            alert('Document link copied to clipboard!');
+        }
+
+        function executeSendWaDoc() {
+            const phone = document.getElementById('waDocPhoneInput').value.replace(/[^0-9]/g, '');
+            const msg = document.getElementById('waDocMsgPreview').value;
+            const encoded = encodeURIComponent(msg);
+            const waUrl = phone ? `https://wa.me/${phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+            window.open(waUrl, '_blank');
+            closeWaDocModal();
+        }
     </script>
-    <script src="js/portal.js"></script>
 </body>
 
 </html>

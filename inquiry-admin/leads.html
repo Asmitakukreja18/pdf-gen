@@ -342,7 +342,7 @@
                             <option value="Admin">Admin (U1)</option>
                             <option value="Kashish (SU-1)">Kashish Adwani (SU-1)</option>
                             <option value="Asmita (SU-2)">Asmita Kukreja (SU-2)</option>
-                            <option value="Chanchal (SU-3)">Chanchal Sharma (SU-3)</option>
+                            <option value="Chanchal (SU-3)">Chanchal Chandani (SU-3)</option>
                         </select>
                     </div>
                     <div>
@@ -385,39 +385,84 @@
         let allLeads = [];
         let currentUserRole = 'admin';
         let currentUserName = 'Admin';
+        let currentActiveStage = 'all';
+
+        function getLocalLeads() {
+            try {
+                const s = localStorage.getItem('dmc_all_leads');
+                return s ? JSON.parse(s) : [];
+            } catch(e) { return []; }
+        }
+
+        function saveLeadsToLocal(leads) {
+            try {
+                localStorage.setItem('dmc_all_leads', JSON.stringify(leads));
+            } catch(e) {}
+        }
+
+        function calcStatusCounts(leads) {
+            const counts = {};
+            (leads || []).forEach(l => {
+                const st = l.status || 'Fresh';
+                counts[st] = (counts[st] || 0) + 1;
+            });
+            return counts;
+        }
 
         async function loadLeads() {
+            // 1. Immediately render cached leads so UI never flashes empty on refresh
+            const local = getLocalLeads();
+            if (local && local.length > 0) {
+                allLeads = local;
+                updateCounters(calcStatusCounts(allLeads));
+                renderLeads(allLeads);
+            }
+
+            // 2. Fetch live data from backend to sync
             try {
                 const res = await fetch('api/leads.php');
                 const data = await res.json();
-                if (data.success && data.leads && data.leads.length > 0) {
-                    let leadsList = data.leads;
-                    if (currentUserRole !== 'admin') {
-                        const myLower = currentUserName.toLowerCase();
-                        leadsList = leadsList.filter(l => {
-                            const assigned = (l.assigned_employee || '').toLowerCase();
-                            return assigned.includes(myLower) || assigned.includes('su-') || assigned === '' || assigned.includes('all');
+                if (data.success && Array.isArray(data.leads)) {
+                    if (data.leads.length > 0) {
+                        const serverLeads = data.leads;
+                        const serverMap = new Map();
+                        serverLeads.forEach(l => {
+                            if (l.lead_no) serverMap.set(l.lead_no, l);
+                            if (l.id) serverMap.set(String(l.id), l);
                         });
+
+                        // Keep any locally created leads that haven't hit server yet
+                        const localOnly = (local || []).filter(l => {
+                            const byNo = l.lead_no && serverMap.has(l.lead_no);
+                            const byId = l.id && serverMap.has(String(l.id));
+                            return !byNo && !byId;
+                        });
+
+                        allLeads = [...serverLeads, ...localOnly];
+                        saveLeadsToLocal(allLeads);
+                    } else if (local && local.length > 0) {
+                        // Server empty or initial setup - preserve existing local leads
+                        allLeads = local;
+                    } else {
+                        allLeads = [];
                     }
-                    allLeads = leadsList;
-                    updateCounters(data.status_counts || data.counts || {});
+                    updateCounters(calcStatusCounts(allLeads));
                     renderLeads(allLeads);
-                } else {
-                    allLeads = [];
-                    updateCounters({});
-                    renderLeads([]);
                 }
             } catch (err) {
-                allLeads = [];
-                updateCounters({});
-                renderLeads([]);
+                console.warn('API sync notice, using persistent local cache:', err);
+                if (local && local.length > 0) {
+                    allLeads = local;
+                    updateCounters(calcStatusCounts(allLeads));
+                    renderLeads(allLeads);
+                }
             }
         }
 
         function updateCounters(counts) {
             document.getElementById('count-all').innerText = allLeads.length;
             document.getElementById('count-fresh').innerText = counts['Fresh'] || 0;
-            document.getElementById('count-followup').innerText = counts['Follow-up'] || 0;
+            document.getElementById('count-followup').innerText = (counts['Follow-up'] || 0) + (counts['Followup'] || 0);
             document.getElementById('count-review').innerText = counts['In Review'] || 0;
             document.getElementById('count-opp').innerText = counts['Opportunity'] || 0;
             document.getElementById('count-sent').innerText = counts['Quotation Sent'] || 0;
@@ -429,7 +474,7 @@
             const container = document.getElementById('leadsListContainer');
             container.innerHTML = '';
 
-            if (leads.length === 0) {
+            if (!leads || leads.length === 0) {
                 container.innerHTML = `
                     <div class="card" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
                         <i class="fa-solid fa-inbox" style="font-size:42px; color:#CBD5E1; margin-bottom:12px;"></i>
@@ -442,10 +487,12 @@
 
             leads.forEach(l => {
                 let statusClass = 'status-pending';
-                if (l.status === 'Confirmed') statusClass = 'status-confirmed';
-                else if (l.status === 'Fresh') statusClass = 'status-draft';
-                else if (l.status === 'Lost') statusClass = 'status-rejected';
-                else if (l.status === 'Quotation Sent') statusClass = 'status-confirmed';
+                const st = (l.status || 'Fresh').toLowerCase();
+                if (st === 'confirmed') statusClass = 'status-confirmed';
+                else if (st === 'fresh') statusClass = 'status-draft';
+                else if (st === 'lost') statusClass = 'status-rejected';
+                else if (st === 'quotation sent') statusClass = 'status-confirmed';
+                else if (st === 'opportunity') statusClass = 'status-pending';
 
                 const rawPhone = String(l.phone || '').replace(/[^0-9]/g, '');
 
@@ -463,15 +510,23 @@
                     <div style="display:flex; gap:14px; align-items:center;">
                         <input type="checkbox" style="width:16px; height:16px; accent-color:var(--primary-navy); cursor:pointer;">
                         <div>
-                            <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                 <span style="font-family:monospace; font-size:11.5px; font-weight:800; color:var(--royal-blue);">${escapeHTML(l.lead_no)}</span>
-                                <span class="status-pill ${statusClass}">${escapeHTML(l.status)}</span>
+                                <select onchange="updateLeadStatus(${l.id || 0}, '${escapeHTML(l.lead_no)}', this.value)" style="font-size:11px; font-weight:700; border:1px solid #CBD5E1; border-radius:6px; padding:3px 8px; background:#FFF; color:#0F172A; cursor:pointer;" title="Change Lead Stage">
+                                    <option value="Fresh" ${l.status === 'Fresh' ? 'selected' : ''}>Fresh</option>
+                                    <option value="Follow-up" ${l.status === 'Follow-up' || l.status === 'Followup' ? 'selected' : ''}>Follow-up</option>
+                                    <option value="In Review" ${l.status === 'In Review' ? 'selected' : ''}>In Review</option>
+                                    <option value="Opportunity" ${l.status === 'Opportunity' ? 'selected' : ''}>Opportunity</option>
+                                    <option value="Quotation Sent" ${l.status === 'Quotation Sent' ? 'selected' : ''}>Quotation Sent</option>
+                                    <option value="Confirmed" ${l.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                                    <option value="Lost" ${l.status === 'Lost' ? 'selected' : ''}>Lost</option>
+                                </select>
                                 <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:12px; font-weight:600;">${escapeHTML(l.lead_source || 'Website Form')}</span>
                             </div>
                             <div style="font-size:15px; font-weight:800; color:var(--primary-navy); margin-top:4px;">
                                 ${escapeHTML(l.customer_name)}
                             </div>
-                            <div style="font-size:12px; color:var(--text-secondary); margin-top:3px; display:flex; align-items:center; gap:10px;">
+                            <div style="font-size:12px; color:var(--text-secondary); margin-top:3px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                                 <span><i class="fa-solid fa-phone" style="color:var(--royal-blue); font-size:11px; margin-right:4px;"></i> ${escapeHTML(l.phone)}</span>
                                 <a href="https://wa.me/${rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone}" target="_blank" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px; color:#16A34A; text-decoration:none;" title="Open WhatsApp Chat">
                                     <i class="fa-brands fa-whatsapp"></i> Chat
@@ -482,7 +537,7 @@
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
                         <div>
                             <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Destination &amp; Pax</div>
                             <div style="font-weight:700; color:var(--primary-navy); font-size:13px; margin-top:2px;">📍 ${escapeHTML(l.destination || 'Custom Tour')}</div>
@@ -492,28 +547,27 @@
                         <div>
                             <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Assigned Staff</div>
                             <div style="margin-top:2px;">
-                                ${currentUserRole === 'admin' ? `
-                                    <select onchange="reassignLead(${l.id || 0}, '${escapeHTML(l.lead_no)}', this.value)" style="font-size:11.5px; font-weight:700; color:#1E40AF; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:3px 6px; cursor:pointer;">
-                                        <option value="Admin" ${!l.assigned_employee || l.assigned_employee === 'Admin' ? 'selected' : ''}>👑 Admin</option>
-                                        <option value="Kashish (SU-1)" ${String(l.assigned_employee).includes('Kashish') ? 'selected' : ''}>👩‍💼 Kashish Adwani (SU-1)</option>
-                                        <option value="Asmita (SU-2)" ${String(l.assigned_employee).includes('Asmita') ? 'selected' : ''}>👩‍💼 Asmita Kukreja (SU-2)</option>
-                                        <option value="Chanchal (SU-3)" ${String(l.assigned_employee).includes('Chanchal') ? 'selected' : ''}>👩‍💼 Chanchal Sharma (SU-3)</option>
-                                    </select>
-                                ` : `
-                                    <span style="font-weight:700; color:var(--royal-blue); font-size:12px;">👤 ${escapeHTML(l.assigned_employee || 'Admin')}</span>
-                                `}
+                                <select onchange="reassignLead(${l.id || 0}, '${escapeHTML(l.lead_no)}', this.value)" style="font-size:11.5px; font-weight:700; color:#1E40AF; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:3px 6px; cursor:pointer;">
+                                    <option value="Admin" ${!l.assigned_employee || l.assigned_employee === 'Admin' ? 'selected' : ''}>👑 Admin</option>
+                                    <option value="Kashish (SU-1)" ${String(l.assigned_employee).includes('Kashish') ? 'selected' : ''}>👩‍💼 Kashish Adwani (SU-1)</option>
+                                    <option value="Asmita (SU-2)" ${String(l.assigned_employee).includes('Asmita') ? 'selected' : ''}>👩‍💼 Asmita Kukreja (SU-2)</option>
+                                    <option value="Chanchal (SU-3)" ${String(l.assigned_employee).includes('Chanchal') ? 'selected' : ''}>👩‍💼 Chanchal Chandani (SU-3)</option>
+                                </select>
                             </div>
                             <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">${escapeHTML(l.followup_date || 'Scheduled')}</div>
                         </div>
 
                         <div style="text-align:right;">
                             <div style="font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em;">Estimated Budget</div>
-                            <div style="font-weight:800; color:#15803D; font-size:13.5px; margin-top:2px;">₹ ${Number(l.budget || 0).toLocaleString()}</div>
+                            <div style="font-weight:800; color:#15803D; font-size:13.5px; margin-top:2px;">₹ ${Number(l.budget || 0).toLocaleString('en-IN')}</div>
                         </div>
 
-                        <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
                             <button type="button" onclick="createQuotationForLead('${escapeHTML(l.lead_no)}', '${escapeHTML(l.customer_name)}', '${escapeHTML(l.phone)}', '${escapeHTML(l.email || '')}', '${escapeHTML(l.destination || '')}', ${l.adults || 2})" class="btn btn-primary btn-sm" style="font-size:12px; padding:8px 14px;" title="Auto-fill details into Master AI Document Studio">
                                 <i class="fa-solid fa-bolt" style="color:#FBBF24;"></i> CREATE QUOTATION
+                            </button>
+                            <button type="button" onclick="deleteLead(${l.id || 0}, '${escapeHTML(l.lead_no)}')" class="btn btn-secondary btn-sm" style="padding:7px 10px; color:#EF4444; border-color:#FECACA;" title="Delete Lead">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
                     </div>
@@ -522,17 +576,56 @@
             });
         }
 
-        async function reassignLead(id, leadNo, newAssignee) {
+        async function updateLeadStatus(id, leadNo, newStatus) {
+            const lead = allLeads.find(x => x.id == id || x.lead_no === leadNo);
+            if (lead) {
+                lead.status = newStatus;
+                saveLeadsToLocal(allLeads);
+                updateCounters(calcStatusCounts(allLeads));
+                if (currentActiveStage === 'all') {
+                    renderLeads(allLeads);
+                } else {
+                    renderLeads(allLeads.filter(l => (l.status || '').toLowerCase() === currentActiveStage.toLowerCase()));
+                }
+            }
             try {
-                await fetch('api/update_inquiry.php', {
+                await fetch('api/leads.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, assigned_to: newAssignee })
+                    body: JSON.stringify({ action: 'update', lead_id: id, lead_no: leadNo, status: newStatus })
                 });
             } catch(e) {}
+        }
+
+        async function reassignLead(id, leadNo, newAssignee) {
             const lead = allLeads.find(x => x.id == id || x.lead_no === leadNo);
-            if (lead) lead.assigned_employee = newAssignee;
-            alert(`Lead ${leadNo} successfully assigned to ${newAssignee}!`);
+            if (lead) {
+                lead.assigned_employee = newAssignee;
+                saveLeadsToLocal(allLeads);
+            }
+            try {
+                await fetch('api/leads.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'update', lead_id: id, lead_no: leadNo, assigned_employee: newAssignee })
+                });
+            } catch(e) {}
+            alert(`Lead ${leadNo} assigned to ${newAssignee}!`);
+        }
+
+        async function deleteLead(id, leadNo) {
+            if (!confirm(`Are you sure you want to delete lead ${leadNo}?`)) return;
+            allLeads = allLeads.filter(x => !(x.id == id || x.lead_no === leadNo));
+            saveLeadsToLocal(allLeads);
+            updateCounters(calcStatusCounts(allLeads));
+            renderLeads(allLeads);
+            try {
+                await fetch('api/leads.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', lead_id: id, lead_no: leadNo })
+                });
+            } catch(e) {}
         }
 
         function createQuotationForLead(leadNo, name, phone, email, dest, adults) {
@@ -541,60 +634,84 @@
         }
 
         function filterLeadsByStage(stage, btn) {
+            currentActiveStage = stage;
             document.querySelectorAll('.lead-stage-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
 
             const filtered = (stage === 'all') ? allLeads : allLeads.filter(l => (l.status || '').toLowerCase() === stage.toLowerCase());
             renderLeads(filtered);
         }
 
         function handleLeadSearch(q) {
-            const term = q.toLowerCase();
+            const term = (q || '').toLowerCase().trim();
+            if (!term) {
+                filterLeadsByStage(currentActiveStage, null);
+                return;
+            }
             const filtered = allLeads.filter(l =>
                 (l.customer_name || '').toLowerCase().includes(term) ||
                 (l.phone || '').toLowerCase().includes(term) ||
                 (l.destination || '').toLowerCase().includes(term) ||
-                (l.lead_no || '').toLowerCase().includes(term)
+                (l.lead_no || '').toLowerCase().includes(term) ||
+                (l.assigned_employee || '').toLowerCase().includes(term)
             );
             renderLeads(filtered);
         }
 
         async function handleCreateLead(e) {
             e.preventDefault();
-            const payload = {
+            const custName = document.getElementById('leadCustName').value.trim();
+            const custPhone = document.getElementById('leadCustPhone').value.trim();
+            if (!custName || !custPhone) {
+                alert('Please enter Customer Name and Phone Number.');
+                return;
+            }
+
+            const leadNo = 'LEDMC-LEAD-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            const newLead = {
                 action: 'create',
-                customer_name: document.getElementById('leadCustName').value,
-                phone: document.getElementById('leadCustPhone').value,
-                email: document.getElementById('leadCustEmail').value,
-                destination: document.getElementById('leadCustDest').value,
-                adults: document.getElementById('leadAdults').value,
-                children: document.getElementById('leadChildren').value,
-                rooms: document.getElementById('leadRooms').value,
-                budget: document.getElementById('leadBudget').value,
-                assigned_employee: document.getElementById('leadAssigned').value,
-                status: document.getElementById('leadInitStatus').value,
-                internal_notes: document.getElementById('leadNotes').value
+                id: Date.now(),
+                lead_no: leadNo,
+                customer_name: custName,
+                phone: custPhone,
+                email: document.getElementById('leadCustEmail').value.trim(),
+                destination: document.getElementById('leadCustDest').value.trim() || 'Custom Tour',
+                adults: parseInt(document.getElementById('leadAdults').value, 10) || 2,
+                children: parseInt(document.getElementById('leadChildren').value, 10) || 0,
+                rooms: parseInt(document.getElementById('leadRooms').value, 10) || 1,
+                budget: parseFloat(document.getElementById('leadBudget').value) || 0,
+                assigned_employee: document.getElementById('leadAssigned').value || 'Admin',
+                status: document.getElementById('leadInitStatus').value || 'Fresh',
+                internal_notes: document.getElementById('leadNotes').value.trim(),
+                created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
             };
 
+            // 1. Instantly store locally & update UI
+            allLeads.unshift(newLead);
+            saveLeadsToLocal(allLeads);
+            updateCounters(calcStatusCounts(allLeads));
+            renderLeads(allLeads);
+
+            // Close modal & reset form
+            document.getElementById('addLeadModal').style.display = 'none';
+            document.getElementById('newLeadForm').reset();
+
+            // 2. Sync with backend API
             try {
                 const res = await fetch('api/leads.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(newLead)
                 });
                 const data = await res.json();
-                if (data.success) {
-                    alert('Success! ' + data.message);
-                    document.getElementById('addLeadModal').style.display = 'none';
-                    document.getElementById('newLeadForm').reset();
-                    loadLeads();
-                } else {
-                    alert('Error: ' + (data.error || 'Failed to create lead'));
+                if (data && data.success) {
+                    if (data.lead_no) newLead.lead_no = data.lead_no;
+                    if (data.id) newLead.id = data.id;
+                    saveLeadsToLocal(allLeads);
+                    renderLeads(allLeads);
                 }
             } catch (err) {
-                alert('Lead saved successfully!');
-                document.getElementById('addLeadModal').style.display = 'none';
-                loadLeads();
+                console.warn('Backend sync queued, lead safely stored locally:', err);
             }
         }
 
@@ -604,6 +721,9 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            // First load local leads instantly
+            loadLeads();
+
             try {
                 const res = await fetch('api/login.php');
                 const data = await res.json();
@@ -625,12 +745,21 @@
                         }
                         document.querySelectorAll('.admin-only-nav').forEach(el => el.style.display = 'none');
                         const subEl = document.querySelector('.page-subtitle');
-                        if (subEl) subEl.innerHTML = `Showing assigned guest inquiries for <strong>${escapeHTML(name)}</strong>.`;
+                        if (subEl) subEl.innerHTML = `Showing active guest inquiries for <strong>${escapeHTML(name)}</strong>.`;
+
+                        // Auto select user in modal if matches staff
+                        const assignSel = document.getElementById('leadAssigned');
+                        if (assignSel) {
+                            for (let opt of assignSel.options) {
+                                if (opt.value.toLowerCase().includes(name.toLowerCase())) {
+                                    opt.selected = true;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             } catch (e) { }
-
-            loadLeads();
 
             // Silent heartbeat every 45s
             setInterval(() => fetch('api/auth.php?action=heartbeat').catch(() => { }), 45000);
