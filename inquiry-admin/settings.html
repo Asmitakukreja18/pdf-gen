@@ -3,21 +3,21 @@
 
 <head>
     <script>
-(function(){
-  try {
-    var params = new URLSearchParams(window.location.search);
-    var urlRole = (params.get('role') || '').toLowerCase();
-    var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
-    var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
-    var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
-    if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
-      try { localStorage.setItem('dmc_role', 'executive'); } catch(e){}
-    }
-    document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
-  } catch(e) {}
-})();
-</script>
-    
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var urlRole = (params.get('role') || '').toLowerCase();
+                var u = JSON.parse(localStorage.getItem('dmc_user') || '{}');
+                var r = (urlRole || u.role || localStorage.getItem('dmc_role') || 'admin').toLowerCase();
+                var isStaff = (r === 'staff' || r === 'user' || r === 'executive' || r === 'agent');
+                if (urlRole && isStaff && !localStorage.getItem('dmc_role')) {
+                    try { localStorage.setItem('dmc_role', 'executive'); } catch (e) { }
+                }
+                document.documentElement.className += (isStaff ? ' is-staff' : ' is-admin');
+            } catch (e) { }
+        })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings &amp; Sub-Users — Let's Explore DMC</title>
@@ -54,7 +54,7 @@
         <!-- ============================================================
              LEFT SIDEBAR NAVIGATION (MODERN LUXURY DARK-NAVY)
              ============================================================ -->
-                <aside class="portal-sidebar" id="portalSidebar">
+        <aside class="portal-sidebar" id="portalSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand" id="sidebarBrandLink">
                     <div class="brand-icon-box">
@@ -129,7 +129,8 @@
                 </a>
             </nav>
 
-            <div class="sidebar-logout-wrap" style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="sidebar-logout-wrap"
+                style="padding:16px 14px 24px; border-top:1px solid rgba(255,255,255,0.07);">
                 <a href="../api/logout.php" class="nav-link nav-link-item" style="color:#EF4444;">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
@@ -146,7 +147,8 @@
                 <div style="display:flex; align-items:center; gap:16px;">
                     <button type="button" class="sidebar-toggle-btn mobile-menu-trigger" id="sidebarToggleBtn"
                         style="border:none; background:none; font-size:18px; color:#475569; cursor:pointer;"
-                        title="Toggle Sidebar" onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
+                        title="Toggle Sidebar"
+                        onclick="window.toggleDmcMobileSidebar && window.toggleDmcMobileSidebar();">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="breadcrumb-trail" style="display:flex; align-items:center; gap:8px; font-size:13px;">
@@ -163,7 +165,8 @@
                         <input type="text" id="topSearchInput" placeholder="Search settings &amp; keys..."
                             style="border:none; background:transparent; font-size:13px; outline:none; width:100%;">
                     </div>
-                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer" class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
+                    <a href="https://letsexploredmc.com/" target="_blank" rel="noopener noreferrer"
+                        class="topbar-action-btn" title="View Official Public Website (letsexploredmc.com)"
                         style="display:inline-flex; align-items:center; gap:6px; background:#FFFFFF; border:1px solid #E2E8F0; padding:7px 14px; border-radius:9999px; color:#0F172A; font-size:12.5px; font-weight:600; text-decoration:none;">
                         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#64748B;"></i>
                         <span class="hide-mobile">Public Site</span>
@@ -173,12 +176,17 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span class="hide-mobile">AI Studio</span>
                     </a>
-                    <div class="profile-pill-item" style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
+                    <div class="profile-pill-item"
+                        style="display:flex; align-items:center; gap:10px; padding:4px 12px 4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9999px;">
                         <div class="avatar-box" id="topbarAvatar"
-                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">LE</div>
-                        <div class="profile-text-wrap hide-mobile" style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span class="profile-name" id="topbarUserName" style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
-                            <span class="profile-role" id="topbarUserRole" style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
+                            style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFFFFF; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px;">
+                            LE</div>
+                        <div class="profile-text-wrap hide-mobile"
+                            style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span class="profile-name" id="topbarUserName"
+                                style="font-size:13px; font-weight:700; color:#0F172A;">Let's Explore DMC</span>
+                            <span class="profile-role" id="topbarUserRole"
+                                style="font-size:11px; font-weight:500; color:#64748B;">Super Administrator</span>
                         </div>
                     </div>
                 </div>
@@ -279,7 +287,7 @@
                             <div
                                 style="background:#F8FAFC; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; font-size:12.5px; display:flex; align-items:center; gap:10px;">
                                 <span style="font-weight:800; color:var(--primary-navy);">SU-3</span>
-                                <span style="color:var(--text-secondary);">Chanchal Sharma (Operations)</span>
+                                <span style="color:var(--text-secondary);">Chanchal Chandani (Operations)</span>
                                 <span class="status-pill status-confirmed">Active</span>
                             </div>
                         </div>
@@ -526,9 +534,11 @@
                 console.warn('MySQL settings save warning:', err);
             }
 
-            // Also keep localStorage updated
-            if (claudeKey) localStorage.setItem('dmc_claude_api_key', claudeKey);
-            if (geminiKey) localStorage.setItem('dmc_gemini_api_key', geminiKey);
+            // Security: Purge any legacy browser storage of API secrets
+            try {
+                localStorage.removeItem('dmc_claude_api_key');
+                localStorage.removeItem('dmc_gemini_api_key');
+            } catch (e) { }
 
             localStorage.setItem('portal_settings', JSON.stringify({
                 idleLock: document.getElementById('idleLockToggle').checked,
@@ -542,13 +552,19 @@
             }));
 
             if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Configuration'; }
-            alert('Settings, company particulars, and AI configuration saved successfully!');
+            alert('Settings, company particulars, and AI configuration saved securely to server!');
             loadAiStatus();
         }
 
         async function loadAiStatus() {
             try {
-                const res = await fetch('../api/save_ai_settings.php');
+                // Ensure browser storage contains no secrets
+                try {
+                    localStorage.removeItem('dmc_claude_api_key');
+                    localStorage.removeItem('dmc_gemini_api_key');
+                } catch (e) { }
+
+                const res = await fetch('../api/save_ai_settings.php', { credentials: 'include' });
                 const data = await res.json();
                 if (data && data.success) {
                     const claudeBadge = document.getElementById('claudeStatusBadge');
@@ -557,17 +573,10 @@
                     const geminiInput = document.getElementById('geminiApiKeyInput');
                     const providerSelect = document.getElementById('defaultAiProvider');
 
-                    const localClaude = localStorage.getItem('dmc_claude_api_key');
-                    const localGemini = localStorage.getItem('dmc_gemini_api_key');
-
                     if (data.has_claude_key) {
                         claudeBadge.className = 'status-pill status-confirmed';
-                        claudeBadge.textContent = 'Configured (cPanel)';
+                        claudeBadge.textContent = 'Configured (Server Private)';
                         if (claudeInput && !claudeInput.value) claudeInput.placeholder = data.claude_key_masked;
-                    } else if (localClaude) {
-                        claudeBadge.className = 'status-pill status-confirmed';
-                        claudeBadge.textContent = 'Active (Browser)';
-                        if (claudeInput && !claudeInput.value) claudeInput.value = localClaude;
                     } else {
                         claudeBadge.className = 'status-pill status-draft';
                         claudeBadge.textContent = 'Not Configured';
@@ -575,12 +584,8 @@
 
                     if (data.has_gemini_key) {
                         geminiBadge.className = 'status-pill status-confirmed';
-                        geminiBadge.textContent = 'Configured (cPanel)';
+                        geminiBadge.textContent = 'Configured (Server Private)';
                         if (geminiInput && !geminiInput.value) geminiInput.placeholder = data.gemini_key_masked;
-                    } else if (localGemini) {
-                        geminiBadge.className = 'status-pill status-confirmed';
-                        geminiBadge.textContent = 'Active (Browser)';
-                        if (geminiInput && !geminiInput.value) geminiInput.value = localGemini;
                     } else {
                         geminiBadge.className = 'status-pill status-draft';
                         geminiBadge.textContent = 'Not Configured';

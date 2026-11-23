@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villa Nautica Maldives — Candle Light & Special Dining Experiences</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-navy: #0F2C59;
+            --brand-deep: #07162c;
+            --brand-gold: #D97706;
+            --brand-accent: #2563EB;
+            --bg-light: #F8FAFC;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            --border-light: #E2E8F0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #E5E7EB;
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 20px;
+        }
+        .a4-page {
+            max-width: 860px;
+            margin: 0 auto 30px auto;
+            background: #FFFFFF;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .top-stripe {
+            height: 6px;
+            background: linear-gradient(90deg, #0F2C59 0%, #1E3A8A 35%, #D97706 70%, #F59E0B 100%);
+        }
+        .header {
+            padding: 26px 36px 18px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-light);
+            background: #FAFAFA;
+        }
+        .resort-title {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2.5px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            text-transform: uppercase;
+        }
+        .resort-subtitle {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: var(--brand-gold);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .hero-banner {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, #1E3A8A 100%);
+            color: #FFFFFF;
+            padding: 22px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .hero-desc {
+            font-size: 12.5px;
+            color: #FDE68A;
+            margin-top: 4px;
+        }
+        .decoration-pill {
+            background: #D97706;
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 7px 16px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.35);
+        }
+        .meta-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #CBD5E1;
+            margin: 18px 36px;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .meta-item {
+            background: #F8FAFC;
+            padding: 10px 14px;
+        }
+        .meta-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .meta-val {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--brand-navy);
+            margin-top: 2px;
+        }
+        .table-wrap {
+            margin: 18px 36px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .summary-table th {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            padding: 10px 14px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-align: left;
+        }
+        .summary-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .strike-rate {
+            text-decoration: line-through;
+            color: #94A3B8;
+            font-size: 11.5px;
+            display: block;
+        }
+        .doubled-rate {
+            color: #059669;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        .menu-grid {
+            margin: 24px 36px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 16px;
+        }
+        .menu-card {
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .menu-card-hdr {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .menu-card-rate {
+            text-align: right;
+            font-size: 15px;
+            font-weight: 900;
+            color: #FBBF24;
+        }
+        .menu-card-body {
+            padding: 14px 16px;
+            font-size: 11.5px;
+            line-height: 1.6;
+            color: #334155;
+        }
+        .course-row {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #E2E8F0;
+        }
+        .course-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .course-name {
+            font-weight: 800;
+            color: var(--brand-navy);
+            display: block;
+        }
+        .terms-box {
+            margin: 20px 36px 26px 36px;
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-left: 4px solid var(--brand-gold);
+            border-radius: 6px;
+            padding: 14px 18px;
+            font-size: 11.5px;
+            color: #475569;
+        }
+        .terms-box h4 {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--brand-navy);
+            margin-bottom: 6px;
+        }
+        .footer {
+            background: #FAFAFA;
+            border-top: 1px solid var(--border-light);
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .print-btn-bar {
+            max-width: 860px;
+            margin: 0 auto 16px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn-act {
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .btn-act.primary {
+            background: var(--brand-navy);
+            color: #FFFFFF;
+        }
+        .btn-act.primary:hover {
+            background: #1E3A8A;
+        }
+        @media print {
+            body { background: #FFFFFF; padding: 0; }
+            .print-btn-bar { display: none !important; }
+            .a4-page { box-shadow: none; margin: 0; max-width: 100%; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="print-btn-bar">
+        <button class="btn-act primary" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Print / Save as PDF
+        </button>
+    </div>
+
+    <div class="a4-page">
+        <div class="top-stripe"></div>
+
+        <!-- Document Header -->
+        <div class="header">
+            <div>
+                <div class="resort-title">Villa Nautica</div>
+                <div class="resort-subtitle">Paradise Island · Maldives</div>
+                <div style="font-size:11px; color:#64748B; margin-top:4px;">
+                    <i class="fa-solid fa-award" style="color:#D97706;"></i> Luxury 5-Star Beach & Lagoon Resort Experience
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:12px; font-weight:800; color:#0F2C59;">LET'S EXPLORE DMC</div>
+                <div style="font-size:10.5px; color:#D97706; font-weight:700; text-transform:uppercase;">Official Destination Management Partner</div>
+                <div style="font-size:11px; color:#64748B; margin-top:2px;">Contact: +91 80075 86881 | bookings@letsexploredmc.com</div>
+            </div>
+        </div>
+
+        <!-- Hero Title Banner -->
+        <div class="hero-banner">
+            <div>
+                <div class="hero-title">CANDLE LIGHT & SPECIAL BEACH DINING</div>
+                <div class="hero-desc">Exclusive Multi-Course Romantic Beachfront Menus & Tariffs</div>
+            </div>
+            <div class="decoration-pill">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> WITH DECORATION INCLUDED
+            </div>
+        </div>
+
+        <!-- Meta Strip -->
+        <div class="meta-strip">
+            <div class="meta-item">
+                <div class="meta-label">RESORT PROPERTY</div>
+                <div class="meta-val">Villa Nautica, Maldives</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">PRICING BASIS</div>
+                <div class="meta-val">Per Couple (2 Adults)</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">DECORATION STATUS</div>
+                <div class="meta-val" style="color:#059669;"><i class="fa-solid fa-circle-check"></i> Included</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">GOVT TAX & SERVICE</div>
+                <div class="meta-val">++ (10% SC & 17% TGST)</div>
+            </div>
+        </div>
+
+        <!-- Master Rates Summary Table -->
+        <div class="table-wrap">
+            <div style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-list-check" style="color:#D97706;"></i> Special Dining Tariffs (Doubled with Decoration Included)
+            </div>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th style="width:40%;">DINING EXPERIENCE</th>
+                        <th style="text-align:center; width:18%;">ORIGINAL RATE</th>
+                        <th style="text-align:center; width:22%; background:#1E3A8A;">DOUBLED RATE (USD++)</th>
+                        <th style="text-align:center; width:20%;">DECORATION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>1. Candle Light Dinner at the Beach</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Sunset beach canopy with ambient candlelight</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$200++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$400++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>2. Dig-In Dinner by the Beach</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Carved sand lounge illuminated with glowing lanterns</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$244++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$488++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>3. Seafood Lunch — Adventure on the Sea</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Lagoon in-water table with parasol setup</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$128++ / $144++ / $161++</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$256++ to $322++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>4. Vegetarian Candle Light Dinner</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Gourmet plant-based 4-course romantic feast</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$170++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$340++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>5. Oriental Night Experience</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Bedouin Arabian beach cabana with shisha & grill</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$244++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$488++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>6. Private BBQ on the Beach</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Live beach grill station with private chef</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$184++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$368++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>7. Crow's Nest — Over the Ocean Dinner</strong>
+                            <div style="font-size:10.5px; color:#64748B;">Elevated starlit tower dining with panoramic views</div>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="strike-rate">$198++ per couple</span>
+                        </td>
+                        <td style="text-align:center; background:#F0FDF4;">
+                            <span class="doubled-rate">$396++</span>
+                            <div style="font-size:9.5px; color:#059669; font-weight:700;">per couple (with decoration)</div>
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:#D97706;">
+                            <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10.5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Detailed Multi-Course Menu Cards -->
+        <div class="menu-grid">
+            <!-- 1. Candle Light -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">1. CANDLE LIGHT DINNER AT BEACH</div>
+                        <div style="font-size:10px; color:#FDE68A;">Romantic Sunset Oceanfront Canopy</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $400++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Amuse-Bouche:</span>
+                        Smoked Salmon mille feuille OR Prosciutto di Parma & sweet melon
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Second Course:</span>
+                        Beef Carpaccio with Rockette & Shaved Parmesan
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Palate Cleanser:</span>
+                        Lime Sorbet with a hint of Beetle Nut
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Main Course:</span>
+                        Grilled Lobster with Lemon & Herb butter, Mixed green salad
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Dessert:</span>
+                        Mango & Passion fruit Parfait
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Dig-In Dinner -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">2. DIG-IN DINNER BY THE BEACH</div>
+                        <div style="font-size:10px; color:#FDE68A;">Dug-In Sand Lounge with Ambient Lanterns</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $488++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Selection One:</span>
+                        Appetizer: Mixed Salad | Soup: Boston Seafood Chowder | Main Course: Islander Seafood platter | Dessert: Imperial Cheesecake
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection Two:</span>
+                        Appetizer: Smoked Chicken breast delight | Soup: Hot & Sour soup | Main Course: Cantonese Style steamed Salmon | Dessert: Chinese Pancake
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Seafood Lunch -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">3. SEAFOOD LUNCH (ADVENTURE ON SEA)</div>
+                        <div style="font-size:10px; color:#FDE68A;">Lagoon In-Water Dining with Umbrella Setup</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $256++ – $322++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Selection One ($322++ with decoration / was $161++):</span>
+                        Mixed green salad with grilled marinated prawn & mussel | Cream of vegetables | Paradise seafood platter (Grilled lobster, red snapper, prawn tempura, calamari) | Lost pear in paradise
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection Two ($256++ with decoration / was $128++):</span>
+                        Paradise prawn cocktail | Creamy leek & potato soup | Traditional mixed grilled (beef fillet, lamb chop, chicken leg, lamb skewer) | Fresh cut tropical fruits with lime sherbet
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection Three ($288++ with decoration / was $144++):</span>
+                        Louvi crab cake | Asian Bouillabaisse | Surf & Turf (grilled beef tenderloin + lobster tail with basil mashed potato) | Trio of sweet (crème brûlée tart & pistachio ice cream)
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Vegetarian Candle Light -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">4. VEGETARIAN CANDLE LIGHT DINNER</div>
+                        <div style="font-size:10px; color:#FDE68A;">Plant-Based Gourmet 4-Course Experience</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $340++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Appetizer:</span>
+                        Duo of vegetable spring roll & cream cheese olive bruschetta
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Soup:</span>
+                        Cream of young asparagus soup with herb oil & roasted pimento
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Main Course:</span>
+                        Assorted Vegetarian combo (Mexican vegetable quesadilla, pasta vegetariana, Indian stuffed vegetable rotti, oriental stir fry vegetables) with steamed rice & Caesar Salad
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Dessert:</span>
+                        Tropical fresh fruit platter
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Oriental Night -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">5. ORIENTAL NIGHT EXPERIENCE</div>
+                        <div style="font-size:10px; color:#FDE68A;">Bedouin Arabian Beach Cabana with Shisha</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $488++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Selection One:</span>
+                        Oriental cold & hot mezza | Shourbot adddas soup | Arabian night mixed grilled (Samaka Hana, Arabic daiai alfaham, Rubian Machous, Bahmia bil laham) | Maha labia & Umm Ali
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection Two:</span>
+                        Oriental cold & hot mezza | Shourbot adddas soup | Oriental mixed Kebab (Sayadiah, Iraqi baked chicken tepsi, Robeyan Nashif, Fasolia bil laham) | Kataif Asferi with Pistachio ice cream & Umm Ali
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Private BBQ -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">6. PRIVATE BBQ ON THE BEACH</div>
+                        <div style="font-size:10px; color:#FDE68A;">Live Beach Grill with Private Chef & Butler</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $368++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Selection 1 (Seafood):</span>
+                        Salad & Bread | Tomato or French Onion soup | BBQ Prawns, Fish & Lobster, Potato & Vegetables, Steamed Rice | Sweets & Fruits
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection 2 (Steak & Mussel):</span>
+                        Salad & Bread | Pasta Napolitan Tonno / Peperoncino | BBQ Steak, Mussel & Scampi | Sweets & Fruits
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Selection 3 & 4 (Poultry & Meat):</span>
+                        Salad & Bread | Pasta or Asparagus soup | BBQ Chicken, Lamb Saute' & Lobster OR BBQ Steak, Chicken Drumsticks, Sausages & Lamb Kebab | Sweets & Fruits
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Crow's Nest -->
+            <div class="menu-card">
+                <div class="menu-card-hdr">
+                    <div>
+                        <div class="menu-card-title">7. CROW'S NEST (OVER THE OCEAN)</div>
+                        <div style="font-size:10px; color:#FDE68A;">Elevated Starlit Tower with 360° Lagoon Views</div>
+                    </div>
+                    <div class="menu-card-rate">
+                        $396++
+                        <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                    </div>
+                </div>
+                <div class="menu-card-body">
+                    <div class="course-row">
+                        <span class="course-name">• Menu Option I (Surf & Turf / Lobster):</span>
+                        Roma Tomatoes & Marinated Mozzarella | Seafood Miso Soup & Tuna Maki Roll | Surf & Turf OR Lobster Thermidor with artichoke salad & roasted potatoes | Classic Tiramisu OR Lemon Cheesecake
+                    </div>
+                    <div class="course-row">
+                        <span class="course-name">• Menu Option II (Royal Indian Dining):</span>
+                        Tandoori Chicken Salad, Papadam, Mint Chutney, Masala Buttermilk | Cream of Tomato Soup | Paneer Butter Masala, Jeera Aloo, Tarka Dal, Roti, Samosa OR Chicken Curry & Lamb Korma | Sampler Platter (Warm gulab jamun, saffron kheer & mango halwa)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms Box -->
+        <div class="terms-box">
+            <h4><i class="fa-solid fa-circle-check" style="color:#059669;"></i> Romantic Decoration Guarantee & Important Information</h4>
+            <ul style="padding-left:18px; line-height:1.65;">
+                <li><strong>Decoration Inclusions:</strong> Private beachfront canopy setup, floral table arrangements, candlelit beach pathway, ambient glow lanterns, personalized welcome sign, and dedicated private server.</li>
+                <li><strong>Government Taxes:</strong> All rates are quoted in USD and subject to 10% Service Charge & 17% Tourism Goods and Services Tax (TGST) (++).</li>
+                <li><strong>Reservation Policy:</strong> Advance booking required (minimum 24 hours prior). Outdoor setups are subject to favorable tidal and weather conditions; during inclement weather, arrangements are relocated to sheltered luxury ocean pavilions.</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>
+                <strong>Villa Nautica Paradise Island Maldives</strong> · Official Special Dining Quotation
+            </div>
+            <div>
+                Let's Explore DMC · Contact: +91 80075 86881 · bookings@letsexploredmc.com
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

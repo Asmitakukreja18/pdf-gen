@@ -104,6 +104,8 @@ const PDFGenerator = (() => {
    */
   function buildFullPrintDocument() {
     const pkg = QuotationData.package || {};
+    const comp = QuotationData.company || {};
+    const compName = comp.name || "Let's Explore DMC";
     const dest = pkg.destinations || 'Holiday';
     const client = pkg.clientName || 'Client';
     const bodyHTML = Preview.buildQuotationHTML(QuotationData, true);
@@ -113,7 +115,7 @@ const PDFGenerator = (() => {
 <head>
   <meta charset="UTF-8">
   <base href="${window.location.href}">
-  <title>${escapePrint(dest.toUpperCase())} QUOTATION — ${escapePrint(client)} | Let's Explore DMC</title>
+  <title>${escapePrint(dest.toUpperCase())} QUOTATION — ${escapePrint(client)} | ${escapePrint(compName)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -914,6 +916,7 @@ const PDFGenerator = (() => {
 
   return {
     generate,
+    generatePDF: generate,
     buildFullPrintDocument
   };
 

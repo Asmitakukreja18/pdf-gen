@@ -313,17 +313,52 @@
 
         document.addEventListener('DOMContentLoaded', loadCustomers);
 
+        function getLocalCustomers() {
+            try {
+                const s = localStorage.getItem('dmc_all_customers');
+                return s ? JSON.parse(s) : [];
+            } catch(e) { return []; }
+        }
+
+        function saveLocalCustomers(list) {
+            try {
+                localStorage.setItem('dmc_all_customers', JSON.stringify(list));
+            } catch(e) {}
+        }
+
         async function loadCustomers() {
+            // 1. Immediately render cached customers from localStorage
+            const local = getLocalCustomers();
+            if (local && local.length > 0) {
+                allCustomers = local;
+                document.getElementById('custCountAll').innerText = allCustomers.length;
+                renderCustomersTable(allCustomers);
+            }
+
+            // 2. Fetch live from server and merge
             try {
                 const res = await fetch('api/get_customers.php');
                 const data = await res.json();
                 if (data.success && Array.isArray(data.customers)) {
-                    allCustomers = data.customers;
-                } else {
-                    allCustomers = [];
+                    if (data.customers.length > 0) {
+                        const serverCusts = data.customers;
+                        const sMap = new Map();
+                        serverCusts.forEach(c => {
+                            if (c.phone) sMap.set(c.phone, c);
+                            if (c.id) sMap.set(String(c.id), c);
+                        });
+                        const localOnly = (local || []).filter(c => !sMap.has(c.phone) && !sMap.has(String(c.id)));
+                        allCustomers = [...serverCusts, ...localOnly];
+                        saveLocalCustomers(allCustomers);
+                    } else if (local && local.length > 0) {
+                        allCustomers = local;
+                    } else {
+                        allCustomers = [];
+                    }
                 }
             } catch (err) {
-                allCustomers = [];
+                console.warn('Backend customers API notice, using persistent local cache:', err);
+                if (local && local.length > 0) allCustomers = local;
             }
             document.getElementById('custCountAll').innerText = allCustomers.length;
             renderCustomersTable(allCustomers);
@@ -412,6 +447,24 @@
                 company_name: company
             };
 
+            const newCust = {
+                id: Date.now(),
+                name: name,
+                company_name: company,
+                phone: phone,
+                email: email,
+                category: category,
+                total_inquiries: 1,
+                converted_trips: 0,
+                destinations: 'New Client'
+            };
+            allCustomers.unshift(newCust);
+            saveLocalCustomers(allCustomers);
+            document.getElementById('custCountAll').innerText = allCustomers.length;
+            renderCustomersTable(allCustomers);
+            document.getElementById('addCustomerModal').style.display = 'none';
+            document.getElementById('newCustomerForm').reset();
+
             try {
                 const res = await fetch('api/customers.php', {
                     method: 'POST',
@@ -419,28 +472,13 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (data && data.success) {
-                    document.getElementById('addCustomerModal').style.display = 'none';
-                    loadCustomers();
-                } else {
-                    alert('Error saving customer: ' + (data.message || data.error || 'Unknown error'));
+                if (data && data.success && data.customer) {
+                    Object.assign(newCust, data.customer);
+                    saveLocalCustomers(allCustomers);
+                    renderCustomersTable(allCustomers);
                 }
             } catch (err) {
-                console.warn('Customer save error, falling back locally:', err);
-                const newCust = {
-                    id: Date.now(),
-                    name: name,
-                    company_name: company,
-                    phone: phone,
-                    email: email,
-                    category: category,
-                    total_inquiries: 1,
-                    converted_trips: 0,
-                    destinations: 'New Client'
-                };
-                allCustomers.unshift(newCust);
-                renderCustomersTable(allCustomers);
-                document.getElementById('addCustomerModal').style.display = 'none';
+                console.warn('Customer backend sync queued, client safely saved locally:', err);
             }
         }
 

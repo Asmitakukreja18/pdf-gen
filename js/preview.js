@@ -15,15 +15,17 @@ const Preview = (() => {
   /**
    * Main render function called by UI to update the live preview
    */
-  function render() {
-    const container = document.getElementById('previewDocument');
+  function render(data = QuotationData, targetContainer = null) {
+    const container = targetContainer || document.getElementById('previewDocument') || document.getElementById('documentContent') || document.getElementById('previewDocumentLive');
     if (!container) return;
 
-    // Recalculate totals first
-    recalculateQuotationPricing();
+    try {
+      recalculateQuotationPricing();
+    } catch (e) { }
 
     // Generate HTML for the active document type
-    container.innerHTML = buildQuotationHTML(QuotationData, false);
+    const docData = data || QuotationData;
+    container.innerHTML = buildQuotationHTML(docData, false);
   }
 
   /**
@@ -36,11 +38,18 @@ const Preview = (() => {
     const docType = data.activeDocType || 'quotation';
     const pkg = data.package || {};
 
+    if (docType === 'villa_nautica_dining' || docType === 'dining_menu' || pkg.isVillaNauticaDining || data.diningPackages) {
+      return renderDiningMenuDocument(data, isForPrint);
+    }
+
     if (docType === 'rajasthan_land_package' || pkg.isRajasthanFormat || (pkg.destinations && pkg.destinations.toLowerCase().includes('phuket') && (pkg.ratePerAdultUSD || pkg.destinations.toLowerCase().includes('krabi')))) {
       return renderRajasthanLandPackageDocument(data, isForPrint);
     }
 
     switch (docType) {
+      case 'dining_menu':
+      case 'villa_nautica_dining':
+        return renderDiningMenuDocument(data, isForPrint);
       case 'itinerary':
         return renderItineraryDocument(data, isForPrint);
       case 'hotel_costing':
@@ -82,6 +91,23 @@ const Preview = (() => {
   function renderContinuousFooter(footer = {}) {
     const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {};
     const compName = comp.name || footer.companyName || "Let's Explore DMC";
+    const isAanay = /aanay/i.test(compName);
+
+    if (isAanay) {
+      const compPhone = comp.phone || footer.phones || '+91 7708123187';
+      return `
+        <footer class="dmc-footer aanay-footer">
+          <div class="dmc-footer-content">
+            <span class="footer-company">${escapeHTML(compName)}</span>
+            <span class="footer-sep">|</span>
+            <span class="footer-phone">${escapeHTML(compPhone)}</span>
+            <span class="footer-sep">|</span>
+            <span class="footer-page-num">Official Quotation Document</span>
+          </div>
+        </footer>
+      `;
+    }
+
     const compPhone = comp.phone || footer.phones || '+91 80075 86881 | +91 95459 55966';
     const compWeb = comp.website || footer.website || (comp.isWhitelabel ? '' : 'www.letsexploredmc.com');
     const compSocial = comp.social || footer.instagram || (comp.isWhitelabel ? '' : '@lets_exploredmc');
@@ -101,43 +127,100 @@ const Preview = (() => {
   }
 
   /**
+   * Helper: Check if package is a domestic Indian itinerary
+   */
+  function isDomesticTrip(pkg = {}) {
+    const text = ((pkg.country || '') + ' ' + (pkg.destination || '') + ' ' + (pkg.destinations || '') + ' ' + (pkg.title || '') + ' ' + (pkg.packageTitle || '')).toLowerCase();
+    const domesticKeywords = ['india', 'kerala', 'munnar', 'thekkady', 'alleppey', 'goa', 'rajasthan', 'jaipur', 'udaipur', 'jodhpur', 'kashmir', 'srinagar', 'gulmarg', 'leh', 'ladakh', 'himachal', 'manali', 'shimla', 'uttarakhand', 'rishikesh', 'haridwar', 'andaman', 'port blair', 'havelock', 'golden triangle', 'agra', 'delhi', 'varanasi', 'ujjain'];
+    return domesticKeywords.some(kw => text.includes(kw));
+  }
+
+  /**
+   * Helper: Get appropriate default pickup hub based on destination
+   */
+  function getDefaultPickupHub(pkg = {}) {
+    if (pkg.pickupFrom && !pkg.pickupFrom.toLowerCase().includes('phuket')) {
+      return pkg.pickupFrom;
+    }
+    const text = ((pkg.country || '') + ' ' + (pkg.destination || '') + ' ' + (pkg.destinations || '') + ' ' + (pkg.title || '') + ' ' + (pkg.packageTitle || '')).toLowerCase();
+    if (text.includes('kerala') || text.includes('munnar') || text.includes('alleppey')) return 'Cochin International Airport (COK) / Railway Station';
+    if (text.includes('goa')) return 'Goa Dabolim / Mopa Airport';
+    if (text.includes('kashmir') || text.includes('srinagar')) return 'Srinagar International Airport (SXR)';
+    if (text.includes('rajasthan') || text.includes('jaipur')) return 'Jaipur Airport / Railway Station';
+    if (text.includes('andaman')) return 'Port Blair Airport (IXZ)';
+    if (text.includes('india')) return 'Local Airport / Railway Station';
+    if (text.includes('bali')) return 'Ngurah Rai Airport (DPS), Bali';
+    if (text.includes('dubai')) return 'Dubai International Airport (DXB)';
+    if (text.includes('singapore')) return 'Changi Airport Singapore (SIN)';
+    if (text.includes('maldives')) return 'Velana International Airport, Malé (MLE)';
+    if (text.includes('thailand') || text.includes('phuket') || text.includes('krabi') || text.includes('bangkok') || text.includes('pattaya')) return 'Phuket / Krabi Airport';
+    return pkg.pickupFrom || 'Destination International Airport';
+  }
+
+  /**
    * Shared Brand Header for official documents
    */
   function renderBrandHeader(pkg = {}, docTypeLabel = 'PACKAGE TOUR', quoteRef = '') {
     const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : (pkg.company || {});
     const brandName = comp.name || "LET'S EXPLORE DMC";
-    const brandTagline = comp.tagline || (comp.isWhitelabel ? '' : "Your Destination Management Specialist");
-    const brandLogo = comp.logo || "images/logo.png";
-    const showLogo = !comp.isWhitelabel || brandLogo !== 'images/logo.png';
+    const isAanay = /aanay/i.test(brandName);
+
+    const isDomestic = isDomesticTrip(pkg);
+    const showForex = !isDomestic && (pkg.currency === 'USD' || pkg.showForex || (pkg.usdToInrRate && pkg.currency !== 'INR'));
+    const pickupHub = getDefaultPickupHub(pkg);
+
+    let brandDisplayHTML = '';
+    if (isAanay) {
+      brandDisplayHTML = `
+        <div class="dmc-brand-box aanay-brand-box">
+          <div style="line-height:1.0;">
+            <div style="font-size:26px; font-weight:900; color:#0F2C59; letter-spacing:-0.5px;">Aanay</div>
+            <div style="font-size:26px; font-weight:900; color:#F97316; letter-spacing:-0.5px;">Tours</div>
+          </div>
+        </div>
+      `;
+    } else {
+      const brandTagline = comp.tagline || (comp.isWhitelabel ? '' : "Your Destination Management Specialist");
+      const brandLogo = comp.logo || "images/logo.png";
+      const showLogo = !comp.isWhitelabel || brandLogo !== 'images/logo.png';
+      brandDisplayHTML = `
+        <div class="dmc-brand-box">
+          ${showLogo ? `<img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" class="dmc-brand-logo" onerror="this.style.display='none'" />` : ''}
+          <div class="dmc-brand-info">
+            <span class="dmc-brand-name">${escapeHTML(brandName)}</span>
+            ${brandTagline ? `<span class="dmc-brand-tagline">${escapeHTML(brandTagline)}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
 
     return `
-      <header class="dmc-header">
+      <header class="dmc-header ${isAanay ? 'aanay-header' : ''}">
         <div class="dmc-header-top">
-          <div class="dmc-brand-box">
-            ${showLogo ? `<img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" class="dmc-brand-logo" onerror="this.style.display='none'" />` : ''}
-            <div class="dmc-brand-info">
-              <span class="dmc-brand-name">${escapeHTML(brandName)}</span>
-              ${brandTagline ? `<span class="dmc-brand-tagline">${escapeHTML(brandTagline)}</span>` : ''}
-            </div>
-          </div>
+          ${brandDisplayHTML}
           <div class="dmc-quote-meta">
-            <div class="meta-item"><span class="meta-label">Document Ref:</span> <strong>${escapeHTML(quoteRef || pkg.quoteRef || 'LE-DMC-REF')}</strong></div>
-            <div class="meta-item"><span class="meta-label">Date:</span> <strong>${escapeHTML(pkg.preparedDate || '—')}</strong></div>
-            <div class="meta-item"><span class="meta-label">Forex Ref:</span> <strong>1 USD = ${pkg.usdToInrRate || 87.5} INR</strong></div>
+            ${isAanay ? `
+              <div style="font-size:11px; font-weight:800; color:#0F2C59;">Aanay Tours</div>
+              <div style="font-size:10.5px; color:#64748B;">Contact: <strong>${escapeHTML(comp.phone || '+91 7708123187')}</strong></div>
+            ` : `
+              <div class="meta-item"><span class="meta-label">Document Ref:</span> <strong>${escapeHTML(quoteRef || pkg.quoteRef || 'LE-DMC-REF')}</strong></div>
+              <div class="meta-item"><span class="meta-label">Date:</span> <strong>${escapeHTML(pkg.preparedDate || '—')}</strong></div>
+              ${showForex ? `<div class="meta-item"><span class="meta-label">Forex Ref:</span> <strong>1 USD = ${pkg.usdToInrRate || 87.5} INR</strong></div>` : ''}
+            `}
           </div>
         </div>
 
         <div class="dmc-hero-banner">
-          <div class="hero-label-badge">${escapeHTML(docTypeLabel)}</div>
+          <div class="hero-label-badge" style="${isAanay ? 'color:#F97316; font-weight:800;' : ''}">${escapeHTML(docTypeLabel)}</div>
           <h1 class="hero-duration-title">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</h1>
-          <div class="hero-destination-subtitle">${escapeHTML(pkg.destinations || 'Krabi + Phuket + Koh Yao Yai, Thailand')}</div>
+          <div class="hero-destination-subtitle">${escapeHTML(pkg.destinations || 'Singapore · Phuket · Krabi')}</div>
         </div>
 
-        ${(pkg.clientName || pkg.clientContact || pkg.pickupFrom) ? `
+        ${(pkg.clientName || pkg.clientContact || pickupHub) ? `
         <div class="dmc-client-bar">
           ${pkg.clientName ? `<div class="client-bar-item"><span class="c-label">Prepared For:</span> <strong>${escapeHTML(pkg.clientName)}</strong></div>` : ''}
           ${pkg.clientContact ? `<div class="client-bar-item"><span class="c-label">Contact:</span> <strong>${escapeHTML(pkg.clientContact)}</strong></div>` : ''}
-          ${pkg.pickupFrom ? `<div class="client-bar-item"><span class="c-label">Pickup Hub:</span> <strong>${escapeHTML(pkg.pickupFrom)}</strong></div>` : ''}
+          ${pickupHub ? `<div class="client-bar-item"><span class="c-label">Pickup Hub:</span> <strong>${escapeHTML(pickupHub)}</strong></div>` : ''}
         </div>` : ''}
       </header>
     `;
@@ -187,9 +270,9 @@ const Preview = (() => {
             ${days.length === 0 ? `
               <div class="dmc-empty-state">No days added yet. Use the Studio Builder on the left to add your itinerary days.</div>
             ` : days.map((day, idx) => `
-              <div class="itinerary-day-card" id="itin-day-${idx+1}">
+              <div class="itinerary-day-card" id="itin-day-${idx + 1}">
                 <div class="itin-day-header">
-                  <div class="itin-day-badge">DAY ${day.dayNumber || idx+1}</div>
+                  <div class="itin-day-badge">DAY ${day.dayNumber || idx + 1}</div>
                   <div class="itin-date-badge">${escapeHTML(day.date || '')}</div>
                   <h3 class="itin-day-title">${escapeHTML(day.title || 'Day Programme')}</h3>
                 </div>
@@ -262,7 +345,12 @@ const Preview = (() => {
     const summary = data.summary || { items: [], totalINR: 0, totalUSD: 0 };
     const offices = data.offices || [];
     const footer = data.footerSettings || {};
+    const comp = data.company || {};
+    const isAanay = /aanay/i.test(comp.name || pkg.company?.name || '');
     const themeStyles = getThemeStyles(data.themeSettings);
+
+    const isDomestic = isDomesticTrip(pkg);
+    const showUsdColumn = !isDomestic && (pkg.currency === 'USD' || pkg.showUsdColumn || (summary.totalUSD > 0 && !pkg.hideUsd && pkg.currency !== 'INR'));
 
     return `
       <div class="dmc-quotation-doc doc-quotation-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
@@ -287,21 +375,21 @@ const Preview = (() => {
           </div>
         </div>
 
-        <!-- 4-Column Day-Wise Services & Costing Table (Reference PDF Standard) -->
+        <!-- Day-Wise Services & Costing Table (3 or 4 Column based on Currency) -->
         <section class="dmc-section dmc-itinerary-section">
           <div class="dmc-section-header">
             <span>Day-wise Itinerary & Pricing</span>
           </div>
 
-          <div class="dmc-table-header-bar">
+          <div class="dmc-table-header-bar ${!showUsdColumn ? 'no-usd-col' : ''}">
             <div class="th-desc">DAY-WISE ITINERARY & SERVICE DETAILS</div>
             <div class="th-pax">PAX</div>
             <div class="th-inr">AMOUNT (INR)</div>
-            <div class="th-usd">AMOUNT (USD)</div>
+            ${showUsdColumn ? `<div class="th-usd">AMOUNT (USD)</div>` : ''}
           </div>
 
           <div class="dmc-days-list">
-            ${days.map(day => renderDayPricingCardHTML(day)).join('')}
+            ${days.map(day => renderDayPricingCardHTML(day, showUsdColumn)).join('')}
           </div>
         </section>
 
@@ -369,22 +457,22 @@ const Preview = (() => {
             <thead>
               <tr>
                 <th class="th-sum-desc">PACKAGE SUMMARY</th>
-                <th class="th-sum-inr">AMOUNT (INR)</th>
-                <th class="th-sum-usd">AMOUNT (USD)</th>
+                <th class="th-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">AMOUNT (INR)</th>
+                ${showUsdColumn ? `<th class="th-sum-usd">AMOUNT (USD)</th>` : ''}
               </tr>
             </thead>
             <tbody>
               ${(summary.items || []).map(item => `
                 <tr class="dmc-summary-row">
                   <td class="col-sum-desc">• ${escapeHTML(item.name)}</td>
-                  <td class="col-sum-inr">${item.amountINR ? formatCurrencyINR(item.amountINR) : '—'}</td>
-                  <td class="col-sum-usd">${item.amountUSD ? formatCurrencyUSD(item.amountUSD) : '—'}</td>
+                  <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">${item.amountINR ? formatCurrencyINR(item.amountINR) : '—'}</td>
+                  ${showUsdColumn ? `<td class="col-sum-usd">${item.amountUSD ? formatCurrencyUSD(item.amountUSD) : '—'}</td>` : ''}
                 </tr>
               `).join('')}
               <tr class="dmc-total-row">
                 <td class="col-sum-desc"><strong>FINAL PACKAGE COST (${escapeHTML(pkg.travellers || '2 Adults')})</strong></td>
-                <td class="col-sum-inr"><strong>${formatCurrencyINR(summary.totalINR)}</strong></td>
-                <td class="col-sum-usd"><strong>${formatCurrencyUSD(summary.totalUSD)}</strong></td>
+                <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}"><strong>${formatCurrencyINR(summary.totalINR)}</strong></td>
+                ${showUsdColumn ? `<td class="col-sum-usd"><strong>${formatCurrencyUSD(summary.totalUSD)}</strong></td>` : ''}
               </tr>
             </tbody>
           </table>
@@ -394,8 +482,22 @@ const Preview = (() => {
           </div>
         </section>
 
-        <!-- Global Desks & Contact Directory -->
-        ${renderOfficesSection(offices)}
+        <!-- Contact Section or Global Desks -->
+        ${isAanay ? `
+          <section class="dmc-section aanay-contact-section" style="margin-top:20px; border-top:2px solid #0F2C59; padding-top:14px;">
+            <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:10px;">Contact Us</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:4px; padding:12px 18px;">
+              <div>
+                <span style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">COMPANY</span><br>
+                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.name || 'Aanay Tours')}</strong>
+              </div>
+              <div>
+                <span style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">PHONE</span><br>
+                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.phone || '+91 7708123187')}</strong>
+              </div>
+            </div>
+          </section>
+        ` : renderOfficesSection(offices)}
 
         ${renderContinuousFooter(footer)}
       </div>
@@ -439,7 +541,7 @@ const Preview = (() => {
               <div class="hotel-comparison-card">
                 <div class="h-card-top">
                   <div class="h-title-group">
-                    <span class="h-number">0${idx+1}</span>
+                    <span class="h-number">0${idx + 1}</span>
                     <div>
                       <h3 class="h-resort-name">${escapeHTML(h.name)}</h3>
                       <span class="h-resort-city">📍 ${escapeHTML(h.city || 'Thailand')}</span>
@@ -511,6 +613,9 @@ const Preview = (() => {
     const offices = data.offices || [];
     const themeStyles = getThemeStyles(data.themeSettings);
 
+    const isDomestic = isDomesticTrip(pkg);
+    const showUsdColumn = !isDomestic && (pkg.currency === 'USD' || pkg.showUsdColumn || (summary.totalUSD > 0 && !pkg.hideUsd && pkg.currency !== 'INR'));
+
     return `
       <div class="dmc-quotation-doc doc-summary-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
         ${renderBrandHeader(pkg, 'PACKAGE EXECUTIVE SUMMARY', pkg.quoteRef)}
@@ -524,7 +629,11 @@ const Preview = (() => {
             <div class="so-cell"><span class="so-label">Travel Dates</span><strong class="so-val">${escapeHTML(pkg.preparedDate || '2 Jan to 13 Jan')}</strong></div>
             <div class="so-cell"><span class="so-label">Travellers</span><strong class="so-val">${escapeHTML(pkg.travellers || '2 Adults')}</strong></div>
             <div class="so-cell"><span class="so-label">Prepared For</span><strong class="so-val">${escapeHTML(pkg.clientName || 'Valued Partner')}</strong></div>
+            ${showUsdColumn ? `
             <div class="so-cell"><span class="so-label">Forex Benchmark</span><strong class="so-val">1 USD = ₹ ${pkg.usdToInrRate || 87.5}</strong></div>
+            ` : `
+            <div class="so-cell"><span class="so-label">Pickup Hub</span><strong class="so-val">${escapeHTML(getDefaultPickupHub(pkg))}</strong></div>
+            `}
           </div>
         </section>
 
@@ -535,22 +644,22 @@ const Preview = (() => {
             <thead>
               <tr>
                 <th class="th-sum-desc">COMPONENT / SERVICE CATEGORY</th>
-                <th class="th-sum-inr">AMOUNT (INR)</th>
-                <th class="th-sum-usd">AMOUNT (USD)</th>
+                <th class="th-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">AMOUNT (INR)</th>
+                ${showUsdColumn ? `<th class="th-sum-usd">AMOUNT (USD)</th>` : ''}
               </tr>
             </thead>
             <tbody>
               ${(summary.items || []).map(item => `
                 <tr class="dmc-summary-row">
                   <td class="col-sum-desc">• ${escapeHTML(item.name)}</td>
-                  <td class="col-sum-inr">${item.amountINR ? formatCurrencyINR(item.amountINR) : '—'}</td>
-                  <td class="col-sum-usd">${item.amountUSD ? formatCurrencyUSD(item.amountUSD) : '—'}</td>
+                  <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">${item.amountINR ? formatCurrencyINR(item.amountINR) : '—'}</td>
+                  ${showUsdColumn ? `<td class="col-sum-usd">${item.amountUSD ? formatCurrencyUSD(item.amountUSD) : '—'}</td>` : ''}
                 </tr>
               `).join('')}
               <tr class="dmc-total-row">
                 <td class="col-sum-desc"><strong>TOTAL PACKAGE COST</strong></td>
-                <td class="col-sum-inr"><strong>${formatCurrencyINR(summary.totalINR)}</strong></td>
-                <td class="col-sum-usd"><strong>${formatCurrencyUSD(summary.totalUSD)}</strong></td>
+                <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}"><strong>${formatCurrencyINR(summary.totalINR)}</strong></td>
+                ${showUsdColumn ? `<td class="col-sum-usd"><strong>${formatCurrencyUSD(summary.totalUSD)}</strong></td>` : ''}
               </tr>
             </tbody>
           </table>
@@ -1105,9 +1214,9 @@ const Preview = (() => {
   // ═══════════════════════════════════════════════════════════════════════════════
 
   /**
-   * Day Pricing Card for Quotation format (4-column grid)
+   * Day Pricing Card for Quotation format (4-column grid or 3-column when USD hidden)
    */
-  function renderDayPricingCardHTML(day) {
+  function renderDayPricingCardHTML(day, showUsdColumn = true) {
     const items = day.items || [];
     const hasHotel = day.hotel && day.hotel.name && day.hotel.name.trim() !== '';
 
@@ -1127,7 +1236,7 @@ const Preview = (() => {
 
         <div class="dmc-day-items-table">
           ${items.map(item => `
-            <div class="dmc-item-row ${item.tag ? 'has-tag' : ''}">
+            <div class="dmc-item-row ${item.tag ? 'has-tag' : ''} ${!showUsdColumn ? 'no-usd-col' : ''}">
               <div class="item-desc-col">
                 <div class="item-title-line">
                   <span class="item-bullet">•</span>
@@ -1137,14 +1246,14 @@ const Preview = (() => {
                 ${item.subtitle ? `<div class="item-subtitle">${escapeHTML(item.subtitle)}</div>` : ''}
               </div>
               <div class="item-pax-col">${item.pax ? `<span class="col-val">${escapeHTML(item.pax)}</span>` : '<span class="col-val">—</span>'}</div>
-              <div class="item-inr-col">${item.amountINR ? `<span class="col-val">${formatCurrencyINR(item.amountINR)}</span>` : '<span class="col-val">—</span>'}</div>
-              <div class="item-usd-col">${item.amountUSD ? `<span class="col-val">${formatCurrencyUSD(item.amountUSD)}</span>` : '<span class="col-val">—</span>'}</div>
+              <div class="item-inr-col" style="${!showUsdColumn ? 'text-align:right;' : ''}">${item.amountINR ? `<span class="col-val">${formatCurrencyINR(item.amountINR)}</span>` : '<span class="col-val">—</span>'}</div>
+              ${showUsdColumn ? `<div class="item-usd-col">${item.amountUSD ? `<span class="col-val">${formatCurrencyUSD(item.amountUSD)}</span>` : '<span class="col-val">—</span>'}</div>` : ''}
             </div>
           `).join('')}
         </div>
 
         ${hasHotel ? `
-        <div class="dmc-hotel-row ${day.hotel.amountINR ? 'has-price' : ''}">
+        <div class="dmc-hotel-row ${day.hotel.amountINR ? 'has-price' : ''} ${!showUsdColumn ? 'no-usd-col' : ''}">
           <div class="item-desc-col">
             <div class="hotel-name-line">
               <span class="hotel-label">Hotel :</span>
@@ -1159,8 +1268,8 @@ const Preview = (() => {
             </div>` : ''}
           </div>
           <div class="item-pax-col">${day.hotel.amountINR ? `<span class="col-val">${day.hotel.pax || 2}</span>` : ''}</div>
-          <div class="item-inr-col">${day.hotel.amountINR ? `<span class="col-val">${formatCurrencyINR(day.hotel.amountINR)}</span>` : ''}</div>
-          <div class="item-usd-col">${day.hotel.amountUSD ? `<span class="col-val">${formatCurrencyUSD(day.hotel.amountUSD)}</span>` : ''}</div>
+          <div class="item-inr-col" style="${!showUsdColumn ? 'text-align:right;' : ''}">${day.hotel.amountINR ? `<span class="col-val">${formatCurrencyINR(day.hotel.amountINR)}</span>` : ''}</div>
+          ${showUsdColumn ? `<div class="item-usd-col">${day.hotel.amountUSD ? `<span class="col-val">${formatCurrencyUSD(day.hotel.amountUSD)}</span>` : ''}</div>` : ''}
         </div>` : ''}
 
         ${day.dayNotes ? `
@@ -1241,6 +1350,7 @@ const Preview = (() => {
     const brandName = comp.name || "Let's Explore DMC";
     const brandTagline = comp.tagline || "Capturing Your Dreams";
     const brandLogo = comp.logo || "images/logo.png";
+    const footer = data.footerSettings || {};
 
     const checkIn = pkg.checkIn || pkg.startDate || '10 Dec 2026';
     const checkOut = pkg.checkOut || pkg.endDate || '15 Dec 2026';
@@ -1249,11 +1359,13 @@ const Preview = (() => {
     const title = pkg.title || pkg.destinations || 'Phuket + Krabi';
     const subTitle = pkg.subtitle || `${duration} · Hotels + Private Transfers + Tours`;
 
-    const ratePerAdult = pkg.ratePerAdultUSD || 632.88;
-    const totalCostUSD = pkg.totalCostUSD || (ratePerAdult * 2);
+    const hasDecoration = !!(pkg.withDecoration || pkg.decorationIncluded || (pkg.pricingNote && pkg.pricingNote.toLowerCase().includes('decoration')));
+    const ratePerAdult = Number(pkg.ratePerAdultUSD || (pkg.pricing_usd ? pkg.pricing_usd : (data.pricing?.perPersonUSD || (data.pricing?.perPerson && (pkg.currency === 'USD' || data.pricing?.currency === 'USD') ? data.pricing.perPerson : 0))) || 632.88);
+    const totalCostUSD = Number(pkg.totalCostUSD || (data.pricing?.grandTotalUSD ? data.pricing.grandTotalUSD : (ratePerAdult * 2)));
+    const pricingDesc = pkg.pricingDescription || `Per Adult - Twin / double sharing, hotels + private transfers + tours + meals as mentioned${hasDecoration ? ' <strong>(with decoration)</strong>' : ''}`;
 
     return `
-      <div class="dmc-quotation-doc doc-rajasthan-land-package ${isForPrint ? 'is-print-mode' : ''}" style="background:#FFFFFF; font-family:'Inter', -apple-system, sans-serif; color:#1E293B; line-height:1.5; border-radius:8px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); padding-bottom:24px;">
+      <div class="dmc-quotation-doc doc-rajasthan-land-package ${isForPrint ? 'is-print-mode' : ''}" style="background:#FFFFFF; font-family:'Inter', -apple-system, sans-serif; color:#1E293B; line-height:1.5; width:100%; min-height:1123px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
         <!-- Top Colored Stripe (Green, Yellow, Blue, Red) -->
         <div style="height:5px; width:100%; display:flex;">
           <div style="flex:1; background:#4CAF50;"></div>
@@ -1263,59 +1375,84 @@ const Preview = (() => {
         </div>
 
         <!-- Document Header matching Screenshot 5 -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:22px 28px 12px 28px; border-bottom:1px solid #F1F5F9;">
-          <div style="display:flex; align-items:center; gap:14px;">
-            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:56px; object-fit:contain;" onerror="this.src='images/logo.png'" />
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:18px 20px 12px 20px; border-bottom:1px solid #F1F5F9; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:48px; object-fit:contain;" onerror="this.src='images/logo.png'" />
             <div>
-              <div style="font-size:16px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
-              <div style="font-size:10.5px; font-weight:700; color:#E67E22; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>
+              <div style="font-size:15px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
+              <div style="font-size:10px; font-weight:700; color:#E67E22; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>
             </div>
           </div>
-          <div style="text-align:right;">
-            <div style="color:#E67E22; font-size:11.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">LAND PACKAGE QUOTATION</div>
-            <div style="color:#0F2C59; font-size:26px; font-weight:800; line-height:1.2; margin:3px 0 2px 0;">${escapeHTML(title)}</div>
-            <div style="color:#64748B; font-size:12px; font-weight:600;">${escapeHTML(subTitle)}</div>
+          <div style="text-align:right; flex:1; min-width:220px; word-break:break-word;">
+            <div style="color:#E67E22; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">LAND PACKAGE QUOTATION</div>
+            <div style="color:#0F2C59; font-size:clamp(16px, 2.2vw, 22px); font-weight:800; line-height:1.2; margin:2px 0 2px 0;">${escapeHTML(title)}</div>
+            <div style="color:#64748B; font-size:11.5px; font-weight:600;">${escapeHTML(subTitle)}</div>
           </div>
         </div>
 
         <!-- 4-Column Metadata Table -->
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:#CBD5E1; margin:14px 28px; border:1px solid #CBD5E1; border-radius:5px; overflow:hidden;">
-          <div style="background:#F8FAFC; padding:8px 12px;">
-            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-IN</div>
-            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkIn)}</div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:1px; background:#CBD5E1; margin:12px 18px; border:1px solid #CBD5E1; border-radius:5px; overflow:hidden;">
+          <div style="background:#F8FAFC; padding:7px 9px;">
+            <div style="font-size:9px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-IN</div>
+            <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkIn)}</div>
           </div>
-          <div style="background:#F8FAFC; padding:8px 12px;">
-            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-OUT</div>
-            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkOut)}</div>
+          <div style="background:#F8FAFC; padding:7px 9px;">
+            <div style="font-size:9px; font-weight:700; color:#64748B; text-transform:uppercase;">CHECK-OUT</div>
+            <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">${escapeHTML(checkOut)}</div>
           </div>
-          <div style="background:#F8FAFC; padding:8px 12px;">
-            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">DURATION</div>
-            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(duration)}</div>
+          <div style="background:#F8FAFC; padding:7px 9px;">
+            <div style="font-size:9px; font-weight:700; color:#64748B; text-transform:uppercase;">DURATION</div>
+            <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">${escapeHTML(duration)}</div>
           </div>
-          <div style="background:#F8FAFC; padding:8px 12px;">
-            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">TRAVELLERS</div>
-            <div style="font-size:12.5px; font-weight:700; color:#0F2C59;">${escapeHTML(travellers)}</div>
+          <div style="background:#F8FAFC; padding:7px 9px;">
+            <div style="font-size:9px; font-weight:700; color:#64748B; text-transform:uppercase;">TRAVELLERS</div>
+            <div style="font-size:11.5px; font-weight:700; color:#0F2C59;">${escapeHTML(travellers)}</div>
           </div>
         </div>
 
         <!-- Package Pricing Section -->
-        <div style="margin:16px 28px;">
-          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:6px;">Package Pricing</h3>
-          <table style="width:100%; border-collapse:collapse; font-size:12px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+        <div style="margin:14px 18px;">
+          <h3 style="font-size:13.5px; font-weight:800; color:#0F2C59; margin-bottom:6px;">Package Pricing</h3>
+          <table style="width:100%; border-collapse:collapse; font-size:12px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden; table-layout:auto;">
             <thead>
               <tr style="background:#0F2C59; color:#FFFFFF;">
-                <th style="padding:7px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.5px;">DESCRIPTION</th>
-                <th style="padding:7px 12px; text-align:right; font-size:11px; font-weight:700; width:130px;">RATE (USD)</th>
+                <th style="padding:8px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.5px;">DESCRIPTION</th>
+                <th style="padding:8px 12px; text-align:right; font-size:11px; font-weight:800; width:135px; min-width:110px; white-space:nowrap; background:#0B2244;">RATE (USD $)</th>
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
-                <td style="padding:10px 12px; color:#334155; line-height:1.4;">Per Adult - Twin / double sharing, hotels + private transfers + tours + meals as mentioned</td>
-                <td style="padding:10px 12px; text-align:right; font-weight:700; color:#0F2C59; font-size:12.5px;">${Number(ratePerAdult).toFixed(2)}</td>
-              </tr>
-              <tr style="background:#F8FAFC; font-weight:800;">
-                <td style="padding:9px 12px; color:#0F2C59;">TOTAL PACKAGE COST</td>
-                <td style="padding:9px 12px; text-align:right; color:#0F2C59; font-size:13.5px;">${Number(totalCostUSD).toFixed(2)}</td>
+              ${(pkg.pricingRows && Array.isArray(pkg.pricingRows) && pkg.pricingRows.length > 0) ? `
+                ${pkg.pricingRows.map(row => `
+                  <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                    <td style="padding:10px 12px; color:#334155; line-height:1.4;">
+                      ${escapeHTML(row.description)}${hasDecoration ? ' <strong>(with decoration)</strong>' : ''}
+                    </td>
+                    <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">
+                      ${row.isFoc ? '<span style="color:#059669; font-weight:800;">Free of Charge (FOC)</span>' : ('$ ' + Number(row.rateUSD || row.rate || 0).toFixed(2))}
+                    </td>
+                  </tr>
+                `).join('')}
+              ` : `
+                <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                  <td style="padding:10px 12px; color:#334155; line-height:1.4;">${pricingDesc}</td>
+                  <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">$ ${Number(ratePerAdult).toFixed(2)}</td>
+                </tr>
+                ${pkg.ratePerChildUSD ? `
+                  <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                    <td style="padding:10px 12px; color:#334155; line-height:1.4;">${pkg.childPricingDescription || 'Per Child (4Y) - Transfers & Tours with Insurance'}</td>
+                    <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">$ ${Number(pkg.ratePerChildUSD).toFixed(2)}</td>
+                  </tr>
+                ` : ''}
+                ${pkg.hasInfantFoc ? `
+                  <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                    <td style="padding:10px 12px; color:#334155; line-height:1.4;">Infant (Under 2 Years) - Free of Charge (FOC)</td>
+                    <td style="padding:10px 12px; text-align:right; font-weight:800; color:#059669; font-size:13px; white-space:nowrap;">Free (FOC)</td>
+                  </tr>
+                ` : ''}
+              `}
+              <tr style="background:#F8FAFC; font-weight:800; border-top:2px solid #CBD5E1;">
+                <td style="padding:10px 12px; color:#0F2C59; font-size:12.5px;">TOTAL PACKAGE COST</td>
+                <td style="padding:10px 12px; text-align:right; color:#059669; font-size:14.5px; font-weight:900; white-space:nowrap;">$ ${Number(totalCostUSD).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -1323,78 +1460,372 @@ const Preview = (() => {
         </div>
 
         <!-- Hotel Details Section -->
-        <div style="margin:16px 28px;">
-          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Hotel Details</h3>
-          <!-- Hotel 1: Phuket -->
-          <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
-            <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between;">
-              <span>1st, 2nd &amp; 3rd Nights &ndash; Phuket</span>
-              <span>Check-in: 10 Dec 2026</span>
+        <div style="margin:14px 18px;">
+          <h3 style="font-size:13.5px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Hotel Details</h3>
+          ${(data.hotels && Array.isArray(data.hotels) && data.hotels.length > 0) ? `
+            ${data.hotels.map((h, hIdx) => `
+              <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
+                <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                  <span>${escapeHTML((h.nightsText || `${h.nights || 2} Nights – ${h.city || 'Phuket'}`).replace(/&ndash;/g, '–'))}</span>
+                  <span>${escapeHTML(h.checkIn ? `Check-in: ${h.checkIn}` : `Stay Dates: ${h.dates || 'As per voucher'}`)}</span>
+                </div>
+                <div style="padding:10px 12px; background:#FFF;">
+                  <div style="font-weight:700; color:#0F2C59; font-size:13px;">${escapeHTML(h.name)}</div>
+                  <div style="font-size:11.5px; color:#64748B; margin-top:2px;">
+                    ${escapeHTML((h.roomType || h.mealPlan || h.notes || 'Accommodation arranged as per voucher').replace(/&ndash;/g, '–'))}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          ` : `
+            <!-- Fallback standard hotels -->
+            <div style="border:1px solid #CBD5E1; border-radius:4px; margin-bottom:8px; overflow:hidden;">
+              <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                <span>1st, 2nd &amp; 3rd Nights – Phuket</span>
+                <span>Check-in: 10 Dec 2026</span>
+              </div>
+              <div style="padding:10px 12px; background:#FFF;">
+                <div style="font-weight:700; color:#0F2C59; font-size:13px;">Ashlee Plaza Hotel, Phuket</div>
+                <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+              </div>
             </div>
-            <div style="padding:10px 12px; background:#FFF;">
-              <div style="font-weight:700; color:#0F2C59; font-size:13px;">Ashlee Plaza Hotel, Phuket</div>
-              <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+            <div style="border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
+              <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                <span>4th &amp; 5th Nights – Krabi (Ao Nang)</span>
+                <span>Check-in: 13 Dec 2026</span>
+              </div>
+              <div style="padding:10px 12px; background:#FFF;">
+                <div style="font-weight:700; color:#0F2C59; font-size:13px;">GLOW Ao Nang Krabi</div>
+                <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
+              </div>
             </div>
-          </div>
-          <!-- Hotel 2: Krabi -->
-          <div style="border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
-            <div style="background:#0F2C59; color:#FFF; padding:6px 12px; font-size:11.5px; font-weight:700; display:flex; justify-content:space-between;">
-              <span>4th &amp; 5th Nights &ndash; Krabi (Ao Nang)</span>
-              <span>Check-in: 13 Dec 2026</span>
-            </div>
-            <div style="padding:10px 12px; background:#FFF;">
-              <div style="font-weight:700; color:#0F2C59; font-size:13px;">GLOW Ao Nang Krabi</div>
-              <div style="font-size:11.5px; color:#64748B; margin-top:2px;">Breakfast + Buffet Dinner &bull; 1 Superior Room (2 Adults)</div>
-            </div>
-          </div>
+          `}
         </div>
 
         <!-- Transportation Section -->
-        <div style="margin:16px 28px;">
-          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Transportation &ndash; Private car &amp; boat transfers as per itinerary</h3>
+        <div style="margin:14px 18px;">
+          <h3 style="font-size:13.5px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Transportation – Private car &amp; boat transfers as per itinerary</h3>
           <table style="width:100%; border-collapse:collapse; font-size:11.5px; border:1px solid #CBD5E1; border-radius:4px; overflow:hidden;">
             <tbody>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59; width:135px;">Day 1 &ndash; Thu, 10 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">Phuket Airport to Ashlee Plaza Hotel &ndash; Private transfer</td>
-              </tr>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 2 &ndash; Fri, 11 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)</td>
-              </tr>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 3 &ndash; Sat, 12 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">James Bond Island tour by Big Boat (lunch + NPF included)</td>
-              </tr>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 4 &ndash; Sun, 13 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City tour</td>
-              </tr>
-              <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 5 &ndash; Mon, 14 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">4 Island Tour by Long Tail Boat (lunch + NPF included)</td>
-              </tr>
-              <tr style="background:#F8FAFC;">
-                <td style="padding:8px 12px; font-weight:700; color:#0F2C59;">Day 6 &ndash; Tue, 15 Dec</td>
-                <td style="padding:8px 12px; color:#334155;">GLOW Ao Nang Krabi to Phuket Airport &ndash; Private transfer</td>
-              </tr>
+              ${(pkg.transferRows && Array.isArray(pkg.transferRows) && pkg.transferRows.length > 0) ? `
+                ${pkg.transferRows.map((t, idx) => `
+                  <tr style="border-bottom:1px solid #E2E8F0; background:${idx % 2 === 0 ? '#FFF' : '#F8FAFC'};">
+                    <td style="padding:8px 12px; font-weight:700; color:#0F2C59; width:145px; white-space:nowrap;">${escapeHTML((t.leg || `Leg ${idx + 1}`).replace(/&ndash;/g, '–'))}</td>
+                    <td style="padding:8px 12px; color:#334155;">${escapeHTML(t.description.replace(/&ndash;/g, '–'))}</td>
+                  </tr>
+                `).join('')}
+              ` : (data.days && Array.isArray(data.days) && data.days.length > 0 && data.days.some(d => d.items && d.items.length > 0)) ? `
+                ${data.days.map((d, idx) => `
+                  <tr style="border-bottom:1px solid #E2E8F0; background:${idx % 2 === 0 ? '#FFF' : '#F8FAFC'};">
+                    <td style="padding:8px 12px; font-weight:700; color:#0F2C59; width:145px; white-space:nowrap;">Day ${d.dayNumber || idx + 1} – ${escapeHTML((d.date || '').replace(/&ndash;/g, '–'))}</td>
+                    <td style="padding:8px 12px; color:#334155;">${escapeHTML((d.title + (d.items && d.items.length ? ': ' + d.items.map(it => it.title).join('; ') : '')).replace(/&ndash;/g, '–'))}</td>
+                  </tr>
+                `).join('')}
+              ` : `
+                <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; width:135px; white-space:nowrap;">Day 1 – Thu, 10 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">Phuket Airport to Ashlee Plaza Hotel – Private transfer</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; white-space:nowrap;">Day 2 – Fri, 11 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">Phi Phi Island + Khai Island + Pileh + Maya Bay by Speedboat (lunch + NPF included)</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; white-space:nowrap;">Day 3 – Sat, 12 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">James Bond Island tour by Big Boat (lunch + NPF included)</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; white-space:nowrap;">Day 4 – Sun, 13 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">Phuket to Krabi (Ashlee Plaza to GLOW Ao Nang) by car + Krabi City tour</td>
+                </tr>
+                <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; white-space:nowrap;">Day 5 – Mon, 14 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">4 Island Tour by Long Tail Boat (lunch + NPF included)</td>
+                </tr>
+                <tr style="background:#F8FAFC;">
+                  <td style="padding:8px 12px; font-weight:700; color:#0F2C59; white-space:nowrap;">Day 6 – Tue, 15 Dec</td>
+                  <td style="padding:8px 12px; color:#334155;">GLOW Ao Nang Krabi to Phuket Airport – Private transfer</td>
+                </tr>
+              `}
             </tbody>
           </table>
         </div>
 
         <!-- Package Inclusions Section -->
-        <div style="margin:16px 28px 20px 28px;">
-          <h3 style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Package Inclusions</h3>
+        <div style="margin:14px 18px 20px 18px;">
+          <h3 style="font-size:13.5px; font-weight:800; color:#0F2C59; margin-bottom:8px;">Package Inclusions</h3>
           <ul style="margin:0; padding-left:18px; font-size:11.5px; color:#334155; line-height:1.65;">
             <li>Private transfers by car as specified in the itinerary</li>
             <li>Accommodation in Superior rooms (twin / double sharing) as mentioned</li>
-            <li>Daily breakfast at the hotel; buffet dinner on Days 1&ndash;5; buffet lunch on Day 6 (departure)</li>
+            <li>Daily breakfast at the hotel; buffet dinner on Days 1–5; buffet lunch on Day 6 (departure)</li>
             <li>Lunch on all sea tour days (Day 2, Day 3 and Day 5)</li>
             <li>Sea tours as per itinerary: Phi Phi / Khai / Pileh / Maya Bay speedboat tour, James Bond Island big boat tour, 4 Island tour</li>
             <li>Krabi City Tour by car (6 hrs)</li>
             <li>All entrance fees and National Park Fee (NPF) for the tours mentioned</li>
           </ul>
         </div>
+
+        ${renderContinuousFooter(footer)}
+      </div>
+    `;
+  }
+
+  /**
+   * 8. FORMAT: VILLA NAUTICA PARADISE ISLAND — SPECIAL DINING EXPERIENCES & CANDLE LIGHT MENUS
+   * Luxury beachfront dining brochure with itemized course menus, doubled tariffs, and decoration included.
+   */
+  function renderDiningMenuDocument(data, isForPrint) {
+    const pkg = data.package || {};
+    const comp = data.company || {};
+    const brandName = comp.name || "Let's Explore DMC";
+    const brandTagline = comp.tagline || "Your Destination Management Specialist";
+    const brandLogo = comp.logo || "images/logo.png";
+    const footer = data.footerSettings || {};
+
+    const packages = [
+      {
+        id: 'cld',
+        title: 'CANDLE LIGHT DINNER AT THE BEACH',
+        subtitle: 'Romantic Sunset Oceanfront Dining Under Canopy',
+        originalRate: '$200++',
+        doubledRate: '$400++',
+        decoration: 'Included',
+        rateUSD: 400,
+        rateINR: 35000,
+        courses: [
+          { name: 'Appetizer (Amuse-Bouche)', desc: 'Smoked Salmon mille feuille OR Prosciutto di Parma & sweet melon' },
+          { name: 'Second Course', desc: 'Beef Carpaccio, Rockette & Shaved Parmesan' },
+          { name: 'Palate Cleanser', desc: 'Lime Sorbet with a hint of Beetle Nut' },
+          { name: 'Main Course', desc: 'Grilled Lobster with Lemon & Herb butter, Mixed green salad' },
+          { name: 'Dessert', desc: 'Mango & Passion fruit Parfait' }
+        ]
+      },
+      {
+        id: 'digin',
+        title: 'DIG-IN DINNER BY THE BEACH',
+        subtitle: 'Exclusive Dug-In Beach Sand Lounge with Ambient Lanterns',
+        originalRate: '$244++',
+        doubledRate: '$488++',
+        decoration: 'Included',
+        rateUSD: 488,
+        rateINR: 42700,
+        courses: [
+          { name: 'Selection One', desc: 'Appetizer: Mixed Salad | Soup: Boston Seafood Chowder | Main Course: Islander Seafood Platter | Dessert: Imperial Cheesecake' },
+          { name: 'Selection Two', desc: 'Appetizer: Smoked Chicken Breast Delight | Soup: Hot & Sour Soup | Main Course: Cantonese Style Steamed Salmon | Dessert: Chinese Pancake' }
+        ]
+      },
+      {
+        id: 'seafood',
+        title: 'SEAFOOD LUNCH — ADVENTURE ON THE SEA',
+        subtitle: 'Lagoon In-Water Dining Experience with Parasol & Butler Service',
+        originalRate: 'From $128++ to $161++',
+        doubledRate: '$256++ to $322++',
+        decoration: 'Included',
+        rateUSD: 322,
+        rateINR: 28175,
+        courses: [
+          { name: 'Selection One ($322++ with decoration / was $161++)', desc: 'Appetizer: Mixed green salad with grilled marinated prawn & mussel | Soup: Cream of vegetables | Main: Paradise seafood platter (Grilled lobster, red snapper, prawn tempura, calamari) | Dessert: Lost pear in paradise' },
+          { name: 'Selection Two ($256++ with decoration / was $128++)', desc: 'Appetizer: Paradise prawn cocktail | Soup: Creamy leek & potato | Main: Traditional mixed grill (Beef fillet, lamb chop, chicken leg, lamb skewer) | Dessert: Fresh tropical fruits with lime sherbet' },
+          { name: 'Selection Three ($288++ with decoration / was $144++)', desc: 'Appetizer: Louvi crab cake | Soup: Asian Bouillabaisse | Main: Surf & Turf (Beef tenderloin + lobster tail with basil mashed potato) | Dessert: Trio of sweet (Crème brûlée tart & pistachio ice cream)' }
+        ]
+      },
+      {
+        id: 'veg',
+        title: 'VEGETARIAN CANDLE LIGHT DINNER',
+        subtitle: 'Exquisite Gourmet Plant-Based 4-Course Candlelight Menu',
+        originalRate: '$170++',
+        doubledRate: '$340++',
+        decoration: 'Included',
+        rateUSD: 340,
+        rateINR: 29750,
+        courses: [
+          { name: 'Appetizer', desc: 'Duo of vegetable spring roll & cream cheese olive bruschetta' },
+          { name: 'Soup', desc: 'Cream of young asparagus soup with herb oil & roasted pimento' },
+          { name: 'Main Course', desc: 'Assorted Vegetarian Combo (Mexican vegetable quesadilla, pasta vegetariana, Indian stuffed vegetable rotti, oriental stir fry vegetables) served with steamed rice & Caesar Salad' },
+          { name: 'Dessert', desc: 'Tropical fresh fruit platter' }
+        ]
+      },
+      {
+        id: 'oriental',
+        title: 'ORIENTAL NIGHT EXPERIENCE',
+        subtitle: 'Bedouin Style Arabian Beach Cabana with Shisha & Ambient Lights',
+        originalRate: '$244++',
+        doubledRate: '$488++',
+        decoration: 'Included',
+        rateUSD: 488,
+        rateINR: 42700,
+        courses: [
+          { name: 'Selection One (Arabian Night Mixed Grill)', desc: 'Oriental cold & hot mezza | Shourbot adddas soup | Mixed grilled: Samaka Hana, Arabic daiai alfaham, Rubian Machous, Bahmia bil laham | Maha labia & Umm Ali' },
+          { name: 'Selection Two (Oriental Kebab & Seafood)', desc: 'Oriental cold & hot mezza | Shourbot adddas soup | Oriental mixed Kebab: Sayadiah, Iraqi baked chicken tepsi, Robeyan Nashif, Fasolia bil laham | Kataif Asferi with Pistachio ice cream & Umm Ali' }
+        ]
+      },
+      {
+        id: 'bbq',
+        title: 'PRIVATE BBQ ON THE BEACH',
+        subtitle: 'Live Beach Grill Station with Dedicated Private Chef & Butler',
+        originalRate: '$184++',
+        doubledRate: '$368++',
+        decoration: 'Included',
+        rateUSD: 368,
+        rateINR: 32200,
+        courses: [
+          { name: 'Selection 1 (Seafood BBQ)', desc: 'Appetizer: Salad & Bread | Soup: Tomato or French Onion | Main: BBQ Prawns, Fish & Lobster, Potato & Vegetables, Steamed Rice | Dessert: Sweets & Fruits' },
+          { name: 'Selection 2 (Steak & Mussel)', desc: 'Appetizer: Salad & Bread | Pasta: Napolitan Tonno or Peperoncino | Main: BBQ Steak, Mussel & Scampi | Dessert: Sweets & Fruits' },
+          { name: 'Selection 3 (Chicken & Lamb)', desc: 'Appetizer: Salad & Bread | Pasta: Seafood, Cheese or Veg Risotto | Main: BBQ Chicken, Lamb Saute\' & Lobster | Dessert: Sweets & Fruits' },
+          { name: 'Selection 4 (Mixed Meat Grill)', desc: 'Appetizer: Salad & Bread | Soup: Asparagus or Tom Yam | Main: BBQ Steak, Chicken Drumsticks, Sausages & Lamb Kebab | Dessert: Sweets & Fruits' }
+        ]
+      },
+      {
+        id: 'crows',
+        title: 'CROW\'S NEST — OVER THE OCEAN DINNER',
+        subtitle: 'Elevated Starlit Tower Dining with 360° Panoramic Lagoon Views',
+        originalRate: '$198++',
+        doubledRate: '$396++',
+        decoration: 'Included',
+        rateUSD: 396,
+        rateINR: 34650,
+        courses: [
+          { name: 'Menu Option I (Seafood & Lobster)', desc: 'Appetizer: Roma Tomatoes & Marinated Mozzarella | Soup: Seafood Miso Soup & Tuna Maki Roll | Main: Surf & Turf OR Lobster Thermidor | Dessert: Classic Tiramisu OR Lemon Cheesecake' },
+          { name: 'Menu Option II (Indian Royal Cuisine)', desc: 'Appetizer: Papadam, Pickle, Mint Chutney, Masala Buttermilk, Tandoori Chicken Salad | Soup: Cream of Tomato Soup with Cream Cheese | Main: Paneer Butter Masala, Jeera Aloo, Tarka Dal, Roti, Raita, Samosa, Jeera Rice OR Chicken Curry & Lamb Korma | Dessert: Sampler Platter (Warm gulab jamun, saffron kheer & mango halwa)' }
+        ]
+      }
+    ];
+
+    return `
+      <div class="dmc-quotation-doc doc-villa-nautica-dining ${isForPrint ? 'is-print-mode' : ''}" style="background:#FFFFFF; font-family:'Inter', -apple-system, sans-serif; color:#1E293B; line-height:1.5; width:100%; min-height:1123px; box-sizing:border-box; padding:0;">
+        <!-- Top Luxury Brand Stripe -->
+        <div style="height:6px; width:100%; background:linear-gradient(90deg, #0F2C59 0%, #1E3A8A 35%, #D97706 70%, #F59E0B 100%);"></div>
+
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:24px 30px 16px 30px; border-bottom:1px solid #E2E8F0; background:#FAFAFA;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:58px; object-fit:contain;" onerror="this.src='images/logo.png'" />
+            <div>
+              <div style="font-size:18px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
+              <div style="font-size:11px; font-weight:700; color:#D97706; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>
+              <div style="font-size:11px; color:#64748B; margin-top:2px;"><i class="fa-solid fa-phone" style="font-size:10px;"></i> +91 80075 86881 | bookings@letsexploredmc.com</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#D97706; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">RESORT DINING QUOTATION</div>
+            <div style="color:#0F2C59; font-size:24px; font-weight:900; line-height:1.2; margin:2px 0;">VILLA NAUTICA</div>
+            <div style="color:#64748B; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Paradise Island · Maldives</div>
+          </div>
+        </div>
+
+        <!-- Title Banner with Decoration Badge -->
+        <div style="background:linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%); color:#FFFFFF; padding:18px 30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h1 style="margin:0; font-size:20px; font-weight:800; letter-spacing:-0.2px;">CANDLE LIGHT & SPECIAL BEACH DINING EXPERIENCES</h1>
+            <p style="margin:3px 0 0 0; font-size:12px; color:#FDE68A;">Official Tariff & Multi-Course Menu Brochure · Rates Doubled as Instructed</p>
+          </div>
+          <div style="background:#D97706; color:#FFFFFF; font-weight:800; font-size:12px; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> WITH DECORATION INCLUDED
+          </div>
+        </div>
+
+        <!-- Key Resort Metadata Table -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:#CBD5E1; margin:16px 30px; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">
+          <div style="background:#F8FAFC; padding:10px 14px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">RESORT PROPERTY</div>
+            <div style="font-size:13px; font-weight:800; color:#0F2C59; margin-top:2px;">Villa Nautica, Maldives</div>
+          </div>
+          <div style="background:#F8FAFC; padding:10px 14px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">PRICING BASIS</div>
+            <div style="font-size:13px; font-weight:800; color:#0F2C59; margin-top:2px;">Per Couple (2 Adults)</div>
+          </div>
+          <div style="background:#F8FAFC; padding:10px 14px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">DECORATION STATUS</div>
+            <div style="font-size:13px; font-weight:800; color:#059669; margin-top:2px;"><i class="fa-solid fa-check"></i> Fully Included</div>
+          </div>
+          <div style="background:#F8FAFC; padding:10px 14px;">
+            <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">TAXES & SERVICE</div>
+            <div style="font-size:13px; font-weight:800; color:#0F2C59; margin-top:2px;">++ (10% SC & 17% TGST)</div>
+          </div>
+        </div>
+
+        <!-- Master Rates Summary Table -->
+        <div style="margin:16px 30px;">
+          <div style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:#D97706;"></i> Dining Experiences & Tariffs Summary (With Decoration)
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:11.5px; border:1px solid #CBD5E1; border-radius:6px; overflow:hidden;">
+            <thead>
+              <tr style="background:#0F2C59; color:#FFFFFF; text-align:left;">
+                <th style="padding:9px 12px; font-weight:700;">DINING EXPERIENCE / MENU</th>
+                <th style="padding:9px 12px; font-weight:700; text-align:center;">SUPPLIER BASE</th>
+                <th style="padding:9px 12px; font-weight:700; text-align:center; background:#1E3A8A;">DOUBLED RATE (USD++)</th>
+                <th style="padding:9px 12px; font-weight:700; text-align:center;">APPROX (INR)</th>
+                <th style="padding:9px 12px; font-weight:700; text-align:center;">DECORATION</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${packages.map((pkgItem, pIdx) => `
+                <tr style="background:${pIdx % 2 === 0 ? '#FFFFFF' : '#F8FAFC'}; border-bottom:1px solid #E2E8F0;">
+                  <td style="padding:9px 12px; font-weight:700; color:#0F2C59;">
+                    ${escapeHTML(pkgItem.title)}
+                    <div style="font-size:10.5px; font-weight:500; color:#64748B;">${escapeHTML(pkgItem.subtitle)}</div>
+                  </td>
+                  <td style="padding:9px 12px; text-align:center; color:#94A3B8; text-decoration:line-through;">${escapeHTML(pkgItem.originalRate)}</td>
+                  <td style="padding:9px 12px; text-align:center; font-weight:800; color:#059669; font-size:13px; background:#F0FDF4;">
+                    ${escapeHTML(pkgItem.doubledRate)}
+                    <span style="display:block; font-size:9.5px; color:#059669; font-weight:700;">per couple with decoration</span>
+                  </td>
+                  <td style="padding:9px 12px; text-align:center; font-weight:700; color:#1E293B;">₹ ${pkgItem.rateINR.toLocaleString()}</td>
+                  <td style="padding:9px 12px; text-align:center; font-weight:700; color:#D97706;">
+                    <span style="background:#FEF3C7; padding:3px 8px; border-radius:4px; font-size:10px;"><i class="fa-solid fa-wand-magic-sparkles"></i> with decoration</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detailed Menu Cards for Every Experience -->
+        <div style="margin:20px 30px;">
+          <div style="font-size:14px; font-weight:800; color:#0F2C59; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-utensils" style="color:#D97706;"></i> Detailed Multi-Course Menus & Inclusions
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:14px;">
+            ${packages.map(pkgItem => `
+              <div style="border:1px solid #CBD5E1; border-radius:8px; overflow:hidden; background:#FFFFFF; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div style="background:#0F2C59; color:#FFFFFF; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:12px; font-weight:800; letter-spacing:0.3px;">${escapeHTML(pkgItem.title)}</div>
+                    <div style="font-size:10px; color:#FDE68A;">${escapeHTML(pkgItem.subtitle)}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:14px; font-weight:900; color:#FBBF24;">${escapeHTML(pkgItem.doubledRate)}</div>
+                    <div style="font-size:9px; color:#E2E8F0; font-weight:700;">with decoration</div>
+                  </div>
+                </div>
+                <div style="padding:12px 14px; font-size:11px; line-height:1.55; color:#334155;">
+                  ${pkgItem.courses.map(c => `
+                    <div style="margin-bottom:6px; padding-bottom:6px; border-bottom:1px dashed #E2E8F0;">
+                      <strong style="color:#0F2C59; display:block;">• ${escapeHTML(c.name)}:</strong>
+                      <span style="color:#475569;">${escapeHTML(c.desc)}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Decoration Guarantee & Important Terms -->
+        <div style="margin:20px 30px; background:#F8FAFC; border:1px solid #CBD5E1; border-left:4px solid #D97706; border-radius:6px; padding:14px 18px;">
+          <h4 style="margin:0 0 6px 0; font-size:12.5px; font-weight:800; color:#0F2C59;">
+            <i class="fa-solid fa-circle-check" style="color:#059669;"></i> Romantic Decoration & Dining Terms
+          </h4>
+          <ul style="margin:0; padding-left:18px; font-size:11px; color:#475569; line-height:1.65;">
+            <li><strong>Decoration Inclusions:</strong> Private beachfront tent/canopy, floral centerpiece and table runner, candlelit path, ambient lanterns, personalized welcome board, and dedicated private server.</li>
+            <li><strong>Taxes:</strong> All rates are in USD and subject to 10% Service Charge & 17% Tourism Goods and Services Tax (TGST) (++).</li>
+            <li><strong>Confirmation & Scheduling:</strong> Experience must be booked at least 24 hours in advance through Let's Explore DMC or Island Host. Beach setups are weather permitting and may be shifted to covered luxury pavilions during rain.</li>
+          </ul>
+        </div>
+
+        ${renderContinuousFooter(footer)}
       </div>
     `;
   }
@@ -1402,7 +1833,8 @@ const Preview = (() => {
   return {
     render,
     buildQuotationHTML,
-    renderRajasthanLandPackageDocument
+    renderRajasthanLandPackageDocument,
+    renderDiningMenuDocument
   };
 
 })();

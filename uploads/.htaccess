@@ -1,20 +1,33 @@
-# Protect uploaded PDFs: Disable directory listing and script execution
-Options -Indexes -ExecCGI
+# Let's Explore DMC — Safe Uploads Configuration
+# LiteSpeed & Apache 2.4 Compatible
 
-# Prevent execution of any scripts in the uploads directory
-<FilesMatch "\.(php|php[0-9]|phtml|pl|py|cgi|sh|bash|html|htm|js)$">
-    Order Deny,Allow
-    Deny from all
+# Prevent execution of backend server-side scripts
+<FilesMatch "(?i)\.(php|php[0-9]?|phtml|pl|py|cgi|sh|bash)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
 </FilesMatch>
 
-# Force correct MIME type for PDFs
-<FilesMatch "\.pdf$">
-    ForceType application/pdf
+# Allow public viewing and downloading of travel documents, PDFs, HTML proposals & media
+<FilesMatch "(?i)\.(pdf|docx|doc|html|htm|png|jpg|jpeg|webp|svg|css|js)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Allow from all
+    </IfModule>
 </FilesMatch>
 
-# Security hardening headers
+<IfModule mod_mime.c>
+    AddType application/pdf .pdf
+    AddType text/html .html .htm
+</IfModule>
+
 <IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+    Header set Access-Control-Allow-Origin "*"
 </IfModule>

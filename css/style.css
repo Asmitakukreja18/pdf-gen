@@ -2304,15 +2304,23 @@ p {
 
 .preview-sheet-frame {
   background: #FFFFFF;
-  box-shadow: 0 10px 30px rgba(15, 44, 89, 0.15);
+  box-shadow: 0 4px 20px rgba(15, 44, 89, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid #CBD5E1;
-  border-radius: 4px;
+  border-radius: 0px !important;
   width: 100%;
   max-width: 820px;
-  min-height: 1050px;
-  padding: 24px;
+  min-height: 1123px;
+  padding: 0;
   transform-origin: top center;
   transition: transform 0.2s ease;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.preview-sheet-frame:has(.doc-rajasthan-land-package) {
+  padding: 0;
 }
 
 /* ============================================================
@@ -2573,6 +2581,16 @@ p {
   border-bottom: 1px solid var(--dmc-border, #CBD5E1);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.dmc-table-header-bar.no-usd-col,
+.dmc-item-row.no-usd-col {
+  grid-template-columns: 1fr 60px 140px !important;
+}
+
+.dmc-table-header-bar.no-usd-col .th-inr,
+.dmc-item-row.no-usd-col .item-inr-col {
+  text-align: right !important;
 }
 
 .th-desc {
@@ -3029,28 +3047,35 @@ p {
   margin-right: 4px;
 }
 
-.dmc-doc-footer {
+.dmc-doc-footer,
+.dmc-footer {
   border-top: 1px solid var(--dmc-border, #CBD5E1);
-  padding-top: 6px;
-  margin-top: 12px;
-  font-size: 7.5pt;
+  padding: 12px 28px 16px 28px;
+  margin-top: auto;
+  font-size: 8pt;
   color: var(--dmc-muted, #64748B);
   text-align: center;
+  background: #FAFBFD;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.footer-inner {
+.footer-inner,
+.dmc-footer-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
+.footer-company,
 .f-brand {
   font-weight: 700;
   color: var(--dmc-primary, #0F2C59);
 }
 
+.footer-sep,
 .f-dot {
   color: #CBD5E1;
 }

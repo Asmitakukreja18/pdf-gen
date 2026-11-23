@@ -138,6 +138,98 @@ function ensureDatabaseSchemaSynced(\PDO $pdo) {
                 INDEX `idx_inq_status` (`status`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         }
+
+        // 5. Ensure packages table exists with all rich fields
+        $hasPackages = $pdo->query("SHOW TABLES LIKE 'packages'")->fetch();
+        if (!$hasPackages) {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `packages` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `package_code` VARCHAR(50) NOT NULL UNIQUE,
+                `name` VARCHAR(200) NOT NULL,
+                `country` VARCHAR(100) NOT NULL,
+                `destination` VARCHAR(150) NOT NULL,
+                `duration_days` INT NOT NULL DEFAULT 6,
+                `duration_nights` INT NOT NULL DEFAULT 5,
+                `hotel_category` VARCHAR(100) DEFAULT '4 Star Deluxe',
+                `hotel_details` TEXT DEFAULT NULL,
+                `inclusions` TEXT DEFAULT NULL,
+                `exclusions` TEXT DEFAULT NULL,
+                `highlights` TEXT DEFAULT NULL,
+                `itinerary_json` LONGTEXT DEFAULT NULL,
+                `pricing_inr` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                `pricing_usd` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                `markup_percent` DECIMAL(5,2) DEFAULT 10.00,
+                `client_name` VARCHAR(150) DEFAULT 'Valued Traveler',
+                `client_phone` VARCHAR(40) DEFAULT NULL,
+                `client_email` VARCHAR(120) DEFAULT NULL,
+                `doc_type` VARCHAR(50) NOT NULL DEFAULT 'quotation',
+                `version` INT UNSIGNED NOT NULL DEFAULT 1,
+                `full_data` LONGTEXT DEFAULT NULL,
+                `file_path` VARCHAR(500) DEFAULT NULL,
+                `source_drive_file` VARCHAR(255) DEFAULT NULL,
+                `original_pdf_url` VARCHAR(500) DEFAULT NULL,
+                `image_url` VARCHAR(500) DEFAULT NULL,
+                `is_published` TINYINT(1) NOT NULL DEFAULT 1,
+                `status` ENUM('active', 'inactive', 'draft') NOT NULL DEFAULT 'active',
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                INDEX `idx_pkg_code` (`package_code`),
+                INDEX `idx_country` (`country`),
+                INDEX `idx_destination` (`destination`),
+                INDEX `idx_pkg_published` (`is_published`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        } else {
+            $pkgCols = $pdo->query("SHOW COLUMNS FROM `packages`")->fetchAll(PDO::FETCH_COLUMN);
+            if (!in_array('itinerary_json', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `itinerary_json` LONGTEXT DEFAULT NULL AFTER `highlights`");
+            }
+            if (!in_array('full_data', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `full_data` LONGTEXT DEFAULT NULL AFTER `itinerary_json`");
+            }
+            if (!in_array('client_name', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `client_name` VARCHAR(150) DEFAULT 'Valued Traveler' AFTER `markup_percent`");
+            }
+            if (!in_array('client_phone', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `client_phone` VARCHAR(40) DEFAULT NULL AFTER `client_name`");
+            }
+            if (!in_array('client_email', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `client_email` VARCHAR(120) DEFAULT NULL AFTER `client_phone`");
+            }
+            if (!in_array('doc_type', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `doc_type` VARCHAR(50) NOT NULL DEFAULT 'quotation' AFTER `client_email`");
+            }
+            if (!in_array('version', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `version` INT UNSIGNED NOT NULL DEFAULT 1 AFTER `doc_type`");
+            }
+            if (!in_array('file_path', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `file_path` VARCHAR(500) DEFAULT NULL AFTER `full_data`");
+            }
+            if (!in_array('source_drive_file', $pkgCols)) {
+                $pdo->exec("ALTER TABLE `packages` ADD COLUMN `source_drive_file` VARCHAR(255) DEFAULT NULL AFTER `file_path`");
+            }
+        }
+
+        // 6. Ensure package_versions table exists for complete audit trail & version rollback
+        $hasVersions = $pdo->query("SHOW TABLES LIKE 'package_versions'")->fetch();
+        if (!$hasVersions) {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `package_versions` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `package_id` INT UNSIGNED NOT NULL,
+                `package_code` VARCHAR(50) NOT NULL,
+                `version` INT UNSIGNED NOT NULL DEFAULT 1,
+                `change_summary` VARCHAR(255) DEFAULT NULL,
+                `doc_type` VARCHAR(50) DEFAULT 'quotation',
+                `full_data` LONGTEXT NOT NULL,
+                `pricing_inr` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                `pricing_usd` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+                `created_by` VARCHAR(100) DEFAULT 'AI Studio',
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                INDEX `idx_pv_pkg` (`package_id`),
+                INDEX `idx_pv_ver` (`package_id`, `version`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        }
     } catch (\Throwable $e) {
         error_log("Schema auto-sync notice: " . $e->getMessage());
     }

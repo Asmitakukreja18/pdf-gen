@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "doc_no": "LEDMC-MLE-DIN-8821",
+        "title": "Villa Nautica Maldives — Candle Light & Special Beach Dining (With Decoration)",
+        "customer_name": "Direct Guest / Couple",
+        "destination": "Maldives",
+        "doc_type": "quotation",
+        "file_path": "uploads/VillaNautica_Maldives_Dining_Experiences_Doubled.html",
+        "created_at": "2026-11-17 17:00:00"
+    },
+    {
+        "id": 2,
+        "doc_no": "LEDMC-DOC-7721",
+        "title": "Phuket + Krabi 6D5N Land Package Quotation (+15% Markup)",
+        "customer_name": "Ramesh Kumar & Family",
+        "destination": "Thailand",
+        "doc_type": "quotation",
+        "file_path": "uploads/Rajasthan_Style_Phuket_Krabi_15Percent_Markup.pdf",
+        "created_at": "2026-11-16 18:30:00"
+    },
+    {
+        "id": 3,
+        "doc_no": "LEDMC-DOC-4419",
+        "title": "Singapore + Phuket + Krabi 12D11N Aanay Tours Quotation",
+        "customer_name": "Package for 2 pax",
+        "destination": "Singapore & Thailand",
+        "doc_type": "quotation",
+        "file_path": "uploads/Singapore_Thailand_12D11N_AanayTours.pdf",
+        "created_at": "2026-11-16 12:00:00"
+    }
+]

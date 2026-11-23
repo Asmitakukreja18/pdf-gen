@@ -883,7 +883,8 @@
 
                 <div class="form-group">
                     <label id="usernameLabel">Username or Email</label>
-                    <input type="text" id="usernameInput" class="form-input" placeholder="admin" required autofocus>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="Enter username or email"
+                        required autofocus>
                 </div>
 
                 <div class="form-group">
@@ -987,14 +988,14 @@
                 tabUser.classList.remove('active');
                 modalTitle.textContent = 'Admin Sign In';
                 modalSubtitle.textContent = 'Enter your administrator credentials to continue';
-                usernameInput.placeholder = 'admin';
+                usernameInput.placeholder = 'Enter username or email';
                 if (btnText) btnText.textContent = 'Sign In to Dashboard';
             } else {
                 tabUser.classList.add('active');
                 tabAdmin.classList.remove('active');
                 modalTitle.textContent = 'Staff / User Sign In';
                 modalSubtitle.textContent = 'Enter your staff credentials (executive / agent) — OTP protected';
-                usernameInput.placeholder = 'kashish / asmita / chanchal';
+                usernameInput.placeholder = 'Enter staff username or email';
                 if (btnText) btnText.textContent = 'Continue to Staff Portal';
             }
         }
@@ -1040,8 +1041,8 @@
                 'admin': ['admin', 'admin@123', 'letsexploredmc', 'letsexplore', 'admin@letsexploredmc.com'],
                 'kashish': ['kashish', 'kashish adwani', 'kashishadwani', 'kashish@letsexploredmc.com', 'kashish@123'],
                 'asmita': ['asmita', 'asmita kukreja', 'asmitakukreja', 'asmita@letsexploredmc.com', 'asmita@123'],
-                'chanchal': ['chanchal', 'chanchal sharma', 'chanchalsharma', 'chanchal@letsexploredmc.com', 'chanchal@123'],
-                
+                'chanchal': ['chanchal', 'chanchal chandani', 'chanchalchandani', 'chanchal@letsexploredmc.com', 'chanchal@123'],
+
                 'operations': ['operations', 'ops', 'operations team', 'ops@letsexploredmc.com']
             };
 
@@ -1071,9 +1072,9 @@
                 'admin': { id: 1, username: 'admin', name: 'Let\'s Explore DMC', role: 'admin', email: 'admin@letsexploredmc.com', pass: 'admin@123' },
                 'kashish': { id: 2, username: 'kashish', name: 'Kashish Adwani', role: 'executive', email: 'kashish@letsexploredmc.com', pass: 'kashish@123' },
                 'asmita': { id: 3, username: 'asmita', name: 'Asmita Kukreja', role: 'executive', email: 'asmita@letsexploredmc.com', pass: 'asmita@123' },
-                'chanchal': { id: 4, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com', pass: 'chanchal@123' },
-                
-                
+                'chanchal': { id: 4, username: 'chanchal', name: 'Chanchal Chandani', role: 'executive', email: 'chanchal@letsexploredmc.com', pass: 'chanchal@123' },
+
+
             };
 
             const targetAccount = knownAccounts[canonicalKey] || null;

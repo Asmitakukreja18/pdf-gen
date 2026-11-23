@@ -99,7 +99,7 @@
         storedUser.name = "Kashish Adwani";
         storedUser.role = "executive";
       } else if (storedUser.username === 'chanchal') {
-        storedUser.name = "Chanchal Sharma";
+        storedUser.name = "Chanchal Chandani";
         storedUser.role = "executive";
       }
       try {
@@ -178,9 +178,9 @@
       displayRole = "Senior Travel Specialist";
       avatarInitials = "KA";
     } else if (username === 'chanchal' || (storedUser && storedUser.name && storedUser.name.toLowerCase().includes('chanchal'))) {
-      displayName = "Chanchal Sharma";
+      displayName = "Chanchal Chandani";
       displayRole = "Operations Executive";
-      avatarInitials = "CS";
+      avatarInitials = "CC";
     } else if (isStaff) {
       displayName = (storedUser && storedUser.name) ? storedUser.name : "Operations Executive";
       displayRole = "Operations Desk";

@@ -1819,3 +1819,10 @@ activities include Krabi 4 island speedboat (35$), Hong island (48$), Phi Phi sp
 Sab transfers private chahiye. National park fees included likhna.
 Summary me hotel 1480 USD, transfers 434 USD, tours 590 USD, taxes 120 USD. Dual currency INR and USD dikhana hai.`
 };
+
+if (typeof window !== 'undefined') {
+  window.recalculateQuotationPricing = recalculateQuotationPricing;
+}
+if (typeof global !== 'undefined') {
+  global.recalculateQuotationPricing = recalculateQuotationPricing;
+}

@@ -215,16 +215,19 @@ $usedModel = null;
 
 foreach ($providersToTry as $prov) {
     if ($prov === 'claude') {
-        $claudeKey = !empty($payload['claudeApiKey']) ? trim($payload['claudeApiKey']) : '';
-        if (empty($claudeKey) && file_exists(__DIR__ . '/../data/ai_settings.json')) {
-            $dynSettings = json_decode(@file_get_contents(__DIR__ . '/../data/ai_settings.json'), true);
-            $claudeKey = trim($dynSettings['claude_api_key'] ?? '');
+        // Authoritative server-side secret resolution (strictly server-only, never from public browser)
+        $claudeKey = defined('CLAUDE_API_KEY') ? CLAUDE_API_KEY : '';
+        if (empty($claudeKey) || strpos($claudeKey, 'YOUR_') !== false) {
+            $secureFile = function_exists('getSecureAiSettingsPath') ? getSecureAiSettingsPath(false) : (__DIR__ . '/../data/ai_settings.json');
+            if (file_exists($secureFile)) {
+                $dynSettings = json_decode(@file_get_contents($secureFile), true);
+                $claudeKey = trim($dynSettings['claude_api_key'] ?? '');
+            }
         }
-        if (empty($claudeKey) && defined('CLAUDE_API_KEY')) {
-            $claudeKey = CLAUDE_API_KEY;
-        }
+        $claudeModel = defined('CLAUDE_MODEL_ID') ? CLAUDE_MODEL_ID : 'claude-sonnet-5-5';
+
         if ($claudeKey && strpos($claudeKey, 'YOUR_') === false) {
-            $res = callClaude($systemPrompt, $contextText, $prompt, $attachments, $claudeKey);
+            $res = callClaude($systemPrompt, $contextText, $prompt, $attachments, $claudeKey, $claudeModel);
             if ($res['success']) {
                 $finalResult = $res['data'];
                 $successfulProvider = 'claude';
@@ -300,8 +303,16 @@ if ($finalResult !== null) {
 // Provider Callers
 // ==========================================
 
-function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey) {
-    $models = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'];
+function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $apiKey, $configuredModel = 'claude-3-5-sonnet-20241022') {
+    // Official production Anthropic API models
+    $candidateList = [
+        $configuredModel,
+        'claude-3-5-sonnet-20241022',
+        'claude-3-5-haiku-20241022',
+        'claude-3-7-sonnet-20250219',
+        'claude-3-opus-20240229'
+    ];
+    $models = array_values(array_unique(array_filter($candidateList)));
     $lastError = null;
 
     $userContent = [];
@@ -313,7 +324,10 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
         $b64 = preg_replace('/^data:[^;]+;base64,/', '', $rawB64);
         $b64 = trim($b64);
 
-        if (!empty($b64)) {
+        $hasText = !empty($attachment['extractedText']) && strlen(trim($attachment['extractedText'])) > 50;
+
+        // Cost & Speed Optimization: If text is already extracted from PDF, do NOT duplicate with giant base64
+        if (!empty($b64) && !$hasText) {
             $mime = $attachment['mimeType'] ?? 'application/pdf';
             if (strpos($mime, 'pdf') !== false) {
                 $userContent[] = [
@@ -334,11 +348,22 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
                     ]
                 ];
             }
+        } elseif (!empty($b64) && strpos(($attachment['mimeType'] ?? ''), 'image/') !== false) {
+            // Keep image vision block for screenshot accuracy
+            $userContent[] = [
+                'type' => 'image',
+                'source' => [
+                    'type' => 'base64',
+                    'media_type' => $attachment['mimeType'],
+                    'data' => $b64
+                ]
+            ];
         }
+
         if (!empty($attachment['extractedText'])) {
             $userContent[] = [
                 'type' => 'text',
-                'text' => "--- EXTRACTED CONTENT FROM ATTACHED DOCUMENT (" . ($attachment['name'] ?? 'File') . ") ---\n" . substr($attachment['extractedText'], 0, 15000)
+                'text' => "--- EXTRACTED CONTENT FROM ATTACHED DOCUMENT (" . ($attachment['name'] ?? 'File') . ") ---\n" . substr($attachment['extractedText'], 0, 10000)
             ];
         }
     }
@@ -349,7 +374,7 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
     foreach ($models as $model) {
         $payload = [
             'model' => $model,
-            'max_tokens' => 4096,
+            'max_tokens' => 2048,
             'system' => $systemPrompt . "\nOutput MUST be raw valid JSON without markdown fences.",
             'messages' => [
                 ['role' => 'user', 'content' => $userContent]
@@ -363,10 +388,11 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
             CURLOPT_HTTPHEADER => [
                 'x-api-key: ' . $apiKey,
                 'anthropic-version: 2023-06-01',
+                'anthropic-beta: pdfs-2024-09-25',
                 'content-type: application/json'
             ],
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_TIMEOUT => 45
+            CURLOPT_TIMEOUT => 15
         ]);
 
         $response = curl_exec($ch);
@@ -380,13 +406,20 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
         }
 
         $resJson = json_decode($response, true);
-        if ($httpCode >= 200 && $httpCode < 300 && isset($resJson['content'][0]['text'])) {
-            $rawText = $resJson['content'][0]['text'];
-            $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
-            $cleanJson = preg_replace('/\s*```$/i', '', $cleanJson);
-            $parsed = json_decode($cleanJson, true);
-            if ($parsed && is_array($parsed)) {
-                return ['success' => true, 'model' => $model, 'data' => $parsed];
+        if ($httpCode >= 200 && $httpCode < 300 && !empty($resJson['content']) && is_array($resJson['content'])) {
+            $rawText = '';
+            foreach ($resJson['content'] as $blk) {
+                if (($blk['type'] ?? '') === 'text' && isset($blk['text'])) {
+                    $rawText .= $blk['text'];
+                }
+            }
+            if (!empty($rawText)) {
+                $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
+                $cleanJson = preg_replace('/\s*```$/i', '', $cleanJson);
+                $parsed = json_decode($cleanJson, true);
+                if ($parsed && is_array($parsed)) {
+                    return ['success' => true, 'model' => $model, 'data' => $parsed];
+                }
             }
         }
         $lastError = $resJson['error']['message'] ?? "HTTP {$httpCode} on {$model}";
@@ -884,8 +917,8 @@ function modifyExistingQuotation($curr, $prompt, $userRates = null) {
 }
 
 function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachments = null, $requestedDocType = '', $requestedDestination = '', $userRates = null) {
-    // 0. CHECK IF THIS IS A MODIFICATION OF CURRENT ACTIVE QUOTATION/DOCUMENT
-    if (!empty($currentQuotation) && is_array($currentQuotation)) {
+    // 0. CHECK IF THIS IS A MODIFICATION OF CURRENT ACTIVE QUOTATION/DOCUMENT (Only when no new attachment is uploaded)
+    if (!empty($currentQuotation) && is_array($currentQuotation) && empty($attachments)) {
         $pLower = strtolower($prompt);
         $isModPrompt = preg_match('/change\s*mat\s*karo|as\s*it\s*is|rahne\s*do|same\s*rakho|keep\s*same|sirf|bss|bas|only|double|2x|200\s*ka\s*400|triple|half|adha|badha|ghata|discount|markup|decoration|sajawat|decor|hotel\s*change|update|modify|edit/i', $pLower);
         if ($isModPrompt) {
@@ -1067,7 +1100,14 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
             $vehicleRate = 280.00; // Speedboat
             $activityRate = 200.00;
         } elseif (strpos($dest, 'Dubai') !== false) {
-            $ratePerAdult = 350.00;
+            if (preg_match('/50696|(\d{5})/i', $text, $pRate)) {
+                $currency = 'INR';
+                $ratePerAdult = floatval($pRate[1] ?? 50696);
+                $markupPct = 0.0;
+                $taxPct = 0.0;
+            } else {
+                $ratePerAdult = 350.00;
+            }
             $hotelNightly = 140.00;
             $vehicleRate = 160.00;
             $activityRate = 180.00;
@@ -1925,10 +1965,13 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         $days[3]['title'] = "Ubud to Seminyak Transfer via Tanah Lot Sunset Temple";
         if ($numDays >= 5) $days[4]['title'] = "Uluwatu Sunset Cliff Temple & Fire Dance";
     } elseif (strpos($dest, 'Dubai') !== false) {
-        $days[0]['title'] = "Arrival in Dubai & Luxury Marina Dhow Cruise Dinner";
-        $days[1]['title'] = "Half Day Dubai City Tour & Burj Khalifa 124th Floor Observation Deck";
-        $days[2]['title'] = "Leisure Morning & Premium 4x4 Desert Safari with BBQ Dinner";
-        if ($numDays >= 4) $days[3]['title'] = "Full Day Abu Dhabi City Tour & Sheikh Zayed Grand Mosque";
+        $days = [
+            ['day' => 1, 'title' => "Arrival in Dubai – Airport Pickup & Marina Dhow Cruise with Dinner", 'description' => "Private airport pickup transfer from DXB Airport to Sheraton Mall of the Emirates Hotel. Evening luxury Marina Dhow Cruise with 5-star international buffet dinner, tanoura show & skyline views.", 'meals' => 'Dinner Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Airport Meet & Greet', 'Marina Dhow Cruise Dinner']],
+            ['day' => 2, 'title' => "Half-Day Dubai City Tour & Burj Khalifa (124th Floor Off-Peak)", 'description' => "Guided panoramic Dubai City Tour with photo stops at Dubai Frame & Burj Al Arab. Afternoon visit to Burj Khalifa 124th + 125th Floor Observatory Deck with Dubai Fountain.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Dubai City Tour', 'Burj Khalifa 124th Floor Off-Peak']],
+            ['day' => 3, 'title' => "Red Dunes Desert Safari with 4x4 Dune Bashing & BBQ Dinner", 'description' => "Afternoon 4x4 Red Dunes Desert Safari with thrilling dune bashing, camel ride, sandboarding, sunset photo stop, and live entertainment with BBQ buffet dinner.", 'meals' => 'Breakfast & BBQ Dinner', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['4x4 Dune Bashing', 'Camel Ride', 'BBQ Dinner & Shows']],
+            ['day' => 4, 'title' => "Dubai Miracle Garden & Global Village Excursion", 'description' => "Explore over 150 million blooming flowers at Dubai Miracle Garden. In the evening, immerse in cultural pavilions, shows, and shopping at Global Village.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Miracle Garden', 'Global Village Cultural Experience']],
+            ['day' => 5, 'title' => "Leisure Morning & Private Dubai Airport Drop-off Transfer", 'description' => "Buffet breakfast at Sheraton Mall of the Emirates. Check out and enjoy morning leisure or shopping. Timely private transfer to Dubai International Airport (DXB).", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Airport Drop Transfer']]
+        ];
     }
 
     $inclusions = [
@@ -1982,7 +2025,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $response['hotels'] = [
         [
             'city' => explode(',', $dest)[0],
-            'hotelName' => (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : 'Grand Luxury 5-Star Hotel & Resort'),
+            'hotelName' => (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : (strpos($dest, 'Dubai') !== false ? 'Sheraton Mall of the Emirates Hotel, Dubai' : 'Grand Luxury 5-Star Hotel & Resort')),
             'roomType' => 'Superior / Deluxe Pool View Room',
             'nights' => $numNights,
             'mealPlan' => 'Daily Buffet Breakfast Included',

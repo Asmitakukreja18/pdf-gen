@@ -5,18 +5,14 @@
  */
 
 const CONFIG = {
-  // Gemini API Configuration
+  // Server-Side AI Configuration (All keys stored strictly outside document root on server)
   get GEMINI_API_KEY() {
-    const stored = (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_gemini_api_key') : null);
-    if (stored && stored.trim() && stored !== 'YOUR_GEMINI_API_KEY_HERE') {
-      return stored.trim();
-    }
-    return this._GEMINI_API_KEY || '';
+    return ''; // Secrets never held or exposed in public client runtime
   },
   set GEMINI_API_KEY(val) {
-    this._GEMINI_API_KEY = val;
-    if (val && val !== 'YOUR_GEMINI_API_KEY_HERE' && typeof localStorage !== 'undefined') {
-      localStorage.setItem('dmc_gemini_api_key', val.trim());
+    // Purge any legacy browser storage
+    if (typeof localStorage !== 'undefined') {
+      try { localStorage.removeItem('dmc_gemini_api_key'); } catch(e) {}
     }
   },
   _GEMINI_API_KEY: '',
@@ -24,13 +20,14 @@ const CONFIG = {
   GEMINI_FALLBACK_MODEL: 'gemini-flash-latest',
   GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/',
 
-  // Anthropic Claude API Configuration (Handled securely via server-side api/ai.php proxy)
+  // Anthropic Claude API Configuration (Handled strictly via server-side api/ai.php gateway)
   get CLAUDE_API_KEY() {
-    return (typeof localStorage !== 'undefined' ? localStorage.getItem('dmc_claude_api_key') : '') || '';
+    return ''; // Secrets never held or exposed in public client runtime
   },
   set CLAUDE_API_KEY(val) {
-    if (val && typeof localStorage !== 'undefined') {
-      localStorage.setItem('dmc_claude_api_key', val.trim());
+    // Purge any legacy browser storage
+    if (typeof localStorage !== 'undefined') {
+      try { localStorage.removeItem('dmc_claude_api_key'); } catch(e) {}
     }
   },
 
@@ -169,3 +166,18 @@ if (typeof window !== 'undefined') {
   window.escapeHTML = escapeHTML;
 }
 
+// Security Sanitization: Immediately cleanse any historical AI credentials from browser localStorage
+if (typeof localStorage !== 'undefined') {
+  try {
+    localStorage.removeItem('dmc_claude_api_key');
+    localStorage.removeItem('dmc_gemini_api_key');
+  } catch (e) {}
+}
+
+
+if (typeof window !== 'undefined') {
+  window.CONFIG = CONFIG;
+}
+if (typeof global !== 'undefined') {
+  global.CONFIG = CONFIG;
+}

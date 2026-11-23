@@ -11,8 +11,25 @@ header('Content-Type: application/json; charset=utf-8');
 $activeUser = checkSessionActivity();
 $pdo = getDb();
 
+function getCustomersJsonPath() {
+    $dir = __DIR__ . '/../../data';
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    return $dir . '/customers.json';
+}
+
+function loadLocalCustomers() {
+    $file = getCustomersJsonPath();
+    if (file_exists($file)) {
+        $json = @file_get_contents($file);
+        $arr = json_decode($json, true);
+        if (is_array($arr)) return $arr;
+    }
+    return [];
+}
+
 if (!$pdo) {
-    jsonError('Database connection unavailable', 503);
+    $local = loadLocalCustomers();
+    jsonSuccess(['customers' => $local, 'total' => count($local), 'source' => 'local_storage']);
 }
 
 try {
@@ -74,5 +91,6 @@ try {
     jsonSuccess(['customers' => $inqCustomers]);
 } catch (\Throwable $e) {
     error_log("Get customers error: " . $e->getMessage());
-    jsonError('Failed to fetch customers', 500);
+    $local = loadLocalCustomers();
+    jsonSuccess(['customers' => $local, 'total' => count($local), 'source' => 'fallback']);
 }

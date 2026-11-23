@@ -6,4 +6,16 @@ out.txt
 in0ok.pdf
 inspect_pdf.py
 uploads/att_*
+*.bak_*
+__pycache__/
+scratch/
+uploads/sessions/
+uploads/test_assets/
+uploads/test_pdf_assets/
+uploads/itneraries-*/
+uploads/packages-*/
+uploads/itineraries/
+uploads/packages/
+uploads/*.html
+test_inactivity_*.php
 

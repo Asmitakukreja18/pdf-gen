@@ -5,14 +5,14 @@ ini_set('display_errors', '0');
 require_once 'd:/aipdfgenrater/inquiry-admin/api/auth.php';
 
 // Test 1: Active session within 10 minutes
-$_SESSION['inquiry_admin'] = ['id' => 2, 'username' => 'chanchal', 'name' => 'Chanchal Sharma', 'role' => 'executive'];
+$_SESSION['inquiry_admin'] = ['id' => 2, 'username' => 'chanchal', 'name' => 'Chanchal Chandani', 'role' => 'executive'];
 $_SESSION['last_activity_time'] = time() - (10 * 60); // 10 mins ago
 
 $user = checkSessionActivity();
 $test1_pass = ($user['username'] === 'chanchal');
 
 // Test 2: Inactive session beyond 15 minutes (e.g. 16 minutes = 960s)
-$_SESSION['inquiry_admin'] = ['id' => 2, 'username' => 'chanchal', 'name' => 'Chanchal Sharma', 'role' => 'executive'];
+$_SESSION['inquiry_admin'] = ['id' => 2, 'username' => 'chanchal', 'name' => 'Chanchal Chandani', 'role' => 'executive'];
 $_SESSION['last_activity_time'] = time() - (16 * 60); // 16 mins ago
 
 // Capture output

@@ -211,30 +211,57 @@
                 </div>
 
                 <!-- Country Filter Navigation -->
-                <div class="filter-tabs">
+                <div class="filter-tabs" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; -webkit-overflow-scrolling:touch;">
                     <button type="button" class="filter-tab pkg-filter-tab active" data-country="all">
-                        <i class="fa-solid fa-earth-americas"></i> All Countries (<span id="countAllPkgs">...</span>)
+                        <i class="fa-solid fa-earth-americas"></i> All (<span id="countAllPkgs">33</span>)
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="india">
-                        <i class="fa-solid fa-location-dot"></i> India
+                        <i class="fa-solid fa-location-dot"></i> 🇮🇳 India
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="maldives">
+                        <i class="fa-solid fa-umbrella-beach"></i> 🇲🇻 Maldives
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="vietnam">
+                        <i class="fa-solid fa-location-dot"></i> 🇻🇳 Vietnam
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="singapore">
-                        <i class="fa-solid fa-location-dot"></i> Singapore
+                        <i class="fa-solid fa-city"></i> 🇸🇬 Singapore
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="malaysia">
-                        <i class="fa-solid fa-location-dot"></i> Malaysia
+                        <i class="fa-solid fa-location-dot"></i> 🇲🇾 Malaysia
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="indonesia">
-                        <i class="fa-solid fa-location-dot"></i> Indonesia (Bali)
-                    </button>
-                    <button type="button" class="filter-tab pkg-filter-tab" data-country="turkey">
-                        <i class="fa-solid fa-location-dot"></i> Turkey
-                    </button>
-                    <button type="button" class="filter-tab pkg-filter-tab" data-country="uae">
-                        <i class="fa-solid fa-location-dot"></i> Dubai / UAE
+                        <i class="fa-solid fa-mountain-sun"></i> 🇮🇩 Bali (Indonesia)
                     </button>
                     <button type="button" class="filter-tab pkg-filter-tab" data-country="thailand">
-                        <i class="fa-solid fa-location-dot"></i> Thailand
+                        <i class="fa-solid fa-location-dot"></i> 🇹🇭 Thailand
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="uae">
+                        <i class="fa-solid fa-building"></i> 🇦🇪 Dubai / UAE
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="turkey">
+                        <i class="fa-solid fa-mosque"></i> 🇹🇷 Turkey
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="egypt">
+                        <i class="fa-solid fa-monument"></i> 🇪🇬 Egypt
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="jordan">
+                        <i class="fa-solid fa-landmark"></i> 🇯🇴 Jordan
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="baku">
+                        <i class="fa-solid fa-fire"></i> 🇦🇿 Azerbaijan (Baku)
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="kyrgyzstan">
+                        <i class="fa-solid fa-mountain"></i> 🇰🇬 Kyrgyzstan
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="armenia">
+                        <i class="fa-solid fa-cross"></i> 🇦🇲 Armenia
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="china">
+                        <i class="fa-solid fa-store"></i> 🇨🇳 China / HK
+                    </button>
+                    <button type="button" class="filter-tab pkg-filter-tab" data-country="sri lanka">
+                        <i class="fa-solid fa-tree"></i> 🇱🇰 Sri Lanka
                     </button>
                 </div>
 
@@ -610,10 +637,48 @@
         </div>
     </div>
 
+    <!-- WHATSAPP SHARE MODAL (NO BROWSER PROMPT ALERTS) -->
+    <div id="waShareModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#FFF; border-radius:16px; width:100%; max-width:540px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column;">
+            <div style="padding:16px 20px; background:#075E54; color:#FFF; display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fa-brands fa-whatsapp" style="font-size:22px; color:#25D366;"></i>
+                    <h3 style="margin:0; font-size:16px; font-weight:800; color:#FFF;">Share Quotation on WhatsApp</h3>
+                </div>
+                <button type="button" onclick="closeWhatsAppModal()" style="background:none; border:none; color:#FFF; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:5px;">Guest WhatsApp Number (Optional)</label>
+                    <input type="text" id="waGuestPhone" placeholder="e.g. 919876543210 (with country code)" style="width:100%; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; outline:none; box-sizing:border-box;">
+                    <small style="color:#64748B; font-size:11px; margin-top:4px; display:block;">Leave blank to open WhatsApp and select any client or group directly.</small>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:5px;">Message &amp; Direct Document Link</label>
+                    <textarea id="waPreviewText" rows="7" style="width:100%; padding:10px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:12px; font-family:inherit; line-height:1.5; color:#1E293B; resize:vertical; background:#F8FAFC; box-sizing:border-box;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap;">
+                    <button type="button" onclick="copyWaText()" id="btnCopyWaMsg" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#0F2C59; padding:9px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-copy"></i> Copy Link &amp; Text
+                    </button>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" onclick="closeWhatsAppModal()" style="background:#E2E8F0; border:none; color:#334155; padding:9px 16px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer;">Cancel</button>
+                        <button type="button" onclick="sendWhatsAppNow()" style="background:#25D366; border:none; color:#FFF; padding:9px 20px; border-radius:8px; font-size:12.5px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
+                            <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i> Send via WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
-    <script src="js/portal.js?v=9.0"></script>
-    <script src="js/packages.js?v=9.0"></script>
-    <script src="js/idle-tracker.js?v=9.0"></script>
+    <script src="js/portal.js?v=9.1"></script>
+    <script src="js/packages.js?v=9.1"></script>
+    <script src="js/idle-tracker.js?v=9.1"></script>
 </body>
 
 </html>

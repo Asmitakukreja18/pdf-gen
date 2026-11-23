@@ -1012,20 +1012,16 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
 
                 <div class="form-group">
                     <label id="usernameLabel">Username or Email</label>
-                    <input type="text" id="usernameInput" class="form-input" placeholder="admin" required autofocus>
+                    <input type="text" id="usernameInput" class="form-input" placeholder="Enter username or email" required autofocus>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
                     <div style="position:relative; width:100%;">
-                        <input type="password" id="passwordInput" class="form-input" placeholder="Admin@123" required style="padding-right:42px;">
+                        <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required style="padding-right:42px;">
                         <button type="button" onclick="togglePasswordVisibility('passwordInput', this)" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94A3B8; cursor:pointer; font-size:15px;" title="Show/Hide Password">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                    </div>
-                    <div style="font-size:11.5px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:6px 10px; margin-top:8px; display:flex; align-items:center; justify-content:space-between; color:#475569;">
-                        <span><i class="fa-solid fa-user-shield" style="color:#C5A059; margin-right:4px;"></i> User: <strong>admin</strong></span>
-                        <span><i class="fa-solid fa-key" style="color:#C5A059; margin-right:4px;"></i> Pass: <strong>Admin@123</strong> / <strong>LETSEXPLOREDMC</strong></span>
                     </div>
                 </div>
 
@@ -1086,13 +1082,13 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
                 tabUser.classList.remove('active');
                 modalTitle.textContent = 'Admin Sign In';
                 modalSubtitle.textContent = 'Enter your administrator credentials to continue';
-                usernameInput.placeholder = 'admin';
+                usernameInput.placeholder = 'Enter username or email';
             } else {
                 tabUser.classList.add('active');
                 tabAdmin.classList.remove('active');
                 modalTitle.textContent = 'Staff / User Sign In';
                 modalSubtitle.textContent = 'Enter your staff credentials (executive / agent)';
-                usernameInput.placeholder = 'kashish / asmita / chanchal';
+                usernameInput.placeholder = 'Enter staff username or email';
             }
         }
 
@@ -1137,7 +1133,7 @@ $loggedUser = $_SESSION['inquiry_admin']['name'] ?? ($_SESSION['admin_user'] ?? 
 
             const knownAccounts = {
                 'admin': { id: 1, username: 'admin', name: 'Let\'s Explore DMC', role: 'admin', email: 'admin@letsexploredmc.com' },
-                'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Sharma', role: 'executive', email: 'chanchal@letsexploredmc.com' },
+                'chanchal': { id: 2, username: 'chanchal', name: 'Chanchal Chandani', role: 'executive', email: 'chanchal@letsexploredmc.com' },
                 
                 
             };
