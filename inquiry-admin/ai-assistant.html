@@ -3194,29 +3194,15 @@
                     }
                 }
 
-                const isFastAction = (typeof QuotationData !== 'undefined' && (QuotationData.activeDocType === 'villa_nautica_dining' || (QuotationData.package && QuotationData.package.isVillaNauticaDining))) ||
-                                     combinedText.includes('double') || combinedText.includes('amount ko double') ||
-                                     combinedText.includes('decoration') || combinedText.includes('villa nautica') ||
-                                     combinedText.includes('nautica') || combinedText.includes('candle light') ||
-                                     combinedText.includes('dig-in') || combinedText.includes('seafood lunch') ||
-                                     combinedText.includes('dollar') || combinedText.includes('dollsa') || combinedText.includes('$') ||
-                                     combinedText.includes('usd') || combinedText.includes('currency') || combinedText.includes('sign') ||
-                                     combinedText.includes('shift date') || combinedText.includes('date shift') ||
-                                     combinedText.includes('hotel date') || combinedText.includes('the boss hotel') ||
-                                     combinedText.includes('aanay') || combinedText.includes('anay') || combinedText.includes('vtr') ||
-                                     combinedText.includes('bandara') || combinedText.includes('outrigger') ||
-                                     combinedText.includes('popat') || combinedText.includes('tejas') || combinedText.includes('costing hata') || combinedText.includes('hata k') ||
-                                     combinedText.includes('tomorrowland') || combinedText.includes('pattaya group') || combinedText.includes('10% markup') ||
-                                     combinedText.includes('markup lagao') || combinedText.includes('gst 5%') ||
-                                     combinedText.includes('costing hatao') || combinedText.includes('tax invoice') ||
-                                     combinedText.includes('per person cost') || combinedText.includes('self booked') ||
-                                     combinedText.includes('hotel self booked') || combinedText.includes('per child') ||
-                                     combinedText.includes('laemtong') || combinedText.includes('foc') ||
-                                     combinedText.includes('520') || combinedText.includes('dialogue') ||
-                                     combinedText.includes('dialog') || combinedText.includes('markup') || combinedText.includes('percent') ||
-                                     combinedText.includes('add 1000') || combinedText.includes('on each cost') ||
-                                     combinedText.includes('each cost') || combinedText.includes('study') ||
-                                     combinedText.includes('clarify') || combinedText.includes('question');
+                // UNIVERSAL FAST ACTION ROUTER: Instant local processing for ANY uploaded document, rate changes, formatting, or edits
+                const isAttachmentAction = currentAtts.length > 0;
+                const isFormatIntent = /(?:voucher|hotel voucher|confirmation|invoice|billing|tax invoice|bill|gst|hsn|costing hata|without costing|no costing|hata k|hata do|costing lagao|with costing|quotation|proposal|itinerary)/i.test(combinedText);
+                const isPricingIntent = /(?:markup|margin|profit|%|percent|pratishat|double|2x|doguna|half|aadha|dollar|usd|\$|inr|₹|eur|euro|€|aed|dirham|gbp|pound|currency|sign|symbol|add \d+|badha|ghata|discount|fee|cost|rate|pricing|per person)/i.test(combinedText);
+                const isContentEditIntent = /(?:shift date|date shift|hotel date|check in|check out|night|pax|adult|child|decoration|decor|candle light|flower|honeymoon|client name|company|logo|branding|aanay|let'?s explore)/i.test(combinedText);
+                const isParsingIntent = /(?:study|parse|extract|read|process|generate|banao|bnao|create|edit|update|modify|change|clarify|question)/i.test(combinedText);
+
+                const isFastAction = isAttachmentAction || isFormatIntent || isPricingIntent || isContentEditIntent || isParsingIntent ||
+                                     (typeof QuotationData !== 'undefined' && QuotationData.activeDocType);
 
                 if (isFastAction) {
                     // Execute instantly in <100ms! No spinner delay!

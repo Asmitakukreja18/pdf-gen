@@ -143,17 +143,25 @@ const Preview = (() => {
       return pkg.pickupFrom;
     }
     const text = ((pkg.country || '') + ' ' + (pkg.destination || '') + ' ' + (pkg.destinations || '') + ' ' + (pkg.title || '') + ' ' + (pkg.packageTitle || '')).toLowerCase();
+    if (text.includes('turkey') || text.includes('istanbul')) return 'Istanbul New Airport (IST) / Sabiha Gökçen (SAW)';
+    if (text.includes('cappadocia')) return 'Kayseri (ASR) / Nevşehir (NAV) Airport';
+    if (text.includes('switzerland') || text.includes('zurich')) return 'Zurich Airport (ZRH) / Train Station';
     if (text.includes('kerala') || text.includes('munnar') || text.includes('alleppey')) return 'Cochin International Airport (COK) / Railway Station';
     if (text.includes('goa')) return 'Goa Dabolim / Mopa Airport';
     if (text.includes('kashmir') || text.includes('srinagar')) return 'Srinagar International Airport (SXR)';
     if (text.includes('rajasthan') || text.includes('jaipur')) return 'Jaipur Airport / Railway Station';
     if (text.includes('andaman')) return 'Port Blair Airport (IXZ)';
-    if (text.includes('india')) return 'Local Airport / Railway Station';
     if (text.includes('bali')) return 'Ngurah Rai Airport (DPS), Bali';
-    if (text.includes('dubai')) return 'Dubai International Airport (DXB)';
+    if (text.includes('dubai') || text.includes('uae')) return 'Dubai International Airport (DXB)';
     if (text.includes('singapore')) return 'Changi Airport Singapore (SIN)';
     if (text.includes('maldives')) return 'Velana International Airport, Malé (MLE)';
+    if (text.includes('vietnam') || text.includes('hanoi')) return 'Noi Bai International Airport (HAN), Hanoi';
+    if (text.includes('da nang')) return 'Da Nang International Airport (DAD)';
+    if (text.includes('japan') || text.includes('tokyo')) return 'Tokyo Haneda (HND) / Narita (NRT) Airport';
+    if (text.includes('united kingdom') || text.includes('london')) return 'London Heathrow Airport (LHR)';
+    if (text.includes('france') || text.includes('paris')) return 'Paris Charles de Gaulle Airport (CDG)';
     if (text.includes('thailand') || text.includes('phuket') || text.includes('krabi') || text.includes('bangkok') || text.includes('pattaya')) return 'Phuket / Krabi Airport';
+    if (text.includes('india')) return 'Local Airport / Railway Station';
     return pkg.pickupFrom || 'Destination International Airport';
   }
 
@@ -212,8 +220,8 @@ const Preview = (() => {
 
         <div class="dmc-hero-banner">
           <div class="hero-label-badge" style="${isAanay ? 'color:#F97316; font-weight:800;' : ''}">${escapeHTML(docTypeLabel)}</div>
-          <h1 class="hero-duration-title">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</h1>
-          <div class="hero-destination-subtitle">${escapeHTML(pkg.destinations || 'Singapore · Phuket · Krabi')}</div>
+          <h1 class="hero-duration-title">${escapeHTML(pkg.duration || 'Bespoke Tour Package')}</h1>
+          <div class="hero-destination-subtitle">${escapeHTML(pkg.destinations || pkg.destination || 'Bespoke Travel Package')}</div>
         </div>
 
         ${(pkg.clientName || pkg.clientContact || pickupHub) ? `
@@ -245,13 +253,13 @@ const Preview = (() => {
         <div class="dmc-stats-grid">
           <div class="dmc-stat-card">
             <span class="stat-card-title">DURATION</span>
-            <div class="stat-card-main">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</div>
-            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : 'Day 1 to Day 12 (2 Jan to 13 Jan)')}</div>
+            <div class="stat-card-main">${escapeHTML(pkg.duration || (days.length ? `${days.length} Days` : 'Custom Duration'))}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : (pkg.preparedDate || 'Flexible Travel Dates'))}</div>
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">DESTINATIONS</span>
-            <div class="stat-card-main">${escapeHTML(pkg.destinations || 'Krabi · Phuket + Koh Yao Yai')}</div>
-            <div class="stat-card-sub">${escapeHTML(pkg.country || 'Thailand')}</div>
+            <div class="stat-card-main">${escapeHTML(pkg.destinations || pkg.destination || 'Custom Destination')}</div>
+            ${pkg.country ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">TRAVELLERS</span>
@@ -362,13 +370,13 @@ const Preview = (() => {
         <div class="dmc-stats-grid">
           <div class="dmc-stat-card">
             <span class="stat-card-title">DURATION</span>
-            <div class="stat-card-main">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</div>
-            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : 'Day 1 to Day 12 (2 Jan to 13 Jan)')}</div>
+            <div class="stat-card-main">${escapeHTML(pkg.duration || (days.length ? `${days.length} Days` : 'Custom Duration'))}</div>
+            <div class="stat-card-sub">${escapeHTML(pkg.startDate && pkg.endDate ? `${pkg.startDate} to ${pkg.endDate}` : (pkg.preparedDate || 'Flexible Travel Dates'))}</div>
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">DESTINATIONS</span>
-            <div class="stat-card-main">${escapeHTML(pkg.destinations || 'Krabi · Phuket + Koh Yao Yai')}</div>
-            <div class="stat-card-sub">${escapeHTML(pkg.country || 'Thailand')}</div>
+            <div class="stat-card-main">${escapeHTML(pkg.destinations || pkg.destination || 'Custom Destination')}</div>
+            ${pkg.country ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">TRAVELLERS</span>
@@ -415,7 +423,7 @@ const Preview = (() => {
             <tbody>
               ${data.hotels.map(h => `
                 <tr>
-                  <td><strong>${escapeHTML(h.city || 'Thailand')}</strong></td>
+                  <td><strong>${escapeHTML(h.city || pkg.destinations || pkg.destination || 'Destination')}</strong></td>
                   <td><strong>${escapeHTML(h.name)}</strong></td>
                   <td>${escapeHTML(h.checkIn || '')} to ${escapeHTML(h.checkOut || '')}</td>
                   <td>${escapeHTML(h.roomType || 'Deluxe Room')}</td>
@@ -551,10 +559,10 @@ const Preview = (() => {
 
         <!-- Hotel Overview Parameter Strip -->
         <div class="hotel-overview-strip">
-          <div class="h-param"><strong>Destination:</strong> ${escapeHTML(pkg.destinations || 'Thailand')}</div>
-          <div class="h-param"><strong>Travel Dates:</strong> ${escapeHTML(pkg.preparedDate || '2 Jan to 13 Jan')}</div>
+          <div class="h-param"><strong>Destination:</strong> ${escapeHTML(pkg.destinations || pkg.destination || 'Bespoke Destination')}</div>
+          <div class="h-param"><strong>Travel Dates:</strong> ${escapeHTML(pkg.preparedDate || 'Flexible Travel Dates')}</div>
           <div class="h-param"><strong>Occupancy:</strong> ${escapeHTML(pkg.travellers || '2 Adults')} (1 Room / Double Sharing)</div>
-          <div class="h-param"><strong>Total Properties:</strong> ${hotels.length} Luxury Resorts</div>
+          <div class="h-param"><strong>Total Properties:</strong> ${hotels.length} Properties</div>
         </div>
 
         <section class="dmc-section hotel-comparison-section">
@@ -572,7 +580,7 @@ const Preview = (() => {
                     <span class="h-number">0${idx + 1}</span>
                     <div>
                       <h3 class="h-resort-name">${escapeHTML(h.name)}</h3>
-                      <span class="h-resort-city">📍 ${escapeHTML(h.city || 'Thailand')}</span>
+                      <span class="h-resort-city">📍 ${escapeHTML(h.city || pkg.destinations || pkg.destination || 'Destination')}</span>
                     </div>
                   </div>
                   <div class="h-stay-badge">
@@ -652,9 +660,9 @@ const Preview = (() => {
         <section class="dmc-section summary-overview-section">
           <div class="dmc-section-header"><span>Trip Overview</span></div>
           <div class="summary-overview-grid">
-            <div class="so-cell"><span class="so-label">Destination</span><strong class="so-val">${escapeHTML(pkg.destinations || 'Thailand')}</strong></div>
-            <div class="so-cell"><span class="so-label">Duration</span><strong class="so-val">${escapeHTML(pkg.duration || '12 Days / 11 Nights')}</strong></div>
-            <div class="so-cell"><span class="so-label">Travel Dates</span><strong class="so-val">${escapeHTML(pkg.preparedDate || '2 Jan to 13 Jan')}</strong></div>
+            <div class="so-cell"><span class="so-label">Destination</span><strong class="so-val">${escapeHTML(pkg.destinations || pkg.destination || 'Bespoke Package')}</strong></div>
+            <div class="so-cell"><span class="so-label">Duration</span><strong class="so-val">${escapeHTML(pkg.duration || 'Custom Plan')}</strong></div>
+            <div class="so-cell"><span class="so-label">Travel Dates</span><strong class="so-val">${escapeHTML(pkg.preparedDate || 'Flexible Travel Dates')}</strong></div>
             <div class="so-cell"><span class="so-label">Travellers</span><strong class="so-val">${escapeHTML(pkg.travellers || '2 Adults')}</strong></div>
             <div class="so-cell"><span class="so-label">Prepared For</span><strong class="so-val">${escapeHTML(pkg.clientName || 'Valued Partner')}</strong></div>
             ${showUsdColumn ? `

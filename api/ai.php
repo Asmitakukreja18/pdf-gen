@@ -1026,8 +1026,30 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         'malaysia' => ['dest' => 'Kuala Lumpur & Genting Highlands, Malaysia', 'country' => 'Malaysia', 'currency' => 'INR', 'days' => 5, 'nights' => 4],
         'vietnam' => ['dest' => 'Da Nang, Hoi An & Hanoi, Vietnam', 'country' => 'Vietnam', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
         'turkey' => ['dest' => 'Istanbul & Cappadocia, Turkey', 'country' => 'Turkey', 'currency' => 'EUR', 'days' => 7, 'nights' => 6],
+        'switzerland' => ['dest' => 'Zurich, Lucerne & Interlaken, Switzerland', 'country' => 'Switzerland', 'currency' => 'EUR', 'days' => 7, 'nights' => 6],
+        'paris' => ['dest' => 'Paris & French Riviera, France', 'country' => 'France', 'currency' => 'EUR', 'days' => 6, 'nights' => 5],
+        'france' => ['dest' => 'Paris & French Riviera, France', 'country' => 'France', 'currency' => 'EUR', 'days' => 6, 'nights' => 5],
+        'italy' => ['dest' => 'Rome, Florence & Venice, Italy', 'country' => 'Italy', 'currency' => 'EUR', 'days' => 7, 'nights' => 6],
+        'spain' => ['dest' => 'Madrid & Barcelona, Spain', 'country' => 'Spain', 'currency' => 'EUR', 'days' => 7, 'nights' => 6],
+        'greece' => ['dest' => 'Athens, Santorini & Mykonos, Greece', 'country' => 'Greece', 'currency' => 'EUR', 'days' => 6, 'nights' => 5],
+        'london' => ['dest' => 'London & Scotland, United Kingdom', 'country' => 'United Kingdom', 'currency' => 'GBP', 'days' => 6, 'nights' => 5],
+        'united kingdom' => ['dest' => 'London & Scotland, United Kingdom', 'country' => 'United Kingdom', 'currency' => 'GBP', 'days' => 6, 'nights' => 5],
+        'japan' => ['dest' => 'Tokyo, Kyoto & Osaka, Japan', 'country' => 'Japan', 'currency' => 'USD', 'days' => 7, 'nights' => 6],
+        'korea' => ['dest' => 'Seoul & Busan, South Korea', 'country' => 'South Korea', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'australia' => ['dest' => 'Sydney & Melbourne, Australia', 'country' => 'Australia', 'currency' => 'USD', 'days' => 7, 'nights' => 6],
+        'new zealand' => ['dest' => 'Auckland & Queenstown, New Zealand', 'country' => 'New Zealand', 'currency' => 'USD', 'days' => 8, 'nights' => 7],
+        'south africa' => ['dest' => 'Cape Town & Kruger Safari, South Africa', 'country' => 'South Africa', 'currency' => 'USD', 'days' => 7, 'nights' => 6],
+        'kenya' => ['dest' => 'Nairobi & Masai Mara Safari, Kenya', 'country' => 'Kenya', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'egypt' => ['dest' => 'Cairo & Nile Cruise, Egypt', 'country' => 'Egypt', 'currency' => 'USD', 'days' => 7, 'nights' => 6],
+        'georgia' => ['dest' => 'Tbilisi & Kazbegi, Georgia', 'country' => 'Georgia', 'currency' => 'USD', 'days' => 5, 'nights' => 4],
+        'azerbaijan' => ['dest' => 'Baku & Gabala, Azerbaijan', 'country' => 'Azerbaijan', 'currency' => 'USD', 'days' => 5, 'nights' => 4],
+        'uzbekistan' => ['dest' => 'Tashkent & Samarkand, Uzbekistan', 'country' => 'Uzbekistan', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
+        'kazakhstan' => ['dest' => 'Almaty, Kazakhstan', 'country' => 'Kazakhstan', 'currency' => 'USD', 'days' => 5, 'nights' => 4],
+        'sri lanka' => ['dest' => 'Colombo, Kandy & Bentota, Sri Lanka', 'country' => 'Sri Lanka', 'currency' => 'USD', 'days' => 6, 'nights' => 5],
         'kashmir' => ['dest' => 'Srinagar, Gulmarg & Pahalgam, Kashmir', 'country' => 'India', 'currency' => 'INR', 'days' => 6, 'nights' => 5],
         'rajasthan' => ['dest' => 'Jaipur, Jodhpur & Udaipur, Rajasthan', 'country' => 'India', 'currency' => 'INR', 'days' => 6, 'nights' => 5],
+        'kerala' => ['dest' => 'Munnar, Thekkady & Alleppey, Kerala', 'country' => 'India', 'currency' => 'INR', 'days' => 5, 'nights' => 4],
+        'goa' => ['dest' => 'Goa Beach Resort & Heritage', 'country' => 'India', 'currency' => 'INR', 'days' => 4, 'nights' => 3],
         'maldives' => ['dest' => 'Maldives Luxury Island Atolls', 'country' => 'Maldives', 'currency' => 'USD', 'days' => 5, 'nights' => 4]
     ];
 
@@ -1057,8 +1079,23 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
                 $numDays = $info['days'];
                 $numNights = $info['nights'];
                 $duration = "{$numDays} Days / {$numNights} Nights";
+                $destMatched = true;
                 break;
             }
+        }
+    }
+
+    // Dynamic extraction if destination is not in dictionary (Never force Thailand!)
+    if (!$destMatched) {
+        if (preg_match('/(?:DESTINATIONS?|DESTINATION|TOUR\s*OF|PACKAGE\s*FOR|TRIP\s*TO|HOLIDAY\s*IN|VISITING)\s*[:\n=-]\s*([^\n\r]+)/i', $text, $dM)) {
+            $candDest = trim($dM[1]);
+            if (strlen($candDest) >= 2 && strlen($candDest) <= 60 && !preg_match('/duration|pax|adult|hotel|price|quote/i', $candDest)) {
+                $dest = ucwords($candDest);
+                $country = '';
+            }
+        } elseif (!empty($currentQuotation['package']['destinations'])) {
+            $dest = $currentQuotation['package']['destinations'];
+            $country = $currentQuotation['package']['country'] ?? '';
         }
     }
 
@@ -1153,7 +1190,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $companyData = [
         'name' => "Let's Explore DMC",
         'tagline' => 'Destination Management Company & Travel ERP',
-        'address' => 'Suite 402, Royal Palms Business Center, Pune & Bangkok Operations Hub',
+        'address' => 'Corporate Operations Desk & Reservations Hub, Maharashtra & New Delhi',
         'phone' => '+91 80075 86881 / +91 95459 55966',
         'email' => 'bookings@letsexploredmc.com',
         'website' => 'www.letsexploredmc.com',
