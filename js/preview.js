@@ -350,7 +350,9 @@ const Preview = (() => {
     const themeStyles = getThemeStyles(data.themeSettings);
 
     const isDomestic = isDomesticTrip(pkg);
-    const showUsdColumn = !isDomestic && (pkg.currency === 'USD' || pkg.showUsdColumn || (summary.totalUSD > 0 && !pkg.hideUsd && pkg.currency !== 'INR'));
+    const isEur = pkg.currency === 'EUR' || (data.pricing && data.pricing.currency === 'EUR');
+    const foreignCurrHeader = isEur ? 'AMOUNT (EUR €)' : 'AMOUNT (USD)';
+    const showUsdColumn = !isDomestic && (pkg.currency === 'USD' || isEur || pkg.showUsdColumn || (summary.totalUSD > 0 && !pkg.hideUsd && pkg.currency !== 'INR'));
 
     return `
       <div class="dmc-quotation-doc doc-quotation-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
@@ -385,7 +387,7 @@ const Preview = (() => {
             <div class="th-desc">DAY-WISE ITINERARY & SERVICE DETAILS</div>
             <div class="th-pax">PAX</div>
             <div class="th-inr">AMOUNT (INR)</div>
-            ${showUsdColumn ? `<div class="th-usd">AMOUNT (USD)</div>` : ''}
+            ${showUsdColumn ? `<div class="th-usd">${foreignCurrHeader}</div>` : ''}
           </div>
 
           <div class="dmc-days-list">
@@ -447,6 +449,32 @@ const Preview = (() => {
           </section>
         `).join('')}
 
+        <!-- Commercial Tariffs & Room Rates Table -->
+        ${(pkg.pricingRows && Array.isArray(pkg.pricingRows) && pkg.pricingRows.length > 0) ? `
+        <section class="dmc-section dmc-pricing-rows-section" style="margin-top:14px;">
+          <div class="dmc-section-header">
+            <span>COMMERCIAL TARIFFS & ROOM RATES</span>
+          </div>
+          <table class="dmc-summary-table">
+            <thead>
+              <tr>
+                <th class="th-sum-desc">OCCUPANCY / ROOM TYPE</th>
+                <th class="th-sum-inr" style="text-align:right;">RATE (${isEur ? 'EUR €' : (pkg.currency === 'INR' ? 'INR ₹' : 'USD $')})</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${pkg.pricingRows.map(row => `
+                <tr class="dmc-summary-row">
+                  <td class="col-sum-desc">• ${escapeHTML(row.description)}</td>
+                  <td class="col-sum-inr" style="text-align:right; font-weight:800; color:#0F2C59;">
+                    ${row.isFoc ? '<span style="color:#059669;">Free of Charge (FOC)</span>' : (`${isEur ? '€ ' : (pkg.currency === 'INR' ? '₹ ' : '$ ')}` + Number(row.rate || row.rateUSD || row.rateDouble || 0).toFixed(2))}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </section>` : ''}
+
         <!-- Final Price Summary Table -->
         <section class="dmc-section dmc-summary-section">
           <div class="dmc-section-header">
@@ -458,7 +486,7 @@ const Preview = (() => {
               <tr>
                 <th class="th-sum-desc">PACKAGE SUMMARY</th>
                 <th class="th-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">AMOUNT (INR)</th>
-                ${showUsdColumn ? `<th class="th-sum-usd">AMOUNT (USD)</th>` : ''}
+                ${showUsdColumn ? `<th class="th-sum-usd">${foreignCurrHeader}</th>` : ''}
               </tr>
             </thead>
             <tbody>
@@ -466,13 +494,13 @@ const Preview = (() => {
                 <tr class="dmc-summary-row">
                   <td class="col-sum-desc">• ${escapeHTML(item.name)}</td>
                   <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}">${item.amountINR ? formatCurrencyINR(item.amountINR) : '—'}</td>
-                  ${showUsdColumn ? `<td class="col-sum-usd">${item.amountUSD ? formatCurrencyUSD(item.amountUSD) : '—'}</td>` : ''}
+                  ${showUsdColumn ? `<td class="col-sum-usd">${(item.amountUSD || item.amountEUR) ? (isEur ? ('€ ' + Number(item.amountEUR || item.amountUSD).toFixed(2)) : formatCurrencyUSD(item.amountUSD)) : '—'}</td>` : ''}
                 </tr>
               `).join('')}
               <tr class="dmc-total-row">
                 <td class="col-sum-desc"><strong>FINAL PACKAGE COST (${escapeHTML(pkg.travellers || '2 Adults')})</strong></td>
                 <td class="col-sum-inr" style="${!showUsdColumn ? 'text-align:right;' : ''}"><strong>${formatCurrencyINR(summary.totalINR)}</strong></td>
-                ${showUsdColumn ? `<td class="col-sum-usd"><strong>${formatCurrencyUSD(summary.totalUSD)}</strong></td>` : ''}
+                ${showUsdColumn ? `<td class="col-sum-usd"><strong>${isEur ? ('€ ' + Number(summary.totalEUR || summary.totalUSD).toFixed(2)) : formatCurrencyUSD(summary.totalUSD)}</strong></td>` : ''}
               </tr>
             </tbody>
           </table>
@@ -1396,8 +1424,11 @@ const Preview = (() => {
     const subTitle = pkg.subtitle || `${duration} · Hotels + Private Transfers + Tours`;
 
     const hasDecoration = !!(pkg.withDecoration || pkg.decorationIncluded || (pkg.pricingNote && pkg.pricingNote.toLowerCase().includes('decoration')));
-    const ratePerAdult = Number(pkg.ratePerAdultUSD || (pkg.pricing_usd ? pkg.pricing_usd : (data.pricing?.perPersonUSD || (data.pricing?.perPerson && (pkg.currency === 'USD' || data.pricing?.currency === 'USD') ? data.pricing.perPerson : 0))) || 632.88);
-    const totalCostUSD = Number(pkg.totalCostUSD || (data.pricing?.grandTotalUSD ? data.pricing.grandTotalUSD : (ratePerAdult * 2)));
+    const isEur = pkg.currency === 'EUR' || (data.pricing && data.pricing.currency === 'EUR');
+    const currSym = isEur ? '€' : (pkg.currency === 'INR' ? '₹' : '$');
+    const currHeader = isEur ? 'RATE (EUR €)' : (pkg.currency === 'INR' ? 'RATE (INR ₹)' : 'RATE (USD $)');
+    const ratePerAdult = Number(pkg.ratePerAdultUSD || (pkg.pricing_usd ? pkg.pricing_usd : (data.pricing?.perPersonUSD || (data.pricing?.perPerson && (pkg.currency === 'USD' || data.pricing?.currency === 'USD' || isEur) ? data.pricing.perPerson : 0))) || 632.88);
+    const totalCostUSD = Number(pkg.totalCostUSD || (data.pricing?.grandTotalUSD ? data.pricing.grandTotalUSD : (data.pricing?.grandTotal ? data.pricing.grandTotal : (ratePerAdult * 2))));
     const pricingDesc = pkg.pricingDescription || `Per Adult - Twin / double sharing, hotels + private transfers + tours + meals as mentioned${hasDecoration ? ' <strong>(with decoration)</strong>' : ''}`;
 
     return `
@@ -1453,7 +1484,7 @@ const Preview = (() => {
             <thead>
               <tr style="background:#0F2C59; color:#FFFFFF;">
                 <th style="padding:8px 12px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.5px;">DESCRIPTION</th>
-                <th style="padding:8px 12px; text-align:right; font-size:11px; font-weight:800; width:135px; min-width:110px; white-space:nowrap; background:#0B2244;">RATE (USD $)</th>
+                <th style="padding:8px 12px; text-align:right; font-size:11px; font-weight:800; width:135px; min-width:110px; white-space:nowrap; background:#0B2244;">${currHeader}</th>
               </tr>
             </thead>
             <tbody>
@@ -1464,19 +1495,19 @@ const Preview = (() => {
                       ${escapeHTML(row.description)}${hasDecoration ? ' <strong>(with decoration)</strong>' : ''}
                     </td>
                     <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">
-                      ${row.isFoc ? '<span style="color:#059669; font-weight:800;">Free of Charge (FOC)</span>' : ('$ ' + Number(row.rateUSD || row.rate || 0).toFixed(2))}
+                      ${row.isFoc ? '<span style="color:#059669; font-weight:800;">Free of Charge (FOC)</span>' : (`${currSym} ` + Number(row.rateUSD || row.rate || 0).toFixed(2))}
                     </td>
                   </tr>
                 `).join('')}
               ` : `
                 <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
                   <td style="padding:10px 12px; color:#334155; line-height:1.4;">${pricingDesc}</td>
-                  <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">$ ${Number(ratePerAdult).toFixed(2)}</td>
+                  <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">${currSym} ${Number(ratePerAdult).toFixed(2)}</td>
                 </tr>
                 ${pkg.ratePerChildUSD ? `
                   <tr style="border-bottom:1px solid #E2E8F0; background:#FFF;">
                     <td style="padding:10px 12px; color:#334155; line-height:1.4;">${pkg.childPricingDescription || 'Per Child (4Y) - Transfers & Tours with Insurance'}</td>
-                    <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">$ ${Number(pkg.ratePerChildUSD).toFixed(2)}</td>
+                    <td style="padding:10px 12px; text-align:right; font-weight:800; color:#0F2C59; font-size:13px; white-space:nowrap;">${currSym} ${Number(pkg.ratePerChildUSD).toFixed(2)}</td>
                   </tr>
                 ` : ''}
                 ${pkg.hasInfantFoc ? `
@@ -1488,7 +1519,7 @@ const Preview = (() => {
               `}
               <tr style="background:#F8FAFC; font-weight:800; border-top:2px solid #CBD5E1;">
                 <td style="padding:10px 12px; color:#0F2C59; font-size:12.5px;">TOTAL PACKAGE COST</td>
-                <td style="padding:10px 12px; text-align:right; color:#059669; font-size:14.5px; font-weight:900; white-space:nowrap;">$ ${Number(totalCostUSD).toFixed(2)}</td>
+                <td style="padding:10px 12px; text-align:right; color:#059669; font-size:14.5px; font-weight:900; white-space:nowrap;">${currSym} ${Number(totalCostUSD).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
