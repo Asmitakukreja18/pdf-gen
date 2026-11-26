@@ -525,11 +525,13 @@ const Preview = (() => {
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:4px; padding:12px 18px;">
               <div>
                 <span style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">COMPANY</span><br>
-                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.name || 'Aanay Tours')}</strong>
+                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.name || 'Aanay Tours')}</strong><br>
+                <span style="font-size:11px; color:#64748B;">${escapeHTML(comp.address || 'Sahakar Nagar Opp New Cotton Market, Amravati, Maharashtra, India, 444603')}</span>
               </div>
               <div>
-                <span style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">PHONE</span><br>
-                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.phone || '+91 7708123187')}</strong>
+                <span style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase;">PHONE & EMAIL</span><br>
+                <strong style="font-size:14px; color:#0F2C59;">${escapeHTML(comp.phone || '+91 7708123187 | +91 8007586871')}</strong><br>
+                <span style="font-size:11px; color:#64748B;">${escapeHTML(comp.email || 'Infoattdmc@gmail.com')}</span>
               </div>
             </div>
           </section>
