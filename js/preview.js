@@ -697,25 +697,37 @@ const Preview = (() => {
     const sec = conf.sections || {};
     const themeStyles = getThemeStyles(data.themeSettings);
 
-    const roomsList = (conf.rooms && conf.rooms.length > 0) ? conf.rooms : [
-      {
-        roomType: 'Deluxe double room',
-        roomOccupancy: 'double sharing + extra bed',
-        mealPlan: 'Breakfast',
-        noOfRooms: 2,
-        extraBed: 0,
-        noOfAdult: 4,
-        noOfChild: 2,
-        noOfInfant: 1,
-        extraMattress: 1
-      }
-    ];
+    const roomsList = (conf.rooms && conf.rooms.length > 0) ? conf.rooms : (
+      (data.hotels && data.hotels.length > 0) ? data.hotels.map(h => ({
+        roomType: h.roomType || 'Standard Room',
+        roomOccupancy: h.occupancy || (pkg.travellers || '2 Adults'),
+        mealPlan: h.mealPlan || 'Daily Buffet Breakfast',
+        noOfRooms: h.noOfRooms || 1,
+        extraBed: h.extraBed || 0,
+        noOfAdult: pkg.adultCount || 2,
+        noOfChild: pkg.childCount || 0,
+        noOfInfant: 0,
+        extraMattress: 0
+      })) : [
+        {
+          roomType: 'Deluxe double room',
+          roomOccupancy: pkg.travellers || '2 Adults',
+          mealPlan: 'Breakfast',
+          noOfRooms: 1,
+          extraBed: 0,
+          noOfAdult: 2,
+          noOfChild: 0,
+          noOfInfant: 0,
+          extraMattress: 0
+        }
+      ]
+    );
 
     const adultsList = (conf.adults && conf.adults.length > 0) ? conf.adults : [
       {
-        name: conf.leadPassenger || 'pratik sangani',
-        email: conf.agencyEmail || 'Infoattdmc@gmail.com',
-        mobile: conf.contact || '7709123187'
+        name: conf.guestName || conf.leadPassenger || pkg.clientName || 'Valued Guest',
+        email: conf.guestEmail || conf.agencyEmail || (data.company && data.company.email) || 'info@letsexploredmc.com',
+        mobile: conf.guestMobile || conf.contact || (data.company && data.company.phone) || '+91 80075 86871'
       }
     ];
 
@@ -729,11 +741,11 @@ const Preview = (() => {
         ${sec.agencyHeader !== false ? `
           <header class="hv-agency-header">
             <div class="hv-agency-brand">
-              <h1 class="hv-agency-name">${escapeHTML(conf.agencyName || 'Aanay tours')}</h1>
+              <h1 class="hv-agency-name">${escapeHTML(conf.agencyName || (data.company && data.company.name) || "Let's Explore DMC")}</h1>
               <div class="hv-agency-meta">
-                <div>Contact Person : <span>${escapeHTML(conf.contactPerson || 'Viraj Gaglani')}</span></div>
-                <div>Mobile No : <span>${escapeHTML(conf.agencyMobile || '7709123187')}</span></div>
-                <div>Email : <span>${escapeHTML(conf.agencyEmail || 'Infoattdmc@gmail.com')}</span></div>
+                <div>Contact Person : <span>${escapeHTML(conf.contactPerson || (data.company && data.company.contactPerson) || 'Travel Specialist')}</span></div>
+                <div>Mobile No : <span>${escapeHTML(conf.agencyMobile || (data.company && data.company.phone) || '+91 80075 86871')}</span></div>
+                <div>Email : <span>${escapeHTML(conf.agencyEmail || (data.company && data.company.email) || 'info@letsexploredmc.com')}</span></div>
               </div>
             </div>
           </header>
@@ -745,16 +757,16 @@ const Preview = (() => {
             <div class="hv-grid-2">
               <div class="hv-cell-left">
                 <div class="hv-hotel-name-row">
-                  <span class="hv-hotel-name">${escapeHTML(conf.hotelName || 'hilton abu dhabi yas island')}</span>
+                  <span class="hv-hotel-name">${escapeHTML(conf.hotelName || (data.hotels && data.hotels[0] && data.hotels[0].name) || ((pkg.destinations || pkg.destination || 'Luxury') + ' Hotel'))}</span>
                   <span class="hv-stars">${starsHtml}</span>
                 </div>
-                <div class="hv-meta-line">Ref No. : <strong>${escapeHTML(conf.refNo || 'TG/31130')}</strong></div>
-                <div class="hv-meta-line">Confirmation No. : <strong>${escapeHTML(conf.confirmationNo || 'NH27002524635670')}</strong></div>
+                <div class="hv-meta-line">Ref No. : <strong>${escapeHTML(conf.refNo || pkg.quoteRef || 'LE-VOUCHER-9842')}</strong></div>
+                <div class="hv-meta-line">Confirmation No. : <strong>${escapeHTML(conf.confirmationNo || (data.hotels && data.hotels[0] && (data.hotels[0].confirmationNo || data.hotels[0].bookingId)) || 'CONF-882914')}</strong></div>
               </div>
               <div class="hv-cell-right">
-                <div class="hv-meta-line">Email Id : <strong>${escapeHTML(conf.hotelEmail || 'reservations_yasisland@hilton.com')}</strong></div>
-                <div class="hv-meta-line">Mobile No : <strong>${escapeHTML(conf.hotelMobile || '97122086888')}</strong></div>
-                <div class="hv-meta-line">City Name : <strong>${escapeHTML(conf.cityName || 'dubai')}</strong></div>
+                <div class="hv-meta-line">Email Id : <strong>${escapeHTML(conf.hotelEmail || (data.company && data.company.email) || 'reservations@hotel.com')}</strong></div>
+                <div class="hv-meta-line">Mobile No : <strong>${escapeHTML(conf.hotelMobile || (data.company && data.company.phone) || '+91 80075 86871')}</strong></div>
+                <div class="hv-meta-line">City Name : <strong>${escapeHTML(conf.cityName || (data.hotels && data.hotels[0] && data.hotels[0].city) || pkg.destination || 'Destination')}</strong></div>
               </div>
             </div>
 
@@ -762,12 +774,12 @@ const Preview = (() => {
 
             <div class="hv-grid-2">
               <div class="hv-cell-left">
-                <div class="hv-meta-line">Guest Name : <strong>${escapeHTML(conf.guestName || conf.agencyName || 'Aanay tours')}</strong></div>
-                <div class="hv-meta-line">Guest Email Id : <strong>${escapeHTML(conf.guestEmail || conf.agencyEmail || 'Infoattdmc@gmail.com')}</strong></div>
+                <div class="hv-meta-line">Guest Name : <strong>${escapeHTML(conf.guestName || conf.leadPassenger || pkg.clientName || 'Valued Guest')}</strong></div>
+                <div class="hv-meta-line">Guest Email Id : <strong>${escapeHTML(conf.guestEmail || (data.company && data.company.email) || 'info@letsexploredmc.com')}</strong></div>
               </div>
               <div class="hv-cell-right">
-                <div class="hv-meta-line">Hotel Type : <strong>${escapeHTML(conf.hotelType || 'luxury')}</strong></div>
-                <div class="hv-meta-line">Guest Mobile No. : <strong>${escapeHTML(conf.guestMobile || conf.agencyMobile || '7709123187')}</strong></div>
+                <div class="hv-meta-line">Hotel Type : <strong>${escapeHTML(conf.hotelType || 'Luxury Resort')}</strong></div>
+                <div class="hv-meta-line">Guest Mobile No. : <strong>${escapeHTML(conf.guestMobile || (data.company && data.company.phone) || '+91 80075 86871')}</strong></div>
               </div>
             </div>
           </div>
@@ -780,16 +792,16 @@ const Preview = (() => {
               <div class="hv-map-header">📍 How to get here</div>
               <div class="hv-map-body">
                 <div class="hv-map-loc-label">Location :</div>
-                <div class="hv-map-loc-val">${escapeHTML(conf.location || 'abu dhabi')}</div>
-                <a href="${escapeHTML(conf.mapsUrl || ('https://maps.google.com/?q=' + encodeURIComponent(conf.hotelName || 'Hilton Abu Dhabi Yas Island')))}" 
+                <div class="hv-map-loc-val">${escapeHTML(conf.location || (data.hotels && data.hotels[0] && data.hotels[0].address) || pkg.destinations || 'Destination')}</div>
+                <a href="${escapeHTML(conf.mapsUrl || ('https://maps.google.com/?q=' + encodeURIComponent(conf.hotelName || (data.hotels && data.hotels[0] && data.hotels[0].name) || 'Hotel')))}" 
                    target="_blank" class="hv-maps-btn">Open in Google Maps</a>
               </div>
             </div>
             <div class="hv-photo-box">
-              <img src="${escapeHTML(conf.hotelPhoto || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80')}" 
+              <img src="${escapeHTML(conf.hotelPhoto || (data.hotels && data.hotels[0] && data.hotels[0].photo) || (data.extractedAssets && data.extractedAssets.find(a => !a.is_logo && a.web_path)?.web_path) || 'images/hotel-hilton.jpg')}" 
                    alt="${escapeHTML(conf.hotelName || 'Hotel')}" 
                    class="hv-hotel-photo" 
-                   onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'" />
+                   onerror="this.src='images/hotel-hilton.jpg'" />
             </div>
           </div>
         ` : ''}
@@ -801,7 +813,7 @@ const Preview = (() => {
             
             <div class="hv-date-strip">
               <span class="hv-date-lbl">Check in and Check out date</span>
-              <span class="hv-date-val">From: <strong>${escapeHTML(conf.checkInDateTime || '16-Nov-2026 - 11:52 PM')}</strong> &nbsp;&nbsp; To: <strong>${escapeHTML(conf.checkOutDateTime || '18-Nov-2026 - 11:52 PM')}</strong></span>
+              <span class="hv-date-val">From: <strong>${escapeHTML(conf.checkInDateTime || conf.checkIn || (data.hotels && data.hotels[0] && data.hotels[0].checkIn) || 'Day 1')}</strong> &nbsp;&nbsp; To: <strong>${escapeHTML(conf.checkOutDateTime || conf.checkOut || (data.hotels && data.hotels[0] && data.hotels[0].checkOut) || 'Day 3')}</strong></span>
             </div>
 
             <table class="hv-table">
@@ -943,16 +955,19 @@ const Preview = (() => {
       return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    const defaultPackageAmount = parseFloat(pkg.totalCostINR || (data.pricing && data.pricing.grandTotal) || (data.pricing && data.pricing.ratePerAdultINR && pkg.paxCount ? data.pricing.ratePerAdultINR * pkg.paxCount : 0) || (pkg.totalCostUSD ? pkg.totalCostUSD * 87.5 : 50000));
+    const defaultTaxable = Math.round((defaultPackageAmount / 1.05) * 100) / 100;
+
     const items = (inv.items && inv.items.length > 0) ? inv.items : [
       {
         sn: 1,
-        service: 'passport bill',
-        description: '1 Adult',
-        hsn: '',
-        quantity: 1,
-        perPaxPrice: 2850,
-        netAmount: 2850,
-        amount: 2850
+        service: `Land Arrangement & Tour Package (${pkg.destinations || pkg.destination || 'International Tour'})`,
+        description: `${pkg.duration || 'Custom Tour'} · ${pkg.travellers || '1 Person'}`,
+        hsn: '998555',
+        quantity: pkg.paxCount || 1,
+        perPaxPrice: pkg.ratePerAdultINR || Math.round(defaultTaxable / (pkg.paxCount || 1)),
+        netAmount: defaultTaxable,
+        amount: defaultTaxable
       }
     ];
 
@@ -962,15 +977,16 @@ const Preview = (() => {
       calcSubtotal += isNaN(amt) ? 0 : amt;
     });
 
-    const subTotal = inv.subTotal !== undefined ? inv.subTotal : calcSubtotal;
-    const totalAmount = inv.totalAmount !== undefined ? inv.totalAmount : subTotal;
+    const subTotal = inv.subTotal !== undefined ? inv.subTotal : (inv.subtotal !== undefined ? inv.subtotal : calcSubtotal);
+    const totalAmount = inv.totalAmount !== undefined ? inv.totalAmount : (inv.grandTotal !== undefined ? inv.grandTotal : (inv.subTotal ? Math.round(inv.subTotal * 1.05 * 100) / 100 : defaultPackageAmount));
+    const invLogo = inv.logo || (data.company && data.company.logo) || pkg.extractedLogo || 'images/logo.png';
 
     return `
       <div class="dmc-quotation-doc doc-invoice-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
         <!-- Top Header: Logo on left, Word "Invoice" on right -->
         <div class="inv-orange-header">
           <div class="inv-logo-box">
-            <img src="images/logo.png" alt="Let's Explore DMC" class="inv-logo-img" onerror="this.style.display='none'" />
+            <img src="${escapeHTML(invLogo)}" alt="${escapeHTML(data.company?.name || "Let's Explore DMC")}" class="inv-logo-img" onerror="this.src='images/logo.png'" />
           </div>
           <div class="inv-top-right">
             <h1 class="inv-word-title">Invoice</h1>
@@ -989,18 +1005,18 @@ const Preview = (() => {
         <div class="inv-parties-grid">
           <div class="inv-party-col">
             <h4>Invoice From:</h4>
-            <div><strong>Company:</strong> ${escapeHTML(inv.fromCompany || "LET'S EXPLORE DMC")}</div>
-            <div><strong>Email:</strong> ${escapeHTML(inv.fromEmail || "letsexploredmc@gmail.com")}</div>
-            <div><strong>Mobile No:</strong> ${escapeHTML(inv.fromMobile || "8007586871")}</div>
-            <div><strong>Address:</strong> ${escapeHTML(inv.fromAddress || "Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati\nAmravati, Maharashtra, India, 444603").replace(/\n/g, '<br>')}</div>
-            <div><strong>GST:</strong> ${escapeHTML(inv.fromGst || "27BVYPT1131M1ZT")}</div>
+            <div><strong>Company:</strong> ${escapeHTML(inv.fromCompany || inv.fromCompanyName || data.company?.name || "LET'S EXPLORE DMC")}</div>
+            <div><strong>Email:</strong> ${escapeHTML(inv.fromEmail || data.company?.email || "letsexploredmc@gmail.com")}</div>
+            <div><strong>Mobile No:</strong> ${escapeHTML(inv.fromMobile || inv.fromPhone || data.company?.phone || "8007586871")}</div>
+            <div><strong>Address:</strong> ${escapeHTML(inv.fromAddress || data.company?.address || "Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati, Maharashtra, India, 444603").replace(/\n/g, '<br>')}</div>
+            <div><strong>GST:</strong> ${escapeHTML(inv.fromGst || data.company?.gst || "27BVYPT1131M1ZT")}</div>
           </div>
           <div class="inv-party-col inv-party-to">
             <h4>Invoice To:</h4>
             <div><strong>Customer Name:</strong> ${escapeHTML(inv.toCustomerName || pkg.clientName || 'Valued Client')}</div>
-            <div>${escapeHTML(inv.toCustomerAddress || 'Amravati, Maharashtra, India, 444603').replace(/\n/g, '<br>')}</div>
-            ${inv.toCustomerMobile ? `<div><strong>Mobile No:</strong> ${escapeHTML(inv.toCustomerMobile)}</div>` : ''}
-            ${inv.toCustomerEmail ? `<div><strong>Email:</strong> ${escapeHTML(inv.toCustomerEmail)}</div>` : ''}
+            <div>${escapeHTML(inv.toCustomerAddress || pkg.clientAddress || 'Amravati, Maharashtra, India, 444603').replace(/\n/g, '<br>')}</div>
+            ${(inv.toCustomerMobile || pkg.clientContact) ? `<div><strong>Mobile No:</strong> ${escapeHTML(inv.toCustomerMobile || pkg.clientContact)}</div>` : ''}
+            ${(inv.toCustomerEmail || pkg.clientEmail) ? `<div><strong>Email:</strong> ${escapeHTML(inv.toCustomerEmail || pkg.clientEmail)}</div>` : ''}
           </div>
         </div>
 
@@ -1045,7 +1061,27 @@ const Preview = (() => {
           </div>
           <div class="inv-totals-box">
             <div class="inv-subtotal-row">
-              <span>Sub Total</span>
+              <span>Sub Total / Taxable Amount</span>
+              <strong>INR ${fmtNum(subTotal)}</strong>
+            </div>
+            ${inv.cgst ? `
+              <div class="inv-subtotal-row" style="font-size:8pt; color:#64748B;">
+                <span>CGST (2.5%)</span>
+                <strong>INR ${fmtNum(inv.cgst)}</strong>
+              </div>
+            ` : ''}
+            ${inv.sgst ? `
+              <div class="inv-subtotal-row" style="font-size:8pt; color:#64748B;">
+                <span>SGST (2.5%)</span>
+                <strong>INR ${fmtNum(inv.sgst)}</strong>
+              </div>
+            ` : ''}
+            <div class="inv-total-row">
+              <span>Total Amount Payable</span>
+              <strong>INR ${fmtNum(totalAmount)}</strong>
+            </div>
+          </div>
+        </div>
               <strong>INR ${fmtNum(subTotal)}</strong>
             </div>
             <div class="inv-total-row">

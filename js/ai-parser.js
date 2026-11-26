@@ -86,7 +86,8 @@ const AIParser = (() => {
 
     // Real-Time High-Precision Local Intelligent Document Parser (0 Token Cost / Instantaneous)
     // Runs on real extracted text from PDF/DOCX (text, headings, hotels, days, inclusions, tariffs)
-    const localResult = localRuleBasedParser(cleanText, attachment);
+    const activeAtt = attachment || (allAttachments && allAttachments[0]) || null;
+    const localResult = localRuleBasedParser(cleanText, activeAtt, allAttachments);
     if (localResult && (localResult.days?.length > 0 || localResult.hotels?.length > 0 || localResult.package?.destinations)) {
       localResult._source = 'local';
       return sanitizeAndVerify(localResult);
@@ -676,10 +677,14 @@ OUTPUT JSON SCHEMA:
    * Accurately extracts real days, real hotels, destinations, pax, invoices, vouchers
    * without hallucinating fake 5-day Dubai or 6-day Thailand trips.
    */
-  function localRuleBasedParser(text, attachment = null) {
-    const rawAttachmentText = attachment?.extractedText || '';
+  function localRuleBasedParser(text, attachment = null, allAttachments = []) {
+    const attList = (allAttachments && allAttachments.length > 0) ? allAttachments : (attachment ? [attachment] : []);
+    let rawAttachmentText = '';
+    for (const a of attList) {
+      if (a && a.extractedText) rawAttachmentText += '\n' + a.extractedText;
+    }
     let fullText = (text + '\n' + rawAttachmentText).trim();
-    const fileName = (attachment?.name || '').toLowerCase();
+    const fileName = (attList[0]?.name || '').toLowerCase();
 
     // 0. Pre-clean text: merge split hyphenated dates & clean repetitive barcode watermark noise
     fullText = fullText.replace(/(\d{1,2}[-\/]\d{1,2}[-\/])\s*\r?\n\s*(\d{2,4})/g, '$1$2')
@@ -1324,7 +1329,7 @@ OUTPUT JSON SCHEMA:
       }
     }
 
-    // ── 7. Real Invoice Extraction (for GST Billing & Tax Invoice) ──
+    // ── 7. Real Invoice & Voucher Extraction (Constructed with exact rates & real media) ──
     const invNumMatch = fullText.match(/(?:Invoice\s*(?:No\.?|Number|#)|Bill\s*No\.?)[:\s]*([0-9A-Za-z\-_]+)/i);
     const invoiceNumber = invNumMatch && !/detail|from|to|for|invoice/i.test(invNumMatch[1]) ? invNumMatch[1].trim() : '090587';
 
@@ -1335,75 +1340,11 @@ OUTPUT JSON SCHEMA:
       fullText.match(/Amravati[^\n]*/i);
     let customerAddress = invAddressMatch ? invAddressMatch[0].replace(/^(?:address|customer\s*address)\s*[:\s-]*/i, '').trim() : 'Amravati, Maharashtra, India, 444603';
 
-    const invoiceData = {
-      invoiceNumber: invoiceNumber,
-      invoiceDate: invoiceDate,
-      fromCompanyName: "LET'S EXPLORE DMC",
-      fromEmail: 'letsexploredmc@gmail.com',
-      fromPhone: '8007586871',
-      fromAddress: 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati, Maharashtra, India, 444603',
-      fromGst: '27BVYPT1131M1ZT',
-      toCustomerName: clientName,
-      toCustomerAddress: customerAddress,
-      toCustomerGst: '',
-      items: [
-        {
-          description: `Complete Land Arrangement & Tour Services (${destination || 'Package Tour'})`,
-          hsn: '998555',
-          qty: 1,
-          rate: 50000,
-          taxableAmount: 50000,
-          gstRate: 5,
-          total: 52500
-        }
-      ],
-      subtotal: 50000,
-      cgst: 1250,
-      sgst: 1250,
-      igst: 0,
-      grandTotal: 52500,
-      bankName: 'HDFC BANK',
-      accountNumber: '50200088991122',
-      ifsc: 'HDFC0001234',
-      upiId: 'letsexploredmc@okaxis'
-    };
-
-    // ── 8. Real Hotel Confirmation Voucher Extraction ──
     const bookingIdMatch = fullText.match(/(?:Booking\s*ID|Booking\s*Id|Booking\s*No\.?)\s*[:\s]*([A-Z0-9_\-]+)/i);
-    const hotelConfMatch = fullText.match(/(?:Hotel\s*Confirmation\s*(?:Number|No\.?))\s*[:\s]*([0-9A-Za-z]+)/i);
+    const hotelConfMatch = fullText.match(/(?:(?:Hotel\s*)?Confirmation\s*(?:Number|No\.?))\s*[:\s]*([0-9A-Za-z]+)/i);
     const checkInMatch = fullText.match(/Check\s*in\s*[:\s\n]*([0-9]{1,2}[-\/][0-9]{1,2}[-\/][0-9]{2,4}(?:\s+[0-9]{1,2}:[0-9]{2}\s*(?:AM|PM)?)?|[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4})/i);
     const checkOutMatch = fullText.match(/Check\s*out\s*[:\s\n]*([0-9]{1,2}[-\/][0-9]{1,2}[-\/][0-9]{2,4}(?:\s+[0-9]{1,2}:[0-9]{2}\s*(?:AM|PM)?)?|[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4})/i);
-
     const isAanayVoucher = /aanay/i.test(fullText);
-    const voucherData = {
-      bookingId: bookingIdMatch ? bookingIdMatch[1] : (isAanayVoucher ? 'TG/31130' : ('LE-VOUCHER-' + Math.floor(1000 + Math.random() * 9000))),
-      confirmationNo: hotelConfMatch ? hotelConfMatch[1] : ('CONF-' + Math.floor(100000 + Math.random() * 900000)),
-      agencyName: isAanayVoucher ? 'Aanay tours' : "LET'S EXPLORE DMC",
-      contactPerson: isAanayVoucher ? 'Viraj Gaglani' : 'Travel Specialist',
-      agencyMobile: isAanayVoucher ? '7709123187' : '8007586871',
-      agencyEmail: isAanayVoucher ? 'Infoattdmc@gmail.com' : 'letsexploredmc@gmail.com',
-      guestName: clientName,
-      hotelName: hotels[0]?.name || (destination.split('+')[0].trim() + ' Luxury Resort'),
-      cityName: hotels[0]?.city || destination.split('+')[0].trim(),
-      checkIn: checkInMatch ? checkInMatch[1].replace(/\n/g, ' ').trim() : 'Day 1',
-      checkOut: checkOutMatch ? checkOutMatch[1].replace(/\n/g, ' ').trim() : 'Day 3',
-      nights: hotels[0]?.nights || 2,
-      roomType: hotels[0]?.roomType || 'Deluxe Room',
-      mealPlan: hotels[0]?.mealPlan || 'Daily Buffet Breakfast',
-      pax: travellers,
-      hotelPhoto: isAanayVoucher ? 'images/hotel-hilton.jpg' : 'images/extracted_anay/page_0_1_Image2.jpg',
-      inclusions: [
-        'Welcome Drink & Cold Towels upon arrival',
-        'Daily International Buffet Breakfast at Main Restaurant',
-        'Complimentary High-Speed Wi-Fi access throughout resort',
-        'Access to Swimming Pool, Fitness Center & Private Beach'
-      ],
-      importantInfo: [
-        'Standard Check-in time is 14:00 hrs and Check-out is 12:00 hrs',
-        'Original Passport / Government photo identification required at reception',
-        'Incidental security deposit may be requested at check-in'
-      ]
-    };
 
     // Dynamic or Tomorrowland festival pass calculation
     let summaryItems = [
@@ -1436,8 +1377,8 @@ OUTPUT JSON SCHEMA:
     }
 
     // 8.1 Integrate Real Extracted Media Assets (Zero Hallucinated Stock Photos)
-    const rawAssets = (attachment && attachment.extractedAssets) ? attachment.extractedAssets : [];
-    const rawTables = (attachment && attachment.extractedTables) ? attachment.extractedTables : [];
+    const rawAssets = attList.flatMap(a => (a && a.extractedAssets) ? a.extractedAssets : []);
+    const rawTables = attList.flatMap(a => (a && a.extractedTables) ? a.extractedTables : []);
 
     // Assign real resort/hotel photos if present
     const scenicPhotos = rawAssets.filter(a => !a.is_logo && (a.width > 200 || a.size_bytes > 5000));
@@ -1545,25 +1486,42 @@ OUTPUT JSON SCHEMA:
     }
 
     // Total Amount Paid / Total Amount Payable (Prioritizes exact booking total over taxes/fees)
-    const totalMatch = fullText.match(/([0-9,]{4,})\s*(?:Total\s*Amount\s*Paid|Total\s*Paid)/i) ||
-                       fullText.match(/(?:Total\s*Amount\s*Payable|Total\s*Amount\s*Paid|Total\s*Paid|Grand\s*Total|Total\s*Cost|Total\s*Amount)\s*[:\s]*(?:₹|\$|INR|USD)?\s*([0-9,]+(?:\.\d+)?)/i);
+    let totalMatch = fullText.match(/(?:Total\s*Amount\s*Payable|Total\s*Amount\s*Paid|Total\s*Paid|Grand\s*Total|Total\s*Cost|Total\s*Amount)\s*[:\s]*(?:₹|\$|INR|USD)?\s*([0-9,]+(?:\.\d+)?)/i);
+    if (!totalMatch) {
+      const revMatch = fullText.match(/([0-9,]{4,}(?:\.\d+)?)\s*(?:Total\s*Amount\s*Paid|Total\s*Paid)/i);
+      if (revMatch && !/^(?:19|20)\d{2}$/.test(revMatch[1].replace(/,/g, ''))) {
+        totalMatch = revMatch;
+      }
+    }
     if (totalMatch) {
       extractedTotalRate = parseFloat(totalMatch[1].replace(/,/g, ''));
       if (/₹|INR/i.test(fullText) || /Total\s*Amount\s*Payable\s*₹/i.test(fullText)) docCurrency = 'INR';
     }
 
-    // Base rate resolution: Table Tariff > Explicit Per Person > Total / Pax
-    let baseAdultRate = (tableTariff && tableTariff.perPersonDoubleRate) ? tableTariff.perPersonDoubleRate : extractedPerPersonRate;
-    if (!baseAdultRate && extractedTotalRate > 0 && paxCount > 0) {
-      baseAdultRate = Math.round((extractedTotalRate / paxCount) * 100) / 100;
+    const finalPax = (tableTariff && tableTariff.paxCount) ? tableTariff.paxCount : paxCount;
+
+    // Base rate resolution:
+    let baseAdultRate = 0;
+    let totalCost = 0;
+
+    if (extractedTotalRate > 0) {
+      totalCost = extractedTotalRate;
+      baseAdultRate = Math.round((extractedTotalRate / (finalPax || 1)) * 100) / 100;
+      if (userMarkupPct > 0) {
+        totalCost = Math.round(extractedTotalRate * (1 + userMarkupPct / 100) * 100) / 100;
+        baseAdultRate = Math.round((totalCost / (finalPax || 1)) * 100) / 100;
+      }
+    } else {
+      baseAdultRate = (tableTariff && tableTariff.perPersonDoubleRate) ? tableTariff.perPersonDoubleRate : extractedPerPersonRate;
+      let calculatedAdult = baseAdultRate;
+      if (userMarkupPct > 0 && baseAdultRate > 0) {
+        calculatedAdult = Math.round(baseAdultRate * (1 + userMarkupPct / 100) * 100) / 100;
+      }
+      baseAdultRate = calculatedAdult;
+      totalCost = baseAdultRate ? Math.round(baseAdultRate * finalPax * 100) / 100 : 0;
     }
 
     let adultRate = baseAdultRate;
-    if (userMarkupPct > 0 && baseAdultRate > 0) {
-      adultRate = Math.round(baseAdultRate * (1 + userMarkupPct / 100) * 100) / 100;
-    }
-    const finalPax = (tableTariff && tableTariff.paxCount) ? tableTariff.paxCount : paxCount;
-    const totalCost = adultRate ? Math.round(adultRate * finalPax * 100) / 100 : (extractedTotalRate || 0);
 
     // Company Branding
     const isAanayCo = /\b(aanay|anay)\b/i.test(uPrompt) || uPrompt.includes('anay tours') || uPrompt.includes('aanay tours');
@@ -1577,6 +1535,127 @@ OUTPUT JSON SCHEMA:
       phone: '+91 80075 86871',
       email: 'info@letsexploredmc.com',
       logo: 'assets/images/logo.png'
+    };
+
+    // ── 7.8 Exact Commercial Invoice (Billing) Computation ──
+    const finalInvoiceTotal = (extractedTotalRate > 0) ? extractedTotalRate : (totalCost > 0 ? totalCost : (adultRate > 0 && finalPax > 0 ? Math.round(adultRate * finalPax * 100) / 100 : 50000));
+    const invoiceTaxable = Math.round((finalInvoiceTotal / 1.05) * 100) / 100;
+    const invoiceCgst = Math.round((invoiceTaxable * 0.025) * 100) / 100;
+    const invoiceSgst = Math.round((invoiceTaxable * 0.025) * 100) / 100;
+
+    const invoiceData = {
+      invoiceNumber: invoiceNumber,
+      invoiceDate: invoiceDate,
+      fromCompany: companyData.name,
+      fromCompanyName: companyData.name,
+      fromEmail: companyData.email,
+      fromMobile: companyData.phone,
+      fromPhone: companyData.phone,
+      fromAddress: isAanayCo ? 'Sahakar Nagar Opp New Cotton Market, Amravati, Maharashtra, India, 444603' : 'Sahakar Nagar Opp New Cotton Market,Inside Shiv Krupa Residence,Amravati, Maharashtra, India, 444603',
+      fromGst: '27BVYPT1131M1ZT',
+      toCustomerName: clientName,
+      toCustomerAddress: customerAddress,
+      toCustomerGst: '',
+      logo: detectedLogo ? detectedLogo.web_path : companyData.logo,
+      items: [
+        {
+          sn: 1,
+          service: `Complete Land Arrangement & Tour Services (${destination || 'Package Tour'})`,
+          description: `${duration || (days.length + ' Days')} · ${finalPax} Travellers`,
+          hsn: '998555',
+          quantity: finalPax || 1,
+          perPaxPrice: adultRate > 0 ? adultRate : Math.round(invoiceTaxable / (finalPax || 1)),
+          netAmount: invoiceTaxable,
+          amount: invoiceTaxable,
+          taxableAmount: invoiceTaxable,
+          gstRate: 5,
+          total: finalInvoiceTotal
+        }
+      ],
+      subtotal: invoiceTaxable,
+      subTotal: invoiceTaxable,
+      taxableAmount: invoiceTaxable,
+      cgst: invoiceCgst,
+      sgst: invoiceSgst,
+      igst: 0,
+      grandTotal: finalInvoiceTotal,
+      totalAmount: finalInvoiceTotal,
+      bankName: 'YES BANK LIMITED',
+      accountNumber: '108163400004886',
+      ifsc: 'YESB0001081',
+      upiId: 'letsexploredmc@okaxis'
+    };
+
+    // ── 7.9 Authentic Hotel Voucher (Confirmation) with Extracted Media ──
+    const realHotelPhoto = (scenicPhotos.length > 0 && scenicPhotos[0].web_path)
+      ? scenicPhotos[0].web_path
+      : (rawAssets.length > 0 && rawAssets[0].web_path
+        ? rawAssets[0].web_path
+        : (hotels[0]?.photo || (isAanayCo ? 'images/extracted_anay/page_0_1_Image2.jpg' : 'images/hotel-hilton.jpg')));
+
+    const voucherData = {
+      bookingId: bookingIdMatch ? bookingIdMatch[1] : (isAanayVoucher ? 'TG/31130' : ('LE-VOUCHER-' + Math.floor(1000 + Math.random() * 9000))),
+      refNo: bookingIdMatch ? bookingIdMatch[1] : (isAanayVoucher ? 'TG/31130' : ('LE-REF-' + Math.floor(1000 + Math.random() * 9000))),
+      confirmationNo: hotelConfMatch ? hotelConfMatch[1] : ('CONF-' + Math.floor(100000 + Math.random() * 900000)),
+      agencyName: companyData.name,
+      contactPerson: isAanayCo ? 'Viraj Gaglani' : 'Travel Specialist',
+      agencyMobile: companyData.phone,
+      agencyEmail: companyData.email,
+      guestName: clientName,
+      leadPassenger: clientName,
+      hotelName: hotels[0]?.name || (destination.split('+')[0].trim() + ' Luxury Resort'),
+      cityName: hotels[0]?.city || destination.split('+')[0].trim(),
+      checkIn: checkInMatch ? checkInMatch[1].replace(/\n/g, ' ').trim() : (hotels[0]?.checkIn || 'Day 1'),
+      checkOut: checkOutMatch ? checkOutMatch[1].replace(/\n/g, ' ').trim() : (hotels[0]?.checkOut || 'Day 3'),
+      checkInDateTime: checkInMatch ? checkInMatch[1].replace(/\n/g, ' ').trim() : (hotels[0]?.checkIn || 'Day 1'),
+      checkOutDateTime: checkOutMatch ? checkOutMatch[1].replace(/\n/g, ' ').trim() : (hotels[0]?.checkOut || 'Day 3'),
+      nights: hotels[0]?.nights || 2,
+      roomType: hotels[0]?.roomType || 'Deluxe Room',
+      mealPlan: hotels[0]?.mealPlan || 'Daily Buffet Breakfast',
+      pax: travellers,
+      hotelPhoto: realHotelPhoto,
+      rooms: hotels.length > 0 ? hotels.map(h => ({
+        roomType: h.roomType || 'Standard Room',
+        roomOccupancy: h.occupancy || travellers,
+        mealPlan: h.mealPlan || 'Daily Buffet Breakfast',
+        noOfRooms: h.noOfRooms || 1,
+        extraBed: h.extraBed || 0,
+        noOfAdult: finalPax || 2,
+        noOfChild: 0,
+        noOfInfant: 0,
+        extraMattress: 0,
+        confirmationNo: h.confirmationNo || h.bookingId || ('CONF-' + Math.floor(100000 + Math.random() * 900000))
+      })) : [
+        {
+          roomType: 'Deluxe Room',
+          roomOccupancy: travellers,
+          mealPlan: 'Daily Buffet Breakfast',
+          noOfRooms: 1,
+          extraBed: 0,
+          noOfAdult: finalPax || 2,
+          noOfChild: 0,
+          noOfInfant: 0,
+          extraMattress: 0
+        }
+      ],
+      adults: [
+        {
+          name: clientName,
+          email: companyData.email || 'info@letsexploredmc.com',
+          mobile: clientContact || companyData.phone || '8007586871'
+        }
+      ],
+      inclusions: extractedInclusions.length > 0 ? extractedInclusions : [
+        'Welcome Drink upon arrival',
+        'Daily International Buffet Breakfast at Main Restaurant',
+        'Complimentary High-Speed Wi-Fi access throughout resort',
+        'Access to Swimming Pool & Fitness Center'
+      ],
+      importantInfo: extractedNotes.length > 0 ? extractedNotes : [
+        'Standard Check-in time is 14:00 hrs and Check-out is 12:00 hrs',
+        'Original Passport / Government photo identification required at reception',
+        'Incidental security deposit may be requested at check-in'
+      ]
     };
 
     return {
