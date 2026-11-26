@@ -2127,18 +2127,24 @@
             if (inp) inp.value = pct;
 
             const pkg = (typeof QuotationData !== 'undefined' && QuotationData.package) ? QuotationData.package : {};
-            const baseAdult = (pkg.baseAdultRateUSD && pkg.baseAdultRateUSD > 0) ? pkg.baseAdultRateUSD : (pkg.ratePerAdultUSD || 500);
+            const isEur = pkg.currency === 'EUR' || (typeof QuotationData !== 'undefined' && QuotationData.pricing && QuotationData.pricing.currency === 'EUR');
+            const currSym = isEur ? '€' : (pkg.currency === 'INR' ? '₹' : '$');
+            const fx = isEur ? 92.5 : (parseFloat(localStorage.getItem('dmc_daily_usd_rate') || '87.50') || 87.5);
+
+            const baseAdult = (pkg.baseAdultRateUSD && pkg.baseAdultRateUSD > 0) ? pkg.baseAdultRateUSD : (pkg.ratePerAdultUSD || (pkg.baseAdultRate || pkg.ratePerAdult || 500));
             pkg.baseAdultRateUSD = baseAdult;
+            pkg.baseAdultRate = baseAdult;
             pkg.markupPercent = pct;
 
             const newAdult = Math.round(baseAdult * (1 + pct / 100) * 100) / 100;
             pkg.ratePerAdultUSD = newAdult;
+            pkg.ratePerAdult = newAdult;
 
             const adultCount = pkg.paxCount || pkg.adultCount || 2;
-            const grandTotalUSD = Math.round(newAdult * adultCount * 100) / 100;
-            pkg.totalCostUSD = grandTotalUSD;
-            const fx = parseFloat(localStorage.getItem('dmc_daily_usd_rate') || '87.50') || 87.5;
-            pkg.totalCostINR = Math.round(grandTotalUSD * fx);
+            const grandTotal = Math.round(newAdult * adultCount * 100) / 100;
+            pkg.totalCostUSD = grandTotal;
+            pkg.totalCost = grandTotal;
+            pkg.totalCostINR = Math.round(grandTotal * fx);
             pkg.ratePerAdultINR = Math.round(newAdult * fx);
 
             if (pkg.pricingRows && Array.isArray(pkg.pricingRows)) {
@@ -2146,23 +2152,50 @@
                     if (row.isFoc) return;
                     const b = row.baseRate || row.rateDouble || baseAdult;
                     row.baseRate = b;
-                    row.rateDouble = Math.round(b * (1 + pct / 100) * 100) / 100;
+                    const markedRate = Math.round(b * (1 + pct / 100) * 100) / 100;
+                    row.rateDouble = markedRate;
+                    row.rate = markedRate;
+                    row.rateUSD = markedRate;
                 });
             }
 
+            if (typeof QuotationData !== 'undefined' && QuotationData.pricing) {
+                QuotationData.pricing.markupPercent = pct;
+                QuotationData.pricing.ratePerAdult = newAdult;
+                QuotationData.pricing.baseAdultRate = baseAdult;
+                QuotationData.pricing.grandTotal = grandTotal;
+                QuotationData.pricing.subtotal = grandTotal;
+                QuotationData.pricing.grandTotalUSD = grandTotal;
+                QuotationData.pricing.ratePerAdultUSD = newAdult;
+                if (pkg.pricingRows && Array.isArray(pkg.pricingRows)) {
+                    QuotationData.pricing.pricingRows = pkg.pricingRows;
+                }
+            }
+
+            if (typeof QuotationData !== 'undefined' && QuotationData.summary) {
+                if (QuotationData.summary.items && QuotationData.summary.items.length > 0) {
+                    QuotationData.summary.items[0].amountUSD = grandTotal;
+                    if (isEur) QuotationData.summary.items[0].amountEUR = grandTotal;
+                    QuotationData.summary.items[0].amountINR = pkg.totalCostINR;
+                }
+                QuotationData.summary.totalUSD = grandTotal;
+                if (isEur) QuotationData.summary.totalEUR = grandTotal;
+                QuotationData.summary.totalINR = pkg.totalCostINR;
+            }
+
             const cSel = document.getElementById('rateCurrency');
-            if (cSel) cSel.value = pkg.currency || 'USD';
+            if (cSel) cSel.value = pkg.currency || (isEur ? 'EUR' : 'USD');
             const rAdult = document.getElementById('ratePerAdult');
             if (rAdult) rAdult.value = newAdult;
 
             const elGrand = document.getElementById('kpiGrandTotal');
-            if (elGrand) elGrand.textContent = '$ ' + grandTotalUSD.toFixed(2);
+            if (elGrand) elGrand.textContent = `${currSym} ` + grandTotal.toFixed(2);
             const elSub = document.getElementById('kpiSubtotal');
-            if (elSub) elSub.textContent = '$ ' + (baseAdult * adultCount).toFixed(2);
+            if (elSub) elSub.textContent = `${currSym} ` + (baseAdult * adultCount).toFixed(2);
             const elMark = document.getElementById('kpiMarkup');
-            if (elMark) elMark.textContent = '+$ ' + (grandTotalUSD - (baseAdult * adultCount)).toFixed(2);
+            if (elMark) elMark.textContent = `+${currSym} ` + (grandTotal - (baseAdult * adultCount)).toFixed(2);
             const elDual = document.getElementById('kpiDualTotal');
-            if (elDual) elDual.textContent = `~₹ ${Math.round(grandTotalUSD * fx).toLocaleString()}`;
+            if (elDual) elDual.textContent = `~₹ ${Math.round(grandTotal * fx).toLocaleString()}`;
 
             try {
                 localStorage.setItem('activeAiDocument', JSON.stringify(QuotationData));
