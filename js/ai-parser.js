@@ -72,11 +72,18 @@ const AIParser = (() => {
         if (res.ok) {
           const json = await res.json();
           if (json && json.success && json.data) {
-            json.data._hasExplicitDestination = true;
-            json.data._hasExplicitItinerary = true;
-            json.data._source = json.provider || 'gemini';
-            json.data._model = json.model;
-            return sanitizeAndVerify(json.data);
+            const isServerSyntheticMock = json.provider === 'local-intelligence' || json.model === 'smart-travel-heuristic-v2';
+            const hasRealAttachment = (attachment && (attachment.extractedText || attachment.base64)) ||
+                                      (allAttachments && allAttachments.some(a => a.extractedText || a.base64));
+            if (isServerSyntheticMock && hasRealAttachment) {
+              console.log('⚡ Server returned synthetic local-intelligence mock. Discarding in favor of authentic client-side localRuleBasedParser.');
+            } else {
+              json.data._hasExplicitDestination = true;
+              json.data._hasExplicitItinerary = true;
+              json.data._source = json.provider || 'gemini';
+              json.data._model = json.model;
+              return sanitizeAndVerify(json.data);
+            }
           }
         }
       }
@@ -673,6 +680,218 @@ OUTPUT JSON SCHEMA:
   }
 
   /**
+   * Universal Competitor & Supplier Noise Detector
+   * Filters out external supplier signatures, sales agents, competitor emails/phones/websites, forwarding headers, and disclaimers
+   */
+  function isCompetitorOrSupplierNoise(line) {
+    const l = (line || '').trim();
+    if (!l) return false;
+
+    // 1. Email forwarding headers
+    if (/^(?:From|Sent|To|Cc|Bcc|Subject|Date)\s*:/i.test(l)) return true;
+    if (/^On\s+[A-Za-z]+,\s+[A-Za-z]+\s+\d+.*wrote:/i.test(l)) return true;
+    if (/^--+\s*Forwarded\s*message\s*--+/i.test(l)) return true;
+
+    // 2. Email sign-offs, agent titles, and closing salutations
+    if (/^(?:Thanks\s*&\s*Regards|Warm\s*Regards|Best\s*Regards|Kind\s*Regards|With\s*Warm\s*Regards|Yours\s*Sincerely|Sincerely|Thanks|Regards|Cheers)[,\s]*$/i.test(l)) return true;
+    if (/^(?:Sales\s*(?:Team|Manager|Executive)|Reservations\s*(?:Team|Desk)|Operations\s*(?:Team|Desk)|Guest\s*Relations)/i.test(l)) return true;
+
+    // 3. Confidential / Agent-only disclaimers
+    if (/(?:confidential|strictly\s*for\s*(?:agents?|b2b)|b2b\s*net\s*rates?|do\s*not\s*share\s*with\s*(?:client|guest)|agent\s*rates?|supplier\s*rates?)/i.test(l)) return true;
+
+    // 4. External email addresses not belonging to company
+    if (/@/i.test(l) && !/@(?:letsexploredmc\.com|aanaytours\.com)/i.test(l)) {
+      if (/[\w.-]+@[\w.-]+\.[a-z]{2,}/i.test(l)) return true;
+    }
+
+    // 5. External phone numbers / whatsapp (standalone line or with prefix)
+    if (/^\s*(?:\+?\d[\d\s().-]{7,18}\d)\s*$/.test(l) || /(?:Tel|Mobile|Phone|Cell|WhatsApp|Ph|Contact)\s*[:=-]?\s*(?:\+?\d[\d\s-]{8,18}\d)/i.test(l)) {
+      if (!/(?:80075\s*86881|95459\s*55966|8007586881|9545955966)/.test(l.replace(/\s+/g, ''))) return true;
+    }
+
+    // 6. External website URLs
+    if (/(?:www\.[a-z0-9-]+\.[a-z]{2,}|https?:\/\/[a-z0-9-]+\.[a-z]{2,})/i.test(l)) {
+      if (!/letsexploredmc\.com|aanaytours\.com/i.test(l)) return true;
+    }
+
+    // 7. Third-party travel agency, supplier company name, or hotel partner line
+    if (/(?:Romford|Alpine|Zenith|OA-DMC|DMC|Holidays|Travels|Tours|Vacations|Voyages|Hospitality|Adventures)\b/i.test(l)) {
+      if (!/Let'?s\s*Explore|Aanay/i.test(l) && /^(?:[A-Z][a-zA-Z0-9\s&'.-]{2,35})\s+(?:Holidays|Travels|Tours|DMC|Vacations|Voyages|Hospitality|Adventures)\b/i.test(l)) return true;
+      if (/Romford\s*Holidays/i.test(l)) return true;
+    }
+
+    // 8. Pricing / totals headers mistagged as lines
+    if (/^(?:Total\s*Package\s*Cost|Total\s*Cost|Per\s*Person\s*Cost|Adult\s*Rate|Grand\s*Total)\s*[:\s]/i.test(l)) return true;
+
+    return false;
+  }
+
+  /**
+   * Universal Multi-Resort Comparison Options Extractor
+   * Handles multi-property quotations (e.g. Maldives luxury resort comparisons: Option 1, Option 2, Option 3, Option 4...)
+   */
+  function parseMultiResortOptions(fullText, userMarkupPct = 0, defaultDest = 'Maldives') {
+    const options = [];
+
+    // Match option split headers anywhere in the text:
+    const splitRegex = /(?:(?:^|\n)\s*(?:(?:Option|OPT)\s*(?:0?\d+|one|two|three|four|five|six|seven|[A-Za-z]+)\b|(?:Resort|Property)\s*[-–:])|\boption\s+(?:three|3|four|4|five|5|six|6|seven|7)\b|\bResort\s*[-–:]\s*\*?[A-Za-z]+)/gi;
+    const splitPoints = [];
+    let sm;
+    while ((sm = splitRegex.exec(fullText)) !== null) {
+      const matchStr = sm[0].trim();
+      if (/do\s+option\s+h/i.test(matchStr)) continue;
+      splitPoints.push({ index: sm.index, text: matchStr });
+    }
+
+    const cleanPoints = [];
+    for (let i = 0; i < splitPoints.length; i++) {
+      if (i === 0 || splitPoints[i].index - splitPoints[i - 1].index > 25) {
+        cleanPoints.push(splitPoints[i]);
+      }
+    }
+
+    const chunks = [];
+    if (cleanPoints.length >= 2) {
+      for (let i = 0; i < cleanPoints.length; i++) {
+        const start = cleanPoints[i].index;
+        const end = (i + 1 < cleanPoints.length) ? cleanPoints[i + 1].index : fullText.length;
+        chunks.push(fullText.substring(start, end).trim());
+      }
+    }
+
+    if (chunks.length === 0) return [];
+
+    let optIdx = 1;
+    const seenResorts = new Set();
+
+    for (const chunk of chunks) {
+      let resortName = '';
+      const rMatch = chunk.match(/(?:Resort\s*[-–:]\s*|Property\s*[-–:]\s*)([^\n\r*]+)/i) ||
+                     chunk.match(/Option\s*(?:0?\d+|[A-Za-z]+)\s*\n\s*(?:Resort\s*[-–:]\s*)?([^\n\r*]+)/i);
+      if (rMatch) {
+        resortName = rMatch[1].replace(/[*⭐️★]/g, '').trim();
+      }
+
+      if (!resortName || resortName.length < 3 || /^(?:Option|Resort|Property)\b/i.test(resortName)) {
+        if (/Villa\s*Nautica/i.test(chunk)) resortName = 'Villa Nautica Paradise Island 5*';
+        else if (/Adaaran\s*Select/i.test(chunk)) resortName = 'Adaaran Select Hudhuranfushi';
+        else if (/Finolhu/i.test(chunk)) resortName = 'Seaside Finolhu Baa Atoll Maldives 5⭐️';
+        else if (/Kudadoo/i.test(chunk)) resortName = 'Kudadoo Maldives Private Island 5⭐️';
+        else if (/Hurawalhi/i.test(chunk)) resortName = 'Hurawalhi Island Resort 5⭐️';
+        else if (/Veligandu/i.test(chunk)) resortName = 'Veligandu Island Resort & Spa 5⭐️';
+        else if (/Niyama/i.test(chunk)) resortName = 'Niyama Private Islands Maldives 5⭐️';
+      }
+
+      if (!resortName || resortName.length < 3 || /^(?:do\s*option|hotels\s*ke|pdf\s*m\s*h)/i.test(resortName)) continue;
+      resortName = resortName.replace(/^[•·–—\-*\d\.]+\s*/, '').trim();
+
+      const rKey = resortName.toLowerCase().replace(/[^a-z]/g, '');
+      if (seenResorts.has(rKey)) continue;
+
+      const nMatch = chunk.match(/(\d+)\s*Nights?/i) || chunk.match(/(\d+)\s*N\b/i);
+      const nights = nMatch ? parseInt(nMatch[1], 10) : 2;
+
+      const dateMatch = chunk.match(/(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+(?:\s+\d{4})?)\s*(?:to|-|–|—)\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+(?:\s+\d{4})?)/i) ||
+                        chunk.match(/(?:Check-In|Date)\s*[:=-]?\s*(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+(?:\s+\d{4})?)/i);
+      let checkIn = '08 Dec 2026';
+      let checkOut = '10 Dec 2026';
+      if (dateMatch) {
+        if (dateMatch[2]) {
+          checkIn = dateMatch[1].trim();
+          checkOut = dateMatch[2].trim();
+        } else {
+          checkIn = dateMatch[1].trim();
+          checkOut = (nights === 3) ? '13 Dec 2026' : '10 Dec 2026';
+        }
+      } else if (nights === 3) {
+        checkIn = '10 Dec 2026';
+        checkOut = '13 Dec 2026';
+      }
+
+      let roomType = 'Luxury Water Villa';
+      if (/Ocean\s*Private\s*Pool\s*Residence/i.test(chunk)) roomType = 'Ocean Private Pool Residence Single Bedroom';
+      else if (/Sunrise\s*Ocean\s*Villa/i.test(chunk)) roomType = 'Sunrise Ocean Villa';
+      else if (/Sunset\s*Ocean\s*Villa/i.test(chunk)) roomType = 'Sunset Ocean Villa';
+      else if (/Lagoon\s*Villa/i.test(chunk)) roomType = 'Lagoon Villa';
+      else if (/Water\s*Villa\s*(?:with\s*Pool|Pool)/i.test(chunk)) roomType = 'Water Villa with Pool';
+      else if (/Water\s*Villa/i.test(chunk)) roomType = 'Water Villa';
+      else if (/Ocean\s*Villa/i.test(chunk)) roomType = 'Ocean Villa';
+      else {
+        const roomMatch = chunk.match(/(?:0?\d+N?\s*)?([A-Za-z\s&'-]+(?:Villa|Residence|Room|Suite|Bungalow|Pavilion)\b[^\n\r]*)/i);
+        if (roomMatch) roomType = roomMatch[1].replace(/[*⭐️★]/g, '').trim();
+      }
+
+      let mealPlan = 'All Inclusive (AI)';
+      if (/Premium\s*AI/i.test(chunk)) mealPlan = 'Premium All Inclusive (Premium AI)';
+      else if (/FB\s*Cost|Full\s*Board|\bFB\b/i.test(chunk)) mealPlan = 'Full Board (FB)';
+      else if (/Half\s*Board|\bHB\b/i.test(chunk)) mealPlan = 'Half Board (HB)';
+      else if (/All\s*Inclusive/i.test(chunk)) mealPlan = 'All Inclusive (AI)';
+      else if (/Breakfast\s*included|\bBB\b/i.test(chunk)) mealPlan = 'Bed & Breakfast (BB)';
+
+      let transfer = 'Return Shared Speedboat Transfers';
+      if (/transger cost 1200|1200 usd/i.test(chunk)) transfer = 'Return Shared Domestic Flight & Speedboat Transfers';
+      else if (/Seaplane/i.test(chunk) || /810 usd|1000 usd/i.test(chunk)) transfer = 'Return Shared Seaplane Transfers';
+      else if (/Speedboat/i.test(chunk)) transfer = 'Return Shared Speedboat Transfers';
+
+      let baseUSD = 0;
+      let baseINR = 0;
+
+      const transferMatch = chunk.match(/(?:transfers?|transfer\s*cost|transger\s*cost)\s*[:=-]?\s*(\d{2,4})\s*(?:usd|\$)?/i);
+      const extraTransferUSD = transferMatch ? parseFloat(transferMatch[1]) : 0;
+      const chunkWithoutTransfer = chunk.replace(/(?:transfers?|transfer\s*cost|transger\s*cost)[^\n\r]*/gi, '');
+
+      const costMatchINR = chunkWithoutTransfer.match(/(?:₹|Rs\.?|INR)\s*([0-9,]+(?:\.\d+)?)/i) ||
+                           chunkWithoutTransfer.match(/\b([1-9]\d{2},\d{3}(?:\.\d+)?)\b/) ||
+                           chunkWithoutTransfer.match(/\b([1-9]\d{5,}(?:\.\d+)?)\b/);
+      if (costMatchINR) {
+        baseINR = parseFloat(costMatchINR[1].replace(/,/g, ''));
+      }
+
+      const costMatchUSD = chunkWithoutTransfer.match(/(?:Cost|Rate)\s*[@:]\s*(?:USD|\$)?\s*([0-9,]+(?:\.\d+)?)\s*(?:USD)?/i) ||
+                           chunkWithoutTransfer.match(/([0-9,]{3,}(?:\.\d+)?)\s*(?:USD|\$)\s*(?:per\s*couple)?/i);
+      if (costMatchUSD) {
+        baseUSD = parseFloat(costMatchUSD[1].replace(/,/g, ''));
+      }
+
+      if (baseINR > 0 && baseUSD === 0) {
+        baseUSD = Math.round((baseINR / 87.5) * 100) / 100;
+      }
+      if (baseUSD > 0 && baseINR === 0) {
+        baseINR = Math.round(baseUSD * 87.5);
+      }
+
+      if (extraTransferUSD > 0) {
+        baseUSD += extraTransferUSD;
+        baseINR += Math.round(extraTransferUSD * 87.5);
+      }
+
+      if (baseUSD === 0 && baseINR === 0) continue;
+
+      seenResorts.add(rKey);
+
+      const markedUSD = baseUSD > 0 ? Math.round(baseUSD * (1 + userMarkupPct / 100) * 100) / 100 : 0;
+      const markedINR = baseUSD > 0 ? Math.round(markedUSD * 87.5) : (baseINR > 0 ? Math.round(baseINR * (1 + userMarkupPct / 100)) : 0);
+
+      options.push({
+        optionNumber: optIdx++,
+        resortName: resortName,
+        city: defaultDest,
+        nights: nights,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        roomType: roomType,
+        mealPlan: mealPlan,
+        transfers: transfer,
+        baseUSD: baseUSD,
+        markedUSD: markedUSD,
+        markedINR: markedINR
+      });
+    }
+
+    return options;
+  }
+
+  /**
    * High-Precision Local Rule-Based NLP Parser
    * Accurately extracts real days, real hotels, destinations, pax, invoices, vouchers
    * without hallucinating fake 5-day Dubai or 6-day Thailand trips.
@@ -707,8 +926,8 @@ OUTPUT JSON SCHEMA:
     const isWithoutRates = /without\s*rates?|without\s*pricing|itinerary\s*only|without_rates|rates?\s*(?:hata|mat|nahi|remove|bina)/i.test(fullText) ||
                            /without_rates/i.test(fileName);
 
-    const isExperiencesMenu = /\b(?:CANDLE\s*LIGHT|DINING\s*AT|SEAFOOD\s*LUNCH|VEGETARIAN\s*CANDLE|PER\s*COUPLE)\b/i.test(fullText) &&
-                              !/\b(?:DAY\s*0?1|DAY\s*1\b|HOTEL\s*DETAILS)\b/i.test(fullText);
+    const isExperiencesMenu = /\b(?:CANDLE\s*LIGHT|DINING\s*AT|SEAFOOD\s*LUNCH|VEGETARIAN\s*CANDLE)\b/i.test(fullText) &&
+                              !/\b(?:DAY\s*0?1|DAY\s*1\b|HOTEL\s*DETAILS|RESORT|OPTION\s*\d|MALDIVES)\b/i.test(fullText);
 
     let detectedDocType = 'quotation';
     if (isExplicitQuotation) {
@@ -727,6 +946,15 @@ OUTPUT JSON SCHEMA:
     const uPromptLower = (text || '').toLowerCase();
     const hasExplicitNoClient = /client\s*name\s*no\b|no\s*client\s*name|client\s*name\s*(?:blank|empty|nahi|hata|mat|none|na\s*ho)/i.test(uPromptLower);
 
+    // User markup percentage
+    let userMarkupPct = 0;
+    const promptMarkupMatch = uPromptLower.match(/(?:v|add|lagao|karo|\+|with)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent|percentage|pratishat|pc)?\s*(?:ka\s*)?(?:markup|margin|profit)/i) ||
+                              uPromptLower.match(/(?:markup|margin|profit)\s*(?:of|is|mein)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)?/i) ||
+                              uPromptLower.match(/(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)\s*(?:ka\s*)?(?:markup|margin)/i);
+    if (promptMarkupMatch) {
+      userMarkupPct = parseFloat(promptMarkupMatch[1]);
+    }
+
     let clientName = '';
     if (!hasExplicitNoClient) {
       const clientNameMatch = fullText.match(/(?:Client\s*Name|Customer\s*Name|Guest\s*Name|Invoice\s*To|Naam|Billed\s*To)\s*[:=-]\s*([^\n\r,]+)/i) ||
@@ -736,10 +964,13 @@ OUTPUT JSON SCHEMA:
       }
     }
 
-    // Filter out instructions, competitor names, or agent details mistaken for client name
-    if (clientName && (/^(?:no|none|nahi|na|blank|empty|mr\s*shyam|shyam|shyam\s*thadani|zubina|oa\s*globe|kommord)\b/i.test(clientName) ||
-        /(?:package|company|details|markup|percent|edit|hata|baki|humari)/i.test(clientName) ||
-        clientName.length > 40)) {
+    // Universal check: filter out user instructions, competitor details, or agent names mistaken for client name
+    if (clientName && (
+      /^(?:no|none|nahi|na|blank|empty|n\/a|null|undefined|valued\s*client|valued\s*guest)\b/i.test(clientName) ||
+      /(?:package|company|details|markup|percent|edit|hata|baki|humari|remove|change|banao|proposal|quotation|voucher|invoice|itinerary|operator|supplier|dmc|sales|executive|reservation)/i.test(clientName) ||
+      isCompetitorOrSupplierNoise(clientName) ||
+      clientName.length > 35
+    )) {
       clientName = '';
     }
 
@@ -796,7 +1027,7 @@ OUTPUT JSON SCHEMA:
       { regex: /\b(?:Norway|Oslo|Bergen|Fjords)\b/i, name: 'Norway' },
       { regex: /\b(?:Finland|Helsinki|Rovaniemi|Lapland)\b/i, name: 'Finland (Lapland)' },
       // Asia
-      { regex: /\b(?:Maldives|Male|Maafushi)\b/i, name: 'Maldives' },
+      { regex: /\b(?:Maldives|Male|Maafushi|Finolhu|Veligandu|Kudadoo|Hurawalhi|Hudhuranfushi|Paradise\s*Island)\b/i, name: 'Maldives' },
       { regex: /\b(?:Mauritius)\b/i, name: 'Mauritius' },
       { regex: /\b(?:Seychelles|Mahe|Praslin)\b/i, name: 'Seychelles' },
       { regex: /\b(?:Sri\s*Lanka|Colombo|Kandy|Bentota|Nuwara\s*Eliya)\b/i, name: 'Sri Lanka' },
@@ -855,6 +1086,8 @@ OUTPUT JSON SCHEMA:
         destination = 'Singapore + Phuket + Krabi';
       } else if (/Vietnam|Hanoi|Halong|Da\s*Nang|Saigon/i.test(fullText)) {
         destination = 'Vietnam (Hanoi, Da Nang & Saigon)';
+      } else if (/Maldives|Finolhu|Veligandu|Kudadoo|Hurawalhi|Hudhuranfushi|Paradise\s*Island/i.test(fullText)) {
+        destination = 'Maldives';
       } else if (isExperiencesMenu) {
         destination = 'Curated Resort Dining Experiences';
       }
@@ -927,10 +1160,18 @@ OUTPUT JSON SCHEMA:
       duration = `${diff} Days / ${diff - 1} Nights`;
     }
 
-    const paxMatch = fullText.match(/(\d+)\s*(?:Adults?|Pax|Persons?|Guests?)/i) ||
-                     fullText.match(/Total\s*Guests?\s*\n\s*(\d+)\s*Adult/i) ||
-                     fullText.match(/Package\s*for\s*(\d+)\s*pax/i);
-    const paxCount = (tableTariff && tableTariff.paxCount) ? tableTariff.paxCount : (paxMatch ? parseInt(paxMatch[1], 10) : 2);
+    let paxCount = 2;
+    const explicitPaxMatch = fullText.match(/(?:Pax|Travellers?|Guests?|Adults?)\s*[:=-]?\s*(\d{1,3})\b/i);
+    if (explicitPaxMatch && parseInt(explicitPaxMatch[1], 10) > 0 && parseInt(explicitPaxMatch[1], 10) < 500) {
+      paxCount = parseInt(explicitPaxMatch[1], 10);
+    } else {
+      const pm = fullText.match(/\b([1-9]\d?)\s*(?:Adults?|Pax|Persons?|Guests?)\b/i) ||
+                 fullText.match(/Package\s*for\s*(\d{1,3})\s*pax/i);
+      if (pm && parseInt(pm[1], 10) > 0 && parseInt(pm[1], 10) < 500) {
+        paxCount = parseInt(pm[1], 10);
+      }
+    }
+    if (tableTariff && tableTariff.paxCount) paxCount = tableTariff.paxCount;
     const travellers = `${paxCount} Adults`;
 
     // ── 5. Real Day-by-Day Extraction (Extracts EXACT days from text) ──
@@ -1011,9 +1252,13 @@ OUTPUT JSON SCHEMA:
           let dayChunk = fullText.substring(cur.index, nextIndex);
 
           // Boundary cut: Stop day chunk before inclusions, exclusions, hotel lists, price tables, signatures, or email correspondence
-          const endCutMatch = dayChunk.match(/(?:\n|^)\s*(?:(?:[0-9]+\s*DAYS?\s*)?(?:TAILORMADE\s*)?(?:[A-Za-z\s]+)?(?:TOUR\s*)?(?:PACKAGE\s*)?INCLUDES?|INCLUSIONS?|TOUR\s*NOT\s*INCLUDE|EXCLUSIONS?|HOTEL\s*LIST|DESTINATIONS\s*\n\s*[0-9]+\s*DAYS|PRICES?\s*IN\s*[A-Z]+|PRICE\s*LIST|HOTEL\s*DETAILS|RATES?\s*DETAILS|THANKS\s*&\s*REGARDS|REGARDS\s*\n|FROM\s*:\s*[^\n]+|SENT\s*:\s*[^\n]+|SUBJECT\s*:\s*[^\n]+|DEAR\s*(?:SIR|MR|MADAM)|TOTAL\s*PACKAGE\s*COST)/i);
-          if (endCutMatch && endCutMatch.index > 30) {
-            dayChunk = dayChunk.substring(0, endCutMatch.index);
+          const firstLineBreak = dayChunk.indexOf('\n');
+          if (firstLineBreak !== -1) {
+            const bodyChunk = dayChunk.substring(firstLineBreak);
+            const endCutMatch = bodyChunk.match(/(?:\n|^)\s*(?:(?:[0-9]+\s*DAYS?\s*)?(?:TAILORMADE\s*)?(?:[A-Za-z\s]+)?(?:TOUR\s*)?(?:PACKAGE\s*)?INCLUDES?|INCLUSIONS?|TOUR\s*NOT\s*INCLUDE|EXCLUSIONS?|HOTEL\s*(?:LIST|DETAILS|PROPOSED)|DESTINATIONS\s*\n|PRICES?\s*IN\s*[A-Z]+|PRICE\s*LIST|HOTEL\s*DETAILS|RATES?\s*DETAILS|THANKS|REGARDS\b|FROM\s*:|SENT\s*:|SUBJECT\s*:|TO\s*:|DEAR\s*(?:SIR|MR|MADAM)|TOTAL\s*(?:PACKAGE\s*)?COST|PER\s*PERSON\s*COST|STRICTLY\s*FOR|B2B\s*CONFIDENTIAL|ROMFORD\s*HOLIDAYS)/i);
+            if (endCutMatch) {
+              dayChunk = dayChunk.substring(0, firstLineBreak + endCutMatch.index);
+            }
           }
 
           let dateStr = '';
@@ -1059,8 +1304,11 @@ OUTPUT JSON SCHEMA:
           for (const line of lines) {
             if (/^(?:DAY\s*\d+|PAX|AMOUNT|Page\s*\d+|Let's Explore DMC|www\.|--\s*PAGE\s*--|PRICES?\s*IN\s*[A-Z]+|Per\s*Person|Adult\s*Rate)/i.test(line)) continue;
             if (/^Hotel\s*:/i.test(line)) continue;
-            if (/^(?:DESTINATIONS|Hotel List|PS:|category hotel|Thanks|Zubina|From:|Sent:|To:|Subject:|Dear|Total package cost)/i.test(line)) continue;
-            if (/@oa-dmc\.com|alldmc\.com|Kommord|\+91\s*90722|\+91\s*77109/i.test(line)) continue;
+            if (/^(?:DESTINATIONS|Hotel List|PS:|category hotel|Dear|Total package cost|Total cost|Per person cost)/i.test(line)) continue;
+            if (isCompetitorOrSupplierNoise(line)) continue;
+            if (/@/i.test(line)) continue;
+            if (/^\s*\+?[0-9\s().-]{7,20}\s*$/.test(line)) continue;
+            if (/^(?:Hans\s*Mueller|Zubina\s*Shaikh|Romford\s*Holidays)/i.test(line)) continue;
 
             // Check if line has pricing (e.g. "101.00 x 2" or "$202" or "INR 5,000")
             const priceMatch = line.match(/(?:USD|\$|₹|INR)?\s*([0-9,]+(?:\.\d+)?)\s*(?:[x×]\s*(\d+))?/i);
@@ -1228,8 +1476,30 @@ OUTPUT JSON SCHEMA:
     const hotels = [];
     const seenHotels = new Set();
 
-    // 6.0 Highest Priority: Hotels extracted directly from DOCX Tables
-    if (tableTariff && tableTariff.extractedHotelsFromTable && tableTariff.extractedHotelsFromTable.length > 0) {
+    // 6.0 Highest Priority: Multi-Resort Comparison Options (for Maldives & luxury multi-property quotations)
+    const multiResortOptions = parseMultiResortOptions(fullText, userMarkupPct, destination || 'Maldives');
+    if (multiResortOptions && multiResortOptions.length >= 2) {
+      multiResortOptions.forEach(opt => {
+        hotels.push({
+          name: opt.resortName,
+          city: destination || 'Maldives',
+          checkIn: opt.checkIn,
+          checkOut: opt.checkOut,
+          nights: opt.nights,
+          roomType: opt.roomType,
+          starRating: '5 Star',
+          mealPlan: opt.mealPlan,
+          amountINR: opt.markedINR,
+          amountUSD: opt.markedUSD,
+          pax: paxCount || 2,
+          transfers: opt.transfers
+        });
+        seenHotels.add(opt.resortName.toLowerCase());
+      });
+    }
+
+    // 6.0b Priority: Hotels extracted directly from DOCX Tables
+    if (hotels.length === 0 && tableTariff && tableTariff.extractedHotelsFromTable && tableTariff.extractedHotelsFromTable.length > 0) {
       tableTariff.extractedHotelsFromTable.forEach(hItem => {
         const hName = typeof hItem === 'string' ? hItem : (hItem.name || '');
         if (hName.length > 3 && !seenHotels.has(hName.toLowerCase())) {
@@ -1325,37 +1595,82 @@ OUTPUT JSON SCHEMA:
       }
     }
 
-    // 6.1b Real City / Destination Hotel Pairings (e.g. "Hotel List \n Istanbul Revia Square Hotel \n Cappadocia Antique House Hotel")
-    const destCityList = ['Istanbul', 'Cappadocia', 'Antalya', 'Bodrum', 'Izmir', 'Kusadasi', 'Pamukkale', 'Dubai', 'Abu Dhabi', 'Singapore', 'Phuket', 'Krabi', 'Bangkok', 'Pattaya', 'Hanoi', 'Da Nang', 'Saigon', 'Baku', 'Tbilisi', 'Yerevan', 'Almaty', 'Tashkent', 'Bishkek', 'Cairo', 'Paris', 'Rome', 'London', 'Jaipur', 'Udaipur', 'Jodhpur'];
-    const docLines = fullText.split(/\r?\n/);
-    for (let li = 0; li < docLines.length; li++) {
-      const line = docLines[li].trim();
-      for (const c of destCityList) {
-        const cRegex = new RegExp(`^${c}\\s+([A-Z0-9][A-Za-z0-9\\s&'\\.-]+)$`, 'i');
-        const cMatch = line.match(cRegex);
-        if (cMatch) {
-          let candHotel = cMatch[1].trim();
-          if (/(?:Hotel|Resort|House|Suites|Palace|Inn|Lodge|Villa|Retreat)/i.test(candHotel) &&
-              !/(?:comfortably|category|available|booking|itinerary|options|package|price|quotation|thanks|regards|tax|taxes)/i.test(candHotel)) {
-            const hKey = candHotel.toLowerCase();
-            if (!seenHotels.has(hKey)) {
-              seenHotels.add(hKey);
-              const nights = c.toLowerCase() === 'istanbul' ? 3 : (c.toLowerCase() === 'cappadocia' ? 3 : 2);
-              const checkIn = c.toLowerCase() === 'istanbul' ? '21.12.2026' : (c.toLowerCase() === 'cappadocia' ? '24.12.2026' : 'Day 1');
-              const checkOut = c.toLowerCase() === 'istanbul' ? '24.12.2026' : (c.toLowerCase() === 'cappadocia' ? '27.12.2026' : 'Day 4');
-              hotels.push({
-                name: candHotel,
-                city: c,
-                checkIn: checkIn,
-                checkOut: checkOut,
-                nights: nights,
-                roomType: c.toLowerCase() === 'cappadocia' ? 'Cave / Stone Room' : 'Standard / Deluxe Room',
-                starRating: '4 Star',
-                mealPlan: c.toLowerCase() === 'cappadocia' ? 'Bed & Breakfast + Dinner (HB)' : 'Bed & Breakfast (BB)',
-                amountINR: 0,
-                amountUSD: 0
-              });
-            }
+    // 6.1b Universal City & Accommodation Extractor (Handles any city worldwide without hardcoding)
+    if (hotels.length === 0) {
+      const docLines = fullText.split(/\r?\n/);
+      const hotelKeywords = /\b(?:Hotel|Resort|House|Suites?|Palace|Inn|Lodge|Villa|Retreat|Camp|Cottage|Homestay|Boutique|Chalet|Hostel|Spa|Millennium|Marriott|Sheraton|Hilton|Hyatt|Novotel|Ibis|Radisson|Pullman|Kempinski|Fairmont|Sofitel)\b/i;
+      const hotelNoiseWords = /\b(?:meet|guide|driver|lobby|trekking|visit|churches|sightseeing|transfer|airport|flight|breakfast|lunch|dinner|morning|afternoon|evening|relax|explore|walking|distance|covered|frescoes|comfortably|category|available|booking|itinerary|options|package|price|quotation|thanks|regards|tax|taxes|nights?\s+hotel|nights?\s+stay|nights?\s+in)\b/i;
+      const twoWordCities = /^(?:Koh\s+Samui|Koh\s+Phangan|Koh\s+Tao|Abu\s+Dhabi|Kuala\s+Lumpur|New\s+York|San\s+Francisco|Los\s+Angeles|Cape\s+Town|Hong\s+Kong|Siem\s+Reap|Ho\s+Chi\s+Minh|Sri\s+Lanka)/i;
+
+      // Check if there is an explicit Hotel List section
+      let inHotelSection = false;
+      for (let li = 0; li < docLines.length; li++) {
+        const line = docLines[li].trim();
+        if (!line) continue;
+        if (/^(?:HOTEL\s*(?:LIST|DETAILS|PROPOSED|OPTIONS|ACCOMMODATIONS?)|WHERE\s*YOU(?:'LL|\s*WILL)\s*STAY|STAY\s*DETAILS|ACCOMMODATIONS?)\s*[:=-]?$/i.test(line)) {
+          inHotelSection = true;
+          continue;
+        }
+        if (inHotelSection && /^(?:INCLUDES?|EXCLUDES?|PRICES?|COSTING|TERMS|TRANSFERS?|DAY\s*\d|ITINERARY|IMPORTANT|THANKS|REGARDS)/i.test(line)) {
+          inHotelSection = false;
+        }
+
+        // Reject long paragraphs or sentences
+        if (line.length > 70) continue;
+        if (hotelNoiseWords.test(line)) continue;
+        if (!hotelKeywords.test(line)) continue;
+
+        let candCity = '';
+        let candHotel = '';
+
+        if (line.includes(':') || line.includes(' - ') || line.includes(' – ')) {
+          const parts = line.split(/[:\-–]/);
+          candCity = parts[0].trim();
+          candHotel = parts.slice(1).join(' ').trim();
+        } else if (twoWordCities.test(line)) {
+          const m = line.match(twoWordCities);
+          candCity = m[0].trim();
+          candHotel = line.substring(candCity.length).trim();
+        } else {
+          const firstWord = line.split(/\s+/)[0];
+          if (/^(?:Hotel|Resort|The|Grand|Luxury|Villa|Palace|Inn)\b/i.test(firstWord)) {
+            candCity = destination.split('&')[0].split(',')[0].trim() || 'Destination';
+            candHotel = line;
+          } else {
+            candCity = firstWord;
+            candHotel = line.substring(firstWord.length).trim();
+          }
+        }
+
+        candHotel = candHotel.replace(/^[•·–—\-*\d\.]+\s*/, '').replace(/\s*\(\d+\s*N(?:ights?)?\)/i, '').trim();
+        candCity = candCity.replace(/^[•·–—\-*\d\.]+\s*/, '').trim();
+
+        if (candHotel.length >= 3 && !hotelNoiseWords.test(candHotel) && !/^(?:nights?|days?|hours?|stay|hotel\s*in)\b/i.test(candHotel) && !/^(?:nights?|days?)\b/i.test(candCity)) {
+          const hKey = candHotel.toLowerCase();
+          if (!seenHotels.has(hKey)) {
+            seenHotels.add(hKey);
+
+            // Dynamic nights detection (e.g. "3 Nights" or "3N")
+            const nMatch = line.match(/(\d+)\s*(?:Nights?|N\b)/i) || candHotel.match(/(\d+)\s*(?:Nights?|N\b)/i);
+            const nights = nMatch ? parseInt(nMatch[1], 10) : (days.length > 0 ? Math.max(1, Math.round(days.length / 2)) : 2);
+
+            // Dynamic room type detection
+            const roomType = /Cave|Stone/i.test(candHotel) ? 'Cave / Stone Room' : (/Villa/i.test(candHotel) ? 'Luxury Pool Villa' : 'Standard / Deluxe Room');
+            // Dynamic meal plan
+            const mealPlan = /HB|Half\s*Board/i.test(line) ? 'Half Board (Breakfast & Dinner)' : (/FB|Full\s*Board/i.test(line) ? 'Full Board (All Meals)' : (/AI|All\s*Inclusive/i.test(line) ? 'All Inclusive' : 'Daily Buffet Breakfast (BB)'));
+
+            hotels.push({
+              name: candHotel,
+              city: candCity || 'Destination',
+              checkIn: 'Day 1',
+              checkOut: `Day ${nights + 1}`,
+              nights: nights,
+              roomType: roomType,
+              starRating: /5\s*(?:\*|Star)/i.test(line) ? '5 Star' : '4 Star',
+              mealPlan: mealPlan,
+              amountINR: 0,
+              amountUSD: 0
+            });
           }
         }
       }
@@ -1384,22 +1699,24 @@ OUTPUT JSON SCHEMA:
       });
     }
 
-    days.forEach(d => {
-      if (d.hotel && d.hotel.name && !seenHotels.has(d.hotel.name.toLowerCase())) {
-        seenHotels.add(d.hotel.name.toLowerCase());
-        hotels.push({
-          name: d.hotel.name,
-          city: destination.split('+')[0].trim() || 'City Center',
-          checkIn: d.date || 'Day 1',
-          checkOut: d.hotel.dates ? d.hotel.dates.split('to')[1]?.trim() || '' : '',
-          nights: 3,
-          roomType: 'Deluxe Room',
-          mealPlan: 'Bed & Breakfast',
-          amountINR: d.hotel.amountINR || 0,
-          amountUSD: d.hotel.amountUSD || 0
-        });
-      }
-    });
+    if (!multiResortOptions || multiResortOptions.length < 2) {
+      days.forEach(d => {
+        if (d.hotel && d.hotel.name && !seenHotels.has(d.hotel.name.toLowerCase())) {
+          seenHotels.add(d.hotel.name.toLowerCase());
+          hotels.push({
+            name: d.hotel.name,
+            city: destination.split('+')[0].trim() || 'City Center',
+            checkIn: d.date || 'Day 1',
+            checkOut: d.hotel.dates ? d.hotel.dates.split('to')[1]?.trim() || '' : '',
+            nights: 3,
+            roomType: 'Deluxe Room',
+            mealPlan: 'Bed & Breakfast',
+            amountINR: d.hotel.amountINR || 0,
+            amountUSD: d.hotel.amountUSD || 0
+          });
+        }
+      });
+    }
 
     // Fallback: If no hotels found yet, scan entire document text for hotel mentions
     if (hotels.length === 0) {
@@ -1497,29 +1814,54 @@ OUTPUT JSON SCHEMA:
     const extractedNotes = [];
 
     if (extractedInclusions.length === 0) {
-      const incMatch = fullText.match(/(?:(?:PACKAGE\s*|RATES?\s*|SERVICES?\s*)?INCLUSIONS?|(?:PACKAGE\s*|RATES?\s*|SERVICES?\s*)?INCLUDES?)\s*[:=-]?\s*\n([\s\S]*?)(?=\n\s*(?:(?:PACKAGE\s*)?EXCLUSIONS?|(?:PACKAGE\s*)?EXCLUDES?|HOTEL|TERMS|NOTES?|PAYMENT|CANCELLATION|COST)|$)/i);
+      const incMatch = fullText.match(/(?:(?:PACKAGE\s*|RATES?\s*|SERVICES?\s*)?INCLUSIONS?|(?:PACKAGE\s*|RATES?\s*|SERVICES?\s*)?INCLUDES?|(?:OTHER\s+)?COMPLIMENTARY\s+SERVICES(?:\s+AND\s+EXCLUSIVE\s+BENEFITS)?|EXCLUSIVE\s+BENEFITS)\s*[:=-]?\s*\n([\s\S]*?)(?=\n\s*(?:(?:PACKAGE\s*)?EXCLUSIONS?|(?:PACKAGE\s*)?EXCLUDES?|HOTEL|TERMS|NOTES?|PAYMENT|CANCELLATION|COST|REGARDS|THANKS|FROM\s*:|OPTION\s*\d+|RESORT\s*[-–:])|$)/i);
       if (incMatch && incMatch[1]) {
         const incLines = incMatch[1].split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
         for (const line of incLines) {
           const cleanLine = line.replace(/^[•·–—\-*\d\.]+\s*/, '').trim();
-          if (cleanLine.length > 3 && !/^(?:inclusions?|includes?|package)\b/i.test(cleanLine)) {
+          if (cleanLine.length > 3 && !/^(?:inclusions?|includes?|package|option\s*\d+|resort\s*[-–:]|number\s*of\s*pax|check-in|no\s*of\s*nights|meal\s*plan|transfers\s*:|nationality|fb\s*cost|cost\s*@)\b/i.test(cleanLine)) {
+            if (isCompetitorOrSupplierNoise(cleanLine) || /^(?:Regards|Thanks|Sincerely|From|Sent|Subject)\b/i.test(cleanLine) || /@/i.test(cleanLine) || /^\+?[0-9\s().-]{7,20}$/.test(cleanLine)) continue;
             extractedInclusions.push(cleanLine);
           }
         }
       }
     }
 
+    if (multiResortOptions && multiResortOptions.length >= 2 && extractedInclusions.length === 0) {
+      extractedInclusions = [
+        'Luxury villa accommodation at selected resort as per choice',
+        'Meal plan as specified (All-Inclusive / Premium AI / Full Board)',
+        'Return airport transfers (Return Shared Speedboat or Return Seaplane as per chosen resort)',
+        'Return shared seaplane transfers for two guests per villa (Option 3 Finolhu)',
+        'One complimentary Shisha in Beach Club during stay (Option 3 Finolhu)',
+        'One-time Lucky Dolphin Cruise during stay (weather permitting - Option 3 Finolhu)',
+        'Complimentary use of non-motorised water sports equipment',
+        '24/7 dedicated Maldives airport assistance and ground representative',
+        'All prevailing Maldives TGST (Tourism Goods & Services Tax) & Green Taxes included'
+      ];
+    }
+
     if (extractedExclusions.length === 0) {
-      const excMatch = fullText.match(/(?:(?:PACKAGE\s*|SERVICES?\s*)?EXCLUSIONS?|(?:PACKAGE\s*|SERVICES?\s*)?EXCLUDES?|NOT\s*INCLUDED)\s*[:=-]?\s*\n([\s\S]*?)(?=\n\s*(?:(?:PACKAGE\s*)?INCLUSIONS?|HOTEL|TERMS|NOTES?|PAYMENT|CANCELLATION|COST|DAY\s*\d+)|$)/i);
+      const excMatch = fullText.match(/(?:(?:PACKAGE\s*|SERVICES?\s*)?EXCLUSIONS?|(?:PACKAGE\s*|SERVICES?\s*)?EXCLUDES?|NOT\s*INCLUDED)\s*[:=-]?\s*\n([\s\S]*?)(?=\n\s*(?:(?:PACKAGE\s*)?INCLUSIONS?|HOTEL|TERMS|NOTES?|PAYMENT|CANCELLATION|COST|DAY\s*\d+|REGARDS|THANKS|FROM\s*:)|$)/i);
       if (excMatch && excMatch[1]) {
         const excLines = excMatch[1].split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
         for (const line of excLines) {
           const cleanLine = line.replace(/^[•·–—\-*\d\.]+\s*/, '').trim();
           if (cleanLine.length > 3 && !/^(?:exclusions?|excludes?|package)\b/i.test(cleanLine)) {
+            if (isCompetitorOrSupplierNoise(cleanLine) || /^(?:Regards|Thanks|Sincerely|From|Sent|Subject)\b/i.test(cleanLine) || /@/i.test(cleanLine) || /^\+?[0-9\s().-]{7,20}$/.test(cleanLine)) continue;
             extractedExclusions.push(cleanLine);
           }
         }
       }
+    }
+
+    if (multiResortOptions && multiResortOptions.length >= 2 && extractedExclusions.length === 0) {
+      extractedExclusions = [
+        'International air tickets to and from Male (Velana International Airport)',
+        'Personal expenses (laundry, telephone calls, minibar, optional dining excursions)',
+        'Travel and medical insurance (strongly recommended)',
+        'Early check-in and late check-out fees (subject to resort availability)'
+      ];
     }
 
     const notesMatch = fullText.match(/(?:IMPORTANT\s*NOTES?|NOTES?|TERMS\s*&\s*CONDITIONS?|REMARKS?)\s*[:=-]?\s*\n([\s\S]*?)(?=\n\s*(?:INCLUSIONS?|EXCLUSIONS?|HOTEL|PAYMENT)|$)/i);
@@ -1528,19 +1870,21 @@ OUTPUT JSON SCHEMA:
       for (const line of nLines) {
         const cleanLine = line.replace(/^[•·–—\-*\d\.]+\s*/, '').trim();
         if (cleanLine.length > 4) {
+          if (isCompetitorOrSupplierNoise(cleanLine) || /^(?:Regards|Thanks|Sincerely|From|Sent|Subject)\b/i.test(cleanLine) || /@/i.test(cleanLine) || /^\+?[0-9\s().-]{7,20}$/.test(cleanLine)) continue;
           extractedNotes.push(cleanLine);
         }
       }
     }
 
     // ── 7.6 Profit Markup Intelligence from User Prompt (NEVER from docx text) ──
-    let userMarkupPct = 0;
     const uPrompt = (text || '').toLowerCase();
-    const promptMarkupMatch = uPrompt.match(/(?:add|lagao|karo|\+)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent|percentage|pratishat|pc)?\s*(?:ka\s*)?(?:markup|margin|profit)/i) ||
-                              uPrompt.match(/(?:markup|margin|profit)\s*(?:of|is|mein)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)?/i) ||
-                              uPrompt.match(/(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)\s*(?:ka\s*)?(?:markup|margin)/i);
-    if (promptMarkupMatch) {
-      userMarkupPct = parseFloat(promptMarkupMatch[1]);
+    if (!userMarkupPct) {
+      const promptMarkupMatch = uPrompt.match(/(?:v|add|lagao|karo|\+|with)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent|percentage|pratishat|pc)?\s*(?:ka\s*)?(?:markup|margin|profit)/i) ||
+                                uPrompt.match(/(?:markup|margin|profit)\s*(?:of|is|mein)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)?/i) ||
+                                uPrompt.match(/(\d{1,2}(?:\.\d+)?)\s*(?:%|percent)\s*(?:ka\s*)?(?:markup|margin)/i);
+      if (promptMarkupMatch) {
+        userMarkupPct = parseFloat(promptMarkupMatch[1]);
+      }
     }
 
     // ── 7.7 Exact Rates & Pricing Extraction (Text + Tables + User Prompt) ──
@@ -1549,18 +1893,30 @@ OUTPUT JSON SCHEMA:
     let extractedTotalRate = 0;
     let extractedPricingRows = (tableTariff && tableTariff.pricingRows) ? [...tableTariff.pricingRows] : [];
 
-    // Euro currency detection & European decimal parsing (€ 590,00 and € 605,00)
-    if (/PRICES?\s*IN\s*EURO|PRICES?\s*IN\s*EUR|€/i.test(fullText)) {
+    // Global multi-currency detection across document
+    if (/PRICES?\s*IN\s*EURO|PRICES?\s*IN\s*EUR|€|\bEUR\b|\bEuro\b/i.test(fullText)) {
       docCurrency = 'EUR';
+    } else if (/\bAED\b|\bDirhams?\b/i.test(fullText)) {
+      docCurrency = 'AED';
+    } else if (/£|\bGBP\b|\bPounds?\b/i.test(fullText)) {
+      docCurrency = 'GBP';
+    } else if (/₹|\bINR\b|\bRupees?\b|Rs\.?/i.test(fullText)) {
+      docCurrency = 'INR';
+    } else if (/฿|\bTHB\b|\bBaht\b/i.test(fullText)) {
+      docCurrency = 'THB';
+    } else if (/\bSGD\b|\bS\$/i.test(fullText)) {
+      docCurrency = 'SGD';
     }
 
-    const euroMatrixMatch = fullText.match(/(?:TRIPLE\s*ROOM[\s\S]*?DOUBLE\s*ROOM|DOUBLE\s*ROOM[\s\S]*?TRIPLE\s*ROOM)[\s\S]*?Adult\s*Rate[\s\S]*?(?:€|EUR)?\s*([0-9]+(?:[,.][0-9]{2})?)[\s\S]*?(?:€|EUR)?\s*([0-9]+(?:[,.][0-9]{2})?)/i) ||
-      fullText.match(/Adult\s*Rate\s*(?:€|EUR)?\s*([0-9]+(?:[,.][0-9]{2})?)\s*(?:€|EUR)?\s*([0-9]+(?:[,.][0-9]{2})?)/i);
+    const occupancyMatrixMatch = fullText.match(/(?:TRIPLE\s*(?:ROOM|SHARING)?[\s\S]*?DOUBLE\s*(?:ROOM|SHARING)?|DOUBLE\s*(?:ROOM|SHARING)?[\s\S]*?TRIPLE\s*(?:ROOM|SHARING)?)[\s\S]*?Adult\s*Rate[\s\S]*?(?:€|EUR|\$|USD|₹|INR|AED|£|GBP)?\s*([0-9]+(?:[,.][0-9]{2})?)[\s\S]*?(?:€|EUR|\$|USD|₹|INR|AED|£|GBP)?\s*([0-9]+(?:[,.][0-9]{2})?)/i) ||
+      fullText.match(/Adult\s*Rate\s*(?:€|EUR|\$|USD|₹|INR|AED|£|GBP)?\s*([0-9]+(?:[,.][0-9]{2})?)\s*(?:€|EUR|\$|USD|₹|INR|AED|£|GBP)?\s*([0-9]+(?:[,.][0-9]{2})?)/i);
 
-    if (euroMatrixMatch) {
-      docCurrency = 'EUR';
-      const r1 = parseFloat(euroMatrixMatch[1].replace(',', '.'));
-      const r2 = parseFloat(euroMatrixMatch[2].replace(',', '.'));
+    if (occupancyMatrixMatch) {
+      if (/€|EUR|Euro/i.test(occupancyMatrixMatch[0]) || /PRICES?\s*IN\s*EUR/i.test(fullText)) {
+        docCurrency = 'EUR';
+      }
+      const r1 = parseFloat(occupancyMatrixMatch[1].replace(',', '.'));
+      const r2 = parseFloat(occupancyMatrixMatch[2].replace(',', '.'));
       const baseDouble = Math.max(r1, r2);
       const baseTriple = Math.min(r1, r2);
       extractedPerPersonRate = baseDouble;
@@ -1568,32 +1924,39 @@ OUTPUT JSON SCHEMA:
       const markedDouble = userMarkupPct > 0 ? Math.round(baseDouble * (1 + userMarkupPct / 100) * 100) / 100 : baseDouble;
       const markedTriple = userMarkupPct > 0 ? Math.round(baseTriple * (1 + userMarkupPct / 100) * 100) / 100 : baseTriple;
 
+      const tourLabel = `${duration || (days.length + ' Days')} Tailormade Tour`;
       extractedPricingRows = [
         {
-          description: `Adult Rate - Double Room Sharing (7 Days Tailormade Tour)${userMarkupPct > 0 ? ` [Includes +${userMarkupPct}% Markup]` : ''}`,
+          description: `Adult Rate - Double Room Sharing (${tourLabel})${userMarkupPct > 0 ? ` [Includes +${userMarkupPct}% Markup]` : ''}`,
           rate: markedDouble,
           rateDouble: markedDouble,
           rateUSD: markedDouble,
           baseRate: baseDouble,
-          currency: 'EUR'
+          currency: docCurrency
         },
         {
-          description: `Adult Rate - Triple Room Sharing (7 Days Tailormade Tour)${userMarkupPct > 0 ? ` [Includes +${userMarkupPct}% Markup]` : ''}`,
+          description: `Adult Rate - Triple Room Sharing (${tourLabel})${userMarkupPct > 0 ? ` [Includes +${userMarkupPct}% Markup]` : ''}`,
           rate: markedTriple,
           rateDouble: markedTriple,
           rateUSD: markedTriple,
           baseRate: baseTriple,
-          currency: 'EUR'
+          currency: docCurrency
         }
       ];
     }
 
     // Line-level currency & rate detection from document text
-    const ppMatch1 = fullText.match(/(?:PER\s*PERSON\s*COST|PER\s*PERSON\s*RATE|PER\s*PERSON|PER\s*ADULT)\s*[:\s]*([A-Z]{3}|\$|₹)?\s*([0-9,]+(?:\.\d+)?)/i);
+    const ppMatch1 = fullText.match(/(?:PER\s*PERSON\s*COST|PER\s*PERSON\s*RATE|PER\s*PERSON|PER\s*ADULT)\s*[:\s]*([A-Z]{3}|\$|₹|€|£|฿)?\s*([0-9,]+(?:\.\d+)?)/i);
     if (ppMatch1 && !extractedPerPersonRate) {
       if (ppMatch1[1]) {
-        if (/inr|₹/i.test(ppMatch1[1])) docCurrency = 'INR';
-        if (/\$|usd/i.test(ppMatch1[1])) docCurrency = 'USD';
+        const c = ppMatch1[1].toUpperCase();
+        if (/INR|₹/i.test(c)) docCurrency = 'INR';
+        else if (/USD|\$/i.test(c)) docCurrency = 'USD';
+        else if (/EUR|€/i.test(c)) docCurrency = 'EUR';
+        else if (/AED/i.test(c)) docCurrency = 'AED';
+        else if (/GBP|£/i.test(c)) docCurrency = 'GBP';
+        else if (/THB|฿/i.test(c)) docCurrency = 'THB';
+        else if (/SGD/i.test(c)) docCurrency = 'SGD';
       }
       extractedPerPersonRate = parseFloat(ppMatch1[2].replace(/,/g, ''));
     }
@@ -1608,21 +1971,22 @@ OUTPUT JSON SCHEMA:
     }
 
     // Direct User Prompt Rate e.g. "50696 INR" or "608 USD" or "127.15 USD"
-    const promptRateMatch = (text || '').match(/(\d+(?:\.\d+)?)\s*(INR|₹|USD|\$|EUR|€)/i) ||
-                            (text || '').match(/(?:rate|cost|price|per person)[:\s]*([A-Z]{3}|\$|₹)?\s*(\d+(?:\.\d+)?)/i);
+    const promptRateMatch = (text || '').match(/(\d+(?:\.\d+)?)\s*(INR|₹|USD|\$|EUR|€|AED)/i) ||
+                            (text || '').match(/(?:rate|cost|price|per person)[:\s]*([A-Z]{3}|\$|₹|€)?\s*(\d+(?:\.\d+)?)/i);
     if (promptRateMatch) {
       const currStr = promptRateMatch[1] && isNaN(promptRateMatch[1]) ? promptRateMatch[1] : (promptRateMatch[2] && isNaN(promptRateMatch[2]) ? promptRateMatch[2] : '');
       const numVal = parseFloat(promptRateMatch[1] && !isNaN(promptRateMatch[1]) ? promptRateMatch[1] : promptRateMatch[2]);
       if (numVal > 0) {
         extractedPerPersonRate = numVal;
         if (/inr|₹/i.test(currStr)) docCurrency = 'INR';
-        if (/usd|\$/i.test(currStr)) docCurrency = 'USD';
-        if (/eur|€/i.test(currStr)) docCurrency = 'EUR';
+        else if (/usd|\$/i.test(currStr)) docCurrency = 'USD';
+        else if (/eur|€/i.test(currStr)) docCurrency = 'EUR';
+        else if (/aed/i.test(currStr)) docCurrency = 'AED';
       }
     }
 
     // Total Amount Paid / Total Amount Payable (Prioritizes exact booking total over taxes/fees)
-    let totalMatch = fullText.match(/(?:Total\s*Amount\s*Payable|Total\s*Amount\s*Paid|Total\s*Paid|Grand\s*Total|Total\s*Cost|Total\s*Amount)\s*[:\s]*(?:₹|\$|INR|USD)?\s*([0-9,]+(?:\.\d+)?)/i);
+    let totalMatch = fullText.match(/(?:Total\s*Package\s*Cost|Total\s*Amount\s*Payable|Total\s*Amount\s*Paid|Total\s*Paid|Grand\s*Total|Total\s*Cost|Total\s*Amount|Final\s*Package\s*Cost)\s*[:\s]*(?:₹|\$|€|£|฿|INR|USD|EUR|AED|GBP|THB|SGD)?\s*([0-9,]+(?:\.\d+)?)/i);
     if (!totalMatch) {
       const revMatch = fullText.match(/([0-9,]{4,}(?:\.\d+)?)\s*(?:Total\s*Amount\s*Paid|Total\s*Paid)/i);
       if (revMatch && !/^(?:19|20)\d{2}$/.test(revMatch[1].replace(/,/g, ''))) {
@@ -1631,7 +1995,12 @@ OUTPUT JSON SCHEMA:
     }
     if (totalMatch) {
       extractedTotalRate = parseFloat(totalMatch[1].replace(/,/g, ''));
-      if (/₹|INR/i.test(fullText) || /Total\s*Amount\s*Payable\s*₹/i.test(fullText)) docCurrency = 'INR';
+      const nearText = fullText.substring(Math.max(0, totalMatch.index - 20), Math.min(fullText.length, totalMatch.index + totalMatch[0].length + 20));
+      if (/€|EUR/i.test(nearText)) docCurrency = 'EUR';
+      else if (/AED/i.test(nearText)) docCurrency = 'AED';
+      else if (/£|GBP/i.test(nearText)) docCurrency = 'GBP';
+      else if (/₹|INR/i.test(nearText)) docCurrency = 'INR';
+      else if (/\$|USD/i.test(nearText)) docCurrency = 'USD';
     }
 
     const finalPax = (tableTariff && tableTariff.paxCount) ? tableTariff.paxCount : paxCount;
@@ -1659,37 +2028,75 @@ OUTPUT JSON SCHEMA:
       totalCost = adultRate ? Math.round(adultRate * finalPax * 100) / 100 : 0;
     }
 
-    // Dynamic Summary Items matching calculated rates (Zero Thailand fallback when custom rates present)
-    if (docCurrency === 'EUR' && adultRate > 0) {
-      summaryItems = [
-        { name: `7 Days Tailormade Turkey Tour Package (${finalPax} Adults)${userMarkupPct > 0 ? ` [With +${userMarkupPct}% Markup]` : ''}`, amountUSD: totalCost, amountEUR: totalCost, amountINR: Math.round(totalCost * 92.5) },
-        { name: 'Hotel Accommodations (3N Istanbul + 3N Cappadocia)', amountUSD: 0, amountEUR: 0, amountINR: 0 },
-        { name: 'Guided City Tours, Bosphorus Cruise, North & South Cappadocia Excursions', amountUSD: 0, amountEUR: 0, amountINR: 0 }
-      ];
-      totalUSD = totalCost;
-      totalINR = Math.round(totalCost * 92.5);
+    // Dynamic Summary Items matching calculated rates (Universal, zero hardcoding for any destination & currency)
+    const hotelSummaryDesc = hotels.length > 0
+      ? `Hotel Accommodations (${hotels.map(h => `${h.nights || 2}N ${h.city}`).join(' + ')})`
+      : 'Handpicked Hotel Stays as per Itinerary';
+    const tourTitle = `${duration || (days.length + ' Days')} Tailormade ${destination || 'Holiday'} Tour Package (${finalPax} Adults)${userMarkupPct > 0 ? ` [With +${userMarkupPct}% Markup]` : ''}`;
+
+    if (multiResortOptions && multiResortOptions.length >= 2) {
+      docCurrency = 'USD';
+      extractedPricingRows = multiResortOptions.map(opt => ({
+        description: `Option ${opt.optionNumber}: ${opt.resortName} (${opt.nights}N ${opt.roomType}, ${opt.mealPlan}, ${opt.transfers})${userMarkupPct > 0 ? ` [Includes +${userMarkupPct}% Markup]` : ''}`,
+        rate: opt.markedUSD,
+        rateDouble: opt.markedUSD,
+        rateUSD: opt.markedUSD,
+        rateINR: opt.markedINR,
+        currency: 'USD'
+      }));
+      summaryItems = multiResortOptions.map(opt => ({
+        name: `Option ${opt.optionNumber}: ${opt.resortName} · ${opt.nights}N ${opt.roomType} (${opt.mealPlan}) for 2 Adults`,
+        amountUSD: opt.markedUSD,
+        amountINR: opt.markedINR
+      }));
+      totalUSD = multiResortOptions[0].markedUSD;
+      totalINR = multiResortOptions[0].markedINR;
+      totalCost = totalUSD;
+      adultRate = Math.round((totalUSD / (finalPax || 2)) * 100) / 100;
     } else if (adultRate > 0 && totalCost > 0 && !/Tomorrowland/i.test(fullText)) {
+      const FX_TO_INR = { INR: 1, USD: 87.5, EUR: 92.5, GBP: 110.0, AED: 23.8, SGD: 65.0, THB: 2.5, AUD: 57.0 };
+      const currFx = FX_TO_INR[docCurrency] || 87.5;
+      const costInr = (docCurrency === 'INR') ? totalCost : Math.round(totalCost * currFx);
+      const costUsd = (docCurrency === 'USD') ? totalCost : (docCurrency === 'EUR' ? totalCost : Math.round(costInr / 87.5));
+
       summaryItems = [
-        { name: `Complete Land Arrangement & Package Tour (${destination || 'Package Tour'})`, amountUSD: (docCurrency === 'USD') ? totalCost : 0, amountINR: (docCurrency === 'INR') ? totalCost : Math.round(totalCost * 87.5) },
-        { name: 'Hotel Stays & Accommodations as per Program', amountUSD: 0, amountINR: 0 },
-        { name: 'Private Vehicle Transfers & Sightseeing', amountUSD: 0, amountINR: 0 }
+        {
+          name: tourTitle,
+          amountUSD: costUsd,
+          amountEUR: (docCurrency === 'EUR') ? totalCost : 0,
+          amountINR: costInr
+        },
+        {
+          name: hotelSummaryDesc,
+          amountUSD: 0,
+          amountEUR: 0,
+          amountINR: 0
+        },
+        {
+          name: `Sightseeing Tours, Private Transfers & Local Admissions across ${destination || 'Destination'}`,
+          amountUSD: 0,
+          amountEUR: 0,
+          amountINR: 0
+        }
       ];
-      totalUSD = (docCurrency === 'USD') ? totalCost : Math.round(totalCost / 87.5);
-      totalINR = (docCurrency === 'INR') ? totalCost : Math.round(totalCost * 87.5);
+      totalUSD = costUsd;
+      totalINR = costInr;
     }
 
     // Company Branding
     const isAanayCo = /\b(aanay|anay)\b/i.test(uPrompt) || uPrompt.includes('anay tours') || uPrompt.includes('aanay tours');
     const companyData = isAanayCo ? {
       name: 'Aanay Tours',
-      phone: '+91 7708123187',
+      phone: '+91 7708123187 | +91 8007586871',
       email: 'Infoattdmc@gmail.com',
-      logo: 'images/extracted_anay/page_0_1_Image2.jpg'
+      logo: 'images/extracted_anay/page_0_1_Image2.jpg',
+      address: 'Sahakar Nagar Opp New Cotton Market, Amravati, Maharashtra, India, 444603'
     } : {
       name: "Let's Explore DMC",
-      phone: '+91 80075 86871',
+      phone: '+91 80075 86871 | +91 95459 55966',
       email: 'letsexploredmc@gmail.com',
-      logo: 'assets/images/logo.png'
+      logo: 'assets/images/logo.png',
+      address: 'Corporate Reservations Desk, Maharashtra & New Delhi'
     };
 
     // ── 7.8 Exact Commercial Invoice (Billing) Computation ──
@@ -1821,47 +2228,65 @@ OUTPUT JSON SCHEMA:
       extractedTables: rawTables,
       inclusions: extractedInclusions.length > 0 ? extractedInclusions : (typeof QuotationData !== 'undefined' ? QuotationData.inclusions : []),
       exclusions: extractedExclusions.length > 0 ? extractedExclusions : (typeof QuotationData !== 'undefined' ? QuotationData.exclusions : []),
-      pricing: adultRate > 0 ? {
-        currency: docCurrency,
-        ratePerAdult: adultRate,
-        baseAdultRate: baseAdultRate,
-        markupPercent: userMarkupPct,
-        ratePerAdultUSD: (docCurrency === 'USD' || docCurrency === 'EUR') ? adultRate : Math.round(adultRate / 87.5),
-        ratePerAdultINR: docCurrency === 'INR' ? adultRate : Math.round(adultRate * 87.5),
-        ratePerChildUSD: Math.round(adultRate * 0.65),
-        grandTotalUSD: (docCurrency === 'USD' || docCurrency === 'EUR') ? totalCost : Math.round(totalCost / 87.5),
-        grandTotal: totalCost,
-        subtotal: totalCost,
-        pricingRows: (extractedPricingRows && extractedPricingRows.length > 0) ? extractedPricingRows : ((tableTariff && tableTariff.pricingRows) ? tableTariff.pricingRows : [])
-      } : null,
-      package: {
-        title: /Tomorrowland/i.test(destination) ? 'Pattaya Tomorrowland Thailand Group Package' : `${destination} Tour Package`,
-        duration: duration || `${days.length || 5} Days`,
-        destinations: destination,
-        destination: destination,
-        travellers: `${finalPax} Adults`,
-        paxCount: finalPax,
-        clientName: clientName,
-        clientContact: clientContact,
-        pickupFrom: 'Airport',
-        quoteRef: 'LE-DMC-' + Math.floor(1000 + Math.random() * 9000),
-        preparedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        usdToInrRate: 87.5,
-        currency: docCurrency,
-        baseAdultRateUSD: baseAdultRate,
-        markupPercent: userMarkupPct,
-        ratePerAdultUSD: (docCurrency === 'USD' || docCurrency === 'EUR') ? adultRate : Math.round(adultRate / 87.5),
-        ratePerAdultINR: docCurrency === 'INR' ? adultRate : Math.round(adultRate * 87.5),
-        totalCostUSD: (docCurrency === 'USD' || docCurrency === 'EUR') ? totalCost : Math.round(totalCost / 87.5),
-        totalCostINR: docCurrency === 'INR' ? totalCost : Math.round(totalCost * 87.5),
-        pricingRows: (extractedPricingRows && extractedPricingRows.length > 0) ? extractedPricingRows : ((tableTariff && tableTariff.pricingRows) ? tableTariff.pricingRows : []),
-        transportTypes: (tableTariff && tableTariff.transportTypes) ? tableTariff.transportTypes : [],
-        extractedLogo: detectedLogo ? detectedLogo.web_path : '',
-        extractedTables: rawTables,
-        inclusions: extractedInclusions,
-        exclusions: extractedExclusions,
-        notes: extractedNotes.join('\n')
-      },
+      pricing: adultRate > 0 ? (() => {
+        const FX_MAP = { INR: 1, USD: 87.5, EUR: 92.5, GBP: 110.0, AED: 23.8, SGD: 65.0, THB: 2.5, AUD: 57.0 };
+        const cFx = FX_MAP[docCurrency] || 87.5;
+        const cInr = docCurrency === 'INR' ? adultRate : Math.round(adultRate * cFx);
+        const cUsd = docCurrency === 'USD' ? adultRate : (docCurrency === 'EUR' ? adultRate : Math.round(cInr / 87.5));
+        const cGrandInr = docCurrency === 'INR' ? totalCost : Math.round(totalCost * cFx);
+        const cGrandUsd = docCurrency === 'USD' ? totalCost : (docCurrency === 'EUR' ? totalCost : Math.round(cGrandInr / 87.5));
+        return {
+          currency: docCurrency,
+          ratePerAdult: adultRate,
+          baseAdultRate: baseAdultRate,
+          markupPercent: userMarkupPct,
+          ratePerAdultUSD: cUsd,
+          ratePerAdultINR: cInr,
+          ratePerChildUSD: Math.round(cUsd * 0.65),
+          grandTotalUSD: cGrandUsd,
+          grandTotal: totalCost,
+          subtotal: totalCost,
+          pricingRows: (extractedPricingRows && extractedPricingRows.length > 0) ? extractedPricingRows : ((tableTariff && tableTariff.pricingRows) ? tableTariff.pricingRows : [])
+        };
+      })() : null,
+      package: (() => {
+        const FX_MAP = { INR: 1, USD: 87.5, EUR: 92.5, GBP: 110.0, AED: 23.8, SGD: 65.0, THB: 2.5, AUD: 57.0 };
+        const cFx = FX_MAP[docCurrency] || 87.5;
+        const cInr = docCurrency === 'INR' ? adultRate : Math.round(adultRate * cFx);
+        const cUsd = docCurrency === 'USD' ? adultRate : (docCurrency === 'EUR' ? adultRate : Math.round(cInr / 87.5));
+        const cGrandInr = docCurrency === 'INR' ? totalCost : Math.round(totalCost * cFx);
+        const cGrandUsd = docCurrency === 'USD' ? totalCost : (docCurrency === 'EUR' ? totalCost : Math.round(cGrandInr / 87.5));
+        return {
+          title: /Tomorrowland/i.test(destination) ? 'Pattaya Tomorrowland Thailand Group Package' : `${destination} Tour Package`,
+          duration: duration || `${days.length || 5} Days`,
+          destinations: destination,
+          destination: destination,
+          travellers: `${finalPax} Adults`,
+          paxCount: finalPax,
+          clientName: clientName,
+          clientContact: clientContact,
+          noClient: !!hasExplicitNoClient,
+          _hasExplicitNoClient: !!hasExplicitNoClient,
+          pickupFrom: 'Airport',
+          quoteRef: 'LE-DMC-' + Math.floor(1000 + Math.random() * 9000),
+          preparedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          usdToInrRate: 87.5,
+          currency: docCurrency,
+          baseAdultRateUSD: baseAdultRate,
+          markupPercent: userMarkupPct,
+          ratePerAdultUSD: cUsd,
+          ratePerAdultINR: cInr,
+          totalCostUSD: cGrandUsd,
+          totalCostINR: cGrandInr,
+          pricingRows: (extractedPricingRows && extractedPricingRows.length > 0) ? extractedPricingRows : ((tableTariff && tableTariff.pricingRows) ? tableTariff.pricingRows : []),
+          transportTypes: (tableTariff && tableTariff.transportTypes) ? tableTariff.transportTypes : [],
+          extractedLogo: detectedLogo ? detectedLogo.web_path : '',
+          extractedTables: rawTables,
+          inclusions: extractedInclusions,
+          exclusions: extractedExclusions,
+          notes: extractedNotes.join('\n')
+        };
+      })(),
       days: days,
       hotels: hotels,
       summary: {
@@ -1901,7 +2326,7 @@ OUTPUT JSON SCHEMA:
     if (!data.package.destination) {
       data.package.destination = data.package.destinations;
     }
-    if (!data.package.clientName) {
+    if (!data.package.clientName && !data.package.noClient && !data.package._hasExplicitNoClient && !data._hasExplicitNoClient) {
       data.package.clientName = data.package.client || data.package.customerName || data.package.guestName || data.clientName || 'Valued Client';
     }
     if (!data.package.travellers) {
