@@ -188,7 +188,13 @@ Your mission is to generate professional, destination-specific travel documents 
 12. 'package_rate_sheet': Complete Tour Package Master Tariff Matrix with 3-Star, 4-Star, and 5-Star tiers across 2 Pax, 4 Pax, 6 Pax, and 10+ Pax groups, Single supplements, and Child policies.
 
 DESTINATION CUSTOMIZATION:
-Generate all content tailored to the selected destination (Thailand, Dubai, Bali, Singapore, Malaysia, Vietnam, Turkey, Kashmir, Rajasthan, Maldives). Never mix up destination landmarks, hotels, or currencies.
+Generate all content tailored to the selected destination (Thailand, Dubai, Bali, Singapore, Malaysia, Vietnam, Turkey, Kashmir, Rajasthan, Maldives, Switzerland, Europe). Never mix up destination landmarks, hotels, or currencies.
+
+COMPANY BRANDING RULES:
+If the user specifies a company name (e.g. Aanay Tours, with details like Amravati, +91 7708123187 | +91 8007586871, Infoattdmc@gmail.com), brand the entire quotation/voucher/invoice under that company and strictly remove all third-party DMC/supplier details, competitor emails, phone numbers, and bank account details.
+
+MULTI-PROPERTY COMPARISON OPTIONS:
+When multiple resort or hotel options are provided (Option 1, Option 2, Option 3, etc.), preserve each distinct option with its property name, nights, room type, meal plan, transfer type, and accurately computed rate including any requested markup percentage.
 
 RATE & PRICING RULES:
 If user rates or modifications are provided, perform exact mathematical calculations without inventing unapproved numbers.
