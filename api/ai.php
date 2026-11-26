@@ -288,11 +288,14 @@ if ($finalResult !== null) {
     ]);
 } else {
     // Graceful Intelligent Local Generation Fallback
+    $hasRealAttachments = !empty($attachments) && is_array($attachments) && count($attachments) > 0;
     $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachments, $requestedDocType, $requestedDestination, $userRates);
     echo json_encode([
         'success' => true,
         'provider' => 'local-intelligence',
         'model' => 'smart-travel-heuristic-v2',
+        'hasAttachments' => $hasRealAttachments,
+        'fallbackToClient' => $hasRealAttachments,
         'data' => $localData,
         'quotation' => $localData,
         'fallbackNotes' => !empty($errors) ? $errors : ['notice' => 'Generated via local DMC multi-template travel engine']
@@ -1921,6 +1924,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         if ($i === 1) {
             $days[] = [
                 'day' => 1,
+                'dayNumber' => 1,
                 'title' => "Arrival in {$dest} & Private Hotel Check-in",
                 'description' => "Welcome to {$dest}! Upon arrival at the international airport, meet our private representative who will transfer you in an AC vehicle to your luxury hotel. Complete check-in formalities, unwind, and enjoy evening leisure.",
                 'meals' => 'Dinner Included',
@@ -1930,6 +1934,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         } elseif ($i === $numDays) {
             $days[] = [
                 'day' => $numDays,
+                'dayNumber' => $numDays,
                 'title' => "Breakfast & Private Airport Departure Transfer",
                 'description' => "Relish a hearty breakfast at the hotel. Spend morning hours souvenir shopping or relaxing by the pool. Check out and transfer in a private vehicle to the airport for your onward flight with wonderful memories of {$dest}.",
                 'meals' => 'Breakfast Included',
@@ -1939,6 +1944,7 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         } else {
             $days[] = [
                 'day' => $i,
+                'dayNumber' => $i,
                 'title' => "Day {$i}: {$dest} Signature Highlights & Cultural Excursion",
                 'description' => "After breakfast, embark on a full-day guided exploration covering premier landmarks, scenic viewpoints, local markets, and signature attractions. Includes private transfers and entry admissions.",
                 'meals' => 'Breakfast & Lunch Included',
@@ -1949,14 +1955,24 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     }
 
     // Destination-specific itineraries
-    if (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+    if (strpos($dest, 'Turkey') !== false) {
         $days = [
-            ['day' => 1, 'title' => "Phuket Airport to Ashlee Plaza Hotel – Private Transfer", 'description' => "Arrival at Phuket International Airport. Private meet & greet by Let's Explore DMC representative. Private transfer to Ashlee Plaza Hotel. Evening leisure & buffet dinner.", 'meals' => 'Buffet Dinner Included', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Airport Meet & Greet', 'Private AC Transfer']],
-            ['day' => 2, 'title' => "Phi Phi Island + Maya Bay + Pileh Lagoon by Speedboat", 'description' => "Full day sea tour by modern speedboat. Explore Maya Bay, Pileh Lagoon, Viking Cave, and Khai Island for snorkeling. Includes buffet lunch & National Park Fees (NPF).", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Speedboat Cruise', 'Maya Bay', 'Snorkeling & NPF Included']],
-            ['day' => 3, 'title' => "James Bond Island & Phang Nga Bay by Big Boat", 'description' => "Cruise Phang Nga Bay by Big Boat. Sea canoeing with private paddler through limestone caves. Visit famous Koh Tapu (James Bond Island) with lunch on board.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Phang Nga Cruise', 'Sea Canoe', 'James Bond Island']],
-            ['day' => 4, 'title' => "Phuket to Krabi Inter-Province Transfer + Krabi City Tour", 'description' => "Check out from Phuket. Private scenic transfer to Krabi. En route 8-hour Krabi City Tour covering Tiger Cave Temple (Wat Tham Suea) and Krabi River. Check-in to GLOW Ao Nang.", 'meals' => 'Breakfast & Buffet Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['Phuket to Krabi Transfer', 'Krabi City Tour', 'Tiger Cave Temple']],
-            ['day' => 5, 'title' => "Krabi 4 Islands Tour by Traditional Long Tail Boat", 'description' => "Traditional long tail boat tour across Krabi's 4 islands: Phra Nang Cave, Tup Island sandbar walk, Chicken Island snorkeling, and Poda Island with beach picnic lunch.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['4 Islands Tour', 'Talay Waek Sandbar Walk', 'Snorkeling & NPF Included']],
-            ['day' => 6, 'title' => "Krabi to Phuket Airport Departure Transfer", 'description' => "Buffet breakfast at hotel. Morning souvenir shopping in Ao Nang. Private departure transfer by car to Phuket Airport for flight departure.", 'meals' => 'Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Return Airport Transfer']]
+            ['day' => 1, 'dayNumber' => 1, 'title' => "Arrival in Istanbul – Private Airport Transfer & Hotel Check-in", 'description' => "Welcome to Turkey! Private airport meet & greet and transfer to Istanbul Revia Square Hotel. Evening leisure at Taksim / Sultanahmet.", 'meals' => 'Dinner Included', 'hotel' => 'Istanbul Revia Square Hotel', 'activities' => ['Airport Meet & Greet', 'Private AC Minivan Transfer']],
+            ['day' => 2, 'dayNumber' => 2, 'title' => "Full Day Istanbul Byzantine & Ottoman Relics Tour", 'description' => "Guided exploration covering Hagia Sophia, Blue Mosque, Hippodrome, and Grand Bazaar. Includes licensed guide and transfers.", 'meals' => 'Breakfast & Lunch Included', 'hotel' => 'Istanbul Revia Square Hotel', 'activities' => ['Hagia Sophia', 'Blue Mosque', 'Grand Bazaar']],
+            ['day' => 3, 'dayNumber' => 3, 'title' => "Bosphorus Cruise & Spice Bazaar Tour", 'description' => "Scenic cruise on the Bosphorus Strait between Europe and Asia. Afternoon visit to the fragrant Egyptian Spice Bazaar.", 'meals' => 'Breakfast & Lunch Included', 'hotel' => 'Istanbul Revia Square Hotel', 'activities' => ['Bosphorus Cruise', 'Spice Market']],
+            ['day' => 4, 'dayNumber' => 4, 'title' => "Istanbul to Cappadocia Transfer & Cave Hotel Check-in", 'description' => "Morning domestic flight / transfer to Cappadocia. Check-in to Cappadocia Antique House Hotel. Sunset viewpoint over fairy chimneys.", 'meals' => 'Breakfast & Dinner', 'hotel' => 'Cappadocia Antique House Hotel', 'activities' => ['Inter-city Transfer', 'Fairy Chimneys Viewpoint']],
+            ['day' => 5, 'dayNumber' => 5, 'title' => "Full Day Cappadocia Green Tour (Derinkuyu & Ihlara)", 'description' => "Explore Derinkuyu Underground City, Ihlara Valley hike, Selime Monastery, and Pigeon Valley with lunch.", 'meals' => 'Breakfast & Lunch Included', 'hotel' => 'Cappadocia Antique House Hotel', 'activities' => ['Underground City', 'Ihlara Valley', 'Pigeon Valley']],
+            ['day' => 6, 'dayNumber' => 6, 'title' => "Cappadocia Red Tour & Hot Air Balloon Experience", 'description' => "Optional early morning hot air ballooning. Göreme Open Air Museum, Devrent Imagination Valley, and Pasabag Monks Valley.", 'meals' => 'Breakfast & Lunch Included', 'hotel' => 'Cappadocia Antique House Hotel', 'activities' => ['Göreme Open Air Museum', 'Pasabag Valley', 'Pottery Workshop']],
+            ['day' => 7, 'dayNumber' => 7, 'title' => "Breakfast & Private Airport Departure Transfer", 'description' => "Hearty Turkish breakfast at cave hotel. Private departure transfer to Nevşehir / Kayseri Airport for onward flight.", 'meals' => 'Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Airport Drop Transfer']]
+        ];
+    } elseif (strpos($dest, 'Phuket') !== false || strpos($dest, 'Krabi') !== false) {
+        $days = [
+            ['day' => 1, 'dayNumber' => 1, 'title' => "Phuket Airport to Ashlee Plaza Hotel – Private Transfer", 'description' => "Arrival at Phuket International Airport. Private meet & greet by Let's Explore DMC representative. Private transfer to Ashlee Plaza Hotel. Evening leisure & buffet dinner.", 'meals' => 'Buffet Dinner Included', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Airport Meet & Greet', 'Private AC Transfer']],
+            ['day' => 2, 'dayNumber' => 2, 'title' => "Phi Phi Island + Maya Bay + Pileh Lagoon by Speedboat", 'description' => "Full day sea tour by modern speedboat. Explore Maya Bay, Pileh Lagoon, Viking Cave, and Khai Island for snorkeling. Includes buffet lunch & National Park Fees (NPF).", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Speedboat Cruise', 'Maya Bay', 'Snorkeling & NPF Included']],
+            ['day' => 3, 'dayNumber' => 3, 'title' => "James Bond Island & Phang Nga Bay by Big Boat", 'description' => "Cruise Phang Nga Bay by Big Boat. Sea canoeing with private paddler through limestone caves. Visit famous Koh Tapu (James Bond Island) with lunch on board.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'Ashlee Plaza Hotel Patong', 'activities' => ['Phang Nga Cruise', 'Sea Canoe', 'James Bond Island']],
+            ['day' => 4, 'dayNumber' => 4, 'title' => "Phuket to Krabi Inter-Province Transfer + Krabi City Tour", 'description' => "Check out from Phuket. Private scenic transfer to Krabi. En route 8-hour Krabi City Tour covering Tiger Cave Temple (Wat Tham Suea) and Krabi River. Check-in to GLOW Ao Nang.", 'meals' => 'Breakfast & Buffet Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['Phuket to Krabi Transfer', 'Krabi City Tour', 'Tiger Cave Temple']],
+            ['day' => 5, 'dayNumber' => 5, 'title' => "Krabi 4 Islands Tour by Traditional Long Tail Boat", 'description' => "Traditional long tail boat tour across Krabi's 4 islands: Phra Nang Cave, Tup Island sandbar walk, Chicken Island snorkeling, and Poda Island with beach picnic lunch.", 'meals' => 'Breakfast, Lunch & Dinner', 'hotel' => 'GLOW Ao Nang Krabi', 'activities' => ['4 Islands Tour', 'Talay Waek Sandbar Walk', 'Snorkeling & NPF Included']],
+            ['day' => 6, 'dayNumber' => 6, 'title' => "Krabi to Phuket Airport Departure Transfer", 'description' => "Buffet breakfast at hotel. Morning souvenir shopping in Ao Nang. Private departure transfer by car to Phuket Airport for flight departure.", 'meals' => 'Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Return Airport Transfer']]
         ];
     } elseif (strpos($dest, 'Bali') !== false) {
         $days[0]['title'] = "Arrival in Bali & Private Transfer to Ubud Pool Villa";
@@ -1966,11 +1982,11 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         if ($numDays >= 5) $days[4]['title'] = "Uluwatu Sunset Cliff Temple & Fire Dance";
     } elseif (strpos($dest, 'Dubai') !== false) {
         $days = [
-            ['day' => 1, 'title' => "Arrival in Dubai – Airport Pickup & Marina Dhow Cruise with Dinner", 'description' => "Private airport pickup transfer from DXB Airport to Sheraton Mall of the Emirates Hotel. Evening luxury Marina Dhow Cruise with 5-star international buffet dinner, tanoura show & skyline views.", 'meals' => 'Dinner Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Airport Meet & Greet', 'Marina Dhow Cruise Dinner']],
-            ['day' => 2, 'title' => "Half-Day Dubai City Tour & Burj Khalifa (124th Floor Off-Peak)", 'description' => "Guided panoramic Dubai City Tour with photo stops at Dubai Frame & Burj Al Arab. Afternoon visit to Burj Khalifa 124th + 125th Floor Observatory Deck with Dubai Fountain.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Dubai City Tour', 'Burj Khalifa 124th Floor Off-Peak']],
-            ['day' => 3, 'title' => "Red Dunes Desert Safari with 4x4 Dune Bashing & BBQ Dinner", 'description' => "Afternoon 4x4 Red Dunes Desert Safari with thrilling dune bashing, camel ride, sandboarding, sunset photo stop, and live entertainment with BBQ buffet dinner.", 'meals' => 'Breakfast & BBQ Dinner', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['4x4 Dune Bashing', 'Camel Ride', 'BBQ Dinner & Shows']],
-            ['day' => 4, 'title' => "Dubai Miracle Garden & Global Village Excursion", 'description' => "Explore over 150 million blooming flowers at Dubai Miracle Garden. In the evening, immerse in cultural pavilions, shows, and shopping at Global Village.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Miracle Garden', 'Global Village Cultural Experience']],
-            ['day' => 5, 'title' => "Leisure Morning & Private Dubai Airport Drop-off Transfer", 'description' => "Buffet breakfast at Sheraton Mall of the Emirates. Check out and enjoy morning leisure or shopping. Timely private transfer to Dubai International Airport (DXB).", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Airport Drop Transfer']]
+            ['day' => 1, 'dayNumber' => 1, 'title' => "Arrival in Dubai – Airport Pickup & Marina Dhow Cruise with Dinner", 'description' => "Private airport pickup transfer from DXB Airport to Sheraton Mall of the Emirates Hotel. Evening luxury Marina Dhow Cruise with 5-star international buffet dinner, tanoura show & skyline views.", 'meals' => 'Dinner Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Airport Meet & Greet', 'Marina Dhow Cruise Dinner']],
+            ['day' => 2, 'dayNumber' => 2, 'title' => "Half-Day Dubai City Tour & Burj Khalifa (124th Floor Off-Peak)", 'description' => "Guided panoramic Dubai City Tour with photo stops at Dubai Frame & Burj Al Arab. Afternoon visit to Burj Khalifa 124th + 125th Floor Observatory Deck with Dubai Fountain.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Dubai City Tour', 'Burj Khalifa 124th Floor Off-Peak']],
+            ['day' => 3, 'dayNumber' => 3, 'title' => "Red Dunes Desert Safari with 4x4 Dune Bashing & BBQ Dinner", 'description' => "Afternoon 4x4 Red Dunes Desert Safari with thrilling dune bashing, camel ride, sandboarding, sunset photo stop, and live entertainment with BBQ buffet dinner.", 'meals' => 'Breakfast & BBQ Dinner', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['4x4 Dune Bashing', 'Camel Ride', 'BBQ Dinner & Shows']],
+            ['day' => 4, 'dayNumber' => 4, 'title' => "Dubai Miracle Garden & Global Village Excursion", 'description' => "Explore over 150 million blooming flowers at Dubai Miracle Garden. In the evening, immerse in cultural pavilions, shows, and shopping at Global Village.", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Sheraton Mall of the Emirates', 'activities' => ['Miracle Garden', 'Global Village Cultural Experience']],
+            ['day' => 5, 'dayNumber' => 5, 'title' => "Leisure Morning & Private Dubai Airport Drop-off Transfer", 'description' => "Buffet breakfast at Sheraton Mall of the Emirates. Check out and enjoy morning leisure or shopping. Timely private transfer to Dubai International Airport (DXB).", 'meals' => 'Buffet Breakfast Included', 'hotel' => 'Check-out & Airport Drop', 'activities' => ['Buffet Breakfast', 'Airport Drop Transfer']]
         ];
     }
 
@@ -2025,8 +2041,8 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
     $response['hotels'] = [
         [
             'city' => explode(',', $dest)[0],
-            'hotelName' => (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : (strpos($dest, 'Dubai') !== false ? 'Sheraton Mall of the Emirates Hotel, Dubai' : 'Grand Luxury 5-Star Hotel & Resort')),
-            'roomType' => 'Superior / Deluxe Pool View Room',
+            'hotelName' => (strpos($dest, 'Turkey') !== false ? 'Istanbul Revia Square Hotel & Cappadocia Antique House Hotel' : (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : (strpos($dest, 'Dubai') !== false ? 'Sheraton Mall of the Emirates Hotel, Dubai' : 'Grand Luxury 5-Star Hotel & Resort'))),
+            'roomType' => (strpos($dest, 'Turkey') !== false ? 'Double / Triple Room' : 'Superior / Deluxe Pool View Room'),
             'nights' => $numNights,
             'mealPlan' => 'Daily Buffet Breakfast Included',
             'rating' => '4★ / 5★ Deluxe'

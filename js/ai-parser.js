@@ -72,11 +72,18 @@ const AIParser = (() => {
         if (res.ok) {
           const json = await res.json();
           if (json && json.success && json.data) {
-            json.data._hasExplicitDestination = true;
-            json.data._hasExplicitItinerary = true;
-            json.data._source = json.provider || 'gemini';
-            json.data._model = json.model;
-            return sanitizeAndVerify(json.data);
+            const isServerSyntheticMock = json.provider === 'local-intelligence' || json.model === 'smart-travel-heuristic-v2';
+            const hasRealAttachment = (attachment && (attachment.extractedText || attachment.base64)) ||
+                                      (allAttachments && allAttachments.some(a => a.extractedText || a.base64));
+            if (isServerSyntheticMock && hasRealAttachment) {
+              console.log('⚡ Server returned synthetic local-intelligence mock. Discarding in favor of authentic client-side localRuleBasedParser.');
+            } else {
+              json.data._hasExplicitDestination = true;
+              json.data._hasExplicitItinerary = true;
+              json.data._source = json.provider || 'gemini';
+              json.data._model = json.model;
+              return sanitizeAndVerify(json.data);
+            }
           }
         }
       }

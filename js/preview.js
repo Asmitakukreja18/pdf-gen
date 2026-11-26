@@ -391,7 +391,7 @@ const Preview = (() => {
           </div>
 
           <div class="dmc-days-list">
-            ${days.map(day => renderDayPricingCardHTML(day, showUsdColumn)).join('')}
+            ${days.map((day, idx) => renderDayPricingCardHTML(day, showUsdColumn, idx)).join('')}
           </div>
         </section>
 
@@ -1238,9 +1238,9 @@ const Preview = (() => {
       case 'activity':
         return `
           <div class="custom-activities-box">
-            ${(context.days || []).slice(0, 5).map(d => `
+            ${(context.days || []).slice(0, 5).map((d, idx) => `
               <div style="margin-bottom:8px;">
-                <strong>Day ${d.dayNumber}: ${escapeHTML(d.title)}</strong>
+                <strong>Day ${d.dayNumber || d.day || (idx + 1)}: ${escapeHTML(d.title)}</strong>
                 <div style="font-size:12px; color:#475569;">${(d.items || []).map(i => i.title).join(' • ')}</div>
               </div>
             `).join('')}
@@ -1280,15 +1280,16 @@ const Preview = (() => {
   /**
    * Day Pricing Card for Quotation format (4-column grid or 3-column when USD hidden)
    */
-  function renderDayPricingCardHTML(day, showUsdColumn = true) {
+  function renderDayPricingCardHTML(day, showUsdColumn = true, idx = 0) {
+    const dayNum = day.dayNumber || day.day || (idx + 1);
     const items = day.items || [];
     const hasHotel = day.hotel && day.hotel.name && day.hotel.name.trim() !== '';
 
     return `
-      <div class="dmc-day-card" id="day-card-${day.dayNumber}">
+      <div class="dmc-day-card" id="day-card-${dayNum}">
         <div class="dmc-day-heading-bar">
           <div class="day-badge-col">
-            <span class="day-pill">DAY ${day.dayNumber}</span>
+            <span class="day-pill">DAY ${dayNum}</span>
             <span class="day-sep-dot">·</span>
             <span class="day-date-text">${escapeHTML(day.date || '')}</span>
           </div>

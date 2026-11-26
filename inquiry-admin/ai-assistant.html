@@ -3104,6 +3104,10 @@
 
             // 3. Days / Activities sync
             if (Array.isArray(resDoc.days) && resDoc.days.length > 0) {
+                resDoc.days.forEach((d, i) => {
+                    if (!d.dayNumber) d.dayNumber = d.day || (i + 1);
+                    if (!d.day) d.day = d.dayNumber;
+                });
                 QuotationData.days = resDoc.days;
             }
 
@@ -3254,7 +3258,8 @@
                     });
                     const data = await res.json();
                     const resDoc = (data && (data.data || data.quotation));
-                    if (data && data.success && resDoc) {
+                    const isMockFallback = data && (data.provider === 'local-intelligence' || data.model === 'smart-travel-heuristic-v2');
+                    if (data && data.success && resDoc && (!isMockFallback || currentAtts.length === 0)) {
                         serverHandled = true;
                         applyServerAiQuotation(resDoc);
                         const providerNotice = data.provider === 'claude'
