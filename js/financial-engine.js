@@ -65,6 +65,41 @@
     },
 
     /**
+     * Fetch live exchange rates from ExchangeRate-API via backend api/forex.php
+     */
+    async fetchLiveRates(forceRefresh = false) {
+      try {
+        const basePath = (typeof window !== 'undefined' && window.location) 
+          ? (window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '') + '/api/forex.php') 
+          : 'api/forex.php';
+        const url = basePath + (forceRefresh ? '?refresh=1' : '');
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.rates) {
+            Object.assign(this.exchangeRates, data.rates);
+            console.log('[FinancialEngine] Live ExchangeRate-API rates synchronized (Base USD):', {
+              INR: this.exchangeRates.INR,
+              EUR: this.exchangeRates.EUR,
+              AED: this.exchangeRates.AED,
+              THB: this.exchangeRates.THB
+            });
+            return data.rates;
+          }
+        }
+      } catch (e) {
+        // Fallback to built-in rates silently
+      }
+      return this.exchangeRates;
+    },
+
+    initRates() {
+      if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+        this.fetchLiveRates().catch(() => {});
+      }
+    },
+
+    /**
      * Convert an amount between currencies
      */
     convert(amount, fromCurr, toCurr, customRate = null) {
@@ -350,4 +385,7 @@
   };
 
   global.FinancialEngine = FinancialEngine;
+  if (FinancialEngine.initRates) {
+    FinancialEngine.initRates();
+  }
 })(typeof window !== 'undefined' ? window : global);

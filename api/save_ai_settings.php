@@ -17,7 +17,8 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+$reqMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($reqMethod === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
@@ -45,12 +46,14 @@ $maskSecret = function($k) {
 };
 
 // GET: Return current configuration status (Masked values only)
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($reqMethod === 'GET') {
     $settings = file_exists($dataFile) ? json_decode(@file_get_contents($dataFile), true) : [];
     if (!is_array($settings)) $settings = [];
 
     $claudeKey = $settings['claude_api_key'] ?? '';
     $geminiKey = $settings['gemini_api_key'] ?? '';
+    $docAiKey  = $settings['document_ai_api_key'] ?? '';
+    $forexKey  = $settings['exchangerate_api_key'] ?? '';
 
     echo json_encode([
         'success' => true,
@@ -61,13 +64,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'allowed_models' => $ALLOWED_CLAUDE_MODELS,
         'has_gemini_key' => (!empty($geminiKey) && strpos($geminiKey, 'YOUR_') === false),
         'gemini_key_masked' => $maskSecret($geminiKey),
-        'default_provider' => $settings['default_provider'] ?? 'claude'
+        'default_provider' => $settings['default_provider'] ?? 'claude',
+        'document_ai' => [
+            'enabled' => !empty($settings['document_ai_enabled']),
+            'project_id' => $settings['document_ai_project_id'] ?? '',
+            'location' => $settings['document_ai_location'] ?? 'us',
+            'processor_id' => $settings['document_ai_processor_id'] ?? '',
+            'has_key' => (!empty($docAiKey) && strpos($docAiKey, 'YOUR_') === false),
+            'key_masked' => $maskSecret($docAiKey)
+        ],
+        'exchangerate_api' => [
+            'has_key' => (!empty($forexKey) && strpos($forexKey, 'YOUR_') === false),
+            'key_masked' => $maskSecret($forexKey)
+        ],
+        'integrations_status' => [
+            'whatsapp_configured' => !empty($settings['whatsapp_access_token']),
+            'brevo_configured' => !empty($settings['brevo_api_key']),
+            'google_maps_configured' => !empty($settings['google_maps_api_key'])
+        ]
     ]);
     exit;
 }
 
 // POST: Save and optionally test credentials
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($reqMethod === 'POST') {
     // Verify admin authorization for modifying server configuration
     $user = $_SESSION['admin_user'] ?? $_SESSION['inquiry_admin'] ?? null;
     $userRole = strtolower($user['role'] ?? '');
@@ -212,6 +232,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($input['default_provider'])) {
         $existing['default_provider'] = trim($input['default_provider']);
+    }
+
+    // Google Document AI Settings
+    if (isset($input['document_ai_enabled'])) {
+        $existing['document_ai_enabled'] = (bool)$input['document_ai_enabled'];
+    }
+    if (isset($input['document_ai_project_id'])) {
+        $existing['document_ai_project_id'] = trim($input['document_ai_project_id']);
+    }
+    if (isset($input['document_ai_location'])) {
+        $existing['document_ai_location'] = trim($input['document_ai_location'] ?: 'us');
+    }
+    if (isset($input['document_ai_processor_id'])) {
+        $existing['document_ai_processor_id'] = trim($input['document_ai_processor_id']);
+    }
+    if (isset($input['document_ai_api_key'])) {
+        $docKey = trim($input['document_ai_api_key']);
+        if (!empty($docKey) && strpos($docKey, '...') === false && strpos($docKey, 'YOUR_') === false) {
+            $existing['document_ai_api_key'] = $docKey;
+        }
+    }
+
+    // ExchangeRate-API Key
+    if (isset($input['exchangerate_api_key'])) {
+        $fxKey = trim($input['exchangerate_api_key']);
+        if (!empty($fxKey) && strpos($fxKey, '...') === false && strpos($fxKey, 'YOUR_') === false) {
+            $existing['exchangerate_api_key'] = $fxKey;
+        }
+    }
+
+    // Later Integrations Stubs (WhatsApp, Brevo, Google Maps)
+    if (isset($input['whatsapp_access_token'])) {
+        $waKey = trim($input['whatsapp_access_token']);
+        if (!empty($waKey) && strpos($waKey, '...') === false) {
+            $existing['whatsapp_access_token'] = $waKey;
+        }
+    }
+    if (isset($input['whatsapp_phone_number_id'])) {
+        $existing['whatsapp_phone_number_id'] = trim($input['whatsapp_phone_number_id']);
+    }
+    if (isset($input['brevo_api_key'])) {
+        $bKey = trim($input['brevo_api_key']);
+        if (!empty($bKey) && strpos($bKey, '...') === false) {
+            $existing['brevo_api_key'] = $bKey;
+        }
+    }
+    if (isset($input['brevo_sender_email'])) {
+        $existing['brevo_sender_email'] = trim($input['brevo_sender_email']);
+    }
+    if (isset($input['google_maps_api_key'])) {
+        $gmKey = trim($input['google_maps_api_key']);
+        if (!empty($gmKey) && strpos($gmKey, '...') === false) {
+            $existing['google_maps_api_key'] = $gmKey;
+        }
     }
 
     $existing['updated_at'] = date('Y-m-d H:i:s');
