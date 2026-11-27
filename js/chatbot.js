@@ -331,6 +331,9 @@ const Chatbot = (() => {
       // 3. Extract text streams if PDF
       if (file.name.toLowerCase().endsWith('.pdf') && typeof pdfjsLib !== 'undefined') {
         try {
+          if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
           const ab = await file.arrayBuffer();
           const loadingTask = pdfjsLib.getDocument({ data: ab });
           const pdfDoc = await loadingTask.promise;
@@ -1339,8 +1342,97 @@ const Chatbot = (() => {
     AgentMemory.activeDocType = docType;
 
     if (extracted.package) Object.assign(QuotationData.package, extracted.package);
-    if (extracted.days && extracted.days.length > 0) QuotationData.days = extracted.days;
-    if (extracted.hotels && extracted.hotels.length > 0) QuotationData.hotels = extracted.hotels;
+
+    // Clean up stale Thailand fields if destination is not Thailand
+    const activeDest = (QuotationData.package?.destinations || extracted.destination || '').toLowerCase();
+    const isActuallyThailand = /thailand|phuket|krabi|bangkok|pattaya|samui/i.test(activeDest);
+    if (!isActuallyThailand) {
+      if (/thailand/i.test(QuotationData.package?.country || '')) {
+        QuotationData.package.country = '';
+      }
+      if (/phuket|krabi/i.test(QuotationData.package?.pickupHub || '')) {
+        QuotationData.package.pickupHub = '';
+      }
+      if (/phuket|krabi/i.test(QuotationData.package?.pickupFrom || '')) {
+        QuotationData.package.pickupFrom = '';
+      }
+    }
+    if (extracted.package?._hasExplicitNoClient || extracted.package?.noClient) {
+      QuotationData.package.clientName = '';
+      QuotationData.package.clientContact = '';
+    }
+
+    if (extracted.days && extracted.days.length > 0) {
+      QuotationData.days = extracted.days.map((d, i) => {
+        const rawNum = d.dayNumber != null ? d.dayNumber : (d.day != null ? d.day : null);
+        const dNum = (rawNum != null && String(rawNum).toLowerCase() !== 'undefined' && String(rawNum).trim() !== '') ? parseInt(rawNum, 10) || (i + 1) : (i + 1);
+        const items = Array.isArray(d.items) && d.items.length > 0 ? d.items : (Array.isArray(d.activities) && d.activities.length > 0 ? d.activities.map(act => ({
+          title: typeof act === 'string' ? act : (act.title || 'Scheduled Activity'),
+          subtitle: 'Service as per Itinerary',
+          category: 'Sightseeing',
+          pax: QuotationData.package?.paxCount || 2,
+          unitPrice: 0,
+          amountUSD: 0,
+          amountINR: 0,
+          tag: ''
+        })) : [{
+          title: d.description || d.title || 'Sightseeing & Excursions',
+          subtitle: 'Scheduled Itinerary Service',
+          category: 'Sightseeing',
+          pax: QuotationData.package?.paxCount || 2,
+          unitPrice: 0,
+          amountUSD: 0,
+          amountINR: 0,
+          tag: ''
+        }]);
+        return {
+          dayNumber: dNum,
+          day: dNum,
+          date: d.date || `Day ${dNum}`,
+          title: d.title || `Day ${dNum} Tour`,
+          items: items,
+          hotel: d.hotel || null,
+          dayNotes: d.dayNotes || d.notes || ''
+        };
+      });
+    }
+
+    if (extracted.hotels && extracted.hotels.length > 0) {
+      QuotationData.hotels = extracted.hotels.map(h => ({
+        city: h.city || '',
+        name: h.name || h.hotelName || h.hotel || '',
+        hotelName: h.name || h.hotelName || h.hotel || '',
+        roomType: h.roomType || h.room || 'Standard Room',
+        checkIn: h.checkIn || h.checkin || '',
+        checkOut: h.checkOut || h.checkout || '',
+        nights: h.nights || 1,
+        pax: h.pax || QuotationData.package?.paxCount || 2,
+        mealPlan: h.mealPlan || h.meal || 'CP (Breakfast)',
+        tariffINR: h.tariffINR || h.amountINR || 0,
+        amountINR: h.amountINR || h.tariffINR || 0,
+        tariffUSD: h.tariffUSD || h.amountUSD || 0,
+        amountUSD: h.amountUSD || h.tariffUSD || 0,
+        rating: h.rating || '4 Star'
+      }));
+    }
+
+    if (Array.isArray(extracted.inclusions) && extracted.inclusions.length > 0) {
+      QuotationData.inclusions = extracted.inclusions;
+    }
+    if (Array.isArray(extracted.exclusions) && extracted.exclusions.length > 0) {
+      QuotationData.exclusions = extracted.exclusions;
+    }
+    // Update customSections so preview inclusions match
+    QuotationData.customSections = [
+      { id: 'inclusions', title: 'Package Inclusions', items: QuotationData.inclusions || [] },
+      { id: 'exclusions', title: 'Package Exclusions', items: QuotationData.exclusions || [] },
+      { id: 'important_notes', title: 'Important Quotation Notes', items: [
+        'Accommodation based on leading category / lowest category. Rates subject to availability at time of booking.',
+        'Speedboat schedules and sea tours are subject to weather and tidal conditions for guest safety.',
+        'Passports must have a minimum validity of 6 months from the date of travel.'
+      ]}
+    ];
+
     if (extracted.summary && extracted.summary.items) QuotationData.summary = extracted.summary;
     if (extracted.invoice) Object.assign(QuotationData.invoice || {}, extracted.invoice);
     if (extracted.confirmation) Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
