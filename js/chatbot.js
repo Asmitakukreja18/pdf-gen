@@ -972,17 +972,18 @@ const Chatbot = (() => {
       hasClientPhone = true;
     }
 
-    if (rawT.includes('humari company') || rawT.includes('apni company') || rawT.includes("let's explore") || rawT.includes("lets explore") || rawT.includes('baki company details hata') || rawT.includes('baki company') || rawT.includes('unki details hata')) {
+    if (rawT.includes('humari company') || rawT.includes('apni company') || rawT.includes("let's explore") || rawT.includes("lets explore") || rawT.includes("letsexplore") || rawT.includes('baki company details hata') || rawT.includes('baki company') || rawT.includes('unki details hata') || (rawT.includes('logo') && !rawT.includes('aanay'))) {
       AgentMemory.activeCompany = {
         name: "Let's Explore DMC",
         logo: "images/logo.png",
         phone: "+91 80075 86881",
         email: "info@letsexploredmc.com",
         tagline: "Capturing Your Dreams · Your Destination Management Specialist",
-        website: "www.letsexploredmc.com"
+        website: "www.letsexploredmc.com",
+        isWhitelabel: false
       };
       QuotationData.company = AgentMemory.activeCompany;
-      taskLog.push("Rebranded quotation under <strong>Let's Explore DMC</strong> (removed other third-party company details)");
+      taskLog.push("Rebranded quotation under <strong>Let's Explore DMC</strong> with official company logo (removed third-party details)");
     }
 
     if (hasClientName || hasClientPhone) {

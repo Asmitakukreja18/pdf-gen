@@ -109,12 +109,15 @@ const PDFGenerator = (() => {
     const dest = pkg.destinations || 'Holiday';
     const client = pkg.clientName || 'Client';
     const bodyHTML = Preview.buildQuotationHTML(QuotationData, true);
+    const baseHref = typeof window !== 'undefined'
+      ? (window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/'))
+      : '';
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <base href="${window.location.href}">
+  <base href="${baseHref}">
   <title>${escapePrint(dest.toUpperCase())} QUOTATION — ${escapePrint(client)} | ${escapePrint(compName)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -216,8 +219,8 @@ const PDFGenerator = (() => {
       gap: 12px;
     }
     .dmc-brand-logo {
-      height: 44px;
-      max-width: 130px;
+      height: 52px;
+      max-width: 150px;
       object-fit: contain;
     }
     .dmc-brand-info {

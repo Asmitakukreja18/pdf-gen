@@ -174,6 +174,17 @@ const Preview = (() => {
     return pkg.pickupFrom || 'Destination International Airport';
   }
 
+  function resolveBrandLogo(logoPath) {
+    let p = logoPath || 'images/logo.png';
+    if (typeof window !== 'undefined') {
+      const isSubdir = window.location.pathname.includes('/inquiry-admin');
+      if (isSubdir && !p.startsWith('data:') && !p.startsWith('http') && !p.startsWith('../') && !p.startsWith('/')) {
+        p = '../' + p;
+      }
+    }
+    return p;
+  }
+
   /**
    * Shared Brand Header for official documents
    */
@@ -197,12 +208,13 @@ const Preview = (() => {
         </div>
       `;
     } else {
-      const brandTagline = comp.tagline || (comp.isWhitelabel ? '' : "Your Destination Management Specialist");
-      const brandLogo = comp.logo || "images/logo.png";
-      const showLogo = !comp.isWhitelabel || brandLogo !== 'images/logo.png';
+      const isLetsExplore = /explore/i.test(brandName);
+      const brandTagline = comp.tagline || (comp.isWhitelabel && !isLetsExplore ? '' : "Capturing Your Dreams · Your Destination Management Specialist");
+      const brandLogo = resolveBrandLogo(comp.logo);
+      const showLogo = isLetsExplore || !comp.isWhitelabel || brandLogo !== 'images/logo.png';
       brandDisplayHTML = `
         <div class="dmc-brand-box">
-          ${showLogo ? `<img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" class="dmc-brand-logo" onerror="this.style.display='none'" />` : ''}
+          ${showLogo ? `<img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" class="dmc-brand-logo" onerror="this.onerror=null; this.src='images/logo.png'; if(!this.complete||this.naturalWidth===0) this.src='../images/logo.png';" />` : ''}
           <div class="dmc-brand-info">
             <span class="dmc-brand-name">${escapeHTML(brandName)}</span>
             ${brandTagline ? `<span class="dmc-brand-tagline">${escapeHTML(brandTagline)}</span>` : ''}
@@ -1036,7 +1048,7 @@ const Preview = (() => {
         <!-- Top Header: Logo on left, Word "Invoice" on right -->
         <div class="inv-orange-header">
           <div class="inv-logo-box">
-            <img src="${escapeHTML(invLogo)}" alt="${escapeHTML(data.company?.name || "Let's Explore DMC")}" class="inv-logo-img" onerror="this.src='images/logo.png'" />
+            <img src="${escapeHTML(resolveBrandLogo(invLogo))}" alt="${escapeHTML(data.company?.name || "Let's Explore DMC")}" class="inv-logo-img" onerror="this.onerror=null; this.src='images/logo.png'; if(!this.complete||this.naturalWidth===0) this.src='../images/logo.png';" />
           </div>
           <div class="inv-top-right">
             <h1 class="inv-word-title">Invoice</h1>
@@ -1504,7 +1516,7 @@ const Preview = (() => {
         <!-- Document Header matching Screenshot 5 -->
         <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:18px 20px 12px 20px; border-bottom:1px solid #F1F5F9; flex-wrap:wrap; gap:12px;">
           <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
-            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:48px; object-fit:contain;" onerror="this.src='images/logo.png'" />
+            <img src="${escapeHTML(resolveBrandLogo(brandLogo))}" alt="${escapeHTML(brandName)}" style="height:52px; max-width:150px; object-fit:contain;" onerror="this.onerror=null; this.src='images/logo.png'; if(!this.complete||this.naturalWidth===0) this.src='../images/logo.png';" />
             <div>
               <div style="font-size:15px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
               <div style="font-size:10px; font-weight:700; color:#E67E22; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>
@@ -1826,7 +1838,7 @@ const Preview = (() => {
         <!-- Header -->
         <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:24px 30px 16px 30px; border-bottom:1px solid #E2E8F0; background:#FAFAFA;">
           <div style="display:flex; align-items:center; gap:16px;">
-            <img src="${escapeHTML(brandLogo)}" alt="${escapeHTML(brandName)}" style="height:58px; object-fit:contain;" onerror="this.src='images/logo.png'" />
+            <img src="${escapeHTML(resolveBrandLogo(brandLogo))}" alt="${escapeHTML(brandName)}" style="height:58px; max-width:160px; object-fit:contain;" onerror="this.onerror=null; this.src='images/logo.png'; if(!this.complete||this.naturalWidth===0) this.src='../images/logo.png';" />
             <div>
               <div style="font-size:18px; font-weight:800; color:#0F2C59; letter-spacing:-0.2px;">${escapeHTML(brandName)}</div>
               <div style="font-size:11px; font-weight:700; color:#D97706; letter-spacing:0.8px; text-transform:uppercase;">${escapeHTML(brandTagline)}</div>

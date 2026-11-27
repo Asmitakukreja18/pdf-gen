@@ -139,7 +139,8 @@ const DEMO_REFERENCE_THAILAND_12D = {
     tagline: "Capturing Your Dreams · Your Destination Management Specialist",
     website: "www.letsexploredmc.com",
     instagram: "@lets_exploredmc",
-    logo: "images/logo.png"
+    logo: "images/logo.png",
+    isWhitelabel: false
   },
   package: {
     title: 'PACKAGE TOUR',
