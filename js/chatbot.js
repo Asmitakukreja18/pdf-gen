@@ -87,7 +87,7 @@ const Chatbot = (() => {
     history = [];
     const m = msgs();
     if (m) m.innerHTML = '';
-    
+
     // Sync current document memory from QuotationData
     syncMemoryFromQuotationData();
 
@@ -204,28 +204,28 @@ const Chatbot = (() => {
     return `
       <div class="claude-cards-strip">
         ${attachments.map(att => {
-          const name = att.name || 'Document';
-          const lower = name.toLowerCase();
-          const isDocx = lower.endsWith('.docx') || lower.endsWith('.doc') || lower.includes('docx') || lower.includes('word');
-          const isPdf = lower.endsWith('.pdf') || (!isDocx && !att.mimeType?.startsWith('image/'));
-          const extBadge = isDocx ? 'DOCX' : (isPdf ? 'PDF' : 'FILE');
-          const badgeClass = isDocx ? 'docx-badge' : 'pdf-badge';
-          const cardClass = isDocx ? 'docx-card' : 'pdf-card';
+      const name = att.name || 'Document';
+      const lower = name.toLowerCase();
+      const isDocx = lower.endsWith('.docx') || lower.endsWith('.doc') || lower.includes('docx') || lower.includes('word');
+      const isPdf = lower.endsWith('.pdf') || (!isDocx && !att.mimeType?.startsWith('image/'));
+      const extBadge = isDocx ? 'DOCX' : (isPdf ? 'PDF' : 'FILE');
+      const badgeClass = isDocx ? 'docx-badge' : 'pdf-badge';
+      const cardClass = isDocx ? 'docx-card' : 'pdf-card';
 
-          const previewArea = isDocx
-            ? `<div class="docx-big-icon">W</div>`
-            : `<div class="pdf-page-miniature">
+      const previewArea = isDocx
+        ? `<div class="docx-big-icon">W</div>`
+        : `<div class="pdf-page-miniature">
                 <div class="pdf-mini-header"></div>
                 <div class="pdf-mini-line"></div>
                 <div class="pdf-mini-line"></div>
                 <div class="pdf-mini-line short"></div>
               </div>`;
 
-          const removeBtn = isRemovable
-            ? `<button type="button" class="claude-card-remove-btn" data-id="${att.id}" title="Remove file">✕</button>`
-            : '';
+      const removeBtn = isRemovable
+        ? `<button type="button" class="claude-card-remove-btn" data-id="${att.id}" title="Remove file">✕</button>`
+        : '';
 
-          return `
+      return `
             <div class="claude-file-card ${cardClass}" data-id="${att.id || ''}" title="${escapeHTML(name)}">
               ${removeBtn}
               <div class="file-card-preview-area">
@@ -237,7 +237,7 @@ const Chatbot = (() => {
               </div>
             </div>
           `;
-        }).join('')}
+    }).join('')}
       </div>
     `;
   }
@@ -464,38 +464,38 @@ const Chatbot = (() => {
       // Show contextual quick replies
       if (activeAttachments.length === 1) {
         showReplies([
-          { 
-            label: `⚡ Auto-Extract Quotation (${file.name})`, 
-            val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`, 
-            primary: true 
+          {
+            label: `⚡ Auto-Extract Quotation (${file.name})`,
+            val: `Attached document ${file.name} se travel itinerary details, hotels, dates aur pricing extract karke master quotation banao`,
+            primary: true
           },
-          { 
-            label: '🧾 Tax Invoice Banao', 
-            val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao` 
+          {
+            label: '🧾 Tax Invoice Banao',
+            val: `Attached document ${file.name} se billing details extract karke official tax invoice format banao`
           },
-          { 
-            label: '🏨 Hotel Booking Voucher', 
-            val: `Attached document ${file.name} se hotel confirmation booking voucher banao` 
+          {
+            label: '🏨 Hotel Booking Voucher',
+            val: `Attached document ${file.name} se hotel confirmation booking voucher banao`
           },
-          { 
-            label: '🗺️ Itinerary (Without Rates)', 
-            val: `Attached document ${file.name} se guest travel itinerary without pricing banao` 
+          {
+            label: '🗺️ Itinerary (Without Rates)',
+            val: `Attached document ${file.name} se guest travel itinerary without pricing banao`
           }
         ], true);
       } else {
         showReplies([
-          { 
-            label: `⚡ Compare & Merge ${activeAttachments.length} Documents`, 
-            val: `Attached ${activeAttachments.length} documents (${activeAttachments.map(a => a.name).join(', ')}) se hotels, itineraries aur supplier rates cross-reference karke quotation ready karo`, 
-            primary: true 
+          {
+            label: `⚡ Compare & Merge ${activeAttachments.length} Documents`,
+            val: `Attached ${activeAttachments.length} documents (${activeAttachments.map(a => a.name).join(', ')}) se hotels, itineraries aur supplier rates cross-reference karke quotation ready karo`,
+            primary: true
           },
-          { 
-            label: '📈 Let\'s Explore DMC 10% Markup Table', 
-            val: `[2:45 pm, 31/10/2026] Chanchal: Aanay tours ki details k sath edit karo\n[2:45 pm, 31/10/2026] Chanchal: 10 percent markup anay tours ki details ke sath details k sath edit karke dena unki details hata dena DETSILS DALO INKI HATAO AND COLOR THEME BHI FORMAT BHI` 
+          {
+            label: '📈 Let\'s Explore DMC 10% Markup Table',
+            val: `[2:45 pm, 31/10/2026] Chanchal: Aanay tours ki details k sath edit karo\n[2:45 pm, 31/10/2026] Chanchal: 10 percent markup anay tours ki details ke sath details k sath edit karke dena unki details hata dena DETSILS DALO INKI HATAO AND COLOR THEME BHI FORMAT BHI`
           },
-          { 
-            label: '🗺️ Merged Itinerary (Without Rates)', 
-            val: `Dono reference files se combined itinerary extract karo without costing` 
+          {
+            label: '🗺️ Merged Itinerary (Without Rates)',
+            val: `Dono reference files se combined itinerary extract karo without costing`
           }
         ], true);
       }
@@ -693,9 +693,9 @@ const Chatbot = (() => {
     const attsCount = (attachments && attachments.length > 0) ? attachments.length : (attachment ? 1 : 0);
 
     const pctMatch = t.match(/(\d+(?:\.\d+)?)\s*(?:%|percent|prcnt)\s*(?:markup|margin|extra)?/i) ||
-                     t.match(/(?:markup|margin|increase|badhao|bada).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
+      t.match(/(?:markup|margin|increase|badhao|bada).*?(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
     const fixedMatch = t.match(/(?:increase|bada|badhao|add|extra|pass|passes|amount).*?(\d{4,})/i) ||
-                       t.match(/(\d{4,}).*?(?:increase|bada|badhao|add|extra)/i);
+      t.match(/(\d{4,}).*?(?:increase|bada|badhao|add|extra)/i);
     const isAanay = /(?:aanay|aanay\s*tours?|viraj|gaglani)/i.test(t);
     const isRebrand = /(?:company\s*details?|branding|partner|logo|rebrand|details\s*dalo|unki\s*details\s*hata|white-?label|color\s*theme|format\s*bhi)/i.test(t);
     const isCostingHatao = /(?:costing|rates?|pricing|paise|amount|tariff)\s*(?:hata|hatao|remove|hide|nikal|mat\s*dikhao|bina)/i.test(t);
@@ -731,7 +731,7 @@ const Chatbot = (() => {
     // 6. Hotel Replacement
     // e.g. "Change hotel to Ramada Resort", "Replace Krabi Resort with Ramada By Wyndham"
     if (/(?:change|replace|badal|naya)\s*hotel|hotel\s*(?:change|badal|replace)/i.test(t) ||
-        /(?:ramada|andakira|phi\s*phi|mountain\s*beach|panwaburi|esmeralda|hilton|marriott|hyatt|villa)/i.test(t) && /(?:dalo|lagao|karo|change|replace)/i.test(t)) {
+      /(?:ramada|andakira|phi\s*phi|mountain\s*beach|panwaburi|esmeralda|hilton|marriott|hyatt|villa)/i.test(t) && /(?:dalo|lagao|karo|change|replace)/i.test(t)) {
       return { type: 'HOTEL_CHANGE', rawText: t };
     }
 
@@ -987,7 +987,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     const newTotalINR = Number(QuotationData.summary?.totalINR) || 0;
@@ -1121,7 +1121,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     const pkg = QuotationData.package || {};
@@ -1182,7 +1182,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     taskLog.push(`Switched document format to <strong>Format 2: Travel Itinerary (Experience-Focused)</strong>`);
@@ -1324,7 +1324,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     const fileName = `${sanitizeFileName(AgentMemory.activeCompany.name)}_${sanitizeFileName(dest)}_UpdatedHotels.pdf`;
@@ -1396,7 +1396,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     taskLog.push(`Updated Live Preview to <strong>Format: ${targetDocType.toUpperCase()}</strong>`);
@@ -1541,11 +1541,13 @@ const Chatbot = (() => {
     QuotationData.customSections = [
       { id: 'inclusions', title: 'Package Inclusions', items: QuotationData.inclusions || [] },
       { id: 'exclusions', title: 'Package Exclusions', items: QuotationData.exclusions || [] },
-      { id: 'important_notes', title: 'Important Quotation Notes', items: [
-        'Accommodation based on leading category / lowest category. Rates subject to availability at time of booking.',
-        'Speedboat schedules and sea tours are subject to weather and tidal conditions for guest safety.',
-        'Passports must have a minimum validity of 6 months from the date of travel.'
-      ]}
+      {
+        id: 'important_notes', title: 'Important Quotation Notes', items: [
+          'Accommodation based on leading category / lowest category. Rates subject to availability at time of booking.',
+          'Speedboat schedules and sea tours are subject to weather and tidal conditions for guest safety.',
+          'Passports must have a minimum validity of 6 months from the date of travel.'
+        ]
+      }
     ];
 
     if (extracted.summary && extracted.summary.items) QuotationData.summary = extracted.summary;
@@ -1565,7 +1567,7 @@ const Chatbot = (() => {
       App.updateLivePreviews();
     }
     if (typeof DBManager !== 'undefined') {
-      try { DBManager.saveQuotation(); } catch(e) {}
+      try { DBManager.saveQuotation(); } catch (e) { }
     }
 
     const pkg = QuotationData.package || {};
@@ -1590,7 +1592,7 @@ const Chatbot = (() => {
     const responseHtml = renderAgentResponseCard({
       tasks: taskLog,
       toolPillTop: numFiles > 0 ? `Ran 3 commands, read ${numFiles} file${numFiles > 1 ? 's' : ''} >` : null,
-      interimNote: numFiles > 1 
+      interimNote: numFiles > 1
         ? `Cross-referencing ${allAttachments.map(a => a.name).join(' & ')}. Extracting day-wise itinerary and hotel tariffs...`
         : (numFiles === 1 ? `Inspected ${allAttachments[0].name}. Verifying itinerary structure, hotel stays and tariffs...` : null),
       toolPillBottom: numFiles > 0 ? 'Read a file, shared files >' : null,
@@ -1831,7 +1833,7 @@ const Chatbot = (() => {
     const el = replies();
     if (!el) return;
     el.innerHTML = '';
-    
+
     let merged = [];
     if (prioritizeOptions) {
       merged = [...(options || [])];
@@ -1925,7 +1927,7 @@ const Chatbot = (() => {
         localStorage.setItem('activeAiDocument', JSON.stringify(QuotationData));
         localStorage.setItem('dmc_ai_prefill', JSON.stringify(QuotationData));
       }
-    } catch(e) {}
+    } catch (e) { }
     const isInsideAdmin = typeof window !== 'undefined' && window.location.pathname.includes('inquiry-admin');
     window.location.href = isInsideAdmin ? 'ai-assistant.html' : 'studio.html';
   }

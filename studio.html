@@ -1783,10 +1783,14 @@ Please find your official customized travel proposal attached. We look forward t
         });
         const data = await res.json();
         if (data.success) {
-          if (ch === 'whatsapp' && data.whatsapp_url) {
+          if (data.method === 'whatsapp_cloud_api') {
+            alert('🎉 WHATSAPP CLOUD API SUCCESS!\n\n' + data.message);
+          } else if (ch === 'whatsapp' && data.whatsapp_url) {
             window.open(data.whatsapp_url, '_blank');
+            alert('Opening 1-Click WhatsApp window for client!');
+          } else {
+            alert('Success! ' + data.message);
           }
-          alert('Success! ' + data.message);
           document.getElementById('studioSendNowModal').style.display = 'none';
         } else {
           alert('Error: ' + (data.error || 'Dispatch failed'));

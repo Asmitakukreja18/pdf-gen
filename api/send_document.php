@@ -13,7 +13,7 @@ require_once __DIR__ . '/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+$input = (!empty($input) && is_array($input)) ? $input : (json_decode(file_get_contents('php://input'), true) ?: $_POST);
 
 $docId = $input['doc_id'] ?? null;
 $docNo = $input['doc_no'] ?? ($input['doc_ref'] ?? 'LEDMC-DOC-' . time());
@@ -44,6 +44,7 @@ $pdo = getDbConnection();
 $deliveryStatus = 'sent';
 $deliveryMeta = '';
 $whatsappUrl = '';
+$shareId = null;
 
 // Determine document web URL
 $serverHost = $_SERVER['HTTP_HOST'] ?? 'pdf.letsexploredmc.com';
@@ -51,11 +52,52 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https:
 $docPublicUrl = $protocol . $serverHost . '/view.html?ref=' . urlencode($docNo);
 
 if ($channel === 'whatsapp') {
-    // Generate WhatsApp click-to-chat URL
+    // 1. Check if WhatsApp Cloud API is configured
+    $settingsPath = function_exists('getSecureAiSettingsPath') ? getSecureAiSettingsPath(false) : (__DIR__ . '/../data/ai_settings.json');
+    $settings = file_exists($settingsPath) ? json_decode(@file_get_contents($settingsPath), true) : [];
+    $waToken = trim($settings['whatsapp_access_token'] ?? '');
+    $waPhoneId = trim($settings['whatsapp_phone_number_id'] ?? '');
+
     $waText = "Hello $recipientName,\n\nGreetings from Let's Explore DMC!\n\nHere are the details for your travel document ($docNo):\n$message\n\n📄 View Document Online: $docPublicUrl\n\nThank you for choosing Let's Explore DMC!";
-    $whatsappUrl = "https://api.whatsapp.com/send?phone=" . urlencode($recipientPhone) . "&text=" . urlencode($waText);
-    $deliveryStatus = 'sent';
-    $deliveryMeta = json_encode(['whatsapp_url' => $whatsappUrl]);
+    $standardPhone = preg_replace('/[^0-9]/', '', $recipientPhone);
+    if (strlen($standardPhone) === 10 && preg_match('/^[6-9]/', $standardPhone)) {
+        $standardPhone = '91' . $standardPhone;
+    }
+
+    $cloudDispatched = false;
+    $cloudResult = null;
+
+    if (!empty($waToken) && !empty($waPhoneId)) {
+        require_once __DIR__ . '/whatsapp_cloud.php';
+        $waConfig = [
+            'access_token' => $waToken,
+            'phone_number_id' => $waPhoneId
+        ];
+        // If document has PDF URL or public view link
+        $pdfLink = !empty($input['pdf_url']) ? $input['pdf_url'] : $docPublicUrl;
+        $cloudResult = sendWhatsAppDocument($waConfig, $standardPhone, $pdfLink, ($docNo . '.pdf'), $waText);
+        if ($cloudResult && !empty($cloudResult['success'])) {
+            $cloudDispatched = true;
+            $deliveryStatus = 'sent';
+            $deliveryMeta = json_encode([
+                'method' => 'whatsapp_cloud_api',
+                'message_id' => $cloudResult['message_id'],
+                'recipient' => $standardPhone,
+                'delivered_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+    }
+
+    // Fallback click-to-chat URL (instant 1-click fallback)
+    $whatsappUrl = "https://api.whatsapp.com/send?phone=" . urlencode($standardPhone) . "&text=" . urlencode($waText);
+    if (!$cloudDispatched) {
+        $deliveryStatus = 'sent';
+        $deliveryMeta = json_encode([
+            'method' => 'whatsapp_click_to_chat',
+            'whatsapp_url' => $whatsappUrl,
+            'note' => !empty($cloudResult['error']) ? ('Cloud API notice: ' . $cloudResult['error']) : 'Direct click-to-chat'
+        ]);
+    }
 } else {
     // Dispatch Email
     $fromEmail = "no-reply@" . ($serverHost === 'localhost' ? 'letsexploredmc.com' : $serverHost);
@@ -118,46 +160,53 @@ if ($channel === 'whatsapp') {
 
 // 1. Record in document_shares
 try {
-    $stmt = $pdo->prepare("
-        INSERT INTO `document_shares` 
-        (`document_id`, `doc_ref`, `sender_id`, `sender_name`, `recipient_name`, `recipient_email`, `recipient_phone`, `channel`, `subject`, `message`, `delivery_status`, `delivery_meta`, `created_at`)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-    ");
-    $stmt->execute([
-        $docId, $docNo, $senderId, $senderName, $recipientName, $recipientEmail, $recipientPhone, $channel, $subject, $message, $deliveryStatus, $deliveryMeta
-    ]);
-    $shareId = $pdo->lastInsertId();
+    if ($pdo) {
+        $stmt = $pdo->prepare("
+            INSERT INTO `document_shares` 
+            (`document_id`, `doc_ref`, `sender_id`, `sender_name`, `recipient_name`, `recipient_email`, `recipient_phone`, `channel`, `subject`, `message`, `delivery_status`, `delivery_meta`, `created_at`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
+        $stmt->execute([
+            $docId, $docNo, $senderId, $senderName, $recipientName, $recipientEmail, $recipientPhone, $channel, $subject, $message, $deliveryStatus, $deliveryMeta
+        ]);
+        $shareId = $pdo->lastInsertId();
+    }
 } catch (Exception $e) {
     $shareId = null;
 }
 
 // 2. Record in user_activity_logs (Audit Trail)
 try {
-    $actionDesc = ($channel === 'whatsapp') ? 'sent_whatsapp' : 'sent_email';
-    $logStmt = $pdo->prepare("
-        INSERT INTO `user_activity_logs` 
-        (`user_id`, `employee_name`, `action`, `module`, `entity_id`, `details`, `ip_address`, `created_at`)
-        VALUES (?, ?, ?, 'Documents', ?, ?, ?, NOW())
-    ");
-    $logStmt->execute([
-        $senderId,
-        $senderName,
-        $actionDesc,
-        $docNo,
-        "Document $docNo sent to $recipientName via " . strtoupper($channel) . " by $senderName",
-        $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
-    ]);
+    if ($pdo) {
+        $actionDesc = ($channel === 'whatsapp') ? 'sent_whatsapp' : 'sent_email';
+        $logStmt = $pdo->prepare("
+            INSERT INTO `user_activity_logs` 
+            (`user_id`, `employee_name`, `action`, `module`, `entity_id`, `details`, `ip_address`, `created_at`)
+            VALUES (?, ?, ?, 'Documents', ?, ?, ?, NOW())
+        ");
+        $logStmt->execute([
+            $senderId,
+            $senderName,
+            $actionDesc,
+            $docNo,
+            "Document $docNo sent to $recipientName via " . strtoupper($channel) . " by $senderName",
+            $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
+        ]);
+    }
 } catch (Exception $e) {
     // Graceful error logging
 }
 
 echo json_encode([
     'success' => true,
-    'message' => "Document successfully dispatched via " . strtoupper($channel) . " by $senderName.",
+    'message' => ($channel === 'whatsapp' && !empty($cloudDispatched))
+        ? "Quotation PDF dispatched directly to client on WhatsApp (+{$standardPhone})!"
+        : "Document successfully dispatched via " . strtoupper($channel) . " by $senderName.",
+    'method' => ($channel === 'whatsapp') ? (!empty($cloudDispatched) ? 'whatsapp_cloud_api' : 'click_to_chat') : 'email',
     'share_id' => $shareId,
     'doc_ref' => $docNo,
     'channel' => $channel,
-    'recipient' => ($channel === 'whatsapp') ? $recipientPhone : $recipientEmail,
+    'recipient' => ($channel === 'whatsapp') ? ($standardPhone ?? $recipientPhone) : $recipientEmail,
     'whatsapp_url' => $whatsappUrl,
     'sent_by' => $senderName,
     'timestamp' => date('h:i A')
