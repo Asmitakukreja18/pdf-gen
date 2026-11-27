@@ -2490,7 +2490,7 @@
             // 2. Comprehensive Client Details, Company Branding & Markup Processor
             const hasRomford = /romford/i.test(u);
             const hasClientDirective = hasRomford || /(?:client\s*(?:name|ka\s*name|ka\s*no|no|number|contact)|name\s*hai|naam\s*hai)/i.test(u);
-            const hasCompanyDirective = /(?:humari\s*company|apni\s*company|our\s*company|baki\s*company|baki\s*details\s*hata|unki\s*details\s*hata|dusri\s*company\s*hata|let\'?s\s*explore|aanay|anay)/i.test(u);
+            const hasCompanyDirective = /(?:humari\s*company|apni\s*company|our\s*company|baki\s*company|baki\s*details\s*hata|unki\s*details\s*hata|dusri\s*company\s*hata|let\'?s?\s*explore|letsexplore|logo)/i.test(u);
             const isMarkupExplicit = u.includes('markup') || u.includes('margin') || u.includes('profit') || (u.includes('percent') && !u.includes('gst'));
             const markupMatch = (
                 u.match(/(?:add|lagao|karo|\+)?\s*(\d{1,2}(?:\.\d+)?)\s*(?:%|percent|percentage|pratishat|pc)\s*(?:ka|of|wala)?\s*(?:markup|margin|profit)/i) ||
@@ -2531,12 +2531,17 @@
                 // C. Company Branding & Whitelabel
                 let companySwitched = null;
                 const isOurCompany = u.includes('humari company') || u.includes('apni company') || u.includes('our company') ||
-                                     u.includes("let's explore") || u.includes("lets explore") ||
-                                     u.includes('baki company details hata') || u.includes('baki company') || u.includes('unki details hata') || u.includes('dusri company hata');
+                                     u.includes("let's explore") || u.includes("lets explore") || u.includes("letsexplore") ||
+                                     u.includes('baki company details hata') || u.includes('baki company') || u.includes('unki details hata') || u.includes('dusri company hata') ||
+                                     (u.includes('logo') && !u.includes('aanay') && !u.includes('anay'));
                 const isAanay = (/\b(aanay|anay)\b/i.test(u) || u.includes('anay tours') || u.includes('aanay tours')) && !isOurCompany;
 
                 if (isOurCompany) {
                     switchStudioCompany("Let's Explore DMC");
+                    if (QuotationData.company) {
+                        QuotationData.company.logo = 'images/logo.png';
+                        QuotationData.company.isWhitelabel = false;
+                    }
                     companySwitched = "Let's Explore DMC";
                     handledAny = true;
                 } else if (isAanay) {
@@ -2608,7 +2613,7 @@
                         <div style="font-size:12.5px; color:#1E293B; line-height:1.6; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px 14px; border-radius:8px; margin-bottom:10px;">
                             • <strong>Client / B2B Partner:</strong> <span style="color:#0F2C59; font-weight:700;">${escapeHtml(clientDisplay)}</span><br>
                             • <strong>Client Phone:</strong> <span style="color:#2563EB; font-weight:700;">${escapeHtml(phoneDisplay)}</span><br>
-                            • <strong>Company Details:</strong> <span style="color:#047857; font-weight:700;">${escapeHtml(comp.name || "Let's Explore DMC")}</span> (Third-party details successfully removed)<br>
+                            • <strong>Company Branding &amp; Logo:</strong> <span style="color:#047857; font-weight:700;">${escapeHtml(comp.name || "Let's Explore DMC")}</span> (Official multi-color logo active in PDF &amp; preview)<br>
                             ${appliedMarkupPct ? `• <strong>Markup Added:</strong> <span style="color:#059669; font-weight:700;">+${appliedMarkupPct}% Margin</span> calculated on all rates<br>` : ''}
                             • <strong>Total Package Cost:</strong> <strong>$${(pkg.totalCostUSD || 0).toLocaleString()} USD</strong> (~₹${(pkg.totalCostINR || 0).toLocaleString()} INR) for ${pkg.travellers || '2 Adults'}<br>
                             👉 Live preview, PDF print engine, and WhatsApp dispatch updated instantly!
