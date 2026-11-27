@@ -171,34 +171,113 @@ if (!empty($userRates)) {
     $contextText .= "USER SPECIFIED PRICING & RATE PARAMETERS:\n" . json_encode($userRates, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
 }
 
-$systemPrompt = "You are the Master Travel ERP & AI Document Generation Engine for Let's Explore DMC (Destination Management Company).
-Your mission is to generate professional, destination-specific travel documents across 12 distinct business formats:
+$systemPrompt = "You are the Universal AI Business Document Generation Engine.
+Your mission is to dynamically understand ANY uploaded business file (Excel, PDF, Word DOCX, Image, Scanned Tariff) and generate the exact business document requested by the user.
 
-1. 'hotel_voucher': Hotel Booking Confirmation Voucher with Booking ID, Guest details, Hotel address/rating, Room type, Meal plan, Check-in/out dates, Hotel perks, DMC emergency helpline, and voucher terms.
-2. 'transfer_voucher': Private Airport or Inter-City Transfer Voucher with Vehicle category, Pickup date/time/location, Drop-off point, Flight/Train details, Driver contact, Luggage allowance, and Meet & Greet instructions.
-3. 'activity_voucher': Sightseeing, Excursions & Theme Park Voucher with Attraction name, Ticket barcode, Pickup window, Meeting point, Tour inclusions, Highlights, and What to bring.
-4. 'customer_billing': Customer Statement of Account (SOA) with Transaction ledger (Dates, Descriptions, Debits, Credits, Running balance), Total billed, Amount paid, Balance due, and Bank wire details.
-5. 'supplier_billing': Supplier Work Order & Contracted B2B PO with Supplier details, DMC reference, Contracted services table, Net B2B rates, Gross total, Commission/discount, Net payable, and Settlement terms.
-6. 'quotation': Master Travel Quotation with Day-by-day detailed itinerary, Hotels, Dual tariffs (USD & INR), Key inclusions, Exclusions, and Booking terms.
-7. 'customer_invoice': Official Commercial GST Tax Invoice with Invoice #, Date, Client details, HSN Code 998555, Itemized services, Taxable subtotal, CGST 2.5%, SGST 2.5% (or IGST 5%), Grand total, and Bank details.
-8. 'proforma_invoice': Proforma Estimate with Proforma #, Date, Validity period, Estimated services breakdown, 50% advance deposit milestone schedule, and Wire instructions.
-9. 'hotel_rate_sheet': Structured Hotel Tariff Table with Destination hotels, Star categories, Room types, Meal plans, Low season, High season, Peak season rates, and Extra bed policies.
-10. 'sightseeing_rate_sheet': Structured Sightseeing Tariff Table with Tours, Duration, SIC (Seat-in-Coach) Adult/Child rates, Private vehicle rates, Inclusions, and Operating schedules.
-11. 'transport_rate_sheet': Chauffeur & Vehicle Tariff Table with Routes (Airport, 8hr disposal, Inter-city), Vehicle categories (Sedan, SUV, Commuter Van, Minicoach), Toll/fuel rules, and Hourly overtime rates.
-12. 'package_rate_sheet': Complete Tour Package Master Tariff Matrix with 3-Star, 4-Star, and 5-Star tiers across 2 Pax, 4 Pax, 6 Pax, and 10+ Pax groups, Single supplements, and Child policies.
+DOCUMENT-TYPE INDEPENDENCE:
+The requested document type determines the output structure:
+1. 'quotation': Professional Commercial Quotation (Service / Tour / Product). Includes title, client details, duration, options comparison table, day-wise timeline, accommodation summary, key inclusions, exclusions, and financial summary.
+2. 'itinerary': Day-wise Itinerary & Timeline. Comprehensive schedule of activities and services with all pricing strictly hidden when requested.
+3. 'customer_invoice' / 'invoice': Official Commercial GST Tax Invoice. Includes Invoice #, Date, Billed-to entity, HSN/SAC code 998555, itemized services ledger with quantity, rate, taxable amount, CGST/SGST/IGST breakdown, grand total, and bank payment instructions.
+4. 'hotel_voucher' / 'voucher' / 'confirmation': Official Confirmation Voucher with Confirmation ID, Guest names, Property details, Room type, Meal plan, Check-in/out dates, and Terms.
+5. 'company_profile': Comprehensive Corporate Company Profile (e.g. for Let's Explore DMC or any designated brand) with About Us, Core Competencies, Worldwide Desks, Leadership, Fleet/Services, and Portfolio.
+6. 'excel_report' / 'tabular_document': Data-rich Business Report or Tariff Matrix reconstructed faithfully from uploaded Excel sheets.
+7. 'custom_document': Generalized business proposal or report with executive summary, structured sections, metric cards, tables, and notes.
 
-DESTINATION CUSTOMIZATION:
-Generate all content tailored to the selected destination (Thailand, Dubai, Bali, Singapore, Malaysia, Vietnam, Turkey, Kashmir, Rajasthan, Maldives, Switzerland, Europe). Never mix up destination landmarks, hotels, or currencies.
+EXCEL & SPREADSHEET RULES:
+- When an Excel (.xlsx / .xls) workbook is uploaded, read and preserve data across ALL worksheets.
+- Extract tables, rows, columns, headers, dates, numerical values, and formulas.
+- Never omit rows, sheets, or columns arbitrarily.
 
-COMPANY BRANDING RULES:
-If the user specifies a company name (e.g. Aanay Tours, with details like Amravati, +91 7708123187 | +91 8007586871, Infoattdmc@gmail.com), brand the entire quotation/voucher/invoice under that company and strictly remove all third-party DMC/supplier details, competitor emails, phone numbers, and bank account details.
+COMPANY & BRANDING RULES:
+- If user requests Aanay Tours / Anaya Tours (e.g. Amravati, +91 7708123187 | +91 8007586871, Infoattdmc@gmail.com) or any other company, format the document exclusively under that company's name and identity.
+- Cleanly remove competitor logos, third-party DMC contact details, and conflicting watermarks.
+- If user requests Let's Explore DMC, use Let's Explore DMC master brand and global desks.
 
-MULTI-PROPERTY COMPARISON OPTIONS:
-When multiple resort or hotel options are provided (Option 1, Option 2, Option 3, etc.), preserve each distinct option with its property name, nights, room type, meal plan, transfer type, and accurately computed rate including any requested markup percentage.
+CONTENT PRESERVATION:
+- Do NOT truncate or shorten source content.
+- Do NOT invent unapproved prices, dates, or contact details.
+- Preserve all line items, room categories, options, and inclusions.
 
-RATE & PRICING RULES:
-If user rates or modifications are provided, perform exact mathematical calculations without inventing unapproved numbers.
-Always return valid JSON matching the selected document format, with 'detectedDocType', 'docType', 'docTitle', 'destination', 'country', 'pricing', and the corresponding document object.";
+Always return strictly valid JSON matching this schema:
+{
+  \"detectedDocType\": \"quotation|itinerary|customer_invoice|hotel_voucher|company_profile|excel_report|custom_document\",
+  \"docType\": \"quotation|itinerary|customer_invoice|hotel_voucher|company_profile|excel_report|custom_document\",
+  \"docTitle\": \"Document Title\",
+  \"documentSummary\": \"Brief 1-2 sentence executive summary\",
+  \"company\": {
+    \"name\": \"Company Name\",
+    \"tagline\": \"Tagline or subtitle\",
+    \"phone\": \"Contact phone\",
+    \"email\": \"Contact email\",
+    \"website\": \"Website URL\",
+    \"address\": \"Corporate address\"
+  },
+  \"package\": {
+    \"title\": \"Package or Document Title\",
+    \"destination\": \"Destination or Subject\",
+    \"destinations\": \"Destination or Subject\",
+    \"duration\": \"Duration or Timeline\",
+    \"clientName\": \"Client Name\",
+    \"clientContact\": \"Client Contact\",
+    \"guestCount\": 2,
+    \"pax\": \"2 Adults\",
+    \"currency\": \"INR|USD|EUR|AED\",
+    \"priceInr\": 0,
+    \"priceUsd\": 0,
+    \"hideCosting\": false
+  },
+  \"pricing\": {
+    \"subtotal\": 0,
+    \"markupPercent\": 0,
+    \"taxPercent\": 0,
+    \"grandTotal\": 0,
+    \"currency\": \"INR|USD|EUR|AED\"
+  },
+  \"hotels\": [
+    {
+      \"city\": \"City\",
+      \"name\": \"Hotel Name\",
+      \"hotelName\": \"Hotel Name\",
+      \"roomType\": \"Room Category\",
+      \"checkIn\": \"Check-in date\",
+      \"checkOut\": \"Check-out date\",
+      \"nights\": 1,
+      \"pax\": 2,
+      \"mealPlan\": \"Meal Plan\",
+      \"amountINR\": 0,
+      \"amountUSD\": 0
+    }
+  ],
+  \"days\": [
+    {
+      \"dayNumber\": 1,
+      \"day\": 1,
+      \"title\": \"Day Title\",
+      \"description\": \"Day Description\",
+      \"items\": [
+        {
+          \"title\": \"Activity or Service Name\",
+          \"subtitle\": \"Service subtitle\",
+          \"category\": \"Sightseeing|Transfer|Hotel\",
+          \"pax\": 2,
+          \"amountINR\": 0,
+          \"amountUSD\": 0
+        }
+      ]
+    }
+  ],
+  \"sections\": [
+    {
+      \"id\": \"section_id\",
+      \"title\": \"Section Heading\",
+      \"content\": \"Section body text or formatted markdown\",
+      \"items\": [\"Bullet item 1\", \"Bullet item 2\"]
+    }
+  ],
+  \"inclusions\": [\"Inclusion 1\", \"Inclusion 2\"],
+  \"exclusions\": [\"Exclusion 1\", \"Exclusion 2\"]
+}";
 
 $errors = [];
 
@@ -293,6 +372,21 @@ if ($finalResult !== null) {
         'fallbackNotes' => !empty($errors) ? $errors : null
     ]);
 } else {
+    // If user explicitly requested Claude, do not silently present fake successful AI output!
+    if ($requestedProvider === 'claude') {
+        http_response_code(400);
+        $claudeErrMsg = !empty($errors['claude']) 
+            ? $errors['claude'] 
+            : "Anthropic Claude API key is missing or invalid. Please configure a valid Claude API key in Settings (⚙️).";
+        echo json_encode([
+            'success' => false,
+            'provider' => 'claude',
+            'error' => $claudeErrMsg,
+            'details' => $errors
+        ]);
+        exit;
+    }
+
     // Graceful Intelligent Local Generation Fallback
     $hasRealAttachments = !empty($attachments) && is_array($attachments) && count($attachments) > 0;
     $localData = generateLocalAiQuotation($prompt, $currentQuotation, $attachments, $requestedDocType, $requestedDestination, $userRates);
@@ -426,6 +520,9 @@ function callClaude($systemPrompt, $contextText, $userPrompt, $attachments, $api
                 $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
                 $cleanJson = preg_replace('/\s*```$/i', '', $cleanJson);
                 $parsed = json_decode($cleanJson, true);
+                if (!$parsed && preg_match('/\{[\s\S]*\}/', $rawText, $m)) {
+                    $parsed = json_decode($m[0], true);
+                }
                 if ($parsed && is_array($parsed)) {
                     return ['success' => true, 'model' => $model, 'data' => $parsed];
                 }

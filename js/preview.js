@@ -57,9 +57,17 @@ const Preview = (() => {
       case 'summary':
         return renderPackageSummaryDocument(data, isForPrint);
       case 'confirmation':
+      case 'voucher':
+      case 'hotel_voucher':
         return renderTravelConfirmationDocument(data, isForPrint);
       case 'invoice':
+      case 'customer_invoice':
+      case 'billing':
         return renderInvoiceDocument(data, isForPrint);
+      case 'company_profile':
+      case 'excel_report':
+      case 'tabular_document':
+      case 'custom_document':
       case 'custom':
         return renderCustomDocument(data, isForPrint);
       case 'quotation':
@@ -1229,9 +1237,38 @@ const Preview = (() => {
    * Helper to render dynamic custom section content based on type
    */
   function renderCustomSectionBody(sec, context) {
+    if (sec.table && Array.isArray(sec.table.rows)) {
+      const headers = sec.table.headers || sec.table.rows[0] || [];
+      const dataRows = sec.table.headers ? sec.table.rows : sec.table.rows.slice(1);
+      return `
+        <div class="custom-table-container" style="overflow-x:auto; margin:10px 0;">
+          <table class="voucher-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="background:#0F2C59; color:#FFF;">
+                ${headers.map(h => `<th style="padding:8px 12px; text-align:left; font-size:12px;">${escapeHTML(h)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${dataRows.map((r, rIdx) => `
+                <tr style="background:${rIdx % 2 === 0 ? '#FFFFFF' : '#F8FAFC'}; border-bottom:1px solid #E2E8F0;">
+                  ${(Array.isArray(r) ? r : Object.values(r)).map(c => `<td style="padding:7px 12px; font-size:12px; color:#1E293B;">${escapeHTML(c)}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     switch (sec.type) {
+      case 'table':
+      case 'excel_table':
+        if (sec.content) {
+          return `<div class="custom-table-box" style="overflow-x:auto;">${escapeHTML(sec.content)}</div>`;
+        }
+        return '';
       case 'text':
-        return `<p class="custom-rich-text">${escapeHTML(sec.content || '')}</p>`;
+        return `<div class="custom-rich-text" style="font-size:13px; line-height:1.7; color:#1E293B; white-space:pre-wrap;">${escapeHTML(sec.content || '')}</div>`;
       case 'hotel':
         return `
           <div class="custom-hotels-table-box">
@@ -1284,6 +1321,12 @@ const Preview = (() => {
         `;
       case 'notes':
       default:
+        if (sec.content) {
+          return `<div class="custom-rich-text" style="font-size:13px; line-height:1.7; color:#1E293B; white-space:pre-wrap;">${escapeHTML(sec.content)}</div>`;
+        }
+        if (Array.isArray(sec.items) && sec.items.length > 0) {
+          return `<ul class="dmc-bullet-list" style="margin:8px 0; padding-left:20px; font-size:12.5px; line-height:1.6; color:#1E293B;">${sec.items.map(it => `<li>${escapeHTML(it)}</li>`).join('')}</ul>`;
+        }
         return `<ul class="dmc-bullet-list"><li>All services reserved according to Let's Explore DMC master agreement.</li><li>Passports must carry at least 6 months validity from departure date.</li></ul>`;
     }
   }
