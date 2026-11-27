@@ -352,27 +352,109 @@ const Chatbot = (() => {
         }
       }
 
-      // 3.1 Extract Excel worksheets via SheetJS (XLSX, XLS, CSV)
-      if (/\.(xlsx|xls|csv)$/i.test(file.name) && typeof XLSX !== 'undefined') {
+      // 3.1 Extract Word Documents via Mammoth (HTML Tables + Headings + Text)
+      if (/\.(docx|doc)$/i.test(file.name) && typeof mammoth !== 'undefined') {
         try {
           const ab = await file.arrayBuffer();
-          const workbook = XLSX.read(ab, { type: 'array', cellDates: true, cellNF: true });
-          const sheetNames = workbook.SheetNames || [];
-          attObj.pageCount = sheetNames.length;
-          let fullText = `--- EXCEL WORKBOOK: ${file.name} (${sheetNames.length} Sheets) ---\n`;
-          let totalRows = 0;
-          for (const sName of sheetNames) {
-            const worksheet = workbook.Sheets[sName];
-            if (!worksheet) continue;
-            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
-            if (!rows || rows.length === 0) continue;
-            totalRows += rows.length;
-            fullText += `\n=== WORKSHEET: ${sName} (${rows.length} rows) ===\n`;
-            fullText += rows.map(r => Array.isArray(r) ? '| ' + r.join(' | ') + ' |' : String(r)).join('\n') + '\n';
+          const htmlRes = await mammoth.convertToHtml({ arrayBuffer: ab });
+          const rawRes = await mammoth.extractRawText({ arrayBuffer: ab });
+          let combinedText = rawRes.value || '';
+          if (htmlRes.value && htmlRes.value.includes('<table')) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlRes.value, 'text/html');
+            const tblTexts = [];
+            doc.querySelectorAll('table').forEach((tbl, tIdx) => {
+              tblTexts.push(`\n--- [MAMMOTH TABLE ${tIdx + 1}] ---`);
+              tbl.querySelectorAll('tr').forEach(tr => {
+                const cells = Array.from(tr.querySelectorAll('th, td')).map(td => td.textContent.trim());
+                if (cells.some(c => c.length > 0)) {
+                  tblTexts.push(cells.join(' | '));
+                }
+              });
+              tblTexts.push('--- [END TABLE] ---\n');
+            });
+            if (tblTexts.length > 0) combinedText += '\n\n' + tblTexts.join('\n');
           }
-          attObj.extractedText = fullText.trim();
+          attObj.extractedText = combinedText.trim();
+          attObj.pageCount = Math.max(1, Math.ceil(combinedText.length / 2000));
+        } catch (mErr) {
+          console.warn('Mammoth extraction notice in chatbot.js:', mErr);
+        }
+      }
+
+      // 3.2 Extract Excel worksheets via ExcelJS (Tier 1) & SheetJS (Tier 2)
+      if (/\.(xlsx|xls|csv)$/i.test(file.name)) {
+        try {
+          const ab = await file.arrayBuffer();
+          let fullText = '';
+
+          // 3.2.1 ExcelJS (Full Support for Multi-Worksheets, Costing Tables, Cell Formats & Formulas)
+          if (typeof ExcelJS !== 'undefined') {
+            try {
+              const workbook = new ExcelJS.Workbook();
+              await workbook.xlsx.load(ab);
+              const sheetCount = workbook.worksheets.length;
+              attObj.pageCount = sheetCount;
+              let totalRows = 0;
+              let sheetsText = [];
+
+              workbook.eachSheet((worksheet) => {
+                const sName = worksheet.name;
+                const rowCount = worksheet.rowCount;
+                totalRows += rowCount;
+                let sheetLines = [`\n=== WORKSHEET: ${sName} (${rowCount} rows, ${worksheet.columnCount} cols) ===`];
+
+                worksheet.eachRow({ includeEmpty: false }, (row) => {
+                  const values = [];
+                  row.eachCell({ includeEmpty: true }, (cell) => {
+                    let val = '';
+                    if (cell.value !== null && cell.value !== undefined) {
+                      if (typeof cell.value === 'object') {
+                        val = cell.value.result ?? cell.value.text ?? JSON.stringify(cell.value);
+                      } else {
+                        val = String(cell.value);
+                      }
+                    }
+                    values.push(val.replace(/\|/g, '\\|').trim());
+                  });
+                  if (values.some(v => v.length > 0)) {
+                    sheetLines.push('| ' + values.join(' | ') + ' |');
+                  }
+                });
+                sheetsText.push(sheetLines.join('\n'));
+              });
+
+              if (sheetsText.length > 0 && totalRows > 0) {
+                fullText = `--- EXCELJS WORKBOOK: ${file.name} (${sheetCount} Sheets, ${totalRows} Total Rows) ---\n` + sheetsText.join('\n\n');
+              }
+            } catch (ejsErr) {
+              console.warn('ExcelJS extraction notice (falling back to SheetJS):', ejsErr);
+            }
+          }
+
+          // 3.2.2 SheetJS Fallback
+          if (!fullText && typeof XLSX !== 'undefined') {
+            const workbook = XLSX.read(ab, { type: 'array', cellDates: true, cellNF: true });
+            const sheetNames = workbook.SheetNames || [];
+            attObj.pageCount = sheetNames.length;
+            fullText = `--- EXCEL WORKBOOK: ${file.name} (${sheetNames.length} Sheets) ---\n`;
+            let totalRows = 0;
+            for (const sName of sheetNames) {
+              const worksheet = workbook.Sheets[sName];
+              if (!worksheet) continue;
+              const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+              if (!rows || rows.length === 0) continue;
+              totalRows += rows.length;
+              fullText += `\n=== WORKSHEET: ${sName} (${rows.length} rows) ===\n`;
+              fullText += rows.map(r => Array.isArray(r) ? '| ' + r.join(' | ') + ' |' : String(r)).join('\n') + '\n';
+            }
+          }
+
+          if (fullText) {
+            attObj.extractedText = fullText.trim();
+          }
         } catch (xlErr) {
-          console.warn('SheetJS extraction notice in chatbot.js:', xlErr);
+          console.warn('Excel extraction notice in chatbot.js:', xlErr);
         }
       }
 

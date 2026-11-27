@@ -516,14 +516,19 @@
 
                         <!-- Right Quick Action Buttons -->
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <!-- Daily Dollar FX Rate Quick Editor -->
+                            <!-- Daily Dollar FX Rate Quick Editor & Live ExchangeRate-API Sync -->
                             <div style="display:inline-flex; align-items:center; gap:5px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:3px 8px;"
-                                title="Daily Dollar Rate (USD to INR). Change daily to recalculate all quotations instantly.">
+                                title="Daily Dollar Rate (USD to INR). Live synchronized via ExchangeRate-API.">
                                 <span style="font-size:11.5px; font-weight:800; color:#1E40AF;"><i
                                         class="fa-solid fa-dollar-sign"></i> 1 USD = ₹</span>
                                 <input type="number" id="quickDailyFxRate" step="0.25" value="87.50"
                                     oninput="updateDailyDollarRate(this.value)"
                                     style="width:58px; padding:2px 4px; border:1px solid #93C5FD; border-radius:4px; font-size:11.5px; font-weight:800; color:#0F172A; text-align:center; background:#FFF; outline:none;">
+                                <button type="button" onclick="syncLiveExchangeRates()"
+                                    style="background:none; border:none; color:#2563EB; cursor:pointer; padding:2px; font-size:12px;"
+                                    title="Sync live rate from ExchangeRate-API">
+                                    <i class="fa-solid fa-rotate" id="fxSyncSpinner"></i>
+                                </button>
                             </div>
 
                             <!-- Interactive Markup Calculator Modal Button -->
@@ -1280,8 +1285,10 @@
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.9/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="../js/config.js?v=12.5"></script>
     <script src="../js/financial-engine.js"></script>
@@ -1745,6 +1752,29 @@
             }
 
             recalculateActiveRates(true);
+        }
+
+        async function syncLiveExchangeRates() {
+            const spinner = document.getElementById('fxSyncSpinner');
+            if (spinner) spinner.classList.add('fa-spin');
+            try {
+                const res = await fetch('../api/forex.php?refresh=1');
+                const data = await res.json();
+                if (data && data.rates && data.rates.INR) {
+                    const inrRate = parseFloat(data.rates.INR).toFixed(2);
+                    updateDailyDollarRate(inrRate);
+                    if (typeof FinancialEngine !== 'undefined') {
+                        FinancialEngine.setExchangeRate('INR', inrRate);
+                    }
+                    alert(`ExchangeRate-API Live Synced! 1 USD = ₹${inrRate} INR`);
+                } else {
+                    alert('Forex synced with cached market rates.');
+                }
+            } catch (err) {
+                console.warn('Forex live sync notice:', err);
+            } finally {
+                if (spinner) spinner.classList.remove('fa-spin');
+            }
         }
 
         function openMarkupCalculatorModal(initialCost = null, curr = null) {
@@ -5296,13 +5326,36 @@
                             }
                         }
 
-                        // 2.2 Mammoth Fallback if JSZip was unavailable or for legacy .doc
+                        // 2.2 Mammoth Enhanced Extraction (Extracts Tables, Headings & Raw Text)
                         if (!structuredDocxText && typeof mammoth !== 'undefined') {
                             try {
-                                const res = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-                                structuredDocxText = res.value || '';
+                                const htmlRes = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+                                const rawRes = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                                
+                                let combinedText = rawRes.value || '';
+                                if (htmlRes.value && htmlRes.value.includes('<table')) {
+                                    // Parse HTML tables from Mammoth output
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(htmlRes.value, 'text/html');
+                                    const tables = doc.querySelectorAll('table');
+                                    const tblTexts = [];
+                                    tables.forEach((tbl, tIdx) => {
+                                        tblTexts.push(`\n--- [MAMMOTH TABLE ${tIdx + 1}] ---`);
+                                        tbl.querySelectorAll('tr').forEach(tr => {
+                                            const cells = Array.from(tr.querySelectorAll('th, td')).map(td => td.textContent.trim());
+                                            if (cells.some(c => c.length > 0)) {
+                                                tblTexts.push(cells.join(' | '));
+                                            }
+                                        });
+                                        tblTexts.push('--- [END TABLE] ---\n');
+                                    });
+                                    if (tblTexts.length > 0) {
+                                        combinedText += '\n\n' + tblTexts.join('\n');
+                                    }
+                                }
+                                structuredDocxText = combinedText.trim();
                             } catch (mErr) {
-                                console.warn('Mammoth fallback notice:', mErr);
+                                console.warn('Mammoth extraction notice:', mErr);
                             }
                         }
 
@@ -5315,12 +5368,58 @@
                     }
                 }
 
-                // ── 2.5 NATIVE EXCEL WORKBOOK EXTRACTION (SheetJS XLSX, XLS, CSV) ──
+                // ── 2.5 NATIVE EXCEL WORKBOOK EXTRACTION (ExcelJS Tier 1 + SheetJS Tier 2) ──
                 else if (ext === 'xlsx' || ext === 'xls') {
                     try {
                         const arrayBuffer = await file.arrayBuffer();
                         let structuredExcelText = '';
-                        if (typeof XLSX !== 'undefined') {
+
+                        // 2.5.1 ExcelJS (Full Support for Multi-Worksheets, Costing Tables, Cell Formats & Formulas)
+                        if (typeof ExcelJS !== 'undefined') {
+                            try {
+                                const workbook = new ExcelJS.Workbook();
+                                await workbook.xlsx.load(arrayBuffer);
+                                const sheetCount = workbook.worksheets.length;
+                                let totalRows = 0;
+                                let sheetsText = [];
+
+                                workbook.eachSheet((worksheet, sheetId) => {
+                                    const sName = worksheet.name;
+                                    const rowCount = worksheet.rowCount;
+                                    totalRows += rowCount;
+                                    let sheetLines = [`\n=== WORKSHEET: ${sName} (${rowCount} rows, ${worksheet.columnCount} cols) ===`];
+
+                                    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+                                        const values = [];
+                                        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                                            let val = '';
+                                            if (cell.value !== null && cell.value !== undefined) {
+                                                if (typeof cell.value === 'object') {
+                                                    // Handle formula results or rich text
+                                                    val = cell.value.result ?? cell.value.text ?? JSON.stringify(cell.value);
+                                                } else {
+                                                    val = String(cell.value);
+                                                }
+                                            }
+                                            values.push(val.replace(/\|/g, '\\|').trim());
+                                        });
+                                        if (values.some(v => v.length > 0)) {
+                                            sheetLines.push('| ' + values.join(' | ') + ' |');
+                                        }
+                                    });
+                                    sheetsText.push(sheetLines.join('\n'));
+                                });
+
+                                if (sheetsText.length > 0 && totalRows > 0) {
+                                    structuredExcelText = `--- EXCELJS WORKBOOK EXTRACTION: ${file.name} (${sheetCount} Sheets, ${totalRows} Total Rows) ---\n` + sheetsText.join('\n\n');
+                                }
+                            } catch (excelJsErr) {
+                                console.warn('ExcelJS extraction notice (falling back to SheetJS):', excelJsErr);
+                            }
+                        }
+
+                        // 2.5.2 SheetJS Fallback (for .xls binary, csv, or if ExcelJS errored)
+                        if (!structuredExcelText && typeof XLSX !== 'undefined') {
                             const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true, cellNF: true });
                             const sheetNames = workbook.SheetNames || [];
                             let totalRows = 0;
@@ -5350,12 +5449,15 @@
 
                             if (structuredExcelText) {
                                 structuredExcelText = `--- EXCEL WORKBOOK EXTRACTION: ${file.name} (${sheetNames.length} Sheets, ${totalRows} Total Rows) ---\n` + structuredExcelText;
-                                _docOcrCache.set(cacheKey, structuredExcelText);
-                                return structuredExcelText;
                             }
                         }
+
+                        if (structuredExcelText) {
+                            _docOcrCache.set(cacheKey, structuredExcelText);
+                            return structuredExcelText;
+                        }
                     } catch (xlErr) {
-                        console.warn('SheetJS Excel extraction notice:', xlErr);
+                        console.warn('Excel extraction notice:', xlErr);
                     }
                 }
 

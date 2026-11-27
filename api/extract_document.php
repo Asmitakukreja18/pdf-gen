@@ -66,8 +66,43 @@ $scriptPath = realpath(__DIR__ . '/../scripts/extract_assets.py');
 
 $outputJson = null;
 
-// 1. Try Python Extractor Engine
-if ($scriptPath && file_exists($scriptPath)) {
+// 1. Google Document AI (Tier 1 for PDFs and Scanned Documents if enabled)
+$ext = strtolower(pathinfo($inputFilePath, PATHINFO_EXTENSION));
+$settingsPath = function_exists('getSecureAiSettingsPath') ? getSecureAiSettingsPath(false) : (__DIR__ . '/../data/ai_settings.json');
+$aiSettings = file_exists($settingsPath) ? json_decode(@file_get_contents($settingsPath), true) : [];
+
+if (!empty($aiSettings['document_ai_enabled']) && !empty($aiSettings['document_ai_project_id']) && !empty($aiSettings['document_ai_processor_id'])) {
+    if (in_array($ext, ['pdf', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'webp'])) {
+        require_once __DIR__ . '/document_ai.php';
+        $b64 = base64_encode(file_get_contents($inputFilePath));
+        $mime = getFileMime($inputFilePath);
+        $docAiConfig = [
+            'enabled'      => true,
+            'project_id'   => trim($aiSettings['document_ai_project_id']),
+            'location'     => trim($aiSettings['document_ai_location'] ?? 'us'),
+            'processor_id' => trim($aiSettings['document_ai_processor_id']),
+            'api_key'      => trim($aiSettings['document_ai_api_key'] ?? ''),
+            'service_account_json' => trim($aiSettings['document_ai_service_account_json'] ?? '')
+        ];
+        $docAiRes = callGoogleDocumentAi($docAiConfig, $b64, $mime);
+        if ($docAiRes && !empty($docAiRes['success'])) {
+            $outputJson = [
+                'success' => true,
+                'provider' => 'Google Document AI',
+                'format' => $ext,
+                'file_name' => $originalName,
+                'page_count' => $docAiRes['page_count'] ?? 1,
+                'character_count' => $docAiRes['character_count'] ?? 0,
+                'tables' => $docAiRes['tables'] ?? [],
+                'form_fields' => $docAiRes['form_fields'] ?? [],
+                'full_text' => $docAiRes['text'] ?? ''
+            ];
+        }
+    }
+}
+
+// 2. Python Extractor Engine (Tier 2 / Local Standard)
+if (!$outputJson && $scriptPath && file_exists($scriptPath)) {
     $pythonCmd = 'python';
     $cmd = escapeshellcmd($pythonCmd) . ' ' . 
            escapeshellarg($scriptPath) . ' --input ' . 
