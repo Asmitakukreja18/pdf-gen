@@ -88,8 +88,8 @@ const Preview = (() => {
   /**
    * Shared continuous page footer matching reference PDF
    */
-  function renderContinuousFooter(footer = {}) {
-    const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {};
+  function renderContinuousFooter(footer = {}, compOverride = null) {
+    const comp = compOverride || (footer && footer.company) || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const compName = comp.name || footer.companyName || "Let's Explore DMC";
     const isAanay = /aanay/i.test(compName);
 
@@ -168,8 +168,8 @@ const Preview = (() => {
   /**
    * Shared Brand Header for official documents
    */
-  function renderBrandHeader(pkg = {}, docTypeLabel = 'PACKAGE TOUR', quoteRef = '') {
-    const comp = (typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : (pkg.company || {});
+  function renderBrandHeader(pkg = {}, docTypeLabel = 'PACKAGE TOUR', quoteRef = '', compOverride = null) {
+    const comp = compOverride || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const brandName = comp.name || "LET'S EXPLORE DMC";
     const isAanay = /aanay/i.test(brandName);
 
@@ -243,11 +243,12 @@ const Preview = (() => {
     const customSections = data.customSections || [];
     const offices = data.offices || [];
     const footer = data.footerSettings || {};
+    const comp = data.company || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const themeStyles = getThemeStyles(data.themeSettings);
 
     return `
       <div class="dmc-quotation-doc doc-itinerary-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, 'PACKAGE ITINERARY', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, 'PACKAGE ITINERARY', pkg.quoteRef, comp)}
 
         <!-- 3 Stat Cards Matching Reference PDF -->
         <div class="dmc-stats-grid">
@@ -339,7 +340,7 @@ const Preview = (() => {
         <!-- Global Desks & Contact -->
         ${renderOfficesSection(offices)}
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -353,7 +354,7 @@ const Preview = (() => {
     const summary = data.summary || { items: [], totalINR: 0, totalUSD: 0 };
     const offices = data.offices || [];
     const footer = data.footerSettings || {};
-    const comp = data.company || {};
+    const comp = data.company || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const isAanay = /aanay/i.test(comp.name || pkg.company?.name || '');
     const themeStyles = getThemeStyles(data.themeSettings);
 
@@ -364,7 +365,7 @@ const Preview = (() => {
 
     return `
       <div class="dmc-quotation-doc doc-quotation-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, pkg.title || 'PACKAGE TOUR', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, pkg.title || 'PACKAGE TOUR', pkg.quoteRef, comp)}
 
         <!-- 3 Stat Cards Matching Reference PDF -->
         <div class="dmc-stats-grid">
@@ -537,7 +538,7 @@ const Preview = (() => {
           </section>
         ` : renderOfficesSection(offices)}
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -550,6 +551,7 @@ const Preview = (() => {
     const hotels = data.hotels || [];
     const footer = data.footerSettings || {};
     const offices = data.offices || [];
+    const comp = data.company || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const themeStyles = getThemeStyles(data.themeSettings);
 
     const totalINR = hotels.reduce((sum, h) => sum + (Number(h.amountINR) || 0), 0);
@@ -557,7 +559,7 @@ const Preview = (() => {
 
     return `
       <div class="dmc-quotation-doc doc-hotel-costing-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, 'HOTEL COSTING & COMPARISON', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, 'HOTEL COSTING & COMPARISON', pkg.quoteRef, comp)}
 
         <!-- Hotel Overview Parameter Strip -->
         <div class="hotel-overview-strip">
@@ -635,7 +637,7 @@ const Preview = (() => {
         <!-- Terms & Global Desks -->
         ${renderOfficesSection(offices)}
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -649,6 +651,7 @@ const Preview = (() => {
     const customSections = data.customSections || [];
     const footer = data.footerSettings || {};
     const offices = data.offices || [];
+    const comp = data.company || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const themeStyles = getThemeStyles(data.themeSettings);
 
     const isDomestic = isDomesticTrip(pkg);
@@ -656,7 +659,7 @@ const Preview = (() => {
 
     return `
       <div class="dmc-quotation-doc doc-summary-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, 'PACKAGE EXECUTIVE SUMMARY', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, 'PACKAGE EXECUTIVE SUMMARY', pkg.quoteRef, comp)}
 
         <!-- Executive Trip Overview Grid -->
         <section class="dmc-section summary-overview-section">
@@ -718,7 +721,7 @@ const Preview = (() => {
         <!-- Global Desks & Contact -->
         ${renderOfficesSection(offices)}
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -1195,11 +1198,12 @@ const Preview = (() => {
     const summary = data.summary || { items: [], totalINR: 0, totalUSD: 0 };
     const offices = data.offices || [];
     const footer = data.footerSettings || {};
+    const comp = data.company || pkg.company || ((typeof QuotationData !== 'undefined' && QuotationData.company) ? QuotationData.company : {});
     const themeStyles = getThemeStyles(data.themeSettings);
 
     return `
       <div class="dmc-quotation-doc doc-custom-mode ${isForPrint ? 'is-print-mode' : ''}" style="${themeStyles}">
-        ${renderBrandHeader(pkg, customDoc.title || 'CUSTOM TRAVEL DOCUMENT', pkg.quoteRef)}
+        ${renderBrandHeader(pkg, customDoc.title || 'CUSTOM TRAVEL DOCUMENT', pkg.quoteRef, comp)}
 
         <!-- Dynamic Modular Section Loop -->
         <div class="custom-sections-flow">
@@ -1215,7 +1219,7 @@ const Preview = (() => {
           `).join('')}
         </div>
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -1643,7 +1647,7 @@ const Preview = (() => {
           </ul>
         </div>
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }
@@ -1903,7 +1907,7 @@ const Preview = (() => {
           </ul>
         </div>
 
-        ${renderContinuousFooter(footer)}
+        ${renderContinuousFooter(footer, comp)}
       </div>
     `;
   }

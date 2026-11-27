@@ -1,0 +1,229 @@
+[
+  {
+    "id": "pkg-maldives-aanay-7options",
+    "title": "7 Luxury Maldives Resort Options - Aanay Tours",
+    "destination": "Maldives",
+    "duration": "3 Nights / 4 Days",
+    "price": 5659.28,
+    "currency": "USD",
+    "currencySymbol": "$",
+    "markupPercent": 18,
+    "company": {
+      "name": "Aanay Tours",
+      "phone": "+91 7708123187 | +91 8007586871",
+      "email": "Infoattdmc@gmail.com",
+      "logo": "images/extracted_anay/page_0_1_Image2.jpg",
+      "address": "Sahakar Nagar Opp New Cotton Market, Amravati, Maharashtra, India, 444603"
+    },
+    "hotels": [
+      {
+        "name": "Seaside Finolhu Baa Atoll Maldives 5⭐️",
+        "city": "Maldives",
+        "checkIn": "10th December",
+        "checkOut": "13 Dec 2026",
+        "nights": 3,
+        "roomType": "Lagoon Villa",
+        "starRating": "5 Star",
+        "mealPlan": "All Inclusive (AI)",
+        "amountINR": 495187,
+        "amountUSD": 5659.28,
+        "pax": 2,
+        "transfers": "Return Shared Seaplane Transfers"
+      },
+      {
+        "name": "Kudadoo Maldives Private Island 5",
+        "city": "Maldives",
+        "checkIn": "8 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Ocean Private Pool Residence Single Bedroom",
+        "starRating": "5 Star",
+        "mealPlan": "All Inclusive (AI)",
+        "amountINR": 798887,
+        "amountUSD": 9130.14,
+        "pax": 2,
+        "transfers": "Return Shared Seaplane Transfers"
+      },
+      {
+        "name": "Hurawalhi Island Resort 5",
+        "city": "Maldives",
+        "checkIn": "8 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Ocean Villa",
+        "starRating": "5 Star",
+        "mealPlan": "All Inclusive (AI)",
+        "amountINR": 392320,
+        "amountUSD": 4483.66,
+        "pax": 2,
+        "transfers": "Return Shared Seaplane Transfers"
+      },
+      {
+        "name": "Veligandu Island Resort & Spa 5",
+        "city": "Maldives",
+        "checkIn": "8 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Sunset Ocean Villa",
+        "starRating": "5 Star",
+        "mealPlan": "All Inclusive (AI)",
+        "amountINR": 393694,
+        "amountUSD": 4499.36,
+        "pax": 2,
+        "transfers": "Return Shared Seaplane Transfers"
+      },
+      {
+        "name": "Niyama Private Islands Maldives 5",
+        "city": "Maldives",
+        "checkIn": "8 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Water Villa with Pool",
+        "starRating": "5 Star",
+        "mealPlan": "All Inclusive (AI)",
+        "amountINR": 906067,
+        "amountUSD": 10355.05,
+        "pax": 2,
+        "transfers": "Return Shared Domestic Flight & Speedboat Transfers"
+      },
+      {
+        "name": "Villa Nautica Paradise Island 5",
+        "city": "Maldives",
+        "checkIn": "08 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Water Villa",
+        "starRating": "5 Star",
+        "mealPlan": "Full Board (FB)",
+        "amountINR": 181307,
+        "amountUSD": 2072.08,
+        "pax": 2,
+        "transfers": "Return Shared Speedboat Transfers"
+      },
+      {
+        "name": "Adaaran Select Hudhuranfushi",
+        "city": "Maldives",
+        "checkIn": "08 Dec 2026",
+        "checkOut": "10 Dec 2026",
+        "nights": 2,
+        "roomType": "Sunrise Ocean Villa",
+        "starRating": "5 Star",
+        "mealPlan": "Premium All Inclusive (Premium AI)",
+        "amountINR": 161070,
+        "amountUSD": 1840.8,
+        "pax": 2,
+        "transfers": "Return Shared Speedboat Transfers"
+      }
+    ],
+    "pricingRows": [
+      {
+        "description": "Option 1: Seaside Finolhu Baa Atoll Maldives 5⭐️ (3N Lagoon Villa, All Inclusive (AI), Return Shared Seaplane Transfers) [Includes +18% Markup]",
+        "rate": 5659.28,
+        "rateDouble": 5659.28,
+        "rateUSD": 5659.28,
+        "rateINR": 495187,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 2: Kudadoo Maldives Private Island 5 (2N Ocean Private Pool Residence Single Bedroom, All Inclusive (AI), Return Shared Seaplane Transfers) [Includes +18% Markup]",
+        "rate": 9130.14,
+        "rateDouble": 9130.14,
+        "rateUSD": 9130.14,
+        "rateINR": 798887,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 3: Hurawalhi Island Resort 5 (2N Ocean Villa, All Inclusive (AI), Return Shared Seaplane Transfers) [Includes +18% Markup]",
+        "rate": 4483.66,
+        "rateDouble": 4483.66,
+        "rateUSD": 4483.66,
+        "rateINR": 392320,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 4: Veligandu Island Resort & Spa 5 (2N Sunset Ocean Villa, All Inclusive (AI), Return Shared Seaplane Transfers) [Includes +18% Markup]",
+        "rate": 4499.36,
+        "rateDouble": 4499.36,
+        "rateUSD": 4499.36,
+        "rateINR": 393694,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 5: Niyama Private Islands Maldives 5 (2N Water Villa with Pool, All Inclusive (AI), Return Shared Domestic Flight & Speedboat Transfers) [Includes +18% Markup]",
+        "rate": 10355.05,
+        "rateDouble": 10355.05,
+        "rateUSD": 10355.05,
+        "rateINR": 906067,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 6: Villa Nautica Paradise Island 5 (2N Water Villa, Full Board (FB), Return Shared Speedboat Transfers) [Includes +18% Markup]",
+        "rate": 2072.08,
+        "rateDouble": 2072.08,
+        "rateUSD": 2072.08,
+        "rateINR": 181307,
+        "currency": "USD"
+      },
+      {
+        "description": "Option 7: Adaaran Select Hudhuranfushi (2N Sunrise Ocean Villa, Premium All Inclusive (Premium AI), Return Shared Speedboat Transfers) [Includes +18% Markup]",
+        "rate": 1840.8,
+        "rateDouble": 1840.8,
+        "rateUSD": 1840.8,
+        "rateINR": 161070,
+        "currency": "USD"
+      }
+    ],
+    "summaryItems": [
+      {
+        "name": "Option 1: Seaside Finolhu Baa Atoll Maldives 5⭐️ · 3N Lagoon Villa (All Inclusive (AI)) for 2 Adults",
+        "amountUSD": 5659.28,
+        "amountINR": 495187
+      },
+      {
+        "name": "Option 2: Kudadoo Maldives Private Island 5 · 2N Ocean Private Pool Residence Single Bedroom (All Inclusive (AI)) for 2 Adults",
+        "amountUSD": 9130.14,
+        "amountINR": 798887
+      },
+      {
+        "name": "Option 3: Hurawalhi Island Resort 5 · 2N Ocean Villa (All Inclusive (AI)) for 2 Adults",
+        "amountUSD": 4483.66,
+        "amountINR": 392320
+      },
+      {
+        "name": "Option 4: Veligandu Island Resort & Spa 5 · 2N Sunset Ocean Villa (All Inclusive (AI)) for 2 Adults",
+        "amountUSD": 4499.36,
+        "amountINR": 393694
+      },
+      {
+        "name": "Option 5: Niyama Private Islands Maldives 5 · 2N Water Villa with Pool (All Inclusive (AI)) for 2 Adults",
+        "amountUSD": 10355.05,
+        "amountINR": 906067
+      },
+      {
+        "name": "Option 6: Villa Nautica Paradise Island 5 · 2N Water Villa (Full Board (FB)) for 2 Adults",
+        "amountUSD": 2072.08,
+        "amountINR": 181307
+      },
+      {
+        "name": "Option 7: Adaaran Select Hudhuranfushi · 2N Sunrise Ocean Villa (Premium All Inclusive (Premium AI)) for 2 Adults",
+        "amountUSD": 1840.8,
+        "amountINR": 161070
+      }
+    ],
+    "inclusions": [
+      "Return shared seaplane transfers for two guests per villa.",
+      "One complimentary Shisha in Beach Club, during the stay.",
+      "One-time Lucky Dolphin Cruise during the stay (subject to weather conditions).",
+      "Complimentary use of non-motorised water equipment.",
+      "Enhance your breakfast experience to a Floating Breakfast at USD 45 net per tray in all our Pool Villas.",
+      "Enjoy 30 minutes spa treatment for two guests in one-bedroom villa at USD 105 and for four guests in two-bedroom villa at USD 210"
+    ],
+    "exclusions": [
+      "International air tickets to and from Male (Velana International Airport)",
+      "Personal expenses (laundry, telephone calls, minibar, optional dining excursions)",
+      "Travel and medical insurance (strongly recommended)",
+      "Early check-in and late check-out fees (subject to resort availability)"
+    ],
+    "created": "2026-11-27T06:31:40.009Z"
+  }
+]
