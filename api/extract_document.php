@@ -119,6 +119,35 @@ if (!$outputJson && $scriptPath && file_exists($scriptPath)) {
     }
 }
 
+// 2b. Native Standalone Image Handler (PNG, JPG, JPEG, WEBP, GIF)
+if (!$outputJson && in_array($ext, ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'])) {
+    $safeName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $originalName);
+    $dest = $assetsDir . DIRECTORY_SEPARATOR . $safeName;
+    @copy($inputFilePath, $dest);
+    $imgInfo = @getimagesize($inputFilePath);
+    $w = $imgInfo[0] ?? 800;
+    $h = $imgInfo[1] ?? 600;
+    $webUrl = $webPrefix . '/' . $safeName;
+    $outputJson = [
+        'success' => true,
+        'format' => $ext,
+        'file_name' => $originalName,
+        'total_images' => 1,
+        'images' => [[
+            'name' => $originalName,
+            'local_path' => $dest,
+            'web_path' => $webUrl,
+            'size_bytes' => @filesize($inputFilePath) ?: 0,
+            'width' => $w,
+            'height' => $h,
+            'is_logo' => (stripos($originalName, 'logo') !== false),
+            'page' => 1
+        ]],
+        'tables' => [],
+        'full_text' => "[Image Document: {$originalName}]"
+    ];
+}
+
 // 2. Native PHP ZipArchive Fallback (for DOCX if Python unavailable)
 $ext = strtolower(pathinfo($inputFilePath, PATHINFO_EXTENSION));
 if (!$outputJson && ($ext === 'docx' || $ext === 'doc') && class_exists('ZipArchive')) {

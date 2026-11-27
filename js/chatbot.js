@@ -207,19 +207,32 @@ const Chatbot = (() => {
       const name = att.name || 'Document';
       const lower = name.toLowerCase();
       const isDocx = lower.endsWith('.docx') || lower.endsWith('.doc') || lower.includes('docx') || lower.includes('word');
-      const isPdf = lower.endsWith('.pdf') || (!isDocx && !att.mimeType?.startsWith('image/'));
-      const extBadge = isDocx ? 'DOCX' : (isPdf ? 'PDF' : 'FILE');
-      const badgeClass = isDocx ? 'docx-badge' : 'pdf-badge';
-      const cardClass = isDocx ? 'docx-card' : 'pdf-card';
+      const isImg = lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp') || lower.endsWith('.gif') || lower.endsWith('.bmp') || (att.mimeType || '').startsWith('image/');
+      const isExcel = lower.endsWith('.xlsx') || lower.endsWith('.xls') || lower.endsWith('.csv');
+      const isPdf = lower.endsWith('.pdf') || (!isDocx && !isImg && !isExcel);
 
-      const previewArea = isDocx
-        ? `<div class="docx-big-icon">W</div>`
-        : `<div class="pdf-page-miniature">
+      const extBadge = isDocx ? 'DOCX' : (isExcel ? 'XLSX' : (isImg ? (lower.split('.').pop().toUpperCase() || 'IMG') : (isPdf ? 'PDF' : 'FILE')));
+      const badgeClass = isDocx ? 'docx-badge' : (isExcel ? 'excel-badge' : (isImg ? 'img-badge' : 'pdf-badge'));
+      const cardClass = isDocx ? 'docx-card' : (isExcel ? 'excel-card' : (isImg ? 'img-card' : 'pdf-card'));
+
+      let previewArea = '';
+      if (isDocx) {
+        previewArea = `<div class="docx-big-icon">W</div>`;
+      } else if (isExcel) {
+        previewArea = `<div class="docx-big-icon" style="background:#059669; color:#FFFFFF;">X</div>`;
+      } else if (isImg) {
+        const thumbSrc = att.thumbnail || att.base64;
+        previewArea = thumbSrc
+          ? `<img src="${thumbSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" alt="preview" />`
+          : `<div style="font-size:22px; text-align:center; line-height:46px;">🖼️</div>`;
+      } else {
+        previewArea = `<div class="pdf-page-miniature">
                 <div class="pdf-mini-header"></div>
                 <div class="pdf-mini-line"></div>
                 <div class="pdf-mini-line"></div>
                 <div class="pdf-mini-line short"></div>
               </div>`;
+      }
 
       const removeBtn = isRemovable
         ? `<button type="button" class="claude-card-remove-btn" data-id="${att.id}" title="Remove file">✕</button>`
@@ -286,12 +299,19 @@ const Chatbot = (() => {
     if (!file) return;
 
     const fileId = 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    const isImageFile = file.type?.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(file.name);
+    let instantThumb = '';
+    if (isImageFile) {
+      try { instantThumb = URL.createObjectURL(file); } catch (e) { }
+    }
+
     const attObj = {
       id: fileId,
       name: file.name,
       size: file.size,
-      mimeType: file.type || 'application/pdf',
+      mimeType: file.type || (isImageFile ? 'image/jpeg' : 'application/pdf'),
       base64: null,
+      thumbnail: instantThumb,
       extractedText: '',
       serverPath: '',
       pageCount: 1,
@@ -571,6 +591,29 @@ const Chatbot = (() => {
         const dt = e.dataTransfer;
         if (dt && dt.files && dt.files.length > 0) {
           await processIncomingFiles(dt.files);
+        }
+      });
+    }
+
+    // Screenshot / Clipboard Paste (Ctrl+V) handler
+    const chatInputElem = $('chatInput');
+    if (chatInputElem) {
+      chatInputElem.addEventListener('paste', async (e) => {
+        const items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        const pastedFiles = [];
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type && items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            if (blob) {
+              const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+              const file = new File([blob], `Pasted_Screenshot_${Date.now()}.${ext}`, { type: blob.type });
+              pastedFiles.push(file);
+            }
+          }
+        }
+        if (pastedFiles.length > 0) {
+          await processIncomingFiles(pastedFiles);
         }
       });
     }

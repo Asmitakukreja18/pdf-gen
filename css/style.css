@@ -5663,6 +5663,16 @@ p {
   border-color: #334155;
 }
 
+.claude-file-card.img-card {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.claude-file-card.excel-card {
+  background: #064E3B;
+  border-color: #059669;
+}
+
 .claude-card-remove-btn {
   position: absolute;
   top: 5px;
@@ -5771,6 +5781,16 @@ p {
 .file-card-badge.pdf-badge {
   background: #334155;
   color: #E2E8F0;
+}
+
+.file-card-badge.img-badge {
+  background: #78350F;
+  color: #FDE68A;
+}
+
+.file-card-badge.excel-badge {
+  background: #065F46;
+  color: #A7F3D0;
 }
 
 /* ─── CLAUDE-STYLE COLLAPSIBLE SIDEBAR IN STUDIO ─── */
