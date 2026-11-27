@@ -132,14 +132,24 @@ const THEME_PRESETS = {
 // ─── MASTER REFERENCE SAMPLE: 12-DAY THAILAND ITINERARY ────────────────────────
 const DEMO_REFERENCE_THAILAND_12D = {
   activeDocType: 'quotation',
+  company: {
+    name: "Let's Explore DMC",
+    phone: "+91 80075 86881",
+    email: "info@letsexploredmc.com",
+    tagline: "Capturing Your Dreams · Your Destination Management Specialist",
+    website: "www.letsexploredmc.com",
+    instagram: "@lets_exploredmc",
+    logo: "images/logo.png"
+  },
   package: {
     title: 'PACKAGE TOUR',
     duration: '12 Days / 11 Nights',
     destinations: 'Krabi + Phuket + Koh Yao Yai, Thailand',
     travellers: '2 Adults',
     paxCount: 2,
-    clientName: 'Package for 2 pax',
-    clientContact: '+91 80075 86881',
+    clientName: 'Romford Holidays',
+    clientContact: '+91 9072222451',
+    clientPhone: '+91 9072222451',
     clientEmail: 'info@letsexploredmc.com',
     pickupFrom: 'Phuket / Krabi Airport',
     quoteRef: 'LE-DMC-THAI-2027-112',

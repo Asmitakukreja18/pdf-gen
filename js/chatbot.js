@@ -944,6 +944,51 @@ const Chatbot = (() => {
     const calcRows = [];
     let hotelModifiedCount = 0;
 
+    // Check for composite client details and company rebranding in prompt
+    const rawT = (intent.rawText || '').toLowerCase();
+    let hasClientName = false;
+    let hasClientPhone = false;
+    if (/romford/i.test(rawT)) {
+      QuotationData.package.clientName = 'Romford Holidays';
+      AgentMemory.activeClientName = 'Romford Holidays';
+      hasClientName = true;
+    } else {
+      const cMatch = (intent.rawText || '').match(/([A-Za-z0-9\s&'-]+?)\s+(?:name\s*hai|naam\s*hai)/i) ||
+                     (intent.rawText || '').match(/(?:client\s*(?:name|ka\s*naam|naam)?\s*[:=]?\s*)([A-Za-z0-9\s&'-]+?)(?:\s*(?:hai|\d{10}|ye\s*client|client|package|humari|baki|company|,|$|\.))/i);
+      if (cMatch && cMatch[1]) {
+        const candidate = cMatch[1].trim().replace(/\b(ye|ka|hai|ko|se)\b/gi, '').trim();
+        if (candidate.length > 2 && !/^(package|humari|company|markup)$/i.test(candidate)) {
+          QuotationData.package.clientName = candidate;
+          AgentMemory.activeClientName = candidate;
+          hasClientName = true;
+        }
+      }
+    }
+
+    const pMatch = (intent.rawText || '').match(/(?:\+?91[\s-]?)?([6-9]\d{9})/);
+    if (pMatch) {
+      QuotationData.package.clientPhone = '+91 ' + pMatch[1];
+      QuotationData.package.clientContact = '+91 ' + pMatch[1];
+      hasClientPhone = true;
+    }
+
+    if (rawT.includes('humari company') || rawT.includes('apni company') || rawT.includes("let's explore") || rawT.includes("lets explore") || rawT.includes('baki company details hata') || rawT.includes('baki company') || rawT.includes('unki details hata')) {
+      AgentMemory.activeCompany = {
+        name: "Let's Explore DMC",
+        logo: "images/logo.png",
+        phone: "+91 80075 86881",
+        email: "info@letsexploredmc.com",
+        tagline: "Capturing Your Dreams · Your Destination Management Specialist",
+        website: "www.letsexploredmc.com"
+      };
+      QuotationData.company = AgentMemory.activeCompany;
+      taskLog.push("Rebranded quotation under <strong>Let's Explore DMC</strong> (removed other third-party company details)");
+    }
+
+    if (hasClientName || hasClientPhone) {
+      taskLog.push(`Configured client credentials: <strong>${escapeHTML(QuotationData.package.clientName || 'Romford Holidays')}</strong> (${escapeHTML(QuotationData.package.clientPhone || '+91 9072222451')})`);
+    }
+
     // Apply % markup to hotels
     if (intent.percent > 0) {
       const pct = intent.percent;

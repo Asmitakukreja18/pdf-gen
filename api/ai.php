@@ -918,6 +918,55 @@ function modifyExistingQuotation($curr, $prompt, $userRates = null) {
     $updated = $curr;
     $notes = [];
 
+    // 0. Detect Client Details & Company Branding Directives
+    $clientName = null;
+    if (preg_match('/romford\s*holidays/i', $p) || preg_match('/romford/i', $p)) {
+        $clientName = 'Romford Holidays';
+    } elseif (preg_match('/([a-z0-9\s&\'\-]+?)\s+(?:name\s*hai|naam\s*hai)/i', $prompt, $cnm)) {
+        $clientName = trim($cnm[1]);
+    } elseif (preg_match('/client\s*(?:name|ka\s*naam|naam)?\s*[:=]?\s*([a-z0-9\s&\'\-]+?)(?:\s*(?:hai|\d{10}|ye\s*client|package|humari|baki|company|,|$|\.))/i', $prompt, $cnm)) {
+        $clientName = trim($cnm[1]);
+    }
+    if (!empty($clientName)) {
+        if (!isset($updated['client']) || !is_array($updated['client'])) $updated['client'] = [];
+        $updated['client']['name'] = $clientName;
+        if (isset($updated['package'])) {
+            $updated['package']['clientName'] = $clientName;
+            $updated['package']['customerName'] = $clientName;
+        }
+        if (isset($updated['invoice']['billTo'])) $updated['invoice']['billTo']['name'] = $clientName;
+        if (isset($updated['confirmation'])) $updated['confirmation']['guestName'] = $clientName;
+        $notes[] = "Client set to {$clientName}";
+    }
+
+    if (preg_match('/(?:\+?91[\s\-]?)?([6-9]\d{9})/', $prompt, $phm)) {
+        $clientPhone = '+91 ' . $phm[1];
+        if (!isset($updated['client']) || !is_array($updated['client'])) $updated['client'] = [];
+        $updated['client']['phone'] = $clientPhone;
+        $updated['client']['mobile'] = $clientPhone;
+        if (isset($updated['package'])) {
+            $updated['package']['clientPhone'] = $clientPhone;
+            $updated['package']['clientContact'] = $clientPhone;
+        }
+        if (isset($updated['invoice']['billTo'])) $updated['invoice']['billTo']['phone'] = $clientPhone;
+        if (isset($updated['confirmation'])) $updated['confirmation']['phone'] = $clientPhone;
+        $notes[] = "Client phone set to {$clientPhone}";
+    }
+
+    $isOurCompany = (bool)preg_match('/humari\s*company|apni\s*company|our\s*company|let\'?s\s*explore|baki\s*company\s*details\s*hata|unki\s*details\s*hata|dusri\s*company\s*hata/i', $p);
+    if ($isOurCompany) {
+        $updated['company'] = [
+            'name' => "Let's Explore DMC",
+            'phone' => "+91 80075 86881",
+            'email' => "info@letsexploredmc.com",
+            'tagline' => "Capturing Your Dreams · Your Destination Management Specialist",
+            'website' => "www.letsexploredmc.com",
+            'instagram' => "@lets_exploredmc",
+            'logo' => "images/logo.png"
+        ];
+        $notes[] = "Company rebranded to Let's Explore DMC (third-party details removed)";
+    }
+
     // 1. Detect Multiplier (Double, Triple, Half, Specific percentage or factor)
     $multiplier = 1.0;
     if (preg_match('/double\s*means\s*(\d+)\s*ka\s*(\d+)/i', $prompt, $dm)) {
@@ -932,10 +981,10 @@ function modifyExistingQuotation($curr, $prompt, $userRates = null) {
     } elseif (preg_match('/half|adha|1\/2|0\.5x/i', $p)) {
         $multiplier = 0.5;
         $notes[] = "All rates reduced to half (50%)";
-    } elseif (preg_match('/(\\d+)%\\s*(badha|increase|markup|add)/i', $p, $pctM)) {
+    } elseif (preg_match('/(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)\\s*(?:ka\\s*)?(?:badha|increase|markup|add|margin|profit)?/i', $p, $pctM) || preg_match('/(?:markup|margin)\s*(?:of|\:|\s|ka)?\s*(\\d+(?:\\.\\d+)?)\\s*(?:%|percent)?/i', $p, $pctM)) {
         $pct = floatval($pctM[1]);
         $multiplier = 1.0 + ($pct / 100.0);
-        $notes[] = "Prices increased by {$pct}%";
+        $notes[] = "Prices increased by {$pct}% markup";
     }
 
     // 2. Detect Decoration Request
