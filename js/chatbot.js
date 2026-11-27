@@ -352,6 +352,30 @@ const Chatbot = (() => {
         }
       }
 
+      // 3.1 Extract Excel worksheets via SheetJS (XLSX, XLS, CSV)
+      if (/\.(xlsx|xls|csv)$/i.test(file.name) && typeof XLSX !== 'undefined') {
+        try {
+          const ab = await file.arrayBuffer();
+          const workbook = XLSX.read(ab, { type: 'array', cellDates: true, cellNF: true });
+          const sheetNames = workbook.SheetNames || [];
+          attObj.pageCount = sheetNames.length;
+          let fullText = `--- EXCEL WORKBOOK: ${file.name} (${sheetNames.length} Sheets) ---\n`;
+          let totalRows = 0;
+          for (const sName of sheetNames) {
+            const worksheet = workbook.Sheets[sName];
+            if (!worksheet) continue;
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+            if (!rows || rows.length === 0) continue;
+            totalRows += rows.length;
+            fullText += `\n=== WORKSHEET: ${sName} (${rows.length} rows) ===\n`;
+            fullText += rows.map(r => Array.isArray(r) ? '| ' + r.join(' | ') + ' |' : String(r)).join('\n') + '\n';
+          }
+          attObj.extractedText = fullText.trim();
+        } catch (xlErr) {
+          console.warn('SheetJS extraction notice in chatbot.js:', xlErr);
+        }
+      }
+
       attObj.status = 'ready';
       renderAttachmentBadges();
 
@@ -870,6 +894,9 @@ const Chatbot = (() => {
 
     // Recalculate totals
     setTyping(true, '📋 Validating and synchronizing document...', 'Updating grand total, Live Preview and database...');
+    if (typeof FinancialEngine !== 'undefined') {
+      try { FinancialEngine.validateAndComputeQuotation(QuotationData); } catch (fe) { }
+    }
     recalculateQuotationPricing();
 
     if (typeof App !== 'undefined') {
@@ -1165,6 +1192,9 @@ const Chatbot = (() => {
       totalUSD: landUSD
     };
 
+    if (typeof FinancialEngine !== 'undefined') {
+      try { FinancialEngine.validateAndComputeQuotation(QuotationData); } catch (fe) { }
+    }
     recalculateQuotationPricing();
     if (typeof App !== 'undefined') {
       if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
@@ -1203,6 +1233,9 @@ const Chatbot = (() => {
       }
     }
 
+    if (typeof FinancialEngine !== 'undefined') {
+      try { FinancialEngine.validateAndComputeQuotation(QuotationData); } catch (fe) { }
+    }
     recalculateQuotationPricing();
     if (typeof App !== 'undefined') {
       if (typeof App.renderHotelsEditor === 'function') App.renderHotelsEditor();
@@ -1437,6 +1470,9 @@ const Chatbot = (() => {
     if (extracted.invoice) Object.assign(QuotationData.invoice || {}, extracted.invoice);
     if (extracted.confirmation) Object.assign(QuotationData.confirmation || {}, extracted.confirmation);
 
+    if (typeof FinancialEngine !== 'undefined') {
+      try { FinancialEngine.validateAndComputeQuotation(QuotationData); } catch (fe) { }
+    }
     recalculateQuotationPricing();
 
     if (typeof App !== 'undefined') {
