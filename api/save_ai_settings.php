@@ -54,6 +54,8 @@ if ($reqMethod === 'GET') {
     $geminiKey = $settings['gemini_api_key'] ?? '';
     $docAiKey  = $settings['document_ai_api_key'] ?? '';
     $forexKey  = $settings['exchangerate_api_key'] ?? '';
+    $waToken   = $settings['whatsapp_access_token'] ?? '';
+    $waPhoneId = $settings['whatsapp_phone_number_id'] ?? '';
 
     echo json_encode([
         'success' => true,
@@ -65,6 +67,13 @@ if ($reqMethod === 'GET') {
         'has_gemini_key' => (!empty($geminiKey) && strpos($geminiKey, 'YOUR_') === false),
         'gemini_key_masked' => $maskSecret($geminiKey),
         'default_provider' => $settings['default_provider'] ?? 'claude',
+        'whatsapp' => [
+            'configured' => (!empty($waToken) && !empty($waPhoneId)),
+            'phone_number_id' => $waPhoneId,
+            'has_token' => (!empty($waToken) && strpos($waToken, 'YOUR_') === false),
+            'token_masked' => $maskSecret($waToken),
+            'waba_id' => $settings['whatsapp_business_account_id'] ?? ''
+        ],
         'document_ai' => [
             'enabled' => !empty($settings['document_ai_enabled']),
             'project_id' => $settings['document_ai_project_id'] ?? '',
@@ -78,7 +87,7 @@ if ($reqMethod === 'GET') {
             'key_masked' => $maskSecret($forexKey)
         ],
         'integrations_status' => [
-            'whatsapp_configured' => !empty($settings['whatsapp_access_token']),
+            'whatsapp_configured' => (!empty($waToken) && !empty($waPhoneId)),
             'brevo_configured' => !empty($settings['brevo_api_key']),
             'google_maps_configured' => !empty($settings['google_maps_api_key'])
         ]
@@ -200,6 +209,47 @@ if ($reqMethod === 'POST') {
             } else {
                 $msg = $json['error']['message'] ?? "HTTP $code";
                 echo json_encode(['success' => false, 'error' => 'Gemini test failed: ' . $msg]);
+            }
+            exit;
+        }
+
+        if ($provider === 'whatsapp') {
+            $waPhoneId = !empty($input['whatsapp_phone_number_id']) ? trim($input['whatsapp_phone_number_id']) : ($existing['whatsapp_phone_number_id'] ?? '');
+            $waToken   = !empty($input['key']) ? trim($input['key']) : ($existing['whatsapp_access_token'] ?? '');
+
+            if (empty($waToken) || empty($waPhoneId)) {
+                echo json_encode(['success' => false, 'error' => 'Please provide both WhatsApp Access Token and Phone Number ID to test.']);
+                exit;
+            }
+
+            // Verify with Meta Graph API
+            $ch = curl_init("https://graph.facebook.com/v21.0/" . urlencode($waPhoneId) . "?fields=verified_name,display_phone_number,quality_rating");
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $waToken],
+                CURLOPT_TIMEOUT => 12,
+                CURLOPT_SSL_VERIFYPEER => true
+            ]);
+            $res = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $err = curl_error($ch);
+            curl_close($ch);
+
+            if ($err) {
+                echo json_encode(['success' => false, 'error' => 'Connection error: ' . $err]);
+                exit;
+            }
+
+            $json = json_decode($res, true);
+            if ($code >= 200 && $code < 300) {
+                $displayName = $json['verified_name'] ?? ($json['display_phone_number'] ?? 'WhatsApp Business Account');
+                echo json_encode([
+                    'success' => true,
+                    'message' => "WhatsApp Cloud API connection verified! Account: $displayName"
+                ]);
+            } else {
+                $msg = $json['error']['message'] ?? "Meta API HTTP $code verification failed";
+                echo json_encode(['success' => false, 'error' => 'WhatsApp test failed: ' . $msg]);
             }
             exit;
         }

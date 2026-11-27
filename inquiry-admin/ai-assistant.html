@@ -1178,6 +1178,40 @@
                     </select>
                 </div>
 
+                <!-- WHATSAPP CLOUD API (META OFFICIAL) -->
+                <div style="border-top:1px solid #E2E8F0; padding-top:12px; margin-top:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="font-size:12px; font-weight:700; color:#065F46; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-brands fa-whatsapp" style="color:#10B981; font-size:15px;"></i> WhatsApp Cloud API (Meta Official):
+                        </label>
+                        <span id="waStatusBadge" style="font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; background:#F1F5F9; color:#64748B;">Ready</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:3px;">Phone Number ID:</label>
+                            <input type="text" id="modalWaPhoneId" placeholder="e.g. 104829104928192"
+                                style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; outline:none; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:3px;">WABA ID (Optional):</label>
+                            <input type="text" id="modalWaWabaId" placeholder="Business Account ID"
+                                style="width:100%; padding:8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; outline:none; box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:3px;">System User / Access Token:</label>
+                        <div style="position:relative;">
+                            <input type="password" id="modalWaToken" placeholder="EAA..."
+                                style="width:100%; padding:8px 36px 8px 10px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; outline:none; box-sizing:border-box;">
+                            <button type="button" onclick="toggleApiKeyVisibility('modalWaToken')"
+                                style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#64748B; cursor:pointer;">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <div style="font-size:10.5px; color:#64748B; margin-top:3px;">Dispatches PDF quotations directly to customer WhatsApp via Meta Graph API v21.0.</div>
+                    </div>
+                </div>
+
                 <div id="claudeTestResult"
                     style="display:none; padding:10px 12px; border-radius:6px; font-size:12px; font-weight:600;"></div>
 
@@ -4950,19 +4984,61 @@
 
             async function handleStudioSendSubmit(e) {
                 e.preventDefault();
-                const ch = document.querySelector('input[name="sendChannel"]:checked').value;
-                const phone = document.getElementById('sendPhone').value.replace(/[^0-9]/g, '');
-                const msg = document.getElementById('sendMessageText').value;
-
-                if (ch === 'whatsapp') {
-                    const targetPhone = phone || '919876543210';
-                    const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
-                    window.open(waUrl, '_blank');
-                    alert('Success! Opening WhatsApp dispatch for client.');
-                } else {
-                    alert('Proposal dispatched successfully via email queue!');
+                const btn = document.getElementById('btnSubmitSend');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Dispatching...';
                 }
-                document.getElementById('studioSendNowModal').style.display = 'none';
+
+                const ch = document.querySelector('input[name="sendChannel"]:checked')?.value || 'whatsapp';
+                const phone = document.getElementById('sendPhone')?.value.trim() || '';
+                const email = document.getElementById('sendEmail')?.value.trim() || '';
+                const msg = document.getElementById('sendMessageText')?.value || '';
+                const docRef = (typeof QuotationData !== 'undefined' && QuotationData.package) ? (QuotationData.package.quotationNo || QuotationData.package.packageName) : 'Quotation';
+                const clientName = (typeof QuotationData !== 'undefined' && QuotationData.package) ? (QuotationData.package.clientName || 'Valued Client') : 'Valued Client';
+
+                try {
+                    const payload = {
+                        channel: ch,
+                        recipient_phone: phone,
+                        recipient_email: email,
+                        recipient_name: clientName,
+                        doc_no: docRef,
+                        message: msg
+                    };
+
+                    const res = await fetch('../api/send_document.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+
+                    if (data && data.success) {
+                        if (data.method === 'whatsapp_cloud_api') {
+                            alert(`🎉 WHATSAPP CLOUD API SUCCESS!\n\n${data.message}\nMessage ID: ${data.share_id || 'Delivered'}`);
+                        } else if (data.whatsapp_url) {
+                            window.open(data.whatsapp_url, '_blank');
+                            alert('1-Click WhatsApp window opened for client dispatch!');
+                        } else {
+                            alert(data.message || 'Dispatched successfully!');
+                        }
+                        document.getElementById('studioSendNowModal').style.display = 'none';
+                    } else {
+                        alert('Notice: ' + (data?.error || 'Could not complete dispatch'));
+                    }
+                } catch (err) {
+                    if (ch === 'whatsapp') {
+                        const targetPhone = phone.replace(/[^0-9]/g, '') || '919876543210';
+                        window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                    }
+                    document.getElementById('studioSendNowModal').style.display = 'none';
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = (ch === 'whatsapp') ? '<i class="fa-brands fa-whatsapp"></i> Send via WhatsApp' : '<i class="fa-solid fa-paper-plane"></i> Send via Email';
+                    }
+                }
             }
 
             // CLAUDE AI CONFIGURATION MODAL
@@ -5003,6 +5079,30 @@
                     if (data.default_provider) {
                         const pSel = document.getElementById('modalDefaultProvider');
                         if (pSel) pSel.value = data.default_provider;
+                    }
+
+                    // Populate WhatsApp Cloud API fields
+                    if (data.whatsapp) {
+                        const phoneInp = document.getElementById('modalWaPhoneId');
+                        const tokenInp = document.getElementById('modalWaToken');
+                        const wabaInp = document.getElementById('modalWaWabaId');
+                        const badge = document.getElementById('waStatusBadge');
+
+                        if (phoneInp && data.whatsapp.phone_number_id) phoneInp.value = data.whatsapp.phone_number_id;
+                        if (tokenInp && data.whatsapp.has_token) tokenInp.placeholder = data.whatsapp.token_masked || 'EAA••••••••';
+                        if (wabaInp && data.whatsapp.waba_id) wabaInp.value = data.whatsapp.waba_id;
+
+                        if (badge) {
+                            if (data.whatsapp.configured) {
+                                badge.textContent = 'Active (Meta Cloud API)';
+                                badge.style.background = '#ECFDF5';
+                                badge.style.color = '#065F46';
+                            } else {
+                                badge.textContent = 'Click-to-Chat (Ready)';
+                                badge.style.background = '#F1F5F9';
+                                badge.style.color = '#64748B';
+                            }
+                        }
                     }
                 } catch (e) { }
             }
@@ -5047,8 +5147,6 @@
                 }
             }
 
-
-
             async function saveClaudeSettings(e) {
                 e.preventDefault();
                 const btn = document.getElementById('btnSaveClaudeSettings');
@@ -5056,11 +5154,19 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
                 const claudeKey = document.getElementById('modalClaudeApiKey').value.trim();
+                const waPhoneId = document.getElementById('modalWaPhoneId')?.value.trim() || '';
+                const waToken = document.getElementById('modalWaToken')?.value.trim() || '';
+                const waWabaId = document.getElementById('modalWaWabaId')?.value.trim() || '';
+
                 const payload = {
                     action: 'save',
                     claude_api_key: claudeKey,
                     claude_model: document.getElementById('modalClaudeModel').value,
-                    default_provider: document.getElementById('modalDefaultProvider').value
+                    default_provider: document.getElementById('modalDefaultProvider').value,
+                    whatsapp_phone_number_id: waPhoneId,
+                    whatsapp_access_token: waToken,
+                    whatsapp_business_account_id: waWabaId,
+                    whatsapp_cloud_enabled: (waPhoneId.length > 0)
                 };
 
                 try {
@@ -5077,13 +5183,25 @@
                         localStorage.removeItem('dmc_gemini_api_key');
                     } catch (e) { }
                     document.getElementById('modalClaudeApiKey').value = ''; // Clear plaintext input
+                    if (document.getElementById('modalWaToken')) {
+                        document.getElementById('modalWaToken').value = '';
+                    }
 
                     if (data.success) {
-                        alert('Success! Anthropic Claude settings saved securely to server-only storage.');
+                        alert('Success! AI Engine & WhatsApp Cloud API configuration saved securely.');
                         closeClaudeSettingsModal();
                         checkAiEngineStatus();
                     } else {
                         alert('Error: ' + (data.error || 'Failed to save settings'));
+                    }
+                } catch (err) {
+                    alert('Connection error while saving settings.');
+                    closeClaudeSettingsModal();
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Settings';
+                }
+            }
                     }
                 } catch (err) {
                     alert('Connection error while saving settings.');
