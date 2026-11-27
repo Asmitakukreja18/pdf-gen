@@ -954,8 +954,8 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         return $baseGroup;
     }
 
-    // If prompt mentions aanay tours or hilton voucher
-    if (preg_match('/aanay|hilton|abu\s*dhabi\s*voucher/i', $pLower) || ($requestedDocType === 'hotel_voucher' && preg_match('/aanay|hilton/i', $pLower))) {
+    // If prompt mentions hilton voucher or abu dhabi voucher
+    if (preg_match('/hilton|abu\s*dhabi\s*voucher/i', $pLower) || ($requestedDocType === 'hotel_voucher' && preg_match('/hilton/i', $pLower))) {
         return buildHotelVoucherData('hilton abu dhabi yas island', $userRates);
     }
 
@@ -2033,6 +2033,26 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         ];
     }
 
+    // Ensure each day has a robust items array for Preview day pricing cards
+    foreach ($days as &$d) {
+        if (empty($d['items'])) {
+            $acts = !empty($d['activities']) && is_array($d['activities']) ? $d['activities'] : [$d['title'] ?? 'Scheduled Excursion'];
+            $d['items'] = array_map(function($act) use ($adultCount) {
+                return [
+                    'title' => is_string($act) ? $act : ($act['title'] ?? 'Scheduled Service'),
+                    'subtitle' => 'Scheduled Itinerary Service',
+                    'category' => 'Sightseeing',
+                    'pax' => $adultCount,
+                    'unitPrice' => 0,
+                    'amountUSD' => 0,
+                    'amountINR' => 0,
+                    'tag' => ''
+                ];
+            }, $acts);
+        }
+    }
+    unset($d);
+
     $inclusions = [
         "Private airport arrival and departure transfers in air-conditioned vehicle",
         "{$numNights} Nights accommodation in verified 4★ / 5★ luxury property",
@@ -2081,14 +2101,23 @@ function generateLocalAiQuotation($prompt, $currentQuotation = null, $attachment
         'isDecorationIncluded' => !empty($hasDecoration)
     ];
     $response['days'] = $days;
+    $resolvedHotelName = (strpos($dest, 'Turkey') !== false ? 'Istanbul Revia Square Hotel & Cappadocia Antique House Hotel' : (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : (strpos($dest, 'Dubai') !== false ? 'Sheraton Mall of the Emirates Hotel, Dubai' : (strpos($dest, 'Maldives') !== false ? 'Seaside Finolhu Baa Atoll / Luxury Resort' : 'Grand Luxury 5-Star Hotel & Resort'))));
     $response['hotels'] = [
         [
+            'name' => $resolvedHotelName,
+            'hotelName' => $resolvedHotelName,
             'city' => explode(',', $dest)[0],
-            'hotelName' => (strpos($dest, 'Turkey') !== false ? 'Istanbul Revia Square Hotel & Cappadocia Antique House Hotel' : (strpos($dest, 'Phuket') !== false ? 'Ashlee Plaza Patong & GLOW Ao Nang' : (strpos($dest, 'Dubai') !== false ? 'Sheraton Mall of the Emirates Hotel, Dubai' : 'Grand Luxury 5-Star Hotel & Resort'))),
-            'roomType' => (strpos($dest, 'Turkey') !== false ? 'Double / Triple Room' : 'Superior / Deluxe Pool View Room'),
+            'checkIn' => 'Day 1',
+            'checkOut' => 'Day ' . $numDays,
+            'roomType' => (strpos($dest, 'Turkey') !== false ? 'Double / Triple Room' : (strpos($dest, 'Maldives') !== false ? 'Lagoon Villa / Ocean Villa' : 'Superior / Deluxe Pool View Room')),
             'nights' => $numNights,
-            'mealPlan' => 'Daily Buffet Breakfast Included',
-            'rating' => '4★ / 5★ Deluxe'
+            'pax' => $adultCount,
+            'mealPlan' => (strpos($dest, 'Maldives') !== false ? 'All Inclusive (AI)' : 'Daily Buffet Breakfast Included'),
+            'rating' => '4★ / 5★ Deluxe',
+            'tariffINR' => round($hotelNightly * $hotelNights * $usdRate),
+            'tariffUSD' => round($hotelNightly * $hotelNights),
+            'amountINR' => round($hotelNightly * $hotelNights * $usdRate),
+            'amountUSD' => round($hotelNightly * $hotelNights)
         ]
     ];
     $response['summary'] = [

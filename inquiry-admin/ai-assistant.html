@@ -1274,6 +1274,11 @@
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="../js/config.js?v=12.5"></script>
@@ -3153,13 +3158,59 @@
                 if (destSel) destSel.value = resDoc.destination;
             }
 
-            // 3. Days / Activities sync
+            // CRITICAL: Clean up stale Thailand fields if destination is not Thailand
+            const activeDest = (QuotationData.package?.destinations || resDoc.destination || '').toLowerCase();
+            const isActuallyThailand = /thailand|phuket|krabi|bangkok|pattaya|samui/i.test(activeDest);
+            if (!isActuallyThailand) {
+                if (/thailand/i.test(QuotationData.package?.country || '')) {
+                    QuotationData.package.country = '';
+                }
+                if (/phuket|krabi/i.test(QuotationData.package?.pickupHub || '')) {
+                    QuotationData.package.pickupHub = '';
+                }
+                if (/phuket|krabi/i.test(QuotationData.package?.pickupFrom || '')) {
+                    QuotationData.package.pickupFrom = '';
+                }
+            }
+            if (resDoc.package?._hasExplicitNoClient || resDoc.package?.noClient) {
+                QuotationData.package.clientName = '';
+                QuotationData.package.clientContact = '';
+            }
+
+            // 3. Days / Activities sync (Guarantees valid integers and line items)
             if (Array.isArray(resDoc.days) && resDoc.days.length > 0) {
-                resDoc.days.forEach((d, i) => {
-                    if (!d.dayNumber) d.dayNumber = d.day || (i + 1);
-                    if (!d.day) d.day = d.dayNumber;
+                QuotationData.days = resDoc.days.map((d, i) => {
+                    const rawNum = d.dayNumber != null ? d.dayNumber : (d.day != null ? d.day : null);
+                    const dNum = (rawNum != null && String(rawNum).toLowerCase() !== 'undefined' && String(rawNum).trim() !== '') ? parseInt(rawNum, 10) || (i + 1) : (i + 1);
+                    const items = Array.isArray(d.items) && d.items.length > 0 ? d.items : (Array.isArray(d.activities) && d.activities.length > 0 ? d.activities.map(act => ({
+                        title: typeof act === 'string' ? act : (act.title || 'Scheduled Activity'),
+                        subtitle: 'Service as per Itinerary',
+                        category: 'Sightseeing',
+                        pax: QuotationData.package?.paxCount || 2,
+                        unitPrice: 0,
+                        amountUSD: 0,
+                        amountINR: 0,
+                        tag: ''
+                    })) : [{
+                        title: d.description || d.title || 'Sightseeing & Excursions',
+                        subtitle: 'Scheduled Itinerary Service',
+                        category: 'Sightseeing',
+                        pax: QuotationData.package?.paxCount || 2,
+                        unitPrice: 0,
+                        amountUSD: 0,
+                        amountINR: 0,
+                        tag: ''
+                    }]);
+                    return {
+                        dayNumber: dNum,
+                        day: dNum,
+                        date: d.date || `Day ${dNum}`,
+                        title: d.title || `Day ${dNum} Tour`,
+                        items: items,
+                        hotel: d.hotel || null,
+                        dayNotes: d.dayNotes || d.notes || ''
+                    };
                 });
-                QuotationData.days = resDoc.days;
             }
 
             // 4. Summary & Pricing sync
@@ -3174,15 +3225,32 @@
             if (Array.isArray(resDoc.exclusions) && resDoc.exclusions.length > 0) {
                 QuotationData.exclusions = resDoc.exclusions;
             }
+            // CRITICAL: Synchronize customSections so Preview renders the actual extracted inclusions!
+            QuotationData.customSections = [
+                { id: 'inclusions', title: 'Package Inclusions', items: QuotationData.inclusions || [] },
+                { id: 'exclusions', title: 'Package Exclusions', items: QuotationData.exclusions || [] },
+                { id: 'notes', title: 'Important Quotation Notes', items: resDoc.notes ? resDoc.notes.split('\n') : (QuotationData.notes ? QuotationData.notes.split('\n') : []) }
+            ];
 
             // 5. Company Branding sync
             if (resDoc.company && typeof resDoc.company === 'object') {
                 QuotationData.company = Object.assign(QuotationData.company || {}, resDoc.company);
             }
 
-            // 6. Hotels sync
+            // 6. Hotels sync (Ensures name, checkIn, checkOut, pax are mapped)
             if (Array.isArray(resDoc.hotels) && resDoc.hotels.length > 0) {
-                QuotationData.hotels = resDoc.hotels;
+                QuotationData.hotels = resDoc.hotels.map(h => ({
+                    name: h.name || h.hotelName || h.hotel || 'Selected Property',
+                    city: h.city || resDoc.destination || QuotationData.package?.destinations || 'Destination',
+                    checkIn: h.checkIn || (h.dates ? h.dates.split(/[-–—to]/)[0]?.trim() : 'Day 1'),
+                    checkOut: h.checkOut || (h.dates ? h.dates.split(/[-–—to]/)[1]?.trim() : ''),
+                    nights: h.nights || 2,
+                    roomType: h.roomType || 'Superior / Deluxe Room',
+                    mealPlan: h.mealPlan || 'Buffet Breakfast Included',
+                    amountINR: h.amountINR || 0,
+                    amountUSD: h.amountUSD || 0,
+                    pax: h.pax || QuotationData.package?.paxCount || 2
+                }));
             }
 
             // 6.1 Hotel Voucher (Confirmation) & Billing (Invoice) sync
@@ -5018,6 +5086,9 @@
                 // ── 1. SMART CONDITIONAL OCR FOR PDF (PAGE-BY-PAGE THRESHOLD) ──
                 if (ext === 'pdf' && typeof pdfjsLib !== 'undefined') {
                     try {
+                        if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                        }
                         const arrayBuffer = await file.arrayBuffer();
                         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                         let fullText = '';
@@ -5332,6 +5403,9 @@
                         let thumbUrl = '';
                         if (isPdf && typeof pdfjsLib !== 'undefined') {
                             try {
+                                if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                                }
                                 const arrayBuffer = await file.arrayBuffer();
                                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                                 const page = await pdf.getPage(1);

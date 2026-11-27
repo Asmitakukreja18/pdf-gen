@@ -139,10 +139,11 @@ const Preview = (() => {
    * Helper: Get appropriate default pickup hub based on destination
    */
   function getDefaultPickupHub(pkg = {}) {
-    if (pkg.pickupFrom && !pkg.pickupFrom.toLowerCase().includes('phuket')) {
+    const text = ((pkg.country || '') + ' ' + (pkg.destination || '') + ' ' + (pkg.destinations || '') + ' ' + (pkg.title || '') + ' ' + (pkg.packageTitle || '')).toLowerCase();
+    const isThaiDest = /thailand|phuket|krabi|bangkok|pattaya|samui/i.test(text);
+    if (pkg.pickupFrom && (!/phuket|krabi/i.test(pkg.pickupFrom) || isThaiDest)) {
       return pkg.pickupFrom;
     }
-    const text = ((pkg.country || '') + ' ' + (pkg.destination || '') + ' ' + (pkg.destinations || '') + ' ' + (pkg.title || '') + ' ' + (pkg.packageTitle || '')).toLowerCase();
     if (text.includes('turkey') || text.includes('istanbul')) return 'Istanbul New Airport (IST) / Sabiha Gökçen (SAW)';
     if (text.includes('cappadocia')) return 'Kayseri (ASR) / Nevşehir (NAV) Airport';
     if (text.includes('switzerland') || text.includes('zurich')) return 'Zurich Airport (ZRH) / Train Station';
@@ -260,7 +261,7 @@ const Preview = (() => {
           <div class="dmc-stat-card">
             <span class="stat-card-title">DESTINATIONS</span>
             <div class="stat-card-main">${escapeHTML(pkg.destinations || pkg.destination || 'Custom Destination')}</div>
-            ${pkg.country ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
+            ${(pkg.country && !/thailand/i.test(pkg.country) || (pkg.destinations && /thailand|phuket|krabi|bangkok|pattaya/i.test(pkg.destinations))) ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">TRAVELLERS</span>
@@ -377,7 +378,7 @@ const Preview = (() => {
           <div class="dmc-stat-card">
             <span class="stat-card-title">DESTINATIONS</span>
             <div class="stat-card-main">${escapeHTML(pkg.destinations || pkg.destination || 'Custom Destination')}</div>
-            ${pkg.country ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
+            ${(pkg.country && !/thailand/i.test(pkg.country) || (pkg.destinations && /thailand|phuket|krabi|bangkok|pattaya/i.test(pkg.destinations))) ? `<div class="stat-card-sub">${escapeHTML(pkg.country)}</div>` : ''}
           </div>
           <div class="dmc-stat-card">
             <span class="stat-card-title">TRAVELLERS</span>
@@ -1295,7 +1296,8 @@ const Preview = (() => {
    * Day Pricing Card for Quotation format (4-column grid or 3-column when USD hidden)
    */
   function renderDayPricingCardHTML(day, showUsdColumn = true, idx = 0) {
-    const dayNum = day.dayNumber || day.day || (idx + 1);
+    const rawNum = day.dayNumber != null ? day.dayNumber : (day.day != null ? day.day : null);
+    const dayNum = (rawNum != null && String(rawNum).toLowerCase() !== 'undefined' && String(rawNum).trim() !== '') ? rawNum : (idx + 1);
     const items = day.items || [];
     const hasHotel = day.hotel && day.hotel.name && day.hotel.name.trim() !== '';
 
